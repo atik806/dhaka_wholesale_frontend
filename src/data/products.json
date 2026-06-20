@@ -1,0 +1,824 @@
+[
+  {
+    "id": "elec-001",
+    "name": "Wireless Noise-Canceling Headphones",
+    "category": "Electronics",
+    "price": 249,
+    "originalPrice": 349,
+    "images": [
+      "https://picsum.photos/seed/elec-001-0/600/600",
+      "https://picsum.photos/seed/elec-001-1/600/600",
+      "https://picsum.photos/seed/elec-001-2/600/600"
+    ],
+    "rating": 4.8,
+    "reviewCount": 234,
+    "stock": "in-stock",
+    "description": "Premium wireless headphones with active noise cancellation, 30-hour battery life, and ultra-comfortable memory foam ear cushions. Experience studio-quality sound wherever you go.",
+    "tags": [
+      "wireless",
+      "audio",
+      "noise-canceling"
+    ],
+    "isNew": true,
+    "isFeatured": true,
+    "createdAt": "2025-12-01"
+  },
+  {
+    "id": "elec-002",
+    "name": "Smart Watch Pro",
+    "category": "Electronics",
+    "price": 399,
+    "originalPrice": 499,
+    "images": [
+      "https://picsum.photos/seed/elec-002-0/600/600",
+      "https://picsum.photos/seed/elec-002-1/600/600"
+    ],
+    "rating": 4.6,
+    "reviewCount": 189,
+    "stock": "in-stock",
+    "description": "Advanced smartwatch with health monitoring, GPS tracking, and a stunning always-on AMOLED display. Water-resistant to 50 meters.",
+    "tags": [
+      "wearable",
+      "fitness",
+      "smart"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-11-20"
+  },
+  {
+    "id": "elec-003",
+    "name": "Ultra-Slim Laptop 15",
+    "category": "Electronics",
+    "price": 1299,
+    "originalPrice": 1599,
+    "images": [
+      "https://picsum.photos/seed/elec-003-0/600/600",
+      "https://picsum.photos/seed/elec-003-1/600/600"
+    ],
+    "rating": 4.7,
+    "reviewCount": 156,
+    "stock": "in-stock",
+    "description": "Powerful ultrabook with the latest processor, 16GB RAM, and a brilliant 15.6-inch 4K OLED display. Weighs under 3 pounds.",
+    "tags": [
+      "laptop",
+      "ultrabook",
+      "productivity"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-10-15"
+  },
+  {
+    "id": "elec-004",
+    "name": "Portable Bluetooth Speaker",
+    "category": "Electronics",
+    "price": 79,
+    "originalPrice": 99,
+    "images": [
+      "https://picsum.photos/seed/elec-004-0/600/600",
+      "https://picsum.photos/seed/elec-004-1/600/600"
+    ],
+    "rating": 4.5,
+    "reviewCount": 412,
+    "stock": "in-stock",
+    "description": "Waterproof portable speaker with 360-degree sound, 20-hour battery, and a built-in power bank. Perfect for adventures.",
+    "tags": [
+      "audio",
+      "portable",
+      "waterproof"
+    ],
+    "createdAt": "2025-09-10"
+  },
+  {
+    "id": "elec-005",
+    "name": "Mechanical Keyboard RGB",
+    "category": "Electronics",
+    "price": 149,
+    "images": [
+      "https://picsum.photos/seed/elec-005-0/600/600",
+      "https://picsum.photos/seed/elec-005-1/600/600"
+    ],
+    "rating": 4.4,
+    "reviewCount": 89,
+    "stock": "in-stock",
+    "description": "Hot-swappable mechanical keyboard with per-key RGB, PBT keycaps, and gasket-mounted switches for a satisfying typing experience.",
+    "tags": [
+      "gaming",
+      "typing",
+      "rgb"
+    ],
+    "isNew": true,
+    "createdAt": "2025-12-10"
+  },
+  {
+    "id": "elec-006",
+    "name": "4K Webcam Pro",
+    "category": "Electronics",
+    "price": 199,
+    "originalPrice": 249,
+    "images": [
+      "https://picsum.photos/seed/elec-006-0/600/600"
+    ],
+    "rating": 4.3,
+    "reviewCount": 67,
+    "stock": "low-stock",
+    "description": "Professional 4K webcam with auto-focus, built-in ring light, and AI-powered background blur. Ideal for content creators.",
+    "tags": [
+      "camera",
+      "streaming",
+      "4k"
+    ],
+    "createdAt": "2025-08-20"
+  },
+  {
+    "id": "elec-007",
+    "name": "Wireless Charging Pad",
+    "category": "Electronics",
+    "price": 39,
+    "originalPrice": 49,
+    "images": [
+      "https://picsum.photos/seed/elec-007-0/600/600"
+    ],
+    "rating": 4.2,
+    "reviewCount": 523,
+    "stock": "in-stock",
+    "description": "Fast wireless charger compatible with all Qi devices. Sleek aluminum design with LED indicator and overcharge protection.",
+    "tags": [
+      "charger",
+      "wireless",
+      "accessory"
+    ],
+    "createdAt": "2025-07-15"
+  },
+  {
+    "id": "elec-008",
+    "name": "Tablet Pro 11",
+    "category": "Electronics",
+    "price": 799,
+    "images": [
+      "https://picsum.photos/seed/elec-008-0/600/600",
+      "https://picsum.photos/seed/elec-008-1/600/600"
+    ],
+    "rating": 4.7,
+    "reviewCount": 198,
+    "stock": "in-stock",
+    "description": "Versatile tablet with 11-inch Liquid Retina display, M-series chip, and Apple Pencil support. Perfect for creativity and productivity.",
+    "tags": [
+      "tablet",
+      "creative",
+      "productivity"
+    ],
+    "isNew": true,
+    "createdAt": "2025-12-05"
+  },
+  {
+    "id": "fash-001",
+    "name": "Premium Cashmere Sweater",
+    "category": "Fashion",
+    "price": 195,
+    "originalPrice": 295,
+    "images": [
+      "https://picsum.photos/seed/fash-001-0/600/600",
+      "https://picsum.photos/seed/fash-001-1/600/600"
+    ],
+    "rating": 4.9,
+    "reviewCount": 145,
+    "stock": "in-stock",
+    "description": "Luxuriously soft cashmere sweater made from Grade-A Mongolian cashmere. Timeless design with ribbed cuffs and hem.",
+    "tags": [
+      "cashmere",
+      "luxury",
+      "winter"
+    ],
+    "isFeatured": true,
+    "isNew": true,
+    "createdAt": "2025-12-08"
+  },
+  {
+    "id": "fash-002",
+    "name": "Slim Fit Tailored Blazer",
+    "category": "Fashion",
+    "price": 299,
+    "images": [
+      "https://picsum.photos/seed/fash-002-0/600/600",
+      "https://picsum.photos/seed/fash-002-1/600/600"
+    ],
+    "rating": 4.7,
+    "reviewCount": 89,
+    "stock": "in-stock",
+    "description": "Sharp tailored blazer in Italian wool blend. Peak lapels, dual vents, and a modern slim fit that transitions from office to evening.",
+    "tags": [
+      "formal",
+      "blazer",
+      "wool"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-11-10"
+  },
+  {
+    "id": "fash-003",
+    "name": "Artisan Leather Tote",
+    "category": "Fashion",
+    "price": 259,
+    "originalPrice": 329,
+    "images": [
+      "https://picsum.photos/seed/fash-003-0/600/600",
+      "https://picsum.photos/seed/fash-003-1/600/600"
+    ],
+    "rating": 4.8,
+    "reviewCount": 212,
+    "stock": "in-stock",
+    "description": "Handcrafted full-grain leather tote with gold hardware. Roomy enough for a laptop with multiple interior pockets.",
+    "tags": [
+      "leather",
+      "handbag",
+      "artisan"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-10-25"
+  },
+  {
+    "id": "fash-004",
+    "name": "Classic White Sneakers",
+    "category": "Fashion",
+    "price": 129,
+    "images": [
+      "https://picsum.photos/seed/fash-004-0/600/600",
+      "https://picsum.photos/seed/fash-004-1/600/600"
+    ],
+    "rating": 4.6,
+    "reviewCount": 534,
+    "stock": "in-stock",
+    "description": "Minimalist leather sneakers with cushioned insoles and a gum rubber sole. Versatile enough for any casual outfit.",
+    "tags": [
+      "sneakers",
+      "leather",
+      "classic"
+    ],
+    "createdAt": "2025-09-05"
+  },
+  {
+    "id": "fash-005",
+    "name": "Silk Evening Dress",
+    "category": "Fashion",
+    "price": 449,
+    "images": [
+      "https://picsum.photos/seed/fash-005-0/600/600",
+      "https://picsum.photos/seed/fash-005-1/600/600"
+    ],
+    "rating": 4.9,
+    "reviewCount": 56,
+    "stock": "low-stock",
+    "description": "Elegant 100% mulberry silk evening gown with a flattering A-line silhouette and subtle cowl neck. Made to order.",
+    "tags": [
+      "silk",
+      "evening",
+      "luxury"
+    ],
+    "isNew": true,
+    "createdAt": "2025-12-12"
+  },
+  {
+    "id": "fash-006",
+    "name": "Cashmere Blend Scarf",
+    "category": "Fashion",
+    "price": 89,
+    "originalPrice": 120,
+    "images": [
+      "https://picsum.photos/seed/fash-006-0/600/600"
+    ],
+    "rating": 4.5,
+    "reviewCount": 321,
+    "stock": "in-stock",
+    "description": "Luxurious cashmere-blend scarf with a classic herringbone pattern. Generous size for multiple styling options.",
+    "tags": [
+      "scarf",
+      "cashmere",
+      "winter"
+    ],
+    "createdAt": "2025-09-20"
+  },
+  {
+    "id": "fash-007",
+    "name": "Denim Jacket Vintage",
+    "category": "Fashion",
+    "price": 159,
+    "images": [
+      "https://picsum.photos/seed/fash-007-0/600/600",
+      "https://picsum.photos/seed/fash-007-1/600/600"
+    ],
+    "rating": 4.4,
+    "reviewCount": 178,
+    "stock": "in-stock",
+    "description": "Vintage-wash denim jacket with a relaxed fit. Features corduroy collar, brass buttons, and comfortable stretch denim.",
+    "tags": [
+      "denim",
+      "jacket",
+      "vintage"
+    ],
+    "isNew": true,
+    "createdAt": "2025-11-30"
+  },
+  {
+    "id": "fash-008",
+    "name": "Leather Crossbody Bag",
+    "category": "Fashion",
+    "price": 179,
+    "images": [
+      "https://picsum.photos/seed/fash-008-0/600/600",
+      "https://picsum.photos/seed/fash-008-1/600/600"
+    ],
+    "rating": 4.6,
+    "reviewCount": 267,
+    "stock": "in-stock",
+    "description": "Sleek crossbody bag in pebbled leather with an adjustable strap and multiple compartments. Fits all essentials perfectly.",
+    "tags": [
+      "leather",
+      "crossbody",
+      "everyday"
+    ],
+    "createdAt": "2025-10-10"
+  },
+  {
+    "id": "home-001",
+    "name": "Scented Soy Candle Set",
+    "category": "Home & Living",
+    "price": 45,
+    "originalPrice": 58,
+    "images": [
+      "https://picsum.photos/seed/home-001-0/600/600",
+      "https://picsum.photos/seed/home-001-1/600/600"
+    ],
+    "rating": 4.7,
+    "reviewCount": 345,
+    "stock": "in-stock",
+    "description": "Set of three hand-poured soy wax candles in amber, vanilla, and sandalwood. Long-burning with natural essential oils.",
+    "tags": [
+      "candle",
+      "soy",
+      "gift"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-11-15"
+  },
+  {
+    "id": "home-002",
+    "name": "Linen Throw Blanket",
+    "category": "Home & Living",
+    "price": 89,
+    "originalPrice": 119,
+    "images": [
+      "https://picsum.photos/seed/home-002-0/600/600",
+      "https://picsum.photos/seed/home-002-1/600/600"
+    ],
+    "rating": 4.8,
+    "reviewCount": 167,
+    "stock": "in-stock",
+    "description": "Premium French linen throw in heathered oat. Stonewashed for exceptional softness. Generous 60x70 size.",
+    "tags": [
+      "linen",
+      "blanket",
+      "boho"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-10-05"
+  },
+  {
+    "id": "home-003",
+    "name": "Ceramic Plant Pot Set",
+    "category": "Home & Living",
+    "price": 55,
+    "images": [
+      "https://picsum.photos/seed/home-003-0/600/600",
+      "https://picsum.photos/seed/home-003-1/600/600"
+    ],
+    "rating": 4.5,
+    "reviewCount": 98,
+    "stock": "in-stock",
+    "description": "Set of three matte ceramic planters in graduated sizes. Each with drainage hole and bamboo tray. Modern organic shapes.",
+    "tags": [
+      "ceramic",
+      "plants",
+      "decor"
+    ],
+    "createdAt": "2025-09-25"
+  },
+  {
+    "id": "home-004",
+    "name": "Minimalist Wall Clock",
+    "category": "Home & Living",
+    "price": 69,
+    "images": [
+      "https://picsum.photos/seed/home-004-0/600/600"
+    ],
+    "rating": 4.3,
+    "reviewCount": 76,
+    "stock": "in-stock",
+    "description": "Silent quartz wall clock with a clean white face and slim gold rim. Minimalist design that complements any interior.",
+    "tags": [
+      "clock",
+      "minimalist",
+      "gold"
+    ],
+    "createdAt": "2025-08-12"
+  },
+  {
+    "id": "home-005",
+    "name": "Marble Serving Board",
+    "category": "Home & Living",
+    "price": 39,
+    "images": [
+      "https://picsum.photos/seed/home-005-0/600/600"
+    ],
+    "rating": 4.4,
+    "reviewCount": 134,
+    "stock": "in-stock",
+    "description": "Natural marble serving board with brass handles. Perfect for charcuterie, cheese, or as a decorative piece.",
+    "tags": [
+      "marble",
+      "kitchen",
+      "entertaining"
+    ],
+    "createdAt": "2025-07-20"
+  },
+  {
+    "id": "home-006",
+    "name": "Bamboo Storage Set",
+    "category": "Home & Living",
+    "price": 49,
+    "images": [
+      "https://picsum.photos/seed/home-006-0/600/600"
+    ],
+    "rating": 4.2,
+    "reviewCount": 211,
+    "stock": "in-stock",
+    "description": "Sustainable bamboo storage boxes with lids. Set of 4 in varying sizes. Stackable with natural finish.",
+    "tags": [
+      "bamboo",
+      "storage",
+      "eco"
+    ],
+    "createdAt": "2025-06-15"
+  },
+  {
+    "id": "beau-001",
+    "name": "Hydrating Face Serum",
+    "category": "Beauty",
+    "price": 68,
+    "originalPrice": 85,
+    "images": [
+      "https://picsum.photos/seed/beau-001-0/600/600",
+      "https://picsum.photos/seed/beau-001-1/600/600"
+    ],
+    "rating": 4.8,
+    "reviewCount": 423,
+    "stock": "in-stock",
+    "description": "Lightweight hyaluronic acid serum with vitamin C and niacinamide. Clinically proven to hydrate and brighten skin.",
+    "tags": [
+      "serum",
+      "skincare",
+      "hydration"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-11-20"
+  },
+  {
+    "id": "beau-002",
+    "name": "Natural Lipstick Set",
+    "category": "Beauty",
+    "price": 42,
+    "images": [
+      "https://picsum.photos/seed/beau-002-0/600/600",
+      "https://picsum.photos/seed/beau-002-1/600/600"
+    ],
+    "rating": 4.6,
+    "reviewCount": 189,
+    "stock": "in-stock",
+    "description": "Set of 5 clean, vegan lipsticks in everyday nudes and berries. Creamy formula with shea butter and jojoba oil.",
+    "tags": [
+      "lipstick",
+      "vegan",
+      "natural"
+    ],
+    "isNew": true,
+    "createdAt": "2025-12-01"
+  },
+  {
+    "id": "beau-003",
+    "name": "Rose Quartz Facial Roller",
+    "category": "Beauty",
+    "price": 29,
+    "images": [
+      "https://picsum.photos/seed/beau-003-0/600/600"
+    ],
+    "rating": 4.4,
+    "reviewCount": 312,
+    "stock": "in-stock",
+    "description": "Genuine rose quartz facial roller with ergonomic handle. Reduces puffiness and promotes lymphatic drainage.",
+    "tags": [
+      "facial",
+      "skincare",
+      "self-care"
+    ],
+    "createdAt": "2025-08-30"
+  },
+  {
+    "id": "beau-004",
+    "name": "Perfume Discovery Set",
+    "category": "Beauty",
+    "price": 35,
+    "images": [
+      "https://picsum.photos/seed/beau-004-0/600/600",
+      "https://picsum.photos/seed/beau-004-1/600/600"
+    ],
+    "rating": 4.7,
+    "reviewCount": 156,
+    "stock": "in-stock",
+    "description": "Curated set of 8 mini EDPs showcasing our signature collection. From fresh citrus to warm amber. Discover your signature scent.",
+    "tags": [
+      "perfume",
+      "discovery",
+      "gift"
+    ],
+    "createdAt": "2025-10-15"
+  },
+  {
+    "id": "beau-005",
+    "name": "Hair Repair Treatment",
+    "category": "Beauty",
+    "price": 48,
+    "images": [
+      "https://picsum.photos/seed/beau-005-0/600/600"
+    ],
+    "rating": 4.5,
+    "reviewCount": 278,
+    "stock": "low-stock",
+    "description": "Intensive bond-repair hair treatment with keratin and argan oil. Salon-quality results for damaged, color-treated hair.",
+    "tags": [
+      "hair",
+      "repair",
+      "treatment"
+    ],
+    "createdAt": "2025-09-10"
+  },
+  {
+    "id": "spor-001",
+    "name": "Performance Running Shoes",
+    "category": "Sports",
+    "price": 189,
+    "originalPrice": 239,
+    "images": [
+      "https://picsum.photos/seed/spor-001-0/600/600",
+      "https://picsum.photos/seed/spor-001-1/600/600"
+    ],
+    "rating": 4.7,
+    "reviewCount": 345,
+    "stock": "in-stock",
+    "description": "Carbon-plated running shoes with responsive foam cushioning. Engineered for speed with a breathable knit upper.",
+    "tags": [
+      "running",
+      "shoes",
+      "performance"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-11-25"
+  },
+  {
+    "id": "spor-002",
+    "name": "Yoga Mat Premium",
+    "category": "Sports",
+    "price": 79,
+    "originalPrice": 99,
+    "images": [
+      "https://picsum.photos/seed/spor-002-0/600/600",
+      "https://picsum.photos/seed/spor-002-1/600/600"
+    ],
+    "rating": 4.8,
+    "reviewCount": 523,
+    "stock": "in-stock",
+    "description": "Extra-thick 6mm eco-friendly TPE yoga mat with alignment marks. Non-slip surface with carrying strap included.",
+    "tags": [
+      "yoga",
+      "fitness",
+      "eco"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-10-20"
+  },
+  {
+    "id": "spor-003",
+    "name": "Insulated Water Bottle",
+    "category": "Sports",
+    "price": 34,
+    "images": [
+      "https://picsum.photos/seed/spor-003-0/600/600"
+    ],
+    "rating": 4.6,
+    "reviewCount": 678,
+    "stock": "in-stock",
+    "description": "Double-wall vacuum insulated stainless steel bottle. Keeps drinks cold 24hrs or hot 12hrs. BPA-free, 32oz capacity.",
+    "tags": [
+      "bottle",
+      "hydration",
+      "eco"
+    ],
+    "createdAt": "2025-09-15"
+  },
+  {
+    "id": "spor-004",
+    "name": "Resistance Band Set",
+    "category": "Sports",
+    "price": 29,
+    "images": [
+      "https://picsum.photos/seed/spor-004-0/600/600"
+    ],
+    "rating": 4.3,
+    "reviewCount": 432,
+    "stock": "in-stock",
+    "description": "Set of 5 resistance bands with different tension levels. Includes door anchor, handles, and ankle straps. Portable gym.",
+    "tags": [
+      "bands",
+      "home-gym",
+      "fitness"
+    ],
+    "createdAt": "2025-08-10"
+  },
+  {
+    "id": "spor-005",
+    "name": "Cycling Helmet Aero",
+    "category": "Sports",
+    "price": 149,
+    "images": [
+      "https://picsum.photos/seed/spor-005-0/600/600"
+    ],
+    "rating": 4.5,
+    "reviewCount": 87,
+    "stock": "in-stock",
+    "description": "Aero road cycling helmet with MIPS protection system. 15 integrated vents for optimal airflow. Only 260 grams.",
+    "tags": [
+      "cycling",
+      "helmet",
+      "aero"
+    ],
+    "isNew": true,
+    "createdAt": "2025-11-05"
+  },
+  {
+    "id": "groc-001",
+    "name": "Organic Coffee Beans",
+    "category": "Groceries",
+    "price": 24,
+    "originalPrice": 30,
+    "images": [
+      "https://picsum.photos/seed/groc-001-0/600/600",
+      "https://picsum.photos/seed/groc-001-1/600/600"
+    ],
+    "rating": 4.9,
+    "reviewCount": 567,
+    "stock": "in-stock",
+    "description": "Single-origin organic Arabica beans from Ethiopia. Medium roast with notes of chocolate and citrus. 1lb bag.",
+    "tags": [
+      "coffee",
+      "organic",
+      "gourmet"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-12-02"
+  },
+  {
+    "id": "groc-002",
+    "name": "Artisan Honey Jar",
+    "category": "Groceries",
+    "price": 18,
+    "images": [
+      "https://picsum.photos/seed/groc-002-0/600/600"
+    ],
+    "rating": 4.7,
+    "reviewCount": 234,
+    "stock": "in-stock",
+    "description": "Raw wildflower honey from small-batch apiaries. Unfiltered, unpasteurized, and packed in a reusable glass jar. 12oz.",
+    "tags": [
+      "honey",
+      "artisan",
+      "raw"
+    ],
+    "createdAt": "2025-10-01"
+  },
+  {
+    "id": "groc-003",
+    "name": "Truffle Olive Oil",
+    "category": "Groceries",
+    "price": 32,
+    "images": [
+      "https://picsum.photos/seed/groc-003-0/600/600"
+    ],
+    "rating": 4.6,
+    "reviewCount": 145,
+    "stock": "in-stock",
+    "description": "Premium extra virgin olive oil infused with black truffle. Perfect for finishing pasta, eggs, and roasted vegetables. 8.5oz.",
+    "tags": [
+      "oil",
+      "truffle",
+      "gourmet"
+    ],
+    "createdAt": "2025-09-25"
+  },
+  {
+    "id": "groc-004",
+    "name": "Matcha Green Tea Powder",
+    "category": "Groceries",
+    "price": 28,
+    "originalPrice": 35,
+    "images": [
+      "https://picsum.photos/seed/groc-004-0/600/600"
+    ],
+    "rating": 4.5,
+    "reviewCount": 312,
+    "stock": "in-stock",
+    "description": "Ceremonial grade Japanese matcha from Uji. Stone-ground, vibrant green, with a smooth umami flavor. 100g tin.",
+    "tags": [
+      "matcha",
+      "tea",
+      "japanese"
+    ],
+    "createdAt": "2025-08-05"
+  },
+  {
+    "id": "toys-001",
+    "name": "Wooden Building Blocks",
+    "category": "Toys & Games",
+    "price": 44,
+    "images": [
+      "https://picsum.photos/seed/toys-001-0/600/600",
+      "https://picsum.photos/seed/toys-001-1/600/600"
+    ],
+    "rating": 4.8,
+    "reviewCount": 189,
+    "stock": "in-stock",
+    "description": "100-piece natural wooden building block set. Non-toxic paints in rainbow colors. Includes canvas storage bag.",
+    "tags": [
+      "wooden",
+      "educational",
+      "eco"
+    ],
+    "isFeatured": true,
+    "createdAt": "2025-11-18"
+  },
+  {
+    "id": "toys-002",
+    "name": "Strategy Board Game",
+    "category": "Toys & Games",
+    "price": 39,
+    "images": [
+      "https://picsum.photos/seed/toys-002-0/600/600"
+    ],
+    "rating": 4.6,
+    "reviewCount": 267,
+    "stock": "in-stock",
+    "description": "Award-winning strategy game for 2-4 players. 45-minute playtime. Beautiful components and infinite replayability.",
+    "tags": [
+      "board-game",
+      "strategy",
+      "family"
+    ],
+    "createdAt": "2025-10-10"
+  },
+  {
+    "id": "toys-003",
+    "name": "Plush Panda Bear",
+    "category": "Toys & Games",
+    "price": 32,
+    "images": [
+      "https://picsum.photos/seed/toys-003-0/600/600"
+    ],
+    "rating": 4.9,
+    "reviewCount": 423,
+    "stock": "in-stock",
+    "description": "Ultra-soft panda plush made from recycled materials. 18 inches, machine washable, and hypoallergenic filling.",
+    "tags": [
+      "plush",
+      "panda",
+      "eco"
+    ],
+    "isNew": true,
+    "createdAt": "2025-12-01"
+  },
+  {
+    "id": "toys-004",
+    "name": "STEM Robot Kit",
+    "category": "Toys & Games",
+    "price": 59,
+    "images": [
+      "https://picsum.photos/seed/toys-004-0/600/600"
+    ],
+    "rating": 4.4,
+    "reviewCount": 134,
+    "stock": "low-stock",
+    "description": "Build your own programmable robot with this STEM kit. Includes sensors, motor, and drag-and-drop coding app. Ages 8+.",
+    "tags": [
+      "stem",
+      "robot",
+      "educational"
+    ],
+    "createdAt": "2025-09-05"
+  }
+]
