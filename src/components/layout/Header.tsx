@@ -46,23 +46,23 @@ export function Header() {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-white/90 dark:bg-zinc-800/90 backdrop-blur-xl shadow-sm border-b border-zinc-200 dark:border-zinc-700"
-            : "bg-transparent"
+            ? "bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-700/50 shadow-sm"
+            : "bg-gradient-to-b from-white/50 to-transparent dark:from-zinc-900/50 dark:to-transparent"
         }`}
       >
         <div className="container flex items-center justify-between h-16 md:h-20">
-          <Link href="/" className="relative z-10">
+          <Link href="/" className="relative z-10 group">
             <span className="font-serif text-2xl font-bold tracking-tight text-primary dark:text-primary-light">
-              Cholo<span className="text-zinc-900 dark:text-zinc-100">Kini</span>
+              Cholo<span className="text-zinc-900 dark:text-zinc-100 group-hover:text-primary transition-colors duration-300">Kini</span>
             </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href="/shop"
-              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 transition-colors"
+              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
             >
               Shop All
             </Link>
@@ -71,7 +71,7 @@ export function Header() {
               onMouseEnter={() => setCategoryOpen(true)}
               onMouseLeave={() => setCategoryOpen(false)}
             >
-              <button className="flex items-center gap-1 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 transition-colors">
+              <button className="flex items-center gap-1 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
                 Categories <ChevronDown className="w-3.5 h-3.5" />
               </button>
               <AnimatePresence>
@@ -87,7 +87,7 @@ export function Header() {
                       <Link
                         key={cat.id}
                         href={`/shop/${cat.slug}`}
-                        className="block px-4 py-2.5 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                        className="block px-4 py-2.5 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                         onClick={() => setCategoryOpen(false)}
                       >
                         {cat.name}
@@ -99,19 +99,19 @@ export function Header() {
             </div>
             <Link
               href="/shop?sort=newest"
-              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 transition-colors"
+              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
             >
               New Arrivals
             </Link>
             <Link
               href="/shop?sort=popular"
-              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 transition-colors"
+              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
             >
               Best Sellers
             </Link>
           </nav>
 
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-1 md:gap-2">
             <div ref={searchRef} className="relative">
               <button
                 onClick={() => setSearchOpen(!searchOpen)}
@@ -178,7 +178,7 @@ export function Header() {
                 <ShoppingBag className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
               </motion.div>
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full">
+                <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full shadow-sm">
                   {totalItems}
                 </span>
               )}
