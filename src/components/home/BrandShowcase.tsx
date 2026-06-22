@@ -29,7 +29,7 @@ const cards: ShowcaseCard[] = [
     h: "280px",
     delay: 0.2,
     accentColor: "#0f766e",
-    imageUrl: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&h=500&fit=crop&auto=format",
+    imageUrl: "https://picsum.photos/seed/tote-bag/440/560",
   },
   {
     label: "Designer Sneakers",
@@ -42,7 +42,7 @@ const cards: ShowcaseCard[] = [
     h: "240px",
     delay: 0.35,
     accentColor: "#f97316",
-    imageUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=500&fit=crop&auto=format",
+    imageUrl: "https://picsum.photos/seed/sneakers/380/480",
   },
   {
     label: "Silk Dress",
@@ -55,7 +55,7 @@ const cards: ShowcaseCard[] = [
     h: "260px",
     delay: 0.5,
     accentColor: "#ec4899",
-    imageUrl: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&h=500&fit=crop&auto=format",
+    imageUrl: "https://picsum.photos/seed/silk-dress/420/520",
   },
   {
     label: "Gold Watch",
@@ -68,7 +68,7 @@ const cards: ShowcaseCard[] = [
     h: "200px",
     delay: 0.65,
     accentColor: "#eab308",
-    imageUrl: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=500&fit=crop&auto=format",
+    imageUrl: "https://picsum.photos/seed/gold-watch/320/400",
   },
 ];
 
@@ -98,7 +98,7 @@ function Card({ card }: { card: ShowcaseCard }) {
             src={card.imageUrl}
             alt={card.label}
             fill
-            sizes="(max-width: 768px) 50vw, 25vw"
+            unoptimized
             className="object-cover opacity-90 group-hover:opacity-100 transition-opacity"
           />
         </div>
