@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 
 interface ShowcaseCard {
@@ -29,7 +28,7 @@ const cards: ShowcaseCard[] = [
     h: "280px",
     delay: 0.2,
     accentColor: "#0f766e",
-    imageUrl: "https://picsum.photos/seed/tote-bag/440/560",
+    imageUrl: "https://placehold.co/440x560/0f766e/ffffff?text=Tote+Bag&font=raleway",
   },
   {
     label: "Designer Sneakers",
@@ -42,7 +41,7 @@ const cards: ShowcaseCard[] = [
     h: "240px",
     delay: 0.35,
     accentColor: "#f97316",
-    imageUrl: "https://picsum.photos/seed/sneakers/380/480",
+    imageUrl: "https://placehold.co/380x480/f97316/ffffff?text=Sneakers&font=raleway",
   },
   {
     label: "Silk Dress",
@@ -55,7 +54,7 @@ const cards: ShowcaseCard[] = [
     h: "260px",
     delay: 0.5,
     accentColor: "#ec4899",
-    imageUrl: "https://picsum.photos/seed/silk-dress/420/520",
+    imageUrl: "https://placehold.co/420x520/ec4899/ffffff?text=Silk+Dress&font=raleway",
   },
   {
     label: "Gold Watch",
@@ -68,7 +67,7 @@ const cards: ShowcaseCard[] = [
     h: "200px",
     delay: 0.65,
     accentColor: "#eab308",
-    imageUrl: "https://picsum.photos/seed/gold-watch/320/400",
+    imageUrl: "https://placehold.co/320x400/eab308/ffffff?text=Gold+Watch&font=raleway",
   },
 ];
 
@@ -93,15 +92,10 @@ function Card({ card }: { card: ShowcaseCard }) {
           className={`absolute inset-0 bg-gradient-to-br ${card.gradient}`}
         />
 
-        <div className="absolute inset-3 rounded-xl overflow-hidden">
-          <Image
-            src={card.imageUrl}
-            alt={card.label}
-            fill
-            unoptimized
-            className="object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-          />
-        </div>
+        <div
+          className="absolute inset-3 rounded-xl bg-cover bg-center opacity-90 group-hover:opacity-100 transition-opacity"
+          style={{ backgroundImage: `url(${card.imageUrl})` }}
+        />
 
         <div className="absolute top-3 left-3 z-10">
           <span className="inline-block px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-[10px] font-medium uppercase tracking-wider border border-white/10">
