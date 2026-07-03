@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 // ---------------------------------------------------------------------------
 // Card configs
@@ -98,11 +99,15 @@ function Card({ card }: { card: ShowcaseCard }) {
       >
         <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient}`} />
 
-        <img
-          src={card.imageSrc}
-          alt={card.label}
-          className="absolute inset-3 w-[calc(100%-1.5rem)] h-[calc(100%-1.5rem)] object-cover rounded-xl"
-        />
+        <div className="absolute inset-3 overflow-hidden rounded-xl">
+          <Image
+            src={card.imageSrc}
+            alt={card.label}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 160px, 220px"
+          />
+        </div>
 
         <div className="absolute top-3 left-3 z-10">
           <span className="inline-block px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-sm text-white text-[10px] font-medium uppercase tracking-wider border border-white/10">
