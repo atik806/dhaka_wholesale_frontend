@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Suspense, useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
 import products from "@/src/data/products.json";
 import type { Product } from "@/src/types/product";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
@@ -12,15 +13,59 @@ import { sortOptions } from "@/src/lib/constants";
 
 const ITEMS_PER_PAGE = 12;
 
-export default function ShopPage() {
-  const [filters, setFilters] = useState({
-    categories: [] as string[],
-    priceRange: "all",
-    rating: null as number | null,
-  });
-  const [sort, setSort] = useState("popular");
+export default function ShopPageWrapper() {
+  return (
+    <Suspense fallback={<div className="container py-20 text-center text-zinc-500 dark:text-zinc-400">Loading...</div>}>
+      <ShopPage />
+    </Suspense>
+  );
+}
+
+function ShopPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [page, setPage] = useState(1);
+
+  const categoriesParam = searchParams.get("categories") || "";
+  const priceRange = searchParams.get("price") || "all";
+  const ratingParam = searchParams.get("rating");
+  const sort = searchParams.get("sort") || "popular";
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
+  const filters = useMemo(() => ({
+    categories: categoriesParam ? categoriesParam.split(",") : [],
+    priceRange,
+    rating: ratingParam ? parseInt(ratingParam, 10) : null,
+  }), [categoriesParam, priceRange, ratingParam]);
+
+  const updateParams = useCallback(
+    (updates: Record<string, string | null>) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === "" || value === "all" || (key === "page" && value === "1")) {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+      const qs = params.toString();
+      router.push(`/shop${qs ? `?${qs}` : ""}`, { scroll: false });
+    },
+    [searchParams, router]
+  );
+
+  const setFilters = useCallback(
+    (newFilters: typeof filters) => {
+      const cats = newFilters.categories.length > 0 ? newFilters.categories.join(",") : null;
+      updateParams({
+        categories: cats,
+        price: newFilters.priceRange !== "all" ? newFilters.priceRange : null,
+        rating: newFilters.rating ? String(newFilters.rating) : null,
+        page: null,
+      });
+    },
+    [updateParams]
+  );
 
   const filtered = useMemo(() => {
     let result = [...products] as Product[];
@@ -62,7 +107,8 @@ export default function ShopPage() {
   }, [filters, sort]);
 
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const safePage = Math.min(page, Math.max(totalPages, 1));
+  const paginated = filtered.slice((safePage - 1) * ITEMS_PER_PAGE, safePage * ITEMS_PER_PAGE);
 
   return (
     <motion.div
@@ -89,7 +135,7 @@ export default function ShopPage() {
           </button>
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value)}
+            onChange={(e) => updateParams({ sort: e.target.value !== "popular" ? e.target.value : null, page: null })}
             className="text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 bg-white dark:bg-zinc-800 outline-none focus:ring-2 focus:ring-primary/20 flex-1 sm:flex-initial"
           >
             {sortOptions.map((opt) => (
@@ -110,14 +156,14 @@ export default function ShopPage() {
 
         <div className="flex-1 min-w-0">
           <AnimatePresence mode="wait">
-            <ProductGrid key={JSON.stringify(filters) + sort + page} products={paginated} />
+            <ProductGrid key={searchParams.toString() || "default"} products={paginated} />
           </AnimatePresence>
 
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-12 flex-wrap">
               <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
+                onClick={() => updateParams({ page: String(safePage - 1) })}
+                disabled={safePage <= 1}
                 className="p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -125,9 +171,9 @@ export default function ShopPage() {
               {Array.from({ length: totalPages }).map((_, i) => (
                 <button
                   key={i}
-                  onClick={() => setPage(i + 1)}
+                  onClick={() => updateParams({ page: String(i + 1) })}
                   className={`w-10 h-10 rounded-xl text-sm font-medium transition-colors ${
-                    page === i + 1
+                    safePage === i + 1
                       ? "bg-primary text-white"
                       : "border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                   }`}
@@ -136,8 +182,8 @@ export default function ShopPage() {
                 </button>
               ))}
               <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
+                onClick={() => updateParams({ page: String(safePage + 1) })}
+                disabled={safePage >= totalPages}
                 className="p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -162,7 +208,7 @@ export default function ShopPage() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 left-0 bottom-0 w-full max-w-sm bg-white dark:bg-zinc-800 z-[70] shadow-2xl p-6 overflow-y-auto lg:hidden"
+              className="fixed top-0 left-0 right-0 bottom-0 w-full max-w-sm bg-white dark:bg-zinc-800 z-[70] shadow-2xl p-6 overflow-y-auto lg:hidden"
             >
               <ProductFilters
                 filters={filters}
