@@ -14,10 +14,13 @@ import { Rating } from "@/src/components/ui/Rating";
 import { Button } from "@/src/components/ui/Button";
 import { formatPrice } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
+import { categories } from "@/src/lib/constants";
+import { useToast } from "@/src/providers/ToastProvider";
 
 export default function ProductDetailPage() {
   const params = useParams();
   const { addItem, toggleWishlist, isInWishlist } = useCartStore();
+  const { addToast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string>();
   const [selectedColor, setSelectedColor] = useState<string>();
@@ -48,6 +51,7 @@ export default function ProductDetailPage() {
       selectedSize,
       selectedColor,
     });
+    addToast(`${product.name} added to cart`, "success");
     window.dispatchEvent(new CustomEvent("open-cart"));
   };
 
@@ -69,7 +73,7 @@ export default function ProductDetailPage() {
       <Breadcrumbs
         items={[
           { label: "Shop", href: "/shop" },
-          { label: product.category, href: `/shop/${product.category.toLowerCase().replace(/\s+/g, "-")}` },
+          { label: product.category, href: `/shop/${categories.find((c) => c.name === product.category)?.slug ?? product.category.toLowerCase()}` },
           { label: product.name },
         ]}
       />
@@ -212,6 +216,26 @@ export default function ProductDetailPage() {
           <ProductGrid products={related} />
         </section>
       )}
+
+      <motion.div
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 p-4 flex items-center gap-4 lg:hidden z-40 shadow-2xl"
+      >
+        <div className="flex-1">
+          <div className="flex items-baseline gap-2">
+            <span className="text-xl font-bold">{formatPrice(product.price)}</span>
+            {product.originalPrice && (
+              <span className="text-sm text-zinc-500 dark:text-zinc-400 line-through">
+                {formatPrice(product.originalPrice)}
+              </span>
+            )}
+          </div>
+        </div>
+        <Button size="lg" className="flex-1" onClick={handleAdd}>
+          <ShoppingBag className="w-5 h-5" /> Add to Cart
+        </Button>
+      </motion.div>
     </motion.div>
   );
 }

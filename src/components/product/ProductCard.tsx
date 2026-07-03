@@ -11,6 +11,7 @@ import { Rating } from "@/src/components/ui/Rating";
 import { formatPrice } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { TiltCard } from "@/src/components/three/TiltCard";
+import { useToast } from "@/src/providers/ToastProvider";
 
 interface ProductCardProps {
   product: Product;
@@ -19,6 +20,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { addItem, toggleWishlist, isInWishlist } = useCartStore();
+  const { addToast } = useToast();
   const wishlisted = isInWishlist(product.id);
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -26,6 +28,7 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
     addItem({ product, quantity: 1 });
+    addToast(`${product.name} added to cart`, "success");
     window.dispatchEvent(new CustomEvent("open-cart"));
   };
 
@@ -33,6 +36,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
     e.preventDefault();
     e.stopPropagation();
     toggleWishlist(product.id);
+    addToast(
+      wishlisted ? "Removed from wishlist" : `${product.name} added to wishlist`,
+      "success"
+    );
   };
 
   const badge = product.isNew
