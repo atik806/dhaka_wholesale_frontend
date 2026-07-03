@@ -6,9 +6,9 @@
     "price": 249,
     "originalPrice": 349,
     "images": [
-      "https://placehold.co/600x600?text=elec-001-0",
-      "https://placehold.co/600x600?text=elec-001-1",
-      "https://placehold.co/600x600?text=elec-001-2"
+      "https://picsum.photos/seed/elec-001-0/600/600",
+      "https://picsum.photos/seed/elec-001-1/600/600",
+      "https://picsum.photos/seed/elec-001-2/600/600"
     ],
     "rating": 4.8,
     "reviewCount": 234,
@@ -30,8 +30,8 @@
     "price": 399,
     "originalPrice": 499,
     "images": [
-      "https://placehold.co/600x600?text=elec-002-0",
-      "https://placehold.co/600x600?text=elec-002-1"
+      "https://picsum.photos/seed/elec-002-0/600/600",
+      "https://picsum.photos/seed/elec-002-1/600/600"
     ],
     "rating": 4.6,
     "reviewCount": 189,
@@ -52,8 +52,8 @@
     "price": 1299,
     "originalPrice": 1599,
     "images": [
-      "https://placehold.co/600x600?text=elec-003-0",
-      "https://placehold.co/600x600?text=elec-003-1"
+      "https://picsum.photos/seed/elec-003-0/600/600",
+      "https://picsum.photos/seed/elec-003-1/600/600"
     ],
     "rating": 4.7,
     "reviewCount": 156,
@@ -74,8 +74,8 @@
     "price": 79,
     "originalPrice": 99,
     "images": [
-      "https://placehold.co/600x600?text=elec-004-0",
-      "https://placehold.co/600x600?text=elec-004-1"
+      "https://picsum.photos/seed/elec-004-0/600/600",
+      "https://picsum.photos/seed/elec-004-1/600/600"
     ],
     "rating": 4.5,
     "reviewCount": 412,
@@ -94,8 +94,8 @@
     "category": "Electronics",
     "price": 149,
     "images": [
-      "https://placehold.co/600x600?text=elec-005-0",
-      "https://placehold.co/600x600?text=elec-005-1"
+      "https://picsum.photos/seed/elec-005-0/600/600",
+      "https://picsum.photos/seed/elec-005-1/600/600"
     ],
     "rating": 4.4,
     "reviewCount": 89,
@@ -116,7 +116,7 @@
     "price": 199,
     "originalPrice": 249,
     "images": [
-      "https://placehold.co/600x600?text=elec-006-0"
+      "https://picsum.photos/seed/elec-006-0/600/600"
     ],
     "rating": 4.3,
     "reviewCount": 67,
@@ -136,7 +136,7 @@
     "price": 39,
     "originalPrice": 49,
     "images": [
-      "https://placehold.co/600x600?text=elec-007-0"
+      "https://picsum.photos/seed/elec-007-0/600/600"
     ],
     "rating": 4.2,
     "reviewCount": 523,
@@ -155,8 +155,8 @@
     "category": "Electronics",
     "price": 799,
     "images": [
-      "https://placehold.co/600x600?text=elec-008-0",
-      "https://placehold.co/600x600?text=elec-008-1"
+      "https://picsum.photos/seed/elec-008-0/600/600",
+      "https://picsum.photos/seed/elec-008-1/600/600"
     ],
     "rating": 4.7,
     "reviewCount": 198,
@@ -177,8 +177,8 @@
     "price": 195,
     "originalPrice": 295,
     "images": [
-      "https://placehold.co/600x600?text=fash-001-0",
-      "https://placehold.co/600x600?text=fash-001-1"
+      "https://picsum.photos/seed/fash-001-0/600/600",
+      "https://picsum.photos/seed/fash-001-1/600/600"
     ],
     "rating": 4.9,
     "reviewCount": 145,
@@ -199,8 +199,8 @@
     "category": "Fashion",
     "price": 299,
     "images": [
-      "https://placehold.co/600x600?text=fash-002-0",
-      "https://placehold.co/600x600?text=fash-002-1"
+      "https://picsum.photos/seed/fash-002-0/600/600",
+      "https://picsum.photos/seed/fash-002-1/600/600"
     ],
     "rating": 4.7,
     "reviewCount": 89,
@@ -221,8 +221,8 @@
     "price": 259,
     "originalPrice": 329,
     "images": [
-      "https://placehold.co/600x600?text=fash-003-0",
-      "https://placehold.co/600x600?text=fash-003-1"
+      "https://picsum.photos/seed/fash-003-0/600/600",
+      "https://picsum.photos/seed/fash-003-1/600/600"
     ],
     "rating": 4.8,
     "reviewCount": 212,
@@ -242,8 +242,8 @@
     "category": "Fashion",
     "price": 129,
     "images": [
-      "https://placehold.co/600x600?text=fash-004-0",
-      "https://placehold.co/600x600?text=fash-004-1"
+      "https://picsum.photos/seed/fash-004-0/600/600",
+      "https://picsum.photos/seed/fash-004-1/600/600"
     ],
     "rating": 4.6,
     "reviewCount": 534,
@@ -262,8 +262,8 @@
     "category": "Fashion",
     "price": 449,
     "images": [
-      "https://placehold.co/600x600?text=fash-005-0",
-      "https://placehold.co/600x600?text=fash-005-1"
+      "https://picsum.photos/seed/fash-005-0/600/600",
+      "https://picsum.photos/seed/fash-005-1/600/600"
     ],
     "rating": 4.9,
     "reviewCount": 56,
@@ -284,7 +284,7 @@
     "price": 89,
     "originalPrice": 120,
     "images": [
-      "https://placehold.co/600x600?text=fash-006-0"
+      "https://picsum.photos/seed/fash-006-0/600/600"
     ],
     "rating": 4.5,
     "reviewCount": 321,
@@ -303,8 +303,8 @@
     "category": "Fashion",
     "price": 159,
     "images": [
-      "https://placehold.co/600x600?text=fash-007-0",
-      "https://placehold.co/600x600?text=fash-007-1"
+      "https://picsum.photos/seed/fash-007-0/600/600",
+      "https://picsum.photos/seed/fash-007-1/600/600"
     ],
     "rating": 4.4,
     "reviewCount": 178,
@@ -324,8 +324,8 @@
     "category": "Fashion",
     "price": 179,
     "images": [
-      "https://placehold.co/600x600?text=fash-008-0",
-      "https://placehold.co/600x600?text=fash-008-1"
+      "https://picsum.photos/seed/fash-008-0/600/600",
+      "https://picsum.photos/seed/fash-008-1/600/600"
     ],
     "rating": 4.6,
     "reviewCount": 267,
@@ -345,8 +345,8 @@
     "price": 45,
     "originalPrice": 58,
     "images": [
-      "https://placehold.co/600x600?text=home-001-0",
-      "https://placehold.co/600x600?text=home-001-1"
+      "https://picsum.photos/seed/home-001-0/600/600",
+      "https://picsum.photos/seed/home-001-1/600/600"
     ],
     "rating": 4.7,
     "reviewCount": 345,
@@ -367,8 +367,8 @@
     "price": 89,
     "originalPrice": 119,
     "images": [
-      "https://placehold.co/600x600?text=home-002-0",
-      "https://placehold.co/600x600?text=home-002-1"
+      "https://picsum.photos/seed/home-002-0/600/600",
+      "https://picsum.photos/seed/home-002-1/600/600"
     ],
     "rating": 4.8,
     "reviewCount": 167,
@@ -388,8 +388,8 @@
     "category": "Home & Living",
     "price": 55,
     "images": [
-      "https://placehold.co/600x600?text=home-003-0",
-      "https://placehold.co/600x600?text=home-003-1"
+      "https://picsum.photos/seed/home-003-0/600/600",
+      "https://picsum.photos/seed/home-003-1/600/600"
     ],
     "rating": 4.5,
     "reviewCount": 98,
@@ -408,7 +408,7 @@
     "category": "Home & Living",
     "price": 69,
     "images": [
-      "https://placehold.co/600x600?text=home-004-0"
+      "https://picsum.photos/seed/home-004-0/600/600"
     ],
     "rating": 4.3,
     "reviewCount": 76,
@@ -427,7 +427,7 @@
     "category": "Home & Living",
     "price": 39,
     "images": [
-      "https://placehold.co/600x600?text=home-005-0"
+      "https://picsum.photos/seed/home-005-0/600/600"
     ],
     "rating": 4.4,
     "reviewCount": 134,
@@ -446,7 +446,7 @@
     "category": "Home & Living",
     "price": 49,
     "images": [
-      "https://placehold.co/600x600?text=home-006-0"
+      "https://picsum.photos/seed/home-006-0/600/600"
     ],
     "rating": 4.2,
     "reviewCount": 211,
@@ -466,8 +466,8 @@
     "price": 68,
     "originalPrice": 85,
     "images": [
-      "https://placehold.co/600x600?text=beau-001-0",
-      "https://placehold.co/600x600?text=beau-001-1"
+      "https://picsum.photos/seed/beau-001-0/600/600",
+      "https://picsum.photos/seed/beau-001-1/600/600"
     ],
     "rating": 4.8,
     "reviewCount": 423,
@@ -487,8 +487,8 @@
     "category": "Beauty",
     "price": 42,
     "images": [
-      "https://placehold.co/600x600?text=beau-002-0",
-      "https://placehold.co/600x600?text=beau-002-1"
+      "https://picsum.photos/seed/beau-002-0/600/600",
+      "https://picsum.photos/seed/beau-002-1/600/600"
     ],
     "rating": 4.6,
     "reviewCount": 189,
@@ -508,7 +508,7 @@
     "category": "Beauty",
     "price": 29,
     "images": [
-      "https://placehold.co/600x600?text=beau-003-0"
+      "https://picsum.photos/seed/beau-003-0/600/600"
     ],
     "rating": 4.4,
     "reviewCount": 312,
@@ -527,8 +527,8 @@
     "category": "Beauty",
     "price": 35,
     "images": [
-      "https://placehold.co/600x600?text=beau-004-0",
-      "https://placehold.co/600x600?text=beau-004-1"
+      "https://picsum.photos/seed/beau-004-0/600/600",
+      "https://picsum.photos/seed/beau-004-1/600/600"
     ],
     "rating": 4.7,
     "reviewCount": 156,
@@ -547,7 +547,7 @@
     "category": "Beauty",
     "price": 48,
     "images": [
-      "https://placehold.co/600x600?text=beau-005-0"
+      "https://picsum.photos/seed/beau-005-0/600/600"
     ],
     "rating": 4.5,
     "reviewCount": 278,
@@ -567,8 +567,8 @@
     "price": 189,
     "originalPrice": 239,
     "images": [
-      "https://placehold.co/600x600?text=spor-001-0",
-      "https://placehold.co/600x600?text=spor-001-1"
+      "https://picsum.photos/seed/spor-001-0/600/600",
+      "https://picsum.photos/seed/spor-001-1/600/600"
     ],
     "rating": 4.7,
     "reviewCount": 345,
@@ -589,8 +589,8 @@
     "price": 79,
     "originalPrice": 99,
     "images": [
-      "https://placehold.co/600x600?text=spor-002-0",
-      "https://placehold.co/600x600?text=spor-002-1"
+      "https://picsum.photos/seed/spor-002-0/600/600",
+      "https://picsum.photos/seed/spor-002-1/600/600"
     ],
     "rating": 4.8,
     "reviewCount": 523,
@@ -610,7 +610,7 @@
     "category": "Sports",
     "price": 34,
     "images": [
-      "https://placehold.co/600x600?text=spor-003-0"
+      "https://picsum.photos/seed/spor-003-0/600/600"
     ],
     "rating": 4.6,
     "reviewCount": 678,
@@ -629,7 +629,7 @@
     "category": "Sports",
     "price": 29,
     "images": [
-      "https://placehold.co/600x600?text=spor-004-0"
+      "https://picsum.photos/seed/spor-004-0/600/600"
     ],
     "rating": 4.3,
     "reviewCount": 432,
@@ -648,7 +648,7 @@
     "category": "Sports",
     "price": 149,
     "images": [
-      "https://placehold.co/600x600?text=spor-005-0"
+      "https://picsum.photos/seed/spor-005-0/600/600"
     ],
     "rating": 4.5,
     "reviewCount": 87,
@@ -669,8 +669,8 @@
     "price": 24,
     "originalPrice": 30,
     "images": [
-      "https://placehold.co/600x600?text=groc-001-0",
-      "https://placehold.co/600x600?text=groc-001-1"
+      "https://picsum.photos/seed/groc-001-0/600/600",
+      "https://picsum.photos/seed/groc-001-1/600/600"
     ],
     "rating": 4.9,
     "reviewCount": 567,
@@ -690,7 +690,7 @@
     "category": "Groceries",
     "price": 18,
     "images": [
-      "https://placehold.co/600x600?text=groc-002-0"
+      "https://picsum.photos/seed/groc-002-0/600/600"
     ],
     "rating": 4.7,
     "reviewCount": 234,
@@ -709,7 +709,7 @@
     "category": "Groceries",
     "price": 32,
     "images": [
-      "https://placehold.co/600x600?text=groc-003-0"
+      "https://picsum.photos/seed/groc-003-0/600/600"
     ],
     "rating": 4.6,
     "reviewCount": 145,
@@ -729,7 +729,7 @@
     "price": 28,
     "originalPrice": 35,
     "images": [
-      "https://placehold.co/600x600?text=groc-004-0"
+      "https://picsum.photos/seed/groc-004-0/600/600"
     ],
     "rating": 4.5,
     "reviewCount": 312,
@@ -748,8 +748,8 @@
     "category": "Toys & Games",
     "price": 44,
     "images": [
-      "https://placehold.co/600x600?text=toys-001-0",
-      "https://placehold.co/600x600?text=toys-001-1"
+      "https://picsum.photos/seed/toys-001-0/600/600",
+      "https://picsum.photos/seed/toys-001-1/600/600"
     ],
     "rating": 4.8,
     "reviewCount": 189,
@@ -769,7 +769,7 @@
     "category": "Toys & Games",
     "price": 39,
     "images": [
-      "https://placehold.co/600x600?text=toys-002-0"
+      "https://picsum.photos/seed/toys-002-0/600/600"
     ],
     "rating": 4.6,
     "reviewCount": 267,
@@ -788,7 +788,7 @@
     "category": "Toys & Games",
     "price": 32,
     "images": [
-      "https://placehold.co/600x600?text=toys-003-0"
+      "https://picsum.photos/seed/toys-003-0/600/600"
     ],
     "rating": 4.9,
     "reviewCount": 423,
@@ -808,7 +808,7 @@
     "category": "Toys & Games",
     "price": 59,
     "images": [
-      "https://placehold.co/600x600?text=toys-004-0"
+      "https://picsum.photos/seed/toys-004-0/600/600"
     ],
     "rating": 4.4,
     "reviewCount": 134,
