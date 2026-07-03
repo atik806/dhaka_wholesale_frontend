@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Heart, Sun, Moon } from "lucide-react";
 import Link from "next/link";
+import { useRef, useEffect } from "react";
 import { categories } from "@/src/lib/constants";
 import { useTheme } from "@/src/providers/ThemeProvider";
 
@@ -12,7 +13,33 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ open, onClose }: MobileNavProps) {
+  const navRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.activeElement as HTMLElement;
+    const focusable = navRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    focusable?.[0]?.focus();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab" || !focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      prev?.focus();
+    };
+  }, [open, onClose]);
 
   return (
     <AnimatePresence>
@@ -26,6 +53,10 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
             className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
           />
           <motion.nav
+            ref={navRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation menu"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}

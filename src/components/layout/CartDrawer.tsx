@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShoppingBag, Plus, Minus, Trash2 } from "lucide-react";
 import Image from "next/image";
@@ -10,6 +10,7 @@ import { formatPrice } from "@/src/lib/utils";
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement>(null);
   const { items, removeItem, updateQuantity, totalPrice, totalItems } = useCartStore();
 
   useEffect(() => {
@@ -17,6 +18,30 @@ export function CartDrawer() {
     window.addEventListener("open-cart", handler);
     return () => window.removeEventListener("open-cart", handler);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.activeElement as HTMLElement;
+    const focusable = drawerRef.current?.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    focusable?.[0]?.focus();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      prev?.focus();
+    };
+  }, [open]);
 
   return (
     <>
@@ -31,6 +56,10 @@ export function CartDrawer() {
               className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[80]"
             />
             <motion.div
+              ref={drawerRef}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Shopping cart"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}

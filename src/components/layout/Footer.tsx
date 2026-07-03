@@ -30,13 +30,12 @@ export function Footer() {
             </p>
             <div className="flex items-center gap-2 mb-6">
               {[Globe, MessageCircle, Video, Radio].map((Icon, i) => (
-                <a
+                <div
                   key={i}
-                  href="#"
-                  className="w-9 h-9 rounded-xl bg-zinc-800 dark:bg-zinc-800 flex items-center justify-center hover:bg-primary transition-all duration-300 hover:-translate-y-0.5"
+                  className="w-9 h-9 rounded-xl bg-zinc-800 dark:bg-zinc-800 flex items-center justify-center opacity-60"
                 >
                   <Icon className="w-4 h-4" />
-                </a>
+                </div>
               ))}
             </div>
             <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-600">
@@ -67,12 +66,12 @@ export function Footer() {
               {["Contact Us", "Shipping & Returns", "FAQ", "Size Guide", "Privacy Policy"].map(
                 (item) => (
                   <li key={item}>
-                    <a
-                      href="#"
+                    <Link
+                      href="/shop"
                       className="text-sm text-zinc-400 dark:text-zinc-500 hover:text-white transition-colors"
                     >
                       {item}
-                    </a>
+                    </Link>
                   </li>
                 )
               )}
@@ -84,12 +83,12 @@ export function Footer() {
             <ul className="space-y-3">
               {["About Us", "Careers", "Press", "Affiliates", "Sustainability"].map((item) => (
                 <li key={item}>
-                  <a
-                    href="#"
+                  <Link
+                    href="/shop"
                     className="text-sm text-zinc-400 dark:text-zinc-500 hover:text-white transition-colors"
                   >
                     {item}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
