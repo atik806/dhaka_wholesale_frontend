@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/src/components/layout/Header";
@@ -10,6 +9,7 @@ import { ToastProvider } from "@/src/providers/ToastProvider";
 import { ThemeProvider } from "@/src/providers/ThemeProvider";
 import { ScrollToTop } from "@/src/components/ui/ScrollToTop";
 import { PageLoader } from "@/src/components/ui/PageLoader";
+import { InlineScript } from "@/src/components/ui/InlineScript";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -36,9 +36,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`} suppressHydrationWarning>
       <head>
-        <Script id="theme-init" strategy="beforeInteractive">
-          {`(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}else if(t==='light'){document.documentElement.classList.remove('dark')}}catch(e){}})();`}
-        </Script>
+        <InlineScript
+          html={`(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}else if(t==='light'){document.documentElement.classList.remove('dark')}}catch(e){}})();`}
+        />
       </head>
       <body className="min-h-dvh flex flex-col bg-white dark:bg-zinc-900 antialiased">
         <a

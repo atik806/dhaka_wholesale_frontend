@@ -21,7 +21,7 @@ export const useCartStore = create<CartStore>((set, get) => ({
             i.product.id === item.product.id &&
             i.selectedSize === item.selectedSize &&
             i.selectedColor === item.selectedColor
-              ? { ...i, quantity: i.quantity + 1 }
+              ? { ...i, quantity: i.quantity + item.quantity }
               : i
           ),
         };
@@ -29,17 +29,31 @@ export const useCartStore = create<CartStore>((set, get) => ({
       return { items: [...state.items, item] };
     }),
 
-  removeItem: (productId) =>
+  removeItem: (productId, selectedSize, selectedColor) =>
     set((state) => ({
-      items: state.items.filter((i) => i.product.id !== productId),
+      items: state.items.filter(
+        (i) =>
+          !(i.product.id === productId &&
+            (i.selectedSize ?? null) === (selectedSize ?? null) &&
+            (i.selectedColor ?? null) === (selectedColor ?? null))
+      ),
     })),
 
-  updateQuantity: (productId, quantity) =>
+  updateQuantity: (productId, quantity, selectedSize, selectedColor) =>
     set((state) => ({
       items: quantity <= 0
-        ? state.items.filter((i) => i.product.id !== productId)
+        ? state.items.filter(
+            (i) =>
+              !(i.product.id === productId &&
+                (i.selectedSize ?? null) === (selectedSize ?? null) &&
+                (i.selectedColor ?? null) === (selectedColor ?? null))
+          )
         : state.items.map((i) =>
-            i.product.id === productId ? { ...i, quantity } : i
+            i.product.id === productId &&
+            (i.selectedSize ?? null) === (selectedSize ?? null) &&
+            (i.selectedColor ?? null) === (selectedColor ?? null)
+              ? { ...i, quantity }
+              : i
           ),
     })),
 

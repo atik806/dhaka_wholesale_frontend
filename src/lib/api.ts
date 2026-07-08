@@ -1,0 +1,165 @@
+import type { Product, Category } from '@/src/types/product';
+
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+
+interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+  meta?: { total: number; page: number; limit: number; totalPages: number };
+}
+
+interface BackendProduct {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  original_price: number | null;
+  category_id: string;
+  images: string[];
+  rating: number;
+  review_count: number;
+  stock: string;
+  tags: string[];
+  sizes: string[];
+  colors: { name: string; hex: string }[];
+  is_new: boolean;
+  is_featured: boolean;
+  created_at: string;
+  categories: { name: string; slug: string };
+}
+
+interface BackendCategory {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  image_url: string;
+  product_count: number;
+}
+
+function mapProduct(p: BackendProduct): Product {
+  return {
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    category: p.categories.name,
+    price: p.price,
+    originalPrice: p.original_price ?? undefined,
+    images: p.images,
+    rating: p.rating,
+    reviewCount: p.review_count,
+    stock: p.stock as Product['stock'],
+    description: p.description,
+    tags: p.tags,
+    variants: {
+      sizes: p.sizes.length > 0 ? p.sizes : undefined,
+      colors: p.colors.length > 0 ? p.colors : undefined,
+    },
+    isNew: p.is_new || undefined,
+    isFeatured: p.is_featured || undefined,
+    createdAt: p.created_at,
+  };
+}
+
+function mapCategory(c: BackendCategory): Category {
+  return {
+    id: c.slug,
+    name: c.name,
+    slug: c.slug,
+    image: c.image_url,
+    productCount: c.product_count,
+    description: c.description,
+  };
+}
+
+async function fetcher<T>(url: string): Promise<ApiResponse<T>> {
+  const res = await fetch(`${API_BASE}${url}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+export interface ProductQueryParams {
+  search?: string;
+  category?: string;
+  priceMin?: number;
+  priceMax?: number;
+  minRating?: number;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface ProductListResult {
+  products: Product[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export async function fetchProducts(params: ProductQueryParams = {}): Promise<ProductListResult> {
+  const qs = new URLSearchParams();
+  if (params.search) qs.set('search', params.search);
+  if (params.category) qs.set('category', params.category);
+  if (params.priceMin !== undefined) qs.set('priceMin', String(params.priceMin));
+  if (params.priceMax !== undefined) qs.set('priceMax', String(params.priceMax));
+  if (params.minRating !== undefined) qs.set('minRating', String(params.minRating));
+  if (params.sort && params.sort !== 'popular') qs.set('sort', params.sort);
+  if (params.page && params.page > 1) qs.set('page', String(params.page));
+  if (params.limit) qs.set('limit', String(params.limit));
+
+  const q = qs.toString();
+  const res = await fetcher<BackendProduct[]>(`/products${q ? `?${q}` : ''}`);
+  return {
+    products: (res.data || []).map(mapProduct),
+    total: res.meta?.total || 0,
+    page: res.meta?.page || 1,
+    limit: res.meta?.limit || 12,
+    totalPages: res.meta?.totalPages || 0,
+  };
+}
+
+export async function fetchProductBySlug(slug: string): Promise<Product | null> {
+  try {
+    const res = await fetcher<BackendProduct>(`/products/${encodeURIComponent(slug)}`);
+    return res.data ? mapProduct(res.data) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchRelatedProducts(slug: string): Promise<Product[]> {
+  try {
+    const res = await fetcher<BackendProduct[]>(`/products/${encodeURIComponent(slug)}/related`);
+    return (res.data || []).map(mapProduct);
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchFeaturedProducts(): Promise<Product[]> {
+  const res = await fetcher<BackendProduct[]>('/products/featured');
+  return (res.data || []).map(mapProduct);
+}
+
+export interface CategoryListResult {
+  categories: Category[];
+}
+
+export async function fetchCategories(): Promise<Category[]> {
+  const res = await fetcher<BackendCategory[]>('/categories');
+  return (res.data || []).map(mapCategory);
+}
+
+export async function fetchCategoryBySlug(slug: string): Promise<Category | null> {
+  try {
+    const res = await fetcher<BackendCategory>(`/categories/${encodeURIComponent(slug)}`);
+    return res.data ? mapCategory(res.data) : null;
+  } catch {
+    return null;
+  }
+}

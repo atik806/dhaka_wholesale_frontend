@@ -6,7 +6,7 @@ import { X, ShoppingBag, Plus, Minus, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
-import { formatPrice } from "@/src/lib/utils";
+import { formatPrice, safeImage } from "@/src/lib/utils";
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false);
@@ -100,7 +100,7 @@ export function CartDrawer() {
                     >
                       <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-zinc-50 dark:bg-zinc-800">
                         <Image
-                          src={item.product.images[0]}
+                          src={safeImage(item.product.images)}
                           alt={item.product.name}
                           fill
                           className="object-cover"
@@ -109,7 +109,7 @@ export function CartDrawer() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <Link
-                          href={`/product/${item.product.id}`}
+                          href={`/product/${item.product.slug}`}
                           onClick={() => setOpen(false)}
                           className="text-sm font-medium line-clamp-1 hover:text-primary dark:hover:text-primary-light transition-colors"
                         >
@@ -123,7 +123,9 @@ export function CartDrawer() {
                             onClick={() =>
                               updateQuantity(
                                 item.product.id,
-                                item.quantity - 1
+                                item.quantity - 1,
+                                item.selectedSize,
+                                item.selectedColor
                               )
                             }
                             className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -137,7 +139,9 @@ export function CartDrawer() {
                             onClick={() =>
                               updateQuantity(
                                 item.product.id,
-                                item.quantity + 1
+                                item.quantity + 1,
+                                item.selectedSize,
+                                item.selectedColor
                               )
                             }
                             className="w-7 h-7 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -147,7 +151,7 @@ export function CartDrawer() {
                         </div>
                       </div>
                       <button
-                        onClick={() => removeItem(item.product.id)}
+                        onClick={() => removeItem(item.product.id, item.selectedSize, item.selectedColor)}
                         className="p-1 self-start rounded-lg hover:bg-danger/10 text-zinc-500 dark:text-zinc-400 hover:text-danger transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />

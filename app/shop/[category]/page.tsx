@@ -1,25 +1,40 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import products from "@/src/data/products.json";
-import type { Product } from "@/src/types/product";
+import type { Product, Category } from "@/src/types/product";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
-import { categories } from "@/src/lib/constants";
+import { fetchCategoryBySlug, fetchProducts } from "@/src/lib/api";
 
 export default function CategoryPage() {
   const params = useParams();
   const categorySlug = params.category as string;
-  const category = categories.find((c) => c.slug === categorySlug);
+  const [category, setCategory] = useState<Category | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const categoryProducts = useMemo(() => {
-    if (!category) return [];
-    return (products as Product[]).filter(
-      (p) => p.category === category.name
+  useEffect(() => {
+    Promise.all([
+      fetchCategoryBySlug(categorySlug),
+      fetchProducts({ category: categorySlug, limit: 100 }),
+    ])
+      .then(([cat, result]) => {
+        setCategory(cat);
+        setProducts(result.products);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [categorySlug]);
+
+  if (loading) {
+    return (
+      <div className="container py-20 text-center text-zinc-500 dark:text-zinc-400">
+        Loading...
+      </div>
     );
-  }, [category]);
+  }
 
   if (!category) {
     return (
@@ -50,7 +65,7 @@ export default function CategoryPage() {
         <p className="text-zinc-500 dark:text-zinc-400 text-sm">{category.description}</p>
       </div>
 
-      <ProductGrid products={categoryProducts} />
+      <ProductGrid products={products} />
     </motion.div>
   );
 }

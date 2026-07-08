@@ -31,6 +31,10 @@ export function getImageUrl(seed: string, w = 600, h = 600): string {
   return `https://placehold.co/${w}x${h}?text=${seed}`;
 }
 
+export function safeImage(images: string[] | undefined | null, fallback = '/placeholder.svg'): string {
+  return images?.[0] || fallback;
+}
+
 export function getCategoryImage(category: string): string {
   return `https://placehold.co/800x600?text=${category.toLowerCase().replace(/\s+/g, "+")}`;
 }

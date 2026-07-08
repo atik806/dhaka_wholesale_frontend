@@ -8,7 +8,7 @@ import Link from "next/link";
 import type { Product } from "@/src/types/product";
 import { Badge } from "@/src/components/ui/Badge";
 import { Rating } from "@/src/components/ui/Rating";
-import { formatPrice } from "@/src/lib/utils";
+import { formatPrice, safeImage } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { TiltCard } from "@/src/components/three/TiltCard";
 import { useToast } from "@/src/providers/ToastProvider";
@@ -27,7 +27,12 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem({ product, quantity: 1 });
+    addItem({
+      product,
+      quantity: 1,
+      selectedSize: product.variants?.sizes?.[0],
+      selectedColor: product.variants?.colors?.[0]?.name,
+    });
     addToast(`${product.name} added to cart`, "success");
     window.dispatchEvent(new CustomEvent("open-cart"));
   };
@@ -61,10 +66,10 @@ export function ProductCard({ product, index = 0 }: ProductCardProps) {
       transition={{ duration: 0.4, delay: index * 0.05 }}
     >
       <TiltCard tiltDegree={6} scale={1.01} glare={false}>
-        <Link href={`/product/${product.id}`} className="group block">
+        <Link href={`/product/${product.slug}`} className="group block">
           <div className="relative aspect-square rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 mb-3">
             <Image
-              src={product.images[0]}
+              src={safeImage(product.images)}
               alt={product.name}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-110"

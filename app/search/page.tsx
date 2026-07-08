@@ -1,14 +1,14 @@
 "use client";
 
-import { Suspense, useState, useMemo } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
-import products from "@/src/data/products.json";
 import type { Product } from "@/src/types/product";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
+import { fetchProducts } from "@/src/lib/api";
 
 export default function SearchPageWrapper() {
   return (
@@ -27,17 +27,17 @@ function SearchPage() {
   const router = useRouter();
   const query = searchParams.get("q") || "";
   const [localQuery, setLocalQuery] = useState(query);
+  const [results, setResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const results = useMemo(() => {
-    if (!query) return [];
-    const q = query.toLowerCase();
-    return (products as Product[]).filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.tags.some((t) => t.toLowerCase().includes(q))
-    );
+  useEffect(() => {
+    if (!query) return;
+    fetchProducts({ search: query, limit: 100 })
+      .then((result) => {
+        setResults(result.products);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, [query]);
 
   return (
@@ -83,16 +83,16 @@ function SearchPage() {
       {query && (
         <div className="mb-6">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            {results.length === 0
+            {loading ? "Searching..." : results.length === 0
               ? `No results found for "${query}"`
               : `Showing ${results.length} result${results.length > 1 ? "s" : ""} for "${query}"`}
           </p>
         </div>
       )}
 
-      {results.length > 0 ? (
+      {!loading && results.length > 0 ? (
         <ProductGrid products={results} />
-      ) : query ? (
+      ) : !loading && query ? (
         <EmptyState
           icon={<Search className="w-10 h-10 text-primary dark:text-primary-light" />}
           title="No results found"
@@ -100,7 +100,7 @@ function SearchPage() {
           actionLabel="Browse Categories"
           actionHref="/shop"
         />
-      ) : (
+      ) : !query ? (
         <EmptyState
           icon={<Search className="w-10 h-10 text-primary dark:text-primary-light" />}
           title="Search our store"
@@ -108,7 +108,7 @@ function SearchPage() {
           actionLabel="Shop All"
           actionHref="/shop"
         />
-      )}
+      ) : null}
     </motion.div>
   );
 }

@@ -4,13 +4,13 @@ export const SITE_NAME = "CholoKini";
 export const SITE_DESCRIPTION = "Discover premium products curated for your lifestyle";
 
 export const categories: Category[] = [
-  { id: "electronics", name: "Electronics", slug: "electronics", image: "https://placehold.co/seed/electronics/800/600", productCount: 8, description: "Cutting-edge gadgets and devices" },
-  { id: "fashion", name: "Fashion", slug: "fashion", image: "https://placehold.co/seed/fashion/800/600", productCount: 8, description: "Trendsetting apparel and accessories" },
-  { id: "home-living", name: "Home & Living", slug: "home-living", image: "https://placehold.co/seed/home-living/800/600", productCount: 6, description: "Elevate your living space" },
-  { id: "beauty", name: "Beauty", slug: "beauty", image: "https://placehold.co/seed/beauty/800/600", productCount: 5, description: "Premium skincare and cosmetics" },
-  { id: "sports", name: "Sports", slug: "sports", image: "https://placehold.co/seed/sports/800/600", productCount: 5, description: "Gear for an active lifestyle" },
-  { id: "groceries", name: "Groceries", slug: "groceries", image: "https://placehold.co/seed/groceries/800/600", productCount: 4, description: "Fresh and organic essentials" },
-  { id: "toys", name: "Toys & Games", slug: "toys", image: "https://placehold.co/seed/toys/800/600", productCount: 4, description: "Fun for all ages" },
+  { id: "electronics", name: "Electronics", slug: "electronics", image: "https://picsum.photos/seed/electronics/800/600", productCount: 8, description: "Cutting-edge gadgets and devices" },
+  { id: "fashion", name: "Fashion", slug: "fashion", image: "https://picsum.photos/seed/fashion/800/600", productCount: 8, description: "Trendsetting apparel and accessories" },
+  { id: "home-living", name: "Home & Living", slug: "home-living", image: "https://picsum.photos/seed/home-living/800/600", productCount: 6, description: "Elevate your living space" },
+  { id: "beauty", name: "Beauty", slug: "beauty", image: "https://picsum.photos/seed/beauty/800/600", productCount: 5, description: "Premium skincare and cosmetics" },
+  { id: "sports", name: "Sports", slug: "sports", image: "https://picsum.photos/seed/sports/800/600", productCount: 5, description: "Gear for an active lifestyle" },
+  { id: "groceries", name: "Groceries", slug: "groceries", image: "https://picsum.photos/seed/groceries/800/600", productCount: 4, description: "Fresh and organic essentials" },
+  { id: "toys", name: "Toys & Games", slug: "toys", image: "https://picsum.photos/seed/toys/800/600", productCount: 4, description: "Fun for all ages" },
 ];
 
 export const testimonials: Testimonial[] = [

@@ -1,21 +1,31 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
-import products from "@/src/data/products.json";
 import type { Product } from "@/src/types/product";
 import { useCartStore } from "@/src/store/useCartStore";
 import { ProductCard } from "@/src/components/product/ProductCard";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
+import { fetchProducts } from "@/src/lib/api";
 
 export default function WishlistPage() {
   const { wishlistIds } = useCartStore();
-  const wishlistProducts = (products as Product[]).filter((p) =>
-    wishlistIds.includes(p.id)
-  );
+  const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (wishlistProducts.length === 0) {
+  useEffect(() => {
+    if (wishlistIds.length === 0) return;
+    fetchProducts({ limit: 100 })
+      .then((result) => {
+        setWishlistProducts(result.products.filter((p) => wishlistIds.includes(p.id)));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [wishlistIds]);
+
+  if (wishlistIds.length === 0) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -44,7 +54,7 @@ export default function WishlistPage() {
     >
       <Breadcrumbs items={[{ label: "Wishlist" }]} />
       <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
-        My Wishlist ({wishlistProducts.length})
+        My Wishlist ({loading ? "..." : wishlistProducts.length})
       </h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {wishlistProducts.map((product, i) => (

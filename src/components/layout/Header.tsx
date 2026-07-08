@@ -150,6 +150,7 @@ export function Header() {
 
             <button
               onClick={toggleTheme}
+              suppressHydrationWarning
               className="p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >

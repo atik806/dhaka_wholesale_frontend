@@ -5,7 +5,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
-import { formatPrice } from "@/src/lib/utils";
+import { formatPrice, safeImage } from "@/src/lib/utils";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 
@@ -59,7 +59,7 @@ export default function CartPage() {
             >
               <div className="relative w-20 sm:w-24 h-20 sm:h-24 rounded-xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0">
                 <Image
-                  src={item.product.images[0]}
+                  src={safeImage(item.product.images)}
                   alt={item.product.name}
                   fill
                   className="object-cover"
@@ -68,7 +68,7 @@ export default function CartPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <Link
-                  href={`/product/${item.product.id}`}
+                  href={`/product/${item.product.slug}`}
                   className="font-medium text-sm hover:text-primary dark:hover:text-primary-light transition-colors line-clamp-1"
                 >
                   {item.product.name}
@@ -82,7 +82,7 @@ export default function CartPage() {
               </div>
               <div className="flex flex-col items-end justify-between">
                 <button
-                  onClick={() => removeItem(item.product.id)}
+                  onClick={() => removeItem(item.product.id, item.selectedSize, item.selectedColor)}
                   className="p-1.5 rounded-lg hover:bg-danger/10 text-zinc-500 dark:text-zinc-400 hover:text-danger transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -90,7 +90,7 @@ export default function CartPage() {
                 <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl p-1">
                   <button
                     onClick={() =>
-                      updateQuantity(item.product.id, item.quantity - 1)
+                      updateQuantity(item.product.id, item.quantity - 1, item.selectedSize, item.selectedColor)
                     }
                     className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                   >
@@ -101,7 +101,7 @@ export default function CartPage() {
                   </span>
                   <button
                     onClick={() =>
-                      updateQuantity(item.product.id, item.quantity + 1)
+                      updateQuantity(item.product.id, item.quantity + 1, item.selectedSize, item.selectedColor)
                     }
                     className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                   >

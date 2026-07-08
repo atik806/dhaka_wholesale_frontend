@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, Check, Sparkles, Truck, CreditCard, Clipboar
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
-import { formatPrice } from "@/src/lib/utils";
+import { formatPrice, safeImage } from "@/src/lib/utils";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
@@ -322,9 +322,9 @@ function ReviewOrder() {
             className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3"
           >
             <div className="w-14 h-14 rounded-lg overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0">
-                          <Image
-                            src={item.product.images[0]}
-                            alt={item.product.name}
+                            <Image
+                              src={safeImage(item.product.images)}
+                              alt={item.product.name}
                             fill
                             className="object-cover"
                             sizes="56px"

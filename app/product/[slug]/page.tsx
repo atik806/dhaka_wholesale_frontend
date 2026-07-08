@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { Heart, ShoppingBag, Minus, Plus, Truck, Shield, RotateCcw } from "lucide-react";
-import products from "@/src/data/products.json";
 import type { Product } from "@/src/types/product";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
@@ -16,23 +15,40 @@ import { formatPrice } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { categories } from "@/src/lib/constants";
 import { useToast } from "@/src/providers/ToastProvider";
+import { fetchProductBySlug, fetchRelatedProducts } from "@/src/lib/api";
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const slug = params.slug as string;
   const { addItem, toggleWishlist, isInWishlist } = useCartStore();
   const { addToast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string>();
   const [selectedColor, setSelectedColor] = useState<string>();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const product = (products as Product[]).find((p) => p.id === params.id);
+  useEffect(() => {
+    Promise.all([
+      fetchProductBySlug(slug),
+      fetchRelatedProducts(slug),
+    ])
+      .then(([prod, rel]) => {
+        setProduct(prod);
+        setRelated(rel);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [slug]);
 
-  const related = useMemo(() => {
-    if (!product) return [];
-    return (products as Product[])
-      .filter((p) => p.category === product.category && p.id !== product.id)
-      .slice(0, 4);
-  }, [product]);
+  if (loading) {
+    return (
+      <div className="container py-20 text-center text-zinc-500 dark:text-zinc-400">
+        Loading...
+      </div>
+    );
+  }
 
   if (!product) {
     return (
