@@ -2,11 +2,13 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Check } from "lucide-react";
+import { ArrowLeft, Loader2, Check, Download } from "lucide-react";
 import { fetchOrder, updateOrderStatus, updatePaymentStatus } from "@/src/lib/admin-api";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { formatPrice, formatDate, safeImage, cn } from "@/src/lib/utils";
+import { SITE_NAME } from "@/src/lib/constants";
 import type { Order } from "@/src/lib/admin-api";
+import { jsPDF } from "jspdf";
 
 const statusSteps = ["pending", "confirmed", "shipped", "delivered"];
 
@@ -60,6 +62,152 @@ export default function OrderDetailPage() {
     }
   };
 
+  const handleDownloadReceipt = useCallback(() => {
+    if (!order) return;
+    const addr = order.shipping_address as Record<string, string> | undefined;
+    const customerName = addr?.firstName && addr?.lastName
+      ? `${addr.firstName} ${addr.lastName}`
+      : order.profiles?.name || "—";
+    const customerEmail = addr?.email || order.profiles?.email || "—";
+
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const pageW = 210;
+    const margin = 20;
+    const y0 = 20;
+    let y = y0;
+
+    const bold = (text: string, size = 12) => {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(size);
+      doc.text(text, margin, y);
+    };
+    const normal = (text: string, size = 10) => {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(size);
+      doc.text(text, margin, y);
+    };
+    const line = () => {
+      y += 2;
+      doc.setDrawColor(200);
+      doc.line(margin, y, pageW - margin, y);
+      y += 4;
+    };
+
+    bold(SITE_NAME, 20);
+    y += 8;
+    bold("RECEIPT", 16);
+    y += 8;
+    line();
+
+    normal(`Order #${order.id.slice(0, 8).toUpperCase()}`, 11);
+    y += 5;
+    normal(`Date: ${formatDate(order.created_at)}`, 10);
+    y += 6;
+
+    bold("Customer", 11);
+    y += 5;
+    normal(`Name: ${customerName}`, 10);
+    y += 4;
+    normal(`Email: ${customerEmail}`, 10);
+    y += 4;
+    if (addr?.phone) {
+      normal(`Phone: ${addr.phone}`, 10);
+      y += 4;
+    }
+    y += 2;
+
+    bold("Shipping Address", 11);
+    y += 5;
+    if (addr) {
+      normal(`${addr.firstName || ""} ${addr.lastName || ""}`, 10);
+      y += 4;
+      normal(addr.address || "", 10);
+      y += 4;
+      normal(`${addr.city || ""} ${addr.zipCode || ""}`, 10);
+      y += 4;
+    }
+    y += 2;
+
+    bold("Payment", 11);
+    y += 5;
+    normal(`Method: ${order.payment_method.toUpperCase()}`, 10);
+    y += 4;
+    normal(`Status: ${order.payment_status.toUpperCase()}`, 10);
+    y += 6;
+    line();
+
+    // Items table header
+    const col1 = margin;
+    const col2 = 100;
+    const col3 = 140;
+    const col4 = 170;
+    const rowH = 6;
+
+    bold("Items", 11);
+    y += 5;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.text("Product", col1, y);
+    doc.text("Price", col2, y);
+    doc.text("Qty", col3, y);
+    doc.text("Subtotal", col4, y);
+    y += 4;
+    doc.setDrawColor(200);
+    doc.line(margin, y, pageW - margin, y);
+    y += 3;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    order.order_items?.forEach((item) => {
+      const name = item.product_name.length > 40
+        ? item.product_name.slice(0, 38) + ".."
+        : item.product_name;
+      if (y > 270) {
+        doc.addPage();
+        y = y0;
+      }
+      doc.text(name, col1, y, { maxWidth: col2 - col1 - 2 });
+      doc.text(formatPrice(item.price), col2, y);
+      doc.text(String(item.quantity), col3, y);
+      doc.text(formatPrice(item.price * item.quantity), col4, y, { align: "right" });
+      y += rowH;
+    });
+
+    y += 2;
+    line();
+
+    // Totals
+    const totalX = col2;
+    const labelX = totalX;
+    const valueX = col4;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("Subtotal", labelX, y);
+    doc.text(formatPrice(order.subtotal), valueX, y, { align: "right" });
+    y += 5;
+    doc.text("Shipping", labelX, y);
+    doc.text(formatPrice(order.shipping_cost), valueX, y, { align: "right" });
+    y += 5;
+    doc.text("Tax", labelX, y);
+    doc.text(formatPrice(order.tax), valueX, y, { align: "right" });
+    y += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text("Total", labelX, y);
+    doc.text(formatPrice(order.total), valueX, y, { align: "right" });
+
+    y += 12;
+    line();
+    y += 4;
+    normal(`Order Status: ${order.status.toUpperCase()}`, 9);
+    y += 4;
+    normal(`Thank you for shopping with ${SITE_NAME}!`, 9);
+
+    const fileName = `receipt-${order.id.slice(0, 8)}.pdf`;
+    doc.save(fileName);
+  }, [order]);
+
   const handlePaymentStatusChange = async (newStatus: string) => {
     if (!order || order.payment_status === newStatus) return;
     setUpdating(true);
@@ -103,6 +251,13 @@ export default function OrderDetailPage() {
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{formatDate(order.created_at)}</p>
         </div>
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleDownloadReceipt}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+          >
+            <Download className="w-4 h-4" />
+            Receipt
+          </button>
           <StatusBadge status={order.status} />
           <StatusBadge status={order.payment_status} />
         </div>
@@ -160,8 +315,21 @@ export default function OrderDetailPage() {
         <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6">
           <h2 className="text-sm font-semibold mb-4">Customer</h2>
           <div className="space-y-2 text-sm">
-            <p><span className="text-zinc-500 dark:text-zinc-400">Name:</span> {order.profiles?.name || "—"}</p>
-            <p><span className="text-zinc-500 dark:text-zinc-400">Email:</span> {order.profiles?.email || "—"}</p>
+            <p>
+              <span className="text-zinc-500 dark:text-zinc-400">Name:</span>{' '}
+              {(() => {
+                const a = order.shipping_address as Record<string, string> | undefined;
+                if (a?.firstName && a?.lastName) return `${a.firstName} ${a.lastName}`;
+                return order.profiles?.name || "—";
+              })()}
+            </p>
+            <p>
+              <span className="text-zinc-500 dark:text-zinc-400">Email:</span>{' '}
+              {(() => {
+                const a = order.shipping_address as Record<string, string> | undefined;
+                return a?.email || order.profiles?.email || "—";
+              })()}
+            </p>
           </div>
         </div>
 

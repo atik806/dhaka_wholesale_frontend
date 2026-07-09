@@ -46,7 +46,11 @@ export default function OrdersPage() {
     {
       key: "customer",
       label: "Customer",
-      render: (order) => order.profiles?.name || "—",
+      render: (order) => {
+        const addr = order.shipping_address as Record<string, string> | undefined;
+        if (addr?.firstName && addr?.lastName) return `${addr.firstName} ${addr.lastName}`;
+        return order.profiles?.name || "—";
+      },
     },
     {
       key: "total",
