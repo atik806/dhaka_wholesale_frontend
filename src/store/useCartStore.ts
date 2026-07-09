@@ -87,6 +87,13 @@ export const useCartStore = create<CartStore>()(
         items: state.items,
         wishlistIds: state.wishlistIds,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) state._hydrated = true;
+      },
     },
   ),
 );
+
+export function useCartHydrated() {
+  return useCartStore((s) => s._hydrated);
+}

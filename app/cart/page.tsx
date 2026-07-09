@@ -5,7 +5,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
-import { formatPrice, safeImage } from "@/src/lib/utils";
+import { formatPrice as fp, safeImage } from "@/src/lib/utils";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 
@@ -77,7 +77,7 @@ export default function CartPage() {
                   {item.product.category}
                 </p>
                 <p className="font-semibold text-sm mt-1">
-                  {formatPrice(item.product.price)}
+                  {fp(item.product.price)}
                 </p>
               </div>
               <div className="flex flex-col items-end justify-between">
@@ -119,20 +119,20 @@ export default function CartPage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                 <span>Subtotal</span>
-                <span>{formatPrice(totalPrice())}</span>
+                <span>{fp(totalPrice())}</span>
               </div>
               <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                 <span>Shipping</span>
-                <span>{totalPrice() >= 50 ? "Free" : "$5.00"}</span>
+                <span>{totalPrice() >= 50 ? "Free" : fp(5)}</span>
               </div>
               <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                 <span>Tax</span>
-                <span>{formatPrice(totalPrice() * 0.08)}</span>
+                <span>{fp(totalPrice() * 0.08)}</span>
               </div>
               <div className="border-t border-zinc-200 dark:border-zinc-700 pt-2 flex justify-between font-semibold">
                 <span>Total</span>
                 <span>
-                  {formatPrice(
+                  {fp(
                     totalPrice() + (totalPrice() >= 50 ? 0 : 5) + totalPrice() * 0.08
                   )}
                 </span>
