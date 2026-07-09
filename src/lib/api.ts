@@ -1,6 +1,6 @@
 import type { Product, Category } from '@/src/types/product';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+import { API_BASE } from './constants';
 
 interface ApiResponse<T> {
   success: boolean;

@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+import { API_BASE } from "./constants";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -140,4 +140,8 @@ export async function fetchContactMessages(params?: { page?: number; limit?: num
 }
 export async function markMessageRead(id: string): Promise<void> {
   await adminFetcher(`/admin/contact-messages/${id}/read`, { method: "PATCH" });
+}
+
+export async function deleteContactMessage(id: string): Promise<void> {
+  await adminFetcher(`/admin/contact-messages/${id}`, { method: "DELETE" });
 }
