@@ -87,11 +87,11 @@ export const Footer = memo(function Footer() {
             <h4 className="text-white font-semibold text-sm mb-5">Company</h4>
             <ul className="space-y-3">
               {[
-                { label: "About Us", href: "/shop" },
-                { label: "Careers", href: "/shop" },
-                { label: "Press", href: "/shop" },
-                { label: "Affiliates", href: "/shop" },
-                { label: "Sustainability", href: "/shop" },
+                { label: "About Us", href: "/about" },
+                { label: "Careers", href: "/careers" },
+                { label: "Press", href: "/press" },
+                { label: "Affiliates", href: "/affiliates" },
+                { label: "Sustainability", href: "/sustainability" },
               ].map(({ label, href }) => (
                 <li key={label}>
                   <Link
