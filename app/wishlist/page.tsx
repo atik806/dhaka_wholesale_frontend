@@ -16,8 +16,11 @@ export default function WishlistPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (wishlistIds.length === 0) return;
-    fetchProducts({ limit: 100 })
+    if (wishlistIds.length === 0) {
+      setLoading(false);
+      return;
+    }
+    fetchProducts({ limit: 100, ids: wishlistIds })
       .then((result) => {
         setWishlistProducts(result.products.filter((p) => wishlistIds.includes(p.id)));
         setLoading(false);

@@ -91,6 +91,7 @@ export interface ProductQueryParams {
   sort?: string;
   page?: number;
   limit?: number;
+  ids?: string[];
 }
 
 export interface ProductListResult {
@@ -111,6 +112,9 @@ export async function fetchProducts(params: ProductQueryParams = {}): Promise<Pr
   if (params.sort && params.sort !== 'popular') qs.set('sort', params.sort);
   if (params.page && params.page > 1) qs.set('page', String(params.page));
   if (params.limit) qs.set('limit', String(params.limit));
+  if (params.ids && params.ids.length > 0) {
+    params.ids.forEach((id) => qs.append('ids', id));
+  }
 
   const q = qs.toString();
   const res = await fetcher<BackendProduct[]>(`/products${q ? `?${q}` : ''}`);
