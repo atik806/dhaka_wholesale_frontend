@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/useCartStore";
-import { useIsLoggedIn, useAuthHydrated } from "@/src/store/useAuthStore";
+import { useIsLoggedIn, useAuthHydrated, useAuthStore } from "@/src/store/useAuthStore";
 import { formatPrice as fp, safeImage } from "@/src/lib/utils";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
@@ -25,6 +25,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const authHydrated = useAuthHydrated();
   const isLoggedIn = useIsLoggedIn();
+  const user = useAuthStore((s) => s.user);
+  const session = useAuthStore((s) => s.session);
   const [step, setStep] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [placing, setPlacing] = useState(false);
@@ -44,6 +46,23 @@ export default function CheckoutPage() {
     }
   }, [authHydrated, isLoggedIn, router]);
 
+  useEffect(() => {
+    if (user?.shipping_address) {
+      const addr = user.shipping_address;
+      setShipping({
+        firstName: addr.firstName || "",
+        lastName: addr.lastName || "",
+        email: addr.email || user.email || "",
+        phone: addr.phone || "",
+        address: addr.address || "",
+        city: addr.city || "",
+        zipCode: addr.zipCode || "",
+      });
+    } else if (user) {
+      setShipping((prev) => ({ ...prev, email: user.email || "" }));
+    }
+  }, [user]);
+
   const validateShipping = useCallback(() => {
     const errs: Record<string, string> = {};
     if (!shipping.firstName.trim()) errs.firstName = "Required";
@@ -59,11 +78,23 @@ export default function CheckoutPage() {
 
   const validatePayment = useCallback(() => ({} as Record<string, string>), []);
 
-  const handleNext = useCallback(() => {
+  const handleNext = useCallback(async () => {
     const errs = step === 0 ? validateShipping() : validatePayment();
     setErrors(errs);
-    if (Object.keys(errs).length === 0) setStep((s) => s + 1);
-  }, [step, validateShipping, validatePayment]);
+    if (Object.keys(errs).length === 0) {
+      if (step === 0 && session?.access_token) {
+        fetch(`${API_BASE}/auth/profile`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ shipping_address: shipping }),
+        }).catch(() => {});
+      }
+      setStep((s) => s + 1);
+    }
+  }, [step, validateShipping, validatePayment, session, shipping]);
 
   const handlePlaceOrder = useCallback(async () => {
     setPlacing(true);
@@ -82,9 +113,13 @@ export default function CheckoutPage() {
           selected_color: i.selectedColor || null,
         })),
       };
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (session?.access_token) {
+        headers.Authorization = `Bearer ${session.access_token}`;
+      }
       const res = await fetch(`${API_BASE}/orders/checkout`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify(body),
       });
       if (!res.ok) {
@@ -98,7 +133,7 @@ export default function CheckoutPage() {
     } finally {
       setPlacing(false);
     }
-  }, [shipping, items, clearCart]);
+  }, [shipping, items, clearCart, session]);
 
   if (!authHydrated || !isLoggedIn) {
     return (
