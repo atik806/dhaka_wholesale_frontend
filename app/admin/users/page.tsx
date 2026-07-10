@@ -194,7 +194,8 @@ export default function AdminUsersPage() {
                     setShowModal(false);
                     setForm({ name: "", email: "", password: "" });
                   } catch (err) {
-                    setFormError(err instanceof Error ? err.message : "Failed to create user");
+                    const msg = err instanceof Error ? err.message : "Failed to create user";
+                    setFormError(msg.includes("Internal server error") ? "Server error — check backend logs for details" : msg);
                   } finally {
                     setFormLoading(false);
                   }
