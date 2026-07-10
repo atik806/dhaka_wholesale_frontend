@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, memo } from "react";
+import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
@@ -12,6 +12,7 @@ import {
   Moon,
 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCartStore, useCartHydrated } from "@/src/store/useCartStore";
 import { categories } from "@/src/lib/constants";
 import { MobileNav } from "./MobileNav";
@@ -24,9 +25,18 @@ export const Header = memo(function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
   const cartHydrated = useCartHydrated();
-  const totalItems = useCartStore((s) => s.totalItems());
+  const cartItems = useCartStore((s) => s.items);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const searchRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
+
+  const handleSearch = useCallback(() => {
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+    }
+  }, [searchQuery, router]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -135,8 +145,8 @@ export const Header = memo(function Header() {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={(e) => {
-                          if (e.key === "Enter" && searchQuery.trim()) {
-                            window.location.href = `/search?q=${encodeURIComponent(searchQuery.trim())}`;
+                          if (e.key === "Enter") {
+                            handleSearch();
                           }
                         }}
                         placeholder="Search products..."

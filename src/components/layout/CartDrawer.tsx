@@ -14,8 +14,11 @@ export const CartDrawer = memo(function CartDrawer() {
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
-  const totalPrice = useCartStore((s) => s.totalPrice);
-  const totalItems = useCartStore((s) => s.totalItems);
+  const computedTotal = items.reduce(
+    (sum, item) => sum + (item.product.price || 0) * item.quantity,
+    0
+  );
+  const computedCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     const handler = () => setOpen(true);
@@ -73,7 +76,7 @@ export const CartDrawer = memo(function CartDrawer() {
               <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
                 <div className="flex items-center gap-2">
                   <ShoppingBag className="w-5 h-5" />
-                  <span className="font-semibold">Cart ({totalItems()})</span>
+                  <span className="font-semibold">Cart ({computedCount})</span>
                 </div>
                 <button
                   onClick={() => setOpen(false)}
@@ -95,7 +98,7 @@ export const CartDrawer = memo(function CartDrawer() {
                 ) : (
                   items.map((item) => (
                     <motion.div
-                      key={item.product.id}
+                      key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
                       layout
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -171,7 +174,7 @@ export const CartDrawer = memo(function CartDrawer() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-zinc-500 dark:text-zinc-400">Subtotal</span>
                     <span className="font-semibold">
-                      {formatPrice(totalPrice())}
+                      {formatPrice(computedTotal)}
                     </span>
                   </div>
                   <Link

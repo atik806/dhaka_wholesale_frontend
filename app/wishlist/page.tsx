@@ -11,7 +11,7 @@ import { EmptyState } from "@/src/components/ui/EmptyState";
 import { fetchProducts } from "@/src/lib/api";
 
 export default function WishlistPage() {
-  const { wishlistIds } = useCartStore();
+  const wishlistIds = useCartStore((s) => s.wishlistIds);
   const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -20,12 +20,16 @@ export default function WishlistPage() {
       setLoading(false);
       return;
     }
-    fetchProducts({ limit: 100, ids: wishlistIds })
+    const controller = new AbortController();
+    fetchProducts({ limit: 100, ids: wishlistIds }, controller.signal)
       .then((result) => {
         setWishlistProducts(result.products.filter((p) => wishlistIds.includes(p.id)));
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
   }, [wishlistIds]);
 
   if (wishlistIds.length === 0) {

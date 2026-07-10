@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -10,8 +11,21 @@ import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, totalPrice, totalItems } =
-    useCartStore();
+  const items = useCartStore((s) => s.items);
+  const removeItem = useCartStore((s) => s.removeItem);
+  const updateQuantity = useCartStore((s) => s.updateQuantity);
+  const totalItems = useCartStore((s) => s.totalItems);
+
+  const computedTotal = useMemo(() => {
+    const subtotal = items.reduce(
+      (sum, item) => sum + (item.product.price || 0) * item.quantity,
+      0
+    );
+    const shipping = subtotal >= 50 ? 0 : 5;
+    const tax = subtotal * 0.08;
+    const total = subtotal + shipping + tax;
+    return { subtotal, shipping, tax, total };
+  }, [items]);
 
   if (items.length === 0) {
     return (
@@ -50,7 +64,7 @@ export default function CartPage() {
         <div className="lg:col-span-2 space-y-4">
           {items.map((item) => (
             <motion.div
-              key={item.product.id}
+              key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
               layout
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -119,23 +133,19 @@ export default function CartPage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                 <span>Subtotal</span>
-                <span>{fp(totalPrice())}</span>
+                <span>{fp(computedTotal.subtotal)}</span>
               </div>
               <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                 <span>Shipping</span>
-                <span>{totalPrice() >= 50 ? "Free" : fp(5)}</span>
+                <span>{computedTotal.shipping === 0 ? "Free" : fp(computedTotal.shipping)}</span>
               </div>
               <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
                 <span>Tax</span>
-                <span>{fp(totalPrice() * 0.08)}</span>
+                <span>{fp(computedTotal.tax)}</span>
               </div>
               <div className="border-t border-zinc-200 dark:border-zinc-700 pt-2 flex justify-between font-semibold">
                 <span>Total</span>
-                <span>
-                  {fp(
-                    totalPrice() + (totalPrice() >= 50 ? 0 : 5) + totalPrice() * 0.08
-                  )}
-                </span>
+                <span>{fp(computedTotal.total)}</span>
               </div>
             </div>
             <Link

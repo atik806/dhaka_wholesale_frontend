@@ -21,9 +21,8 @@ interface ProductCardProps {
 export const ProductCard = memo(function ProductCard({ product, index = 0 }: ProductCardProps) {
   const addItem = useCartStore((s) => s.addItem);
   const toggleWishlist = useCartStore((s) => s.toggleWishlist);
-  const wishlistIds = useCartStore((s) => s.wishlistIds);
   const { addToast } = useToast();
-  const wishlisted = wishlistIds.includes(product.id);
+  const wishlisted = useCartStore((s) => s.wishlistIds.includes(product.id));
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleAddToCart = (e: React.MouseEvent) => {

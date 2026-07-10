@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check, Sparkles, Truck, ClipboardList, DollarSign, Loader2 } from "lucide-react";
 import Image from "next/image";
@@ -24,7 +24,8 @@ export default function CheckoutPage() {
   const [completed, setCompleted] = useState(false);
   const [placing, setPlacing] = useState(false);
   const [placeError, setPlaceError] = useState("");
-  const { items, clearCart } = useCartStore();
+  const items = useCartStore((s) => s.items);
+  const clearCart = useCartStore((s) => s.clearCart);
   const [shipping, setShipping] = useState({
     firstName: "", lastName: "", email: "", phone: "",
     address: "", city: "", zipCode: "",
@@ -317,14 +318,24 @@ function PaymentForm() {
 }
 
 function ReviewOrder() {
-  const { items, totalPrice } = useCartStore();
+  const items = useCartStore((s) => s.items);
+  const computedTotal = useMemo(() => {
+    const subtotal = items.reduce(
+      (sum, item) => sum + (item.product.price || 0) * item.quantity,
+      0
+    );
+    const shipping = subtotal >= 50 ? 0 : 5;
+    const tax = subtotal * 0.08;
+    const total = subtotal + shipping + tax;
+    return { subtotal, shipping, tax, total };
+  }, [items]);
   return (
     <div className="space-y-4">
       <h2 className="font-serif text-2xl font-bold">Review Your Order</h2>
       <div className="space-y-3">
         {items.map((item) => (
           <div
-            key={item.product.id}
+            key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
             className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-800 rounded-xl p-3"
           >
             <div className="w-14 h-14 rounded-lg overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0 relative">
@@ -351,19 +362,15 @@ function ReviewOrder() {
       <div className="border-t border-zinc-200 dark:border-zinc-700 pt-3 space-y-1 text-sm">
         <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
           <span>Subtotal</span>
-          <span>{fp(totalPrice())}</span>
+          <span>{fp(computedTotal.subtotal)}</span>
         </div>
         <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
           <span>Shipping</span>
-          <span>{totalPrice() >= 50 ? "Free" : fp(5)}</span>
+          <span>{computedTotal.shipping === 0 ? "Free" : fp(computedTotal.shipping)}</span>
         </div>
         <div className="flex justify-between font-semibold text-base pt-1 border-t border-zinc-200 dark:border-zinc-700">
           <span>Total</span>
-          <span>
-            {fp(
-              totalPrice() + (totalPrice() >= 50 ? 0 : 5) + totalPrice() * 0.08
-            )}
-          </span>
+          <span>{fp(computedTotal.total)}</span>
         </div>
       </div>
     </div>

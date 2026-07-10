@@ -60,7 +60,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth, pathname]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (authed === null) {
     return (
