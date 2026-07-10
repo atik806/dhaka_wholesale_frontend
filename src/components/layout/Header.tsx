@@ -10,10 +10,13 @@ import {
   ChevronDown,
   Sun,
   Moon,
+  User,
+  LogOut,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore, useCartHydrated } from "@/src/store/useCartStore";
+import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
 import { categories } from "@/src/lib/constants";
 import { MobileNav } from "./MobileNav";
 import { useTheme } from "@/src/providers/ThemeProvider";
@@ -24,12 +27,18 @@ export const Header = memo(function Header() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const cartHydrated = useCartHydrated();
   const cartItems = useCartStore((s) => s.items);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const searchRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
+  const authHydrated = useAuthHydrated();
+  const isLoggedIn = useIsLoggedIn();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   const handleSearch = useCallback(() => {
     if (searchQuery.trim()) {
@@ -48,6 +57,9 @@ export const Header = memo(function Header() {
     const onClick = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setSearchOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", onClick);
@@ -178,6 +190,67 @@ export const Header = memo(function Header() {
             >
               <Heart className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
             </Link>
+
+            <div ref={userMenuRef} className="relative">
+              {authHydrated && isLoggedIn ? (
+                <button
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-1.5 p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <div className="w-5 h-5 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-primary dark:text-primary-light">
+                      {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
+                  </div>
+                </button>
+              ) : authHydrated ? (
+                <Link
+                  href="/login"
+                  className="p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  <User className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+                </Link>
+              ) : null}
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-2 z-50"
+                  >
+                    <div className="px-4 py-2 border-b border-zinc-100 dark:border-zinc-700">
+                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                        {user?.name}
+                      </p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                    <Link
+                      href="/account"
+                      onClick={() => setUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      My Account
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setUserMenuOpen(false);
+                        logout();
+                        router.push("/");
+                      }}
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
 
             <Link
               href="/cart"

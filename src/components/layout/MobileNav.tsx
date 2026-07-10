@@ -1,11 +1,13 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, Sun, Moon } from "lucide-react";
+import { X, Heart, Sun, Moon, User, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useEffect } from "react";
 import { categories } from "@/src/lib/constants";
 import { useTheme } from "@/src/providers/ThemeProvider";
+import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
 
 interface MobileNavProps {
   open: boolean;
@@ -15,6 +17,11 @@ interface MobileNavProps {
 export function MobileNav({ open, onClose }: MobileNavProps) {
   const navRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
+  const router = useRouter();
+  const authHydrated = useAuthHydrated();
+  const isLoggedIn = useIsLoggedIn();
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
     if (!open) return;
@@ -118,6 +125,40 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
               >
                 <Heart className="w-4 h-4" /> Wishlist
               </Link>
+              {authHydrated && (
+                isLoggedIn ? (
+                  <div className="pt-2 pb-1">
+                    <p className="px-4 text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-1">
+                      Account
+                    </p>
+                    <div className="px-4 py-2 mb-1">
+                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{user?.name}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{user?.email}</p>
+                    </div>
+                    <Link
+                      href="/account"
+                      onClick={onClose}
+                      className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    >
+                      <User className="w-4 h-4" /> My Account
+                    </Link>
+                    <button
+                      onClick={() => { logout(); onClose(); router.push("/"); }}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 rounded-xl text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" /> Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <Link
+                    href="/login"
+                    onClick={onClose}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  >
+                    <User className="w-4 h-4" /> Sign In / Register
+                  </Link>
+                )
+              )}
               <hr className="my-3 border-zinc-200 dark:border-zinc-700" />
               <button
                 onClick={toggleTheme}
