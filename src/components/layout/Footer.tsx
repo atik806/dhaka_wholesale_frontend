@@ -1,14 +1,11 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { memo } from "react";
 import {
   Globe,
   MessageCircle,
   Video,
   Radio,
-  Mail,
-  ArrowRight,
   Heart,
 } from "lucide-react";
 import Link from "next/link";
@@ -88,10 +85,6 @@ export const Footer = memo(function Footer() {
             <ul className="space-y-3">
               {[
                 { label: "About Us", href: "/about" },
-                { label: "Careers", href: "/careers" },
-                { label: "Press", href: "/press" },
-                { label: "Affiliates", href: "/affiliates" },
-                { label: "Sustainability", href: "/sustainability" },
               ].map(({ label, href }) => (
                 <li key={label}>
                   <Link
@@ -110,21 +103,6 @@ export const Footer = memo(function Footer() {
           <p className="text-sm text-zinc-500 dark:text-zinc-600">
             &copy; 2025 CholoKini. All rights reserved.
           </p>
-
-          <div className="flex items-center gap-2 bg-zinc-800/50 dark:bg-zinc-800/50 rounded-xl px-3 py-1.5 w-full sm:w-auto border border-zinc-700/50">
-            <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
-            <input
-              type="email"
-              placeholder="Your email for updates"
-              className="flex-1 bg-transparent text-sm py-1.5 outline-none text-white placeholder:text-zinc-500 dark:placeholder:text-zinc-500 min-w-0"
-            />
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              className="p-1.5 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors shrink-0"
-            >
-              <ArrowRight className="w-4 h-4" />
-            </motion.button>
-          </div>
         </div>
       </div>
     </footer>

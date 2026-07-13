@@ -5,8 +5,7 @@ import { HeroSection } from "@/src/components/home/HeroSection";
 import { FeaturedCategories } from "@/src/components/home/FeaturedCategories";
 import { TrendingProducts } from "@/src/components/home/TrendingProducts";
 import { PromoBanner } from "@/src/components/home/PromoBanner";
-import { Newsletter } from "@/src/components/home/Newsletter";
-import { Testimonials } from "@/src/components/home/Testimonials";
+
 
 export default function Home() {
   return (
@@ -19,8 +18,6 @@ export default function Home() {
       <FeaturedCategories />
       <TrendingProducts />
       <PromoBanner />
-      <Testimonials />
-      <Newsletter />
     </motion.div>
   );
 }

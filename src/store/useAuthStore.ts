@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AuthUser, AuthSession } from "@/src/lib/auth-api";
 import { refreshSession } from "@/src/lib/auth-api";
+import { getSupabase } from "@/src/lib/supabase";
 
 interface AuthState {
   user: AuthUser | null;
@@ -25,7 +26,12 @@ export const useAuthStore = create<AuthState>()(
 
       setAuth: (user, session) => set({ user, session }),
 
-      logout: () => {
+      logout: async () => {
+        try {
+          await getSupabase().auth.signOut();
+        } catch {
+          // sign out even if server call fails
+        }
         set({ user: null, session: null });
       },
 
