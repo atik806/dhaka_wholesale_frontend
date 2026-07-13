@@ -92,15 +92,69 @@ export async function getProfile(
 }
 
 export async function updateProfile(
-  token: string,
+  _token: string,
   updates: { name?: string; phone?: string; avatar_url?: string; shipping_address?: ShippingAddress },
 ): Promise<AuthUser> {
-  const res = await fetch(`${API_BASE}/auth/profile`, {
+  const res = await authFetch(`${API_BASE}/auth/profile`, {
     method: "PATCH",
-    headers: authHeaders(token),
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(updates),
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || "Failed to update profile");
   return json.data;
+}
+
+let refreshPromise: Promise<string | null> | null = null;
+
+async function getValidToken(): Promise<string | null> {
+  const { useAuthStore } = await import("@/src/store/useAuthStore");
+  const { session, refreshAuth } = useAuthStore.getState();
+
+  if (!session?.access_token) return null;
+
+  if (session.expires_at && session.expires_at * 1000 > Date.now() + 30_000) {
+    return session.access_token;
+  }
+
+  if (!refreshPromise) {
+    refreshPromise = (async () => {
+      try {
+        const ok = await refreshAuth();
+        if (!ok) return null;
+        return useAuthStore.getState().session?.access_token ?? null;
+      } finally {
+        refreshPromise = null;
+      }
+    })();
+  }
+
+  return refreshPromise;
+}
+
+export async function authFetch(
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> {
+  let token = await getValidToken();
+  if (!token) throw new Error("Session expired. Please log in again.");
+
+  const headers = new Headers(options.headers);
+  headers.set("Authorization", `Bearer ${token}`);
+
+  let res = await fetch(url, { ...options, headers });
+
+  if (res.status === 401) {
+    const { useAuthStore } = await import("@/src/store/useAuthStore");
+    const ok = await useAuthStore.getState().refreshAuth();
+    if (!ok) throw new Error("Session expired. Please log in again.");
+
+    token = useAuthStore.getState().session?.access_token ?? null;
+    if (!token) throw new Error("Session expired. Please log in again.");
+
+    headers.set("Authorization", `Bearer ${token}`);
+    res = await fetch(url, { ...options, headers });
+  }
+
+  return res;
 }

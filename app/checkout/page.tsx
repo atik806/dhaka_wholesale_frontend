@@ -14,6 +14,7 @@ import { Input } from "@/src/components/ui/Input";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 import { API_BASE } from "@/src/lib/constants";
+import { authFetch } from "@/src/lib/auth-api";
 
 const steps = [
   { id: "shipping", label: "Shipping", icon: Truck },
@@ -70,12 +71,9 @@ export default function CheckoutPage() {
     setErrors(errs);
     if (Object.keys(errs).length === 0) {
       if (step === 0 && session?.access_token) {
-        fetch(`${API_BASE}/auth/profile`, {
+        authFetch(`${API_BASE}/auth/profile`, {
           method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session.access_token}`,
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ shipping_address: shipping }),
         }).catch(() => {});
       }
@@ -100,13 +98,9 @@ export default function CheckoutPage() {
           selected_color: i.selectedColor || null,
         })),
       };
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (session?.access_token) {
-        headers.Authorization = `Bearer ${session.access_token}`;
-      }
-      const res = await fetch(`${API_BASE}/orders/checkout`, {
+      const res = await authFetch(`${API_BASE}/orders/checkout`, {
         method: "POST",
-        headers,
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       if (!res.ok) {
@@ -120,7 +114,7 @@ export default function CheckoutPage() {
     } finally {
       setPlacing(false);
     }
-  }, [shipping, items, clearCart, session]);
+  }, [shipping, items, clearCart]);
 
   if (!authHydrated || !isLoggedIn) {
     return (
