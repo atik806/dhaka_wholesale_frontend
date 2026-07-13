@@ -10,11 +10,13 @@ interface AuthState {
   user: AuthUser | null;
   session: AuthSession | null;
   _hydrated: boolean;
+  _initialized: boolean;
 
   setAuth: (user: AuthUser, session: AuthSession) => void;
   logout: () => void;
   updateUser: (fields: Partial<AuthUser>) => void;
   refreshAuth: () => Promise<boolean>;
+  initAuth: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -23,6 +25,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       session: null,
       _hydrated: false,
+      _initialized: false,
 
       setAuth: (user, session) => set({ user, session }),
 
@@ -50,6 +53,24 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           set({ user: null, session: null });
           return false;
+        }
+      },
+
+      initAuth: async () => {
+        const { session, _initialized } = get();
+        if (_initialized) return;
+        set({ _initialized: true });
+
+        if (!session?.refresh_token) return;
+
+        const isExpired =
+          !session.expires_at || session.expires_at * 1000 <= Date.now() + 60_000;
+
+        if (isExpired) {
+          const ok = await get().refreshAuth();
+          if (!ok) {
+            set({ user: null, session: null });
+          }
         }
       },
     }),
