@@ -11,16 +11,18 @@ export default function AccountPage() {
   const router = useRouter();
   const { user, session, logout, updateUser } = useAuthStore();
   const hydrated = useAuthHydrated();
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [name, setName] = useState(user?.name ?? "");
+  const [phone, setPhone] = useState(user?.phone ?? "");
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const [addr, setAddr] = useState<ShippingAddress>({
-    firstName: "", lastName: "", email: "", phone: "",
-    address: "", city: "", zipCode: "",
-  });
+  const [addr, setAddr] = useState<ShippingAddress>(
+    user?.shipping_address ?? {
+      firstName: "", lastName: "", email: "", phone: "",
+      address: "", city: "", zipCode: "",
+    }
+  );
   const [addrSaving, setAddrSaving] = useState(false);
   const [addrMessage, setAddrMessage] = useState("");
   const [addrError, setAddrError] = useState("");
@@ -31,16 +33,6 @@ export default function AccountPage() {
       router.replace("/login?redirect=/account");
     }
   }, [hydrated, user, router]);
-
-  useEffect(() => {
-    if (user) {
-      setName(user.name || "");
-      setPhone(user.phone || "");
-      if (user.shipping_address) {
-        setAddr(user.shipping_address);
-      }
-    }
-  }, [user]);
 
   if (!hydrated || !user) {
     return (

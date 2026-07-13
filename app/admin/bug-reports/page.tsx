@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bug, X, Loader2, ExternalLink, Image as ImageIcon,
@@ -44,20 +44,27 @@ export default function AdminBugReportsPage() {
   const [updating, setUpdating] = useState(false);
   const [replyText, setReplyText] = useState("");
 
-  const load = useCallback(async (page: number) => {
+  const load = async (page: number) => {
     setLoading(true);
     try {
       const res = await fetchBugReports({ page, limit: 20 });
       setReports(res.reports);
       setMeta(res.meta);
-    } catch {
-      // handled by adminFetcher 401 redirect
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    } catch { /* 401 redirect */ }
+    finally { setLoading(false); }
+  };
 
-  useEffect(() => { load(1); }, [load]);
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetchBugReports({ page: 1, limit: 20 });
+        if (active) { setReports(res.reports); setMeta(res.meta); }
+      } catch { /* 401 redirect */ }
+      finally { if (active) setLoading(false); }
+    })();
+    return () => { active = false; };
+  }, []);
 
   const handleStatusChange = async (report: BugReport, status: string) => {
     setUpdating(true);

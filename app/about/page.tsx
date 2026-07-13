@@ -40,13 +40,13 @@ export default function AboutPage() {
           <h2 className="font-serif text-2xl font-bold mb-6">Our Story</h2>
           <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 sm:p-8">
             <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-              CholoKini was born from a simple observation: finding quality products online shouldn't be a treasure hunt. Our founders, tired of sifting through endless options of questionable quality, set out to create a curated marketplace where every item tells a story of craftsmanship and care.
+              CholoKini was born from a simple observation: finding quality products online shouldn&apos;t be a treasure hunt. Our founders, tired of sifting through endless options of questionable quality, set out to create a curated marketplace where every item tells a story of craftsmanship and care.
             </p>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
               What started as a small collection of handpicked home goods has grown into a destination for discerning shoppers who value quality over quantity. We work directly with artisans, small manufacturers, and established brands who share our commitment to excellence.
             </p>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              Every product on CholoKini has been tested, reviewed, and approved by our curation team. We don't just list items — we champion them.
+              Every product on CholoKini has been tested, reviewed, and approved by our curation team. We don&apos;t just list items — we champion them.
             </p>
           </div>
         </div>
