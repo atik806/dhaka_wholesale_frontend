@@ -52,16 +52,31 @@ function LoginForm() {
     setGoogleLoading(true);
     try {
       const redirect = safeRedirect(searchParams.get("redirect"));
-      const { error: oauthErr } = await getSupabase().auth.signInWithOAuth({
+      const supabase = getSupabase();
+      const { data, error: oauthErr } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
+          skipBrowserRedirect: true,
         },
       });
+
+      // Debug: verify PKCE verifier was stored before redirect
+      const lsKeys = Object.keys(localStorage);
+      const pkceKey = lsKeys.find((k) => k.includes("code-verifier"));
+      console.log("[OAuth Login] localStorage keys:", lsKeys);
+      console.log("[OAuth Login] PKCE verifier stored:", pkceKey ? "YES" : "NO");
+
       if (oauthErr) {
         setOauthError(oauthErr.message || "Failed to start Google sign-in");
         setGoogleLoading(false);
         return;
+      }
+
+      // Manual redirect after confirming PKCE verifier is stored
+      if (data?.url) {
+        console.log("[OAuth Login] Redirecting to Google OAuth URL...");
+        window.location.href = data.url;
       }
     } catch {
       setOauthError("Failed to start Google sign-in");

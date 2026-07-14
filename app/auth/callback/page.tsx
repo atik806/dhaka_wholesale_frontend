@@ -2,7 +2,6 @@
 
 import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import type { AuthTokenResponse } from "@supabase/auth-js";
 import { getSupabase } from "@/src/lib/supabase";
 import { getProfile, syncProfile } from "@/src/lib/auth-api";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -36,25 +35,24 @@ function CallbackHandler() {
 
       const supabase = getSupabase();
 
+      // Supabase auto-init already detected the PKCE callback via _initialize()
+      // and exchanged the code for a session. We just need to retrieve it.
+      // getSession() internally awaits initializePromise.
       const TIMEOUT_MS = 15_000;
-      const exchange = supabase.auth.exchangeCodeForSession(code);
+      const sessionPromise = supabase.auth.getSession();
       const timeout = new Promise<never>((_, reject) =>
         setTimeout(
-          () => reject(new Error("Code exchange timed out after 15s")),
+          () => reject(new Error("getSession timed out after 15s")),
           TIMEOUT_MS,
         ),
       );
 
-      let sessionData: AuthTokenResponse["data"] | null = null;
-      let sessionError: { message: string } | null = null;
-
+      let sessionResult: Awaited<typeof sessionPromise>;
       try {
-        const result = (await Promise.race([exchange, timeout])) as AuthTokenResponse;
-        sessionData = result.data;
-        sessionError = result.error;
+        sessionResult = await Promise.race([sessionPromise, timeout]);
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : "unknown";
-        console.error("[OAuth Callback] Code exchange threw:", message);
+        console.error("[OAuth Callback] getSession threw:", message);
         router.push(
           `/login?error=oauth_exchange_failed&error_description=${encodeURIComponent(
             message,
@@ -63,24 +61,19 @@ function CallbackHandler() {
         return;
       }
 
+      const { data, error: sessionError } = sessionResult;
+
       if (sessionError) {
-        console.error(
-          "[OAuth Callback] Session error:",
-          sessionError.message,
-          sessionError,
-        );
+        console.error("[OAuth Callback] Session error:", sessionError.message);
       }
 
-      if (sessionError || !sessionData?.session) {
+      if (sessionError || !data?.session) {
         const desc = sessionError?.message ?? "no_session";
-        const lsKeys = typeof window !== "undefined" ? Object.keys(localStorage) : [];
         console.error(
           "[OAuth Callback] No session. Error:",
           desc,
           "| Code present:",
           !!code,
-          "| localStorage keys:",
-          lsKeys,
         );
         router.push(
           `/login?error=oauth_failed&error_description=${encodeURIComponent(
@@ -90,7 +83,7 @@ function CallbackHandler() {
         return;
       }
 
-      const session = sessionData.session;
+      const session = data.session;
       const { access_token, refresh_token, expires_at } = {
         ...session,
         expires_at: session.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
