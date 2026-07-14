@@ -73,16 +73,14 @@ function CallbackHandler() {
 
       if (sessionError || !sessionData?.session) {
         const desc = sessionError?.message ?? "no_session";
+        const lsKeys = typeof window !== "undefined" ? Object.keys(localStorage) : [];
         console.error(
           "[OAuth Callback] No session. Error:",
           desc,
           "| Code present:",
           !!code,
-          "| Has verifier in localStorage:",
-          !!(
-            typeof window !== "undefined" &&
-            Object.keys(localStorage).some((k) => k.includes("code-verifier"))
-          ),
+          "| localStorage keys:",
+          lsKeys,
         );
         router.push(
           `/login?error=oauth_failed&error_description=${encodeURIComponent(

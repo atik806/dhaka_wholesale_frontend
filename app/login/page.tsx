@@ -52,21 +52,19 @@ function LoginForm() {
     setGoogleLoading(true);
     try {
       const redirect = safeRedirect(searchParams.get("redirect"));
-      const { data, error: oauthErr } = await getSupabase().auth.signInWithOAuth({
+      const { error: oauthErr } = await getSupabase().auth.signInWithOAuth({
         provider: "google",
         options: {
           redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
-          skipBrowserRedirect: true,
         },
       });
-      if (oauthErr || !data.url) {
-        setOauthError(oauthErr?.message || "Failed to start Google sign-in");
+      if (oauthErr) {
+        setOauthError(oauthErr.message || "Failed to start Google sign-in");
+        setGoogleLoading(false);
         return;
       }
-      window.location.href = data.url;
     } catch {
       setOauthError("Failed to start Google sign-in");
-    } finally {
       setGoogleLoading(false);
     }
   };
