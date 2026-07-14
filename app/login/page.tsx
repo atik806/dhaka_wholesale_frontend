@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LogIn } from "lucide-react";
@@ -14,6 +14,26 @@ function safeRedirect(path: string | null): string {
   return path;
 }
 
+function getOAuthError(
+  errorType: string | null,
+  desc: string | null,
+): string {
+  if (errorType === "oauth_profile_failed") {
+    return "Could not create your profile. Please try again or contact support.";
+  }
+  if (errorType === "oauth_exchange_failed") {
+    return "Google sign-in timed out. Please try again.";
+  }
+  if (errorType === "oauth_failed") {
+    const msg = desc ? decodeURIComponent(desc) : "";
+    if (msg.includes("No session found") || msg.includes("no_session")) {
+      return "Google sign-in failed: session not created. Please ensure the Supabase redirect URL includes http://localhost:3000/auth/callback and try again.";
+    }
+    return "Google sign-in failed. Please try again.";
+  }
+  return "";
+}
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -23,24 +43,9 @@ function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [oauthError, setOauthError] = useState("");
-
-  useEffect(() => {
-    const errorType = searchParams.get("error");
-    const desc = searchParams.get("error_description");
-    if (errorType === "oauth_profile_failed") {
-      setOauthError("Could not create your profile. Please try again or contact support.");
-    } else if (errorType === "oauth_exchange_failed") {
-      setOauthError("Google sign-in timed out. Please try again.");
-    } else if (errorType === "oauth_failed") {
-      const msg = desc ? decodeURIComponent(desc) : "";
-      if (msg.includes("No session found") || msg.includes("no_session")) {
-        setOauthError("Google sign-in failed: session not created. Please ensure the Supabase redirect URL includes http://localhost:3000/auth/callback and try again.");
-      } else {
-        setOauthError("Google sign-in failed. Please try again.");
-      }
-    }
-  }, [searchParams]);
+  const [oauthError, setOauthError] = useState(() =>
+    getOAuthError(searchParams.get("error"), searchParams.get("error_description")),
+  );
 
   const handleGoogleSignIn = async () => {
     setOauthError("");

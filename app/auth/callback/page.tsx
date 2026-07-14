@@ -2,6 +2,7 @@
 
 import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
+import type { Session } from "@supabase/supabase-js";
 import { getSupabase } from "@/src/lib/supabase";
 import { getProfile, syncProfile } from "@/src/lib/auth-api";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -44,8 +45,8 @@ function CallbackHandler() {
         ),
       );
 
-      let sessionData: any;
-      let sessionError: any;
+      let sessionData: { session: Session } | null = null;
+      let sessionError: { message: string } | null = null;
 
       try {
         const result = (await Promise.race([exchange, timeout])) as Awaited<
@@ -53,11 +54,12 @@ function CallbackHandler() {
         >;
         sessionData = result.data;
         sessionError = result.error;
-      } catch (err: any) {
-        console.error("[OAuth Callback] Code exchange threw:", err?.message);
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "unknown";
+        console.error("[OAuth Callback] Code exchange threw:", message);
         router.push(
           `/login?error=oauth_exchange_failed&error_description=${encodeURIComponent(
-            err?.message ?? "unknown",
+            message,
           )}`,
         );
         return;
@@ -114,10 +116,11 @@ function CallbackHandler() {
           const user = await syncProfile(access_token, oauthName, oauthEmail);
           setAuth(user, { access_token, refresh_token, expires_at });
           router.push(redirect);
-        } catch (syncErr: any) {
+        } catch (syncErr: unknown) {
+          const syncMsg = syncErr instanceof Error ? syncErr.message : "unknown";
           console.error(
             "[OAuth Callback] Profile sync failed:",
-            syncErr?.message,
+            syncMsg,
           );
           setAuth(
             {

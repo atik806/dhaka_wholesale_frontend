@@ -1,5 +1,14 @@
 import { API_BASE } from "./constants";
 
+interface AuthStoreState {
+  session: AuthSession | null;
+  refreshAuth: () => Promise<boolean>;
+}
+
+interface AuthStore {
+  getState(): AuthStoreState;
+}
+
 export interface ShippingAddress {
   firstName?: string;
   lastName?: string;
@@ -137,13 +146,13 @@ export async function updateProfile(
 let refreshPromise: Promise<string | null> | null = null;
 
 async function getValidToken(): Promise<string | null> {
-  let useAuthStore: any;
+  let authStore: AuthStore;
   try {
-    useAuthStore = (await import("@/src/store/useAuthStore")).useAuthStore;
+    authStore = (await import("@/src/store/useAuthStore")).useAuthStore;
   } catch {
     return null;
   }
-  const { session, refreshAuth } = useAuthStore.getState();
+  const { session, refreshAuth } = authStore.getState();
 
   if (!session?.access_token) return null;
 
@@ -156,7 +165,7 @@ async function getValidToken(): Promise<string | null> {
       try {
         const ok = await refreshAuth();
         if (!ok) return null;
-        return useAuthStore.getState().session?.access_token ?? null;
+        return authStore.getState().session?.access_token ?? null;
       } finally {
         refreshPromise = null;
       }
@@ -179,17 +188,17 @@ export async function authFetch(
   let res = await fetch(url, { ...options, headers });
 
   if (res.status === 401) {
-    let useAuthStore: any;
+    let authStore: AuthStore;
     try {
-      useAuthStore = (await import("@/src/store/useAuthStore")).useAuthStore;
+      authStore = (await import("@/src/store/useAuthStore")).useAuthStore;
     } catch {
       throw new Error("Failed to load auth store for token refresh.");
     }
 
-    const ok = await useAuthStore.getState().refreshAuth();
+    const ok = await authStore.getState().refreshAuth();
     if (!ok) throw new Error("Session refresh failed. Please log in again.");
 
-    token = useAuthStore.getState().session?.access_token ?? null;
+    token = authStore.getState().session?.access_token ?? null;
     if (!token) throw new Error("Session refresh returned no token. Please log in again.");
 
     headers.set("Authorization", `Bearer ${token}`);
