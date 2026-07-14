@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LogIn } from "lucide-react";
@@ -22,6 +22,49 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [oauthError, setOauthError] = useState("");
+
+  useEffect(() => {
+    const errorType = searchParams.get("error");
+    const desc = searchParams.get("error_description");
+    if (errorType === "oauth_profile_failed") {
+      setOauthError("Could not create your profile. Please try again or contact support.");
+    } else if (errorType === "oauth_exchange_failed") {
+      setOauthError("Google sign-in timed out. Please try again.");
+    } else if (errorType === "oauth_failed") {
+      const msg = desc ? decodeURIComponent(desc) : "";
+      if (msg.includes("No session found") || msg.includes("no_session")) {
+        setOauthError("Google sign-in failed: session not created. Please ensure the Supabase redirect URL includes http://localhost:3000/auth/callback and try again.");
+      } else {
+        setOauthError("Google sign-in failed. Please try again.");
+      }
+    }
+  }, [searchParams]);
+
+  const handleGoogleSignIn = async () => {
+    setOauthError("");
+    setGoogleLoading(true);
+    try {
+      const redirect = safeRedirect(searchParams.get("redirect"));
+      const { data, error: oauthErr } = await getSupabase().auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
+          skipBrowserRedirect: true,
+        },
+      });
+      if (oauthErr || !data.url) {
+        setOauthError(oauthErr?.message || "Failed to start Google sign-in");
+        return;
+      }
+      window.location.href = data.url;
+    } catch {
+      setOauthError("Failed to start Google sign-in");
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,9 +128,9 @@ function LoginForm() {
                 className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
               />
             </div>
-            {error && (
+            {(error || oauthError) && (
               <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-2">
-                {error}
+                {oauthError || error}
               </p>
             )}
             <button
@@ -110,16 +153,9 @@ function LoginForm() {
           </div>
           <button
             type="button"
-            onClick={() => {
-              const redirect = safeRedirect(searchParams.get("redirect"));
-              getSupabase().auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                  redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
-                },
-              });
-            }}
-            className="w-full flex items-center justify-center gap-3 border border-zinc-200 dark:border-zinc-700 rounded-xl py-2.5 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+            onClick={handleGoogleSignIn}
+            disabled={googleLoading}
+            className="w-full flex items-center justify-center gap-3 border border-zinc-200 dark:border-zinc-700 rounded-xl py-2.5 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
