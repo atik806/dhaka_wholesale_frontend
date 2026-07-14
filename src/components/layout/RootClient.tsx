@@ -14,6 +14,7 @@ import { useAuthStore } from "@/src/store/useAuthStore";
 export function RootClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
+  const isAuthPage = pathname === "/login" || pathname === "/register";
   const initAuth = useAuthStore((s) => s.initAuth);
   const hydrated = useAuthStore((s) => s._hydrated);
 
@@ -25,7 +26,7 @@ export function RootClient({ children }: { children: React.ReactNode }) {
       <PageLoader />
       {!isAdmin && <Header />}
       <main id="main-content" className="flex-1">{children}</main>
-      {!isAdmin && <Footer />}
+      {!isAdmin && !isAuthPage && <Footer />}
       {!isAdmin && <CartDrawer />}
       <Toaster />
       {!isAdmin && <ScrollToTop />}
