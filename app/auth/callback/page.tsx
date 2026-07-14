@@ -2,7 +2,7 @@
 
 import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import type { Session } from "@supabase/supabase-js";
+import type { AuthTokenResponse } from "@supabase/auth-js";
 import { getSupabase } from "@/src/lib/supabase";
 import { getProfile, syncProfile } from "@/src/lib/auth-api";
 import { useAuthStore } from "@/src/store/useAuthStore";
@@ -45,13 +45,11 @@ function CallbackHandler() {
         ),
       );
 
-      let sessionData: { session: Session } | null = null;
+      let sessionData: AuthTokenResponse["data"] | null = null;
       let sessionError: { message: string } | null = null;
 
       try {
-        const result = (await Promise.race([exchange, timeout])) as Awaited<
-          typeof exchange
-        >;
+        const result = (await Promise.race([exchange, timeout])) as AuthTokenResponse;
         sessionData = result.data;
         sessionError = result.error;
       } catch (err: unknown) {
