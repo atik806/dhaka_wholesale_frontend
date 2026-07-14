@@ -1,8 +1,8 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createBrowserClient } from "@supabase/ssr";
 
-let client: SupabaseClient | null = null;
+let client: ReturnType<typeof createBrowserClient> | null = null;
 
-export function getSupabase(): SupabaseClient {
+export function getSupabase() {
   if (!client) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -11,33 +11,7 @@ export function getSupabase(): SupabaseClient {
         "Supabase env vars missing. Restart the dev server after adding NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env"
       );
     }
-    client = createClient(url, key, {
-      auth: {
-        detectSessionInUrl: false,
-        flowType: "pkce",
-        persistSession: false,
-        autoRefreshToken: false,
-        storage: {
-          getItem: (key: string) => {
-            try {
-              return localStorage.getItem(key);
-            } catch {
-              return null;
-            }
-          },
-          setItem: (key: string, value: string) => {
-            try {
-              localStorage.setItem(key, value);
-            } catch {}
-          },
-          removeItem: (key: string) => {
-            try {
-              localStorage.removeItem(key);
-            } catch {}
-          },
-        },
-      },
-    });
+    client = createBrowserClient(url, key);
   }
   return client;
 }
