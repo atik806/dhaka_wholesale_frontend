@@ -72,7 +72,7 @@ export default function AdminDashboard() {
           <h1 className="font-serif text-2xl font-bold">Dashboard</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Overview of your store</p>
         </div>
-        <div className="flex items-center gap-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-1">
+        <div className="flex items-center flex-wrap gap-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-1">
           {dateRanges.map((r) => (
             <button
               key={r.value}
@@ -100,7 +100,7 @@ export default function AdminDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 mb-8"
+        className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 mb-8"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold">Revenue Trend</h2>

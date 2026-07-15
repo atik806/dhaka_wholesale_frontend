@@ -148,7 +148,7 @@ export default function AdminReviewsPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       {dialog}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-2xl font-bold">Reviews</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
@@ -167,6 +167,28 @@ export default function AdminReviewsPage() {
           totalPages: meta.totalPages,
           onPageChange: (page) => load(page),
         }}
+        mobileCard={(review) => (
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium truncate">{review.products?.name || "Unknown Product"}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{review.profiles?.name || "Unknown"}</p>
+              <div className="flex items-center gap-0.5 mt-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-amber-400 text-amber-400" : "fill-zinc-200 dark:fill-zinc-600 text-zinc-200 dark:text-zinc-600"}`} />
+                ))}
+              </div>
+              <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1 line-clamp-2">{review.text}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{formatDate(review.created_at)}</p>
+            </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleDelete(review); }}
+              disabled={actionLoading === review.id}
+              className="p-2 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors shrink-0"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       />
     </motion.div>
   );

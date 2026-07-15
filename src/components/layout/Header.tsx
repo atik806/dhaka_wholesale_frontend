@@ -298,7 +298,7 @@ export const Header = memo(function Header() {
               <Heart className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
             </Link>
 
-            <div ref={userMenuRef} className="relative">
+            <div ref={userMenuRef} className="relative hidden sm:block">
               {authHydrated && isLoggedIn ? (
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}

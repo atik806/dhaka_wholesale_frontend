@@ -102,7 +102,16 @@ function CallbackHandler() {
         const oauthEmail = session.user.email ?? "";
 
         try {
-          const user = await syncProfile(access_token, oauthName, oauthEmail);
+          // Add a timeout so the user never gets stuck on a spinner
+          const SYNC_TIMEOUT_MS = 20_000;
+          const syncPromise = syncProfile(access_token, oauthName, oauthEmail);
+          const timeout = new Promise<never>((_, reject) =>
+            setTimeout(
+              () => reject(new Error("Profile sync timed out")),
+              SYNC_TIMEOUT_MS,
+            ),
+          );
+          const user = await Promise.race([syncPromise, timeout]);
           setAuth(user, { access_token, refresh_token, expires_at });
           router.push(redirect);
         } catch (syncErr: unknown) {
@@ -111,19 +120,11 @@ function CallbackHandler() {
             "[OAuth Callback] Profile sync failed:",
             syncMsg,
           );
-          setAuth(
-            {
-              id: session.user.id,
-              email: oauthEmail,
-              name: oauthName,
-              role: "customer",
-            },
-            { access_token, refresh_token, expires_at },
-          );
 
+          // Do NOT set phantom auth state — just redirect with error
           router.push(
             `/login?error=oauth_profile_failed&error_description=${encodeURIComponent(
-              "Could not create backend profile",
+              syncMsg || "Could not create backend profile. Please try again.",
             )}`,
           );
         }

@@ -107,11 +107,11 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
               </span>
             )}
             {onClose && open && (
-              <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors lg:hidden">
+              <button onClick={onClose} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors lg:hidden">
                 <X className="w-4 h-4" />
               </button>
             )}
-            <button onClick={() => setCollapsed(!collapsed)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors hidden lg:block">
+            <button onClick={() => setCollapsed(!collapsed)} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors hidden lg:block">
               {collapsed ? <PanelRightOpen className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
             </button>
           </div>

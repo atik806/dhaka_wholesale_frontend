@@ -61,9 +61,9 @@ export function ConfirmDialog({
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{message}</p>
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 break-words">{message}</p>
                 </div>
-                <button onClick={onCancel} className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <button onClick={onCancel} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
                   <X className="w-4 h-4 text-zinc-400" />
                 </button>
               </div>

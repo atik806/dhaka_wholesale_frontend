@@ -175,7 +175,7 @@ export default function AdminProductsPage() {
   return (
     <div>
       {dialog}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="font-serif text-2xl font-bold">Products</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{products.length} products total</p>
@@ -231,6 +231,30 @@ export default function AdminProductsPage() {
         onSearchChange={handleSearchChange}
         loading={loading}
         pagination={totalPages > 1 ? { page, totalPages, onPageChange: setPage } : undefined}
+        mobileCard={(p) => (
+          <div className="flex items-start gap-3">
+            <img src={safeImage(p.images)} alt={p.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />
+            <div className="min-w-0 flex-1">
+              <p className="font-medium truncate">{p.name}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm font-medium">{formatPrice(p.price)}</span>
+                <StatusBadge status={{ "in-stock": "In Stock", "low-stock": "Low Stock", "out-of-stock": "Out of Stock" }[p.stock] || p.stock} />
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{p.category}</p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Link href={`/admin/products/${p.slug}`} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                <Edit className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+              </Link>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleDelete(p); }}
+                className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 text-red-500" />
+              </button>
+            </div>
+          </div>
+        )}
       />
     </div>
   );

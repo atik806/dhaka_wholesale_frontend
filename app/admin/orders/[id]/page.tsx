@@ -436,14 +436,14 @@ export default function OrderDetailPage() {
               {order.order_items?.map((item) => (
                 <tr key={item.id} className="border-b border-zinc-100 dark:border-zinc-700/50">
                   <td className="px-6 py-3">
-                    <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3">
                       <img
                         src={safeImage(item.product_image ? [item.product_image] : undefined)}
                         alt={item.product_name}
-                        className="w-12 h-12 rounded-lg object-cover bg-zinc-100 dark:bg-zinc-700"
+                        className="w-12 h-12 rounded-lg object-cover bg-zinc-100 dark:bg-zinc-700 shrink-0"
                       />
-                      <div>
-                        <p className="font-medium">{item.product_name}</p>
+                      <div className="min-w-0">
+                        <p className="font-medium truncate max-w-[200px] sm:max-w-none">{item.product_name}</p>
                         {(item.selected_size || item.selected_color) && (
                           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                             {item.selected_size && `Size: ${item.selected_size}`}

@@ -84,7 +84,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-900">
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 lg:ml-64">
-        <main className="p-4 sm:p-6">{children}</main>
+        <main className="p-4 sm:p-6 pt-14 lg:pt-6">{children}</main>
       </div>
       {!sidebarOpen && (
         <button

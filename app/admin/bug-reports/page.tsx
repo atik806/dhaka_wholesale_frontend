@@ -7,6 +7,7 @@ import {
   AlertTriangle, ArrowUp, Minus, ChevronDown,
 } from "lucide-react";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
+import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { formatDate } from "@/src/lib/utils";
 import {
   fetchBugReports,
@@ -221,6 +222,19 @@ export default function AdminBugReportsPage() {
           totalPages: meta.totalPages,
           onPageChange: (page) => load(page),
         }}
+        mobileCard={(r) => (
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${r.priority === "critical" ? "bg-red-500" : r.priority === "high" ? "bg-orange-500" : r.priority === "medium" ? "bg-amber-500" : "bg-zinc-400"}`} />
+                <StatusBadge status={r.status} />
+                <span className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{r.priority}</span>
+              </div>
+              <p className="text-sm line-clamp-2">{r.message}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{formatDate(r.created_at)}</p>
+            </div>
+          </div>
+        )}
       />
 
       <AnimatePresence>
@@ -239,7 +253,7 @@ export default function AdminBugReportsPage() {
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
             >
               <div className="flex items-center justify-between p-5 border-b border-zinc-200 dark:border-zinc-700">
-                <div className="flex items-center gap-2">
+        <div className="flex flex-wrap gap-2">
                   <Bug className="w-5 h-5 text-amber-500" />
                   <h2 className="font-serif text-lg font-bold">Bug Report</h2>
                 </div>

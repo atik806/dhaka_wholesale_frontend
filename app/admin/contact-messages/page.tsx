@@ -142,7 +142,7 @@ export default function AdminContactMessagesPage() {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-2xl font-bold">Contact Messages</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
@@ -166,6 +166,19 @@ export default function AdminContactMessagesPage() {
           totalPages: meta.totalPages,
           onPageChange: (page) => load(page),
         }}
+        mobileCard={(msg) => (
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 mb-0.5">
+                {!msg.is_read && <span className="w-2 h-2 rounded-full bg-primary shrink-0" />}
+                <p className="text-sm font-medium truncate">{msg.first_name} {msg.last_name}</p>
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{msg.subject}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-1">{msg.message}</p>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">{formatDate(msg.created_at)}</p>
+            </div>
+          </div>
+        )}
       />
 
       <AnimatePresence>

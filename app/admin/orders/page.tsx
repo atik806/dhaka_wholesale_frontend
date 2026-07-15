@@ -157,6 +157,34 @@ export default function OrdersPage() {
           onPageChange: setPage,
         }}
         loading={loading}
+        mobileCard={(order) => (
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">#{order.id.slice(0, 8)}</span>
+                <StatusBadge status={order.status} />
+              </div>
+              <p className="text-sm font-medium truncate">
+                {(() => {
+                  const addr = order.shipping_address as Record<string, string> | undefined;
+                  if (addr?.firstName && addr?.lastName) return `${addr.firstName} ${addr.lastName}`;
+                  return order.profiles?.name || "—";
+                })()}
+              </p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm font-medium">{formatPrice(order.total)}</span>
+                <StatusBadge status={order.payment_status} />
+              </div>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{formatDate(order.created_at)}</p>
+            </div>
+            <button
+              onClick={(e) => handleDelete(e, order.id)}
+              className="p-2 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       />
     </div>
   );

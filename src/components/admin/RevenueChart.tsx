@@ -38,8 +38,9 @@ export function RevenueChart({ data }: RevenueChartProps) {
   }
 
   return (
-    <ResponsiveContainer width="100%" height={280}>
-      <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
+    <div className="h-[200px] sm:h-[250px] md:h-[280px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="var(--color-primary, #059669)" stopOpacity={0.3} />
@@ -83,6 +84,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
           fill="url(#revenueGrad)"
         />
       </AreaChart>
-    </ResponsiveContainer>
+      </ResponsiveContainer>
+    </div>
   );
 }
