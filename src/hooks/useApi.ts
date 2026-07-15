@@ -6,6 +6,7 @@ import {
   fetchRelatedProducts,
   fetchCategories,
   fetchCategoryBySlug,
+  fetchReviewsByProduct,
   type ProductQueryParams,
 } from '@/src/lib/api';
 
@@ -62,4 +63,12 @@ export function useCategory(slug: string | null) {
   return useSWR(slug ? `/categories/${slug}` : null, () => fetchCategoryBySlug(slug!), {
     ...SWR_CONFIG,
   });
+}
+
+export function useProductReviews(productId: string | null, page = 1) {
+  return useSWR(
+    productId ? `/products/${productId}/reviews?page=${page}` : null,
+    () => fetchReviewsByProduct(productId!, page),
+    { ...SWR_CONFIG },
+  );
 }

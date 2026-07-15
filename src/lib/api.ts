@@ -199,3 +199,55 @@ export async function uploadReportScreenshot(file: File): Promise<string> {
   const json = await res.json();
   return json.data?.url || json.url;
 }
+
+export interface Review {
+  id: string;
+  product_id: string;
+  user_id: string;
+  rating: number;
+  text: string;
+  created_at: string;
+  updated_at: string;
+  profiles: { name: string; avatar_url: string | null } | null;
+}
+
+export interface ReviewsResult {
+  data: Review[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+export async function fetchReviewsByProduct(
+  productId: string,
+  page = 1,
+  limit = 20,
+  signal?: AbortSignal,
+): Promise<ReviewsResult> {
+  const res = await fetch(
+    `${API_BASE}/products/${productId}/reviews?page=${page}&limit=${limit}`,
+    { signal },
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+export async function submitReview(
+  productId: string,
+  rating: number,
+  text: string,
+  token: string,
+): Promise<Review> {
+  const res = await fetch(`${API_BASE}/products/${productId}/reviews`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ rating, text }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Failed to submit review');
+  return json.data || json;
+}

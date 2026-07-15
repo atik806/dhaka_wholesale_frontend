@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import { Heart, ShoppingBag, Minus, Plus } from "lucide-react";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
+import { ReviewSection } from "@/src/components/product/ReviewSection";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { Badge } from "@/src/components/ui/Badge";
 import { Rating } from "@/src/components/ui/Rating";
@@ -191,6 +192,8 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      <ReviewSection productId={product.id} />
 
       {(related || []).length > 0 && (
         <section>
