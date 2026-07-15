@@ -82,6 +82,9 @@ export async function updatePaymentStatus(id: string, payment_status: string): P
   });
   return res.data;
 }
+export async function deleteOrder(id: string): Promise<void> {
+  await adminFetcher(`/admin/orders/${id}`, { method: "DELETE" });
+}
 
 // Users
 export interface UserProfile {

@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { fetchOrders } from "@/src/lib/admin-api";
+import { fetchOrders, deleteOrder } from "@/src/lib/admin-api";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { formatPrice, formatDate } from "@/src/lib/utils";
+import { Trash2 } from "lucide-react";
 import type { Order } from "@/src/lib/admin-api";
 
 const statusFilters = ["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
@@ -21,6 +22,18 @@ export default function OrdersPage() {
   const handleFilterChange = (filter: string) => {
     setStatusFilter(filter);
     setPage(1);
+  };
+
+  const handleDelete = async (e: React.MouseEvent, orderId: string) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to permanently delete this order? This action cannot be undone.")) return;
+    try {
+      await deleteOrder(orderId);
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      setMeta((prev) => ({ ...prev, total: prev.total - 1 }));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete order");
+    }
   };
 
   useEffect(() => {
@@ -71,6 +84,19 @@ export default function OrdersPage() {
       key: "created_at",
       label: "Date",
       render: (order) => <span className="text-zinc-500 dark:text-zinc-400 text-xs">{formatDate(order.created_at)}</span>,
+    },
+    {
+      key: "actions",
+      label: "",
+      render: (order) => (
+        <button
+          onClick={(e) => handleDelete(e, order.id)}
+          className="p-1.5 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+          title="Delete order"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      ),
     },
   ];
 
