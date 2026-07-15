@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Upload, X, Loader2, ImagePlus } from "lucide-react";
+import { X, Loader2, ImagePlus } from "lucide-react";
 import { API_BASE } from "@/src/lib/constants";
 
 interface ImageUploadProps {

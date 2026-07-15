@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Star, MessageSquare } from "lucide-react";
+import { Star } from "lucide-react";
 import Link from "next/link";
 import { API_BASE } from "@/src/lib/constants";
 

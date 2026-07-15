@@ -13,10 +13,6 @@ interface PromoBannerSettings {
   enabled: boolean;
 }
 
-interface SiteSettings {
-  promo_banner?: PromoBannerSettings;
-}
-
 function getSessionToken() {
   try {
     const s = localStorage.getItem("admin_session");
@@ -29,7 +25,6 @@ function getSessionToken() {
 }
 
 export default function SiteSettingsPage() {
-  const [settings, setSettings] = useState<SiteSettings>({});
   const [promo, setPromo] = useState<PromoBannerSettings>({
     badge: "Limited Time Offer",
     title: "",
@@ -43,23 +38,23 @@ export default function SiteSettingsPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  async function fetchSettings() {
-    try {
-      const res = await fetch(`${API_BASE}/site-settings`);
-      const data = await res.json();
-      setSettings(data);
-      if (data.promo_banner) {
-        setPromo(data.promo_banner);
+    let active = true;
+    async function fetchSettings() {
+      try {
+        const res = await fetch(`${API_BASE}/site-settings`);
+        const data = await res.json();
+        if (active && data.promo_banner) {
+          setPromo(data.promo_banner);
+        }
+      } catch {
+        // silently fail
+      } finally {
+        if (active) setLoading(false);
       }
-    } catch {
-      // silently fail
-    } finally {
-      setLoading(false);
     }
-  }
+    fetchSettings();
+    return () => { active = false; };
+  }, []);
 
   async function handleSave() {
     setSaving(true);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchOrders, deleteOrder } from "@/src/lib/admin-api";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
@@ -49,25 +49,28 @@ export default function OrdersPage() {
     }
   };
 
-  const loadOrders = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params: { page: number; limit: number; status?: string; search?: string } = { page, limit: 20 };
-      if (statusFilter !== "All") params.status = statusFilter.toLowerCase();
-      if (search.trim()) params.search = search.trim();
-      const result = await fetchOrders(params);
-      setOrders(result.orders);
-      setMeta(result.meta);
-    } catch {
-      setOrders([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [page, statusFilter, search]);
-
   useEffect(() => {
+    let active = true;
+    async function loadOrders() {
+      setLoading(true);
+      try {
+        const params: { page: number; limit: number; status?: string; search?: string } = { page, limit: 20 };
+        if (statusFilter !== "All") params.status = statusFilter.toLowerCase();
+        if (search.trim()) params.search = search.trim();
+        const result = await fetchOrders(params);
+        if (active) {
+          setOrders(result.orders);
+          setMeta(result.meta);
+        }
+      } catch {
+        if (active) setOrders([]);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
     loadOrders();
-  }, [loadOrders]);
+    return () => { active = false; };
+  }, [page, statusFilter, search]);
 
   const columns: Column<Order>[] = [
     {

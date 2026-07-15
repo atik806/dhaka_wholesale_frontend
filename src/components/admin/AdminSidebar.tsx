@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -40,24 +40,26 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
   const { theme, toggleTheme } = useTheme();
   const [badges, setBadges] = useState<BadgeCounts>({ pendingOrders: 0, unreadMessages: 0, pendingBugs: 0 });
 
-  const loadBadges = useCallback(async () => {
-    try {
-      const data = await fetchDashboard();
-      setBadges({
-        pendingOrders: data.stats.pendingOrders,
-        unreadMessages: data.stats.unreadMessages,
-        pendingBugs: data.stats.pendingBugs,
-      });
-    } catch {
-      // silently fail
-    }
-  }, []);
-
   useEffect(() => {
+    let active = true;
+    async function loadBadges() {
+      try {
+        const data = await fetchDashboard();
+        if (active) {
+          setBadges({
+            pendingOrders: data.stats.pendingOrders,
+            unreadMessages: data.stats.unreadMessages,
+            pendingBugs: data.stats.pendingBugs,
+          });
+        }
+      } catch {
+        // silently fail
+      }
+    }
     loadBadges();
     const interval = setInterval(loadBadges, 30000);
-    return () => clearInterval(interval);
-  }, [loadBadges]);
+    return () => { active = false; clearInterval(interval); };
+  }, []);
 
   useEffect(() => {
     if (open) {
