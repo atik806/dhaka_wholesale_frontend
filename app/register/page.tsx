@@ -59,7 +59,7 @@ export default function RegisterPage() {
             </div>
             <h1 className="font-serif text-2xl font-bold">Create Account</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Join CholoKini today
+              Join Dhaka Wholesale today
             </p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">

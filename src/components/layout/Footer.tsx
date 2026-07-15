@@ -19,7 +19,7 @@ export const Footer = memo(function Footer() {
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
               <span className="font-serif text-2xl font-bold text-white">
-                Cholo<span className="text-primary-light dark:text-emerald-400">Kini</span>
+                Dhaka<span className="text-primary-light dark:text-emerald-400"> Wholesale</span>
               </span>
             </Link>
             <p className="text-zinc-400 dark:text-zinc-500 max-w-sm text-sm leading-relaxed mb-6">
@@ -101,7 +101,7 @@ export const Footer = memo(function Footer() {
 
         <div className="mt-14 pt-8 border-t border-zinc-800 dark:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p className="text-sm text-zinc-500 dark:text-zinc-600">
-            &copy; 2025 CholoKini. All rights reserved.
+            &copy; 2025 Dhaka Wholesale. All rights reserved.
           </p>
         </div>
       </div>

@@ -177,9 +177,9 @@ export const Header = memo(function Header() {
       >
         <div className="container flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="relative z-10 group">
-            <span className="font-serif text-2xl font-bold tracking-tight text-primary dark:text-primary-light">
-              Cholo<span className="text-zinc-900 dark:text-zinc-100 group-hover:text-primary transition-colors duration-300">Kini</span>
-            </span>
+              <span className="font-serif text-2xl font-bold tracking-tight text-primary dark:text-primary-light">
+                Dhaka<span className="text-zinc-900 dark:text-zinc-100 group-hover:text-primary transition-colors duration-300"> Wholesale</span>
+              </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">

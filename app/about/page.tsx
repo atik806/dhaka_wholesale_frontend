@@ -13,9 +13,9 @@ const values = [
 ];
 
 const team = [
-  { name: "Aria Chen", role: "Founder & CEO", bio: "With 15 years in retail and e-commerce, Aria founded CholoKini to bring curated quality to everyone." },
+  { name: "Aria Chen", role: "Founder & CEO", bio: "With 15 years in retail and e-commerce, Aria founded Dhaka Wholesale to bring curated quality to everyone." },
   { name: "Marcus Johnson", role: "Head of Curation", bio: "Marcus travels to 20+ countries annually to discover unique products that meet our curation standards." },
-  { name: "Priya Sharma", role: "Creative Director", bio: "Priya leads our visual identity, ensuring every interaction with CholoKini feels premium and cohesive." },
+  { name: "Priya Sharma", role: "Creative Director", bio: "Priya leads our visual identity, ensuring every interaction with Dhaka Wholesale feels premium and cohesive." },
 ];
 
 export default function AboutPage() {
@@ -30,7 +30,7 @@ export default function AboutPage() {
 
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
-          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-4">About CholoKini</h1>
+          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-4">About Dhaka Wholesale</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-lg max-w-2xl mx-auto leading-relaxed">
             We believe that the things you surround yourself with should bring joy, function, and beauty to your everyday life.
           </p>
@@ -40,13 +40,13 @@ export default function AboutPage() {
           <h2 className="font-serif text-2xl font-bold mb-6">Our Story</h2>
           <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 sm:p-8">
             <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-              CholoKini was born from a simple observation: finding quality products online shouldn&apos;t be a treasure hunt. Our founders, tired of sifting through endless options of questionable quality, set out to create a curated marketplace where every item tells a story of craftsmanship and care.
+              Dhaka Wholesale was born from a simple observation: finding quality products online shouldn&apos;t be a treasure hunt. Our founders, tired of sifting through endless options of questionable quality, set out to create a curated marketplace where every item tells a story of craftsmanship and care.
             </p>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
               What started as a small collection of handpicked home goods has grown into a destination for discerning shoppers who value quality over quantity. We work directly with artisans, small manufacturers, and established brands who share our commitment to excellence.
             </p>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              Every product on CholoKini has been tested, reviewed, and approved by our curation team. We don&apos;t just list items — we champion them.
+              Every product on Dhaka Wholesale has been tested, reviewed, and approved by our curation team. We don&apos;t just list items — we champion them.
             </p>
           </div>
         </div>

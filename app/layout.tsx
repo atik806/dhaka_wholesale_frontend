@@ -19,8 +19,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "CholoKini — Premium Curated Store",
-  description: "Discover premium products curated for your lifestyle",
+  title: "Dhaka Wholesale — Your Trusted Wholesale Marketplace",
+  description: "Your trusted wholesale marketplace for quality products at competitive prices",
 };
 
 export default function RootLayout({

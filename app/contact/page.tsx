@@ -152,7 +152,7 @@ export default function ContactPage() {
                   <Mail className="w-5 h-5 text-primary dark:text-primary-light shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium">Email</p>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">support@cholokini.com</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">support@dhakawholesale.com</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

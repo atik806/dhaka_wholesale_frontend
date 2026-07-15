@@ -1,7 +1,7 @@
 import type { Category, Testimonial } from "@/src/types/product";
 
-export const SITE_NAME = "CholoKini";
-export const SITE_DESCRIPTION = "Discover premium products curated for your lifestyle";
+export const SITE_NAME = "Dhaka Wholesale";
+export const SITE_DESCRIPTION = "Your trusted wholesale marketplace for quality products at competitive prices";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 

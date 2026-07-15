@@ -117,7 +117,7 @@ function Card({ card }: { card: ShowcaseCard }) {
 
         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/50 via-black/20 to-transparent z-10">
           <p className="text-white font-semibold text-sm">{card.label}</p>
-          <p className="text-white/60 text-xs">CholoKini</p>
+          <p className="text-white/60 text-xs">Dhaka Wholesale</p>
         </div>
       </div>
     </motion.div>
