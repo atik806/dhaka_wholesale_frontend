@@ -37,7 +37,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 Set this environment variable in Vercel before the production build runs:
 
 ```env
-NEXT_PUBLIC_API_URL=https://cholo-backend-gamma.vercel.app/api
+NEXT_PUBLIC_API_URL=https://dhakawholesale-backend.vercel.app/api
 ```
 
 Production commands:
