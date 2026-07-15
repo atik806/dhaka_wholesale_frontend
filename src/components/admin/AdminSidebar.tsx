@@ -65,13 +65,9 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
 
       <aside className={`fixed top-0 left-0 h-full bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 z-50 transition-all duration-300 flex flex-col ${collapsed ? "w-16" : "w-64"} ${onClose ? (open ? "translate-x-0" : "-translate-x-full lg:translate-x-0") : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
-          {!collapsed ? (
-            <Link href="/admin" onClick={handleNavClick}>
-              <img src="/logo.png" alt="Dhaka Wholesale" className="h-8 w-auto object-contain" />
-            </Link>
-          ) : (
-            <Link href="/admin" onClick={handleNavClick} className="mx-auto">
-              <img src="/logo.png" alt="Dhaka Wholesale" className="h-6 w-auto object-contain" />
+          {!collapsed && (
+            <Link href="/admin" onClick={handleNavClick} className="font-serif text-xl font-bold text-primary dark:text-primary-light">
+              Admin
             </Link>
           )}
           <div className="flex items-center gap-1">

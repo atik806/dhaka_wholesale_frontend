@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { ShieldAlert } from "lucide-react";
 
 import { API_BASE } from "@/src/lib/constants";
 
@@ -53,7 +54,9 @@ export default function AdminLoginPage() {
       >
         <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-8">
           <div className="text-center mb-8">
-            <img src="/logo.png" alt="Dhaka Wholesale" className="h-14 w-auto object-contain mx-auto mb-4" />
+            <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
+              <ShieldAlert className="w-7 h-7 text-primary dark:text-primary-light" />
+            </div>
             <h1 className="font-serif text-2xl font-bold">Admin Login</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Sign in to manage your store</p>
           </div>

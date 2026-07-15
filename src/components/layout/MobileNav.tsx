@@ -73,7 +73,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
             className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white dark:bg-zinc-800 z-[70] shadow-2xl"
           >
             <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
-              <img src="/logo.png" alt="Dhaka Wholesale" className="h-8 w-auto object-contain" />
+              <span className="font-serif text-xl font-bold text-primary dark:text-primary-light">Menu</span>
               <button
                 onClick={onClose}
                 className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"

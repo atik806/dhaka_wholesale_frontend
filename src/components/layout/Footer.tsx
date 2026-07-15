@@ -18,7 +18,9 @@ export const Footer = memo(function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
           <div className="lg:col-span-2">
             <Link href="/" className="inline-block mb-4">
-              <img src="/logo.png" alt="Dhaka Wholesale" className="h-10 w-auto object-contain" />
+              <span className="font-serif text-2xl font-bold text-white">
+                Dhaka<span className="text-primary-light dark:text-emerald-400"> Wholesale</span>
+              </span>
             </Link>
             <p className="text-zinc-400 dark:text-zinc-500 max-w-sm text-sm leading-relaxed mb-6">
               Curating the finest products from around the world, delivered to
