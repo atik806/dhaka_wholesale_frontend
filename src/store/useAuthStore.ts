@@ -48,7 +48,11 @@ export const useAuthStore = create<AuthState>()(
         if (!session?.refresh_token) return false;
         try {
           const data = await refreshSession(session.refresh_token);
-          set({ user: data.user, session: data.session });
+          const existing = get().user;
+          set({
+            user: existing ? { ...existing, ...data.user } : data.user,
+            session: data.session,
+          });
           return true;
         } catch {
           set({ user: null, session: null });
