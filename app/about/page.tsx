@@ -1,21 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Heart, Truck, Shield, Award, Users } from "lucide-react";
+import { Heart, Truck, Shield, Award, Users, Coffee } from "lucide-react";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 
 const values = [
-  { icon: Heart, title: "Curated with Care", description: "Every product in our collection is handpicked by our team of experts who travel the globe to find items that meet our standards of quality, design, and sustainability." },
-  { icon: Truck, title: "Fast & Reliable Shipping", description: "We partner with trusted logistics providers to ensure your orders arrive quickly and in perfect condition, no matter where you are in the world." },
-  { icon: Shield, title: "Quality Guaranteed", description: "We stand behind every product we sell. If you're not completely satisfied, we'll make it right with our hassle-free returns policy." },
-  { icon: Award, title: "Premium Standards", description: "From packaging to customer service, every touchpoint reflects our commitment to excellence. We believe you deserve nothing less than the best." },
-  { icon: Users, title: "Community First", description: "We're building more than a store — we're building a community of people who appreciate quality, craftsmanship, and thoughtful design." },
+  { icon: Heart, title: "Curated with Care", description: "Every product in our collection is handpicked. No filler, no junk — just stuff we'd actually want to buy ourselves." },
+  { icon: Truck, title: "Fast & Reliable Shipping", description: "We ship across Bangladesh quickly and carefully. Your order won't get lost in the void." },
+  { icon: Shield, title: "Quality Guaranteed", description: "Not happy? We'll make it right. No drama, no 47-step return forms. Just send it back." },
+  { icon: Award, title: "Fair Prices", description: "We believe good products shouldn't cost a fortune. Wholesale prices, retail vibes." },
+  { icon: Users, title: "Built for Real People", description: "We're not a faceless corporation. We're two friends who got tired of overpriced everything." },
 ];
 
-const team = [
-  { name: "Aria Chen", role: "Founder & CEO", bio: "With 15 years in retail and e-commerce, Aria founded Dhaka Wholesale to bring curated quality to everyone." },
-  { name: "Marcus Johnson", role: "Head of Curation", bio: "Marcus travels to 20+ countries annually to discover unique products that meet our curation standards." },
-  { name: "Priya Sharma", role: "Creative Director", bio: "Priya leads our visual identity, ensuring every interaction with Dhaka Wholesale feels premium and cohesive." },
+const founders = [
+  { name: "The Idea Guy", role: "Co-Founder & Chief Tea Drinker", bio: "Had the brilliant idea of starting a business while on his third cup of chai. Still not sure if it was the tea or the genius talking." },
+  { name: "The One Who Said Yes", role: "Co-Founder & Head of Everything Else", bio: "Said 'why not?' over a plate of biscuits and hasn't escaped since. Handles operations, logistics, and keeping the other founder grounded." },
 ];
 
 export default function AboutPage() {
@@ -32,22 +31,29 @@ export default function AboutPage() {
         <div className="text-center mb-16">
           <h1 className="font-serif text-3xl md:text-4xl font-bold mb-4">About Dhaka Wholesale</h1>
           <p className="text-zinc-500 dark:text-zinc-400 text-lg max-w-2xl mx-auto leading-relaxed">
-            We believe that the things you surround yourself with should bring joy, function, and beauty to your everyday life.
+            Two friends, a lot of tea, and one questionable business decision that somehow worked out.
           </p>
         </div>
 
         <div className="mb-16">
           <h2 className="font-serif text-2xl font-bold mb-6">Our Story</h2>
-          <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 sm:p-8">
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-              Dhaka Wholesale was born from a simple observation: finding quality products online shouldn&apos;t be a treasure hunt. Our founders, tired of sifting through endless options of questionable quality, set out to create a curated marketplace where every item tells a story of craftsmanship and care.
-            </p>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-4">
-              What started as a small collection of handpicked home goods has grown into a destination for discerning shoppers who value quality over quantity. We work directly with artisans, small manufacturers, and established brands who share our commitment to excellence.
+          <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 sm:p-8 space-y-4">
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              It all started on a random afternoon at a tea stall. Two friends were sitting there, sipping chai, eating biscuits, and doing what every Bangladeshi does in their free time — complaining about how expensive everything has gotten online.
             </p>
             <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-              Every product on Dhaka Wholesale has been tested, reviewed, and approved by our curation team. We don&apos;t just list items — we champion them.
+              &ldquo;Bro, this thing costs like ৳500 online but you can get it for ৳200 wholesale,&rdquo; one of them said. The other one replied, &ldquo;What if we just... sold it ourselves?&rdquo; There was a long pause. Another sip of tea. A biscuit crumb fell on the table.
             </p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              &ldquo;Yeah, let&apos;s do it.&rdquo;
+            </p>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
+              And just like that — with zero business plan, zero funding, and one very strong cup of tea — Dhaka Wholesale was born. We started from our rooms, source products we actually believe in, and now we&apos;re here. Still drinking tea. Still figuring things out. But now we&apos;re doing it with a website and everything.
+            </p>
+            <div className="flex items-center gap-2 text-primary dark:text-primary-light pt-2">
+              <Coffee className="w-4 h-4" />
+              <p className="text-sm font-medium">Fun fact: The tea stall still doesn&apos;t know they inspired a business.</p>
+            </div>
           </div>
         </div>
 
@@ -73,9 +79,9 @@ export default function AboutPage() {
         </div>
 
         <div className="mb-16">
-          <h2 className="font-serif text-2xl font-bold mb-6">Our Team</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {team.map(({ name, role, bio }, i) => (
+          <h2 className="font-serif text-2xl font-bold mb-6">The Founders</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {founders.map(({ name, role, bio }, i) => (
               <motion.div
                 key={name}
                 initial={{ opacity: 0, y: 20 }}
@@ -84,7 +90,9 @@ export default function AboutPage() {
                 className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 text-center"
               >
                 <div className="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <span className="font-serif text-xl font-bold text-primary dark:text-primary-light">{name.split(" ").map(n => n[0]).join("")}</span>
+                  <span className="font-serif text-xl font-bold text-primary dark:text-primary-light">
+                    {i === 0 ? "TG" : "OW"}
+                  </span>
                 </div>
                 <h3 className="font-semibold mb-1">{name}</h3>
                 <p className="text-xs text-primary font-medium mb-3">{role}</p>

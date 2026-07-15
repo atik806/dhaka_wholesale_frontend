@@ -152,21 +152,22 @@ export default function ContactPage() {
                   <Mail className="w-5 h-5 text-primary dark:text-primary-light shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium">Email</p>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">support@dhakawholesale.com</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">atikrj8@gmail.com</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Phone className="w-5 h-5 text-primary dark:text-primary-light shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium">Phone</p>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">+1 (555) 123-4567</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">01302228993</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">01761931958</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <MapPin className="w-5 h-5 text-primary dark:text-primary-light shrink-0 mt-0.5" />
                   <div>
                     <p className="text-sm font-medium">Address</p>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">123 Fashion Street, New York, NY 10001</p>
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400">Kuril, Koylabari, Tushar Villa</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

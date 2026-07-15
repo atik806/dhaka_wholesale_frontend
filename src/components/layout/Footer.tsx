@@ -101,7 +101,7 @@ export const Footer = memo(function Footer() {
 
         <div className="mt-14 pt-8 border-t border-zinc-800 dark:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <p className="text-sm text-zinc-500 dark:text-zinc-600">
-            &copy; 2025 Dhaka Wholesale. All rights reserved.
+            &copy; 2026 Dhaka Wholesale. All rights reserved.
           </p>
         </div>
       </div>

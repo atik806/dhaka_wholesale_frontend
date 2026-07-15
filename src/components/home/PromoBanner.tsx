@@ -63,7 +63,7 @@ export function PromoBanner() {
                   transition={{ delay: 0.2 }}
                   className="text-emerald-100/80 text-sm leading-relaxed max-w-md"
                 >
-                  Exclusive discounts on our most-loved products. Free shipping on orders over ৳50.
+                  Exclusive discounts on our most-loved products.
                 </motion.p>
               </div>
               <motion.div

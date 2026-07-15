@@ -9,7 +9,6 @@ const policies = [
     icon: Truck,
     title: "Shipping Policy",
     content: [
-      "Free standard shipping on all orders over ৳50.",
       "Standard shipping (5-8 business days): ৳5",
       "Express shipping (2-3 business days): ৳12",
       "Next day shipping (1 business day): ৳20",
