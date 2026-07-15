@@ -1,13 +1,23 @@
 import type { NextConfig } from "next";
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://placeholder.vercel.app/api";
 
-if (!apiUrl) {
-  throw new Error("NEXT_PUBLIC_API_URL must be set before building the frontend");
+let apiOrigin: string;
+try {
+  apiOrigin = new URL(apiUrl).origin;
+} catch {
+  apiOrigin = apiUrl.startsWith("http") ? apiUrl : `https://${apiUrl}`;
 }
 
-const apiOrigin = new URL(apiUrl).origin;
-const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : "";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+let supabaseOrigin = "";
+if (supabaseUrl) {
+  try {
+    supabaseOrigin = new URL(supabaseUrl).origin;
+  } catch {
+    supabaseOrigin = supabaseUrl.startsWith("http") ? supabaseUrl : `https://${supabaseUrl}`;
+  }
+}
 const isDev = process.env.NODE_ENV !== "production";
 
 const nextConfig: NextConfig = {
