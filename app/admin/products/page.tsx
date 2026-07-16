@@ -71,8 +71,8 @@ export default function AdminProductsPage() {
       await adminFetcher(`/products/${product.id}`, { method: "DELETE" });
       addToast("Product deleted successfully", "success");
       setProducts((prev) => prev.filter((p) => p.id !== product.id));
-    } catch {
-      addToast("Failed to delete product", "error");
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Failed to delete product", "error");
     }
   };
 

@@ -50,6 +50,7 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = "Name is required";
     if (!form.description.trim()) errs.description = "Description is required";
+    else if (form.description.trim().length < 10) errs.description = "Description must be at least 10 characters";
     if (form.price === "" || Number(form.price) <= 0) errs.price = "Price must be greater than 0";
     if (!form.category_id) errs.category_id = "Category is required";
     setErrors(errs);

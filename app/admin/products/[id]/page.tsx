@@ -85,8 +85,8 @@ export default function EditProductPage() {
       });
       addToast("Product updated successfully", "success");
       router.push("/admin/products");
-    } catch {
-      addToast("Failed to update product", "error");
+    } catch (err) {
+      addToast(err instanceof Error ? err.message : "Failed to update product", "error");
     } finally {
       setSaving(false);
     }

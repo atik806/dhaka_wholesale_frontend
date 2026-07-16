@@ -23,6 +23,7 @@ function getToken(): string | null {
 
 export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,6 +31,7 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
     if (!files || files.length === 0) return;
 
     setUploading(true);
+    setError("");
     const newUrls: string[] = [];
 
     for (const file of Array.from(files)) {
@@ -43,12 +45,15 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           body: formData,
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.url) newUrls.push(data.url);
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data?.message || data?.data?.message || `Upload failed (${res.status})`);
+          continue;
         }
-      } catch {
-        // silently skip failed uploads
+        const url = data.data?.url || data.url;
+        if (url) newUrls.push(url);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Upload failed");
       }
     }
 
@@ -106,6 +111,9 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
             )}
             {uploading ? "Uploading..." : "Upload Images"}
           </button>
+          {error && (
+            <p className="text-xs text-red-500 dark:text-red-400 mt-1">{error}</p>
+          )}
           <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
             {value.length}/{maxImages} images (JPEG, PNG, WebP, max 5MB each)
           </p>
