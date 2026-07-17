@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { Plus, Edit, Trash2, Package, AlertTriangle, CheckCircle } from "lucide-react";
-import { fetchProducts, fetchCategories } from "@/src/lib/api";
+import { fetchProducts, fetchCategories, fetchProductStockStats } from "@/src/lib/api";
 import type { Product, Category } from "@/src/types/product";
 import { Button } from "@/src/components/ui/Button";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
@@ -14,6 +14,8 @@ import { formatPrice, safeImage } from "@/src/lib/utils";
 import { useToast } from "@/src/providers/ToastProvider";
 import { adminFetcher } from "@/src/lib/admin-api";
 
+const PER_PAGE = 10;
+
 export default function AdminProductsPage() {
   const { addToast } = useToast();
   const { confirm, dialog } = useConfirm();
@@ -21,12 +23,60 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [page, setPage] = useState(1);
-  const perPage = 10;
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [stockStats, setStockStats] = useState({ total: 0, lowStock: 0, outOfStock: 0 });
 
-  const handleFilterChange = (updater: (prev: string) => string) => {
-    setCategoryFilter(updater);
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    let active = true;
+    fetchCategories()
+      .then((cats) => { if (active) setCategories(cats); })
+      .catch(() => { /* categories optional for chips */ });
+    fetchProductStockStats()
+      .then((stats) => { if (active) setStockStats(stats); })
+      .catch(() => { /* stats cards fall back to zeros */ });
+    return () => { active = false; };
+  }, []);
+
+  const categorySlug = useMemo(() => {
+    if (!categoryFilter) return undefined;
+    return categories.find((c) => c.name === categoryFilter)?.slug;
+  }, [categories, categoryFilter]);
+
+  const loadProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const result = await fetchProducts({
+        page,
+        limit: PER_PAGE,
+        search: debouncedSearch || undefined,
+        category: categorySlug,
+        sort: "newest",
+      });
+      setProducts(result.products);
+      setTotalPages(Math.max(result.totalPages, 1));
+      setTotalProducts(result.total);
+    } catch {
+      addToast("Failed to load products", "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, debouncedSearch, categorySlug, addToast]);
+
+  useEffect(() => {
+    loadProducts();
+  }, [loadProducts]);
+
+  const handleFilterChange = (value: string) => {
+    setCategoryFilter(value);
     setPage(1);
   };
 
@@ -35,53 +85,24 @@ export default function AdminProductsPage() {
     setPage(1);
   };
 
-  useEffect(() => {
-    let active = true;
-    Promise.all([
-      fetchProducts({ limit: 100 }),
-      fetchCategories(),
-    ])
-      .then(([productsRes, cats]) => {
-        if (active) { setProducts(productsRes.products); setCategories(cats); }
-      })
-      .catch(() => { if (active) addToast("Failed to load products", "error"); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
-  }, [addToast]);
-
-  const filtered = useMemo(() => {
-    let result = products;
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter((p) => p.name.toLowerCase().includes(q));
-    }
-    if (categoryFilter) {
-      result = result.filter((p) => p.category === categoryFilter);
-    }
-    return result;
-  }, [products, search, categoryFilter]);
-
-  const totalPages = Math.ceil(filtered.length / perPage);
-  const paginated = filtered.slice((page - 1) * perPage, page * perPage);
-
   const handleDelete = async (product: Product) => {
     const ok = await confirm(`Delete "${product.name}"?`, "This cannot be undone.", { confirmLabel: "Delete", danger: true });
     if (!ok) return;
     try {
       await adminFetcher(`/products/${product.id}`, { method: "DELETE" });
       addToast("Product deleted successfully", "success");
-      setProducts((prev) => prev.filter((p) => p.id !== product.id));
+      const stats = await fetchProductStockStats().catch(() => null);
+      if (stats) setStockStats(stats);
+      // If we deleted the last item on a page, step back
+      if (products.length === 1 && page > 1) {
+        setPage((p) => p - 1);
+      } else {
+        await loadProducts();
+      }
     } catch (err) {
       addToast(err instanceof Error ? err.message : "Failed to delete product", "error");
     }
   };
-
-  const stockStats = useMemo(() => {
-    const total = products.length;
-    const outOfStock = products.filter((p) => p.stock === "out-of-stock").length;
-    const lowStock = products.filter((p) => p.stock === "low-stock").length;
-    return { total, outOfStock, lowStock };
-  }, [products]);
 
   const columns: Column<Product>[] = [
     {
@@ -137,7 +158,7 @@ export default function AdminProductsPage() {
     {
       key: "rating",
       label: "Rating",
-      render: (p) => <span className="text-sm">{p.rating > 0 ? `${p.rating} \u2605` : "\u2014"}</span>,
+      render: (p) => <span className="text-sm">{p.rating > 0 ? `${p.rating} ★` : "—"}</span>,
     },
     {
       key: "actions",
@@ -164,13 +185,14 @@ export default function AdminProductsPage() {
     },
   ];
 
-  const categoryOptions = useMemo(() => {
-    const names = [...new Set(products.map((p) => p.category))];
-    return names.map((name) => ({
-      name,
-      slug: categories.find((c) => c.name === name)?.slug || name.toLowerCase().replace(/\s+/g, "-"),
-    }));
-  }, [products, categories]);
+  const categoryOptions = useMemo(
+    () =>
+      categories.map((c) => ({
+        name: c.name,
+        slug: c.slug,
+      })),
+    [categories],
+  );
 
   return (
     <div>
@@ -178,7 +200,7 @@ export default function AdminProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="font-serif text-2xl font-bold">Products</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{products.length} products total</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{totalProducts} products total</p>
         </div>
         <Link href="/admin/products/new">
           <Button>
@@ -197,7 +219,7 @@ export default function AdminProductsPage() {
       {categoryOptions.length > 0 && (
         <div className="mb-4 flex flex-wrap items-center gap-2">
           <button
-            onClick={() => handleFilterChange(() => "")}
+            onClick={() => handleFilterChange("")}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               !categoryFilter
                 ? "bg-primary text-white"
@@ -209,7 +231,7 @@ export default function AdminProductsPage() {
           {categoryOptions.map((cat) => (
             <button
               key={cat.slug}
-              onClick={() => handleFilterChange(() => cat.name)}
+              onClick={() => handleFilterChange(cat.name)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 categoryFilter === cat.name
                   ? "bg-primary text-white"
@@ -224,7 +246,7 @@ export default function AdminProductsPage() {
 
       <DataTable
         columns={columns}
-        data={paginated}
+        data={products}
         keyExtractor={(p) => p.id}
         searchable
         searchValue={search}

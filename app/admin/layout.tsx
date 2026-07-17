@@ -54,6 +54,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         router.replace("/admin/login");
         return;
       }
+      // Show admin shell immediately; validate token in background once per mount
       if (active) setAuthed(true);
       const valid = await validateToken();
       if (!valid && active) {
@@ -63,8 +64,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     })();
     return () => { active = false; };
+    // Validate once on mount / login-page toggle — not on every admin route change
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [isLoginPage]);
 
   if (authed === null) {
     return (

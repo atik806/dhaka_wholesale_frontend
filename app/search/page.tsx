@@ -32,12 +32,19 @@ function SearchPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!query) return;
+    if (!query) {
+      setResults([]);
+      setLoading(false);
+      return;
+    }
     const controller = new AbortController();
-    fetchProducts({ search: query, limit: 100 }, controller.signal)
+    setLoading(true);
+    fetchProducts({ search: query, limit: 48, sort: "popular" }, controller.signal)
       .then((result) => {
-        setResults(result.products);
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setResults(result.products);
+          setLoading(false);
+        }
       })
       .catch(() => {
         if (!controller.signal.aborted) setLoading(false);

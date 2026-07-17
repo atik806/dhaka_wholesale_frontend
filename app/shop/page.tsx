@@ -50,7 +50,12 @@ function ShopPage() {
     rating: ratingParam ? parseInt(ratingParam, 10) : null,
   }), [selectedCategoryNames, priceRange, ratingParam]);
 
+  const categorySlugReady =
+    selectedCategoryNames.length !== 1 || Boolean(CATEGORY_SLUG[selectedCategoryNames[0]]);
+
   const swrKey = useMemo(() => {
+    // Avoid fetching with a missing category slug while categories are still loading
+    if (!categorySlugReady) return null;
     const parts: string[] = [];
     if (selectedCategoryNames.length === 1) parts.push(`cat=${CATEGORY_SLUG[selectedCategoryNames[0]]}`);
     if (selectedCategoryNames.length > 1) parts.push(`cats=${selectedCategoryNames.join(",")}`);
@@ -59,7 +64,7 @@ function ShopPage() {
     parts.push(`sort=${sort}`);
     parts.push(`page=${page}`);
     return `/shop?${parts.join("&")}`;
-  }, [selectedCategoryNames, priceRange, ratingParam, sort, page]);
+  }, [selectedCategoryNames, priceRange, ratingParam, sort, page, CATEGORY_SLUG, categorySlugReady]);
 
   const buildFetchParams = useCallback(() => {
     const params: Record<string, unknown> = {};
@@ -76,7 +81,7 @@ function ShopPage() {
       params.category = CATEGORY_SLUG[selectedCategoryNames[0]];
     }
     return params;
-  }, [selectedCategoryNames, priceRange, ratingParam, sort, page]);
+  }, [selectedCategoryNames, priceRange, ratingParam, sort, page, CATEGORY_SLUG]);
 
   const { data, isLoading } = useSWR(
     swrKey,

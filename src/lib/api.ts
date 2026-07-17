@@ -12,7 +12,7 @@ interface BackendProduct {
   id: string;
   slug: string;
   name: string;
-  description: string;
+  description?: string;
   price: number;
   original_price: number | null;
   category_id: string;
@@ -20,13 +20,13 @@ interface BackendProduct {
   rating: number;
   review_count: number;
   stock: string;
-  tags: string[];
-  sizes: string[];
-  colors: { name: string; hex: string }[];
+  tags?: string[];
+  sizes?: string[];
+  colors?: { name: string; hex: string }[];
   is_new: boolean;
   is_featured: boolean;
   created_at: string;
-  categories: { name: string; slug: string };
+  categories?: { name: string; slug: string } | null;
 }
 
 interface BackendCategory {
@@ -39,22 +39,24 @@ interface BackendCategory {
 }
 
 function mapProduct(p: BackendProduct): Product {
+  const sizes = p.sizes ?? [];
+  const colors = p.colors ?? [];
   return {
     id: p.id,
     slug: p.slug,
     name: p.name,
-    category: p.categories.name,
+    category: p.categories?.name ?? 'Uncategorized',
     price: p.price,
     originalPrice: p.original_price ?? undefined,
-    images: p.images,
-    rating: p.rating,
-    reviewCount: p.review_count,
+    images: p.images ?? [],
+    rating: p.rating ?? 0,
+    reviewCount: p.review_count ?? 0,
     stock: p.stock as Product['stock'],
-    description: p.description,
-    tags: p.tags,
+    description: p.description ?? '',
+    tags: p.tags ?? [],
     variants: {
-      sizes: p.sizes.length > 0 ? p.sizes : undefined,
-      colors: p.colors.length > 0 ? p.colors : undefined,
+      sizes: sizes.length > 0 ? sizes : undefined,
+      colors: colors.length > 0 ? colors : undefined,
     },
     isNew: p.is_new || undefined,
     isFeatured: p.is_featured || undefined,
@@ -148,6 +150,17 @@ export async function fetchRelatedProducts(slug: string, signal?: AbortSignal): 
 export async function fetchFeaturedProducts(signal?: AbortSignal): Promise<Product[]> {
   const res = await fetcher<BackendProduct[]>('/products/featured', signal);
   return (res.data || []).map(mapProduct);
+}
+
+export interface ProductStockStats {
+  total: number;
+  lowStock: number;
+  outOfStock: number;
+}
+
+export async function fetchProductStockStats(signal?: AbortSignal): Promise<ProductStockStats> {
+  const res = await fetcher<ProductStockStats>('/products/stats', signal);
+  return res.data || { total: 0, lowStock: 0, outOfStock: 0 };
 }
 
 export interface CategoryListResult {
