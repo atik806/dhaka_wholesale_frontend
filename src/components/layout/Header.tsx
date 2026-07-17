@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore, useCartHydrated } from "@/src/store/useCartStore";
 import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
-import { categories } from "@/src/lib/constants";
+import { useCategories } from "@/src/hooks/useApi";
 import { fetchProducts } from "@/src/lib/api";
 import { formatPrice, safeImage } from "@/src/lib/utils";
 import { MobileNav } from "./MobileNav";
@@ -26,6 +26,7 @@ import { useTheme } from "@/src/providers/ThemeProvider";
 import type { Product } from "@/src/types/product";
 
 export const Header = memo(function Header() {
+  const { data: categories = [] } = useCategories();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");

@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
-import { categories, priceRanges } from "@/src/lib/constants";
+import { useCategories } from "@/src/hooks/useApi";
+import { priceRanges } from "@/src/lib/constants";
 
 interface FilterState {
   categories: string[];
@@ -18,6 +19,7 @@ interface ProductFiltersProps {
 }
 
 export function ProductFilters({ filters, onChange, onClose }: ProductFiltersProps) {
+  const { data: categories = [] } = useCategories();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     category: true,
     price: true,

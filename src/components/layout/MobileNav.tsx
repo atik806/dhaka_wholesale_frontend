@@ -5,7 +5,7 @@ import { X, Heart, Sun, Moon, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useEffect } from "react";
-import { categories } from "@/src/lib/constants";
+import { useCategories } from "@/src/hooks/useApi";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
 
@@ -15,6 +15,7 @@ interface MobileNavProps {
 }
 
 export function MobileNav({ open, onClose }: MobileNavProps) {
+  const { data: categories = [] } = useCategories();
   const navRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();

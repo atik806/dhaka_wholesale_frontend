@@ -3,10 +3,11 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { categories } from "@/src/lib/constants";
+import { useCategories } from "@/src/hooks/useApi";
 import { CategoryCard } from "@/src/components/product/CategoryCard";
 
 export function FeaturedCategories() {
+  const { data: categories = [] } = useCategories();
   return (
     <section className="py-16 md:py-24">
       <div className="container">

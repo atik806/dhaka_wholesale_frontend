@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
-import { categories, sortOptions } from "@/src/lib/constants";
+import { sortOptions } from "@/src/lib/constants";
+import { useCategories } from "@/src/hooks/useApi";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { ProductFilters } from "@/src/components/product/ProductFilters";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
@@ -13,10 +14,6 @@ import { ShopSkeleton } from "@/src/components/ui/Skeleton";
 import { fetchProducts } from "@/src/lib/api";
 
 const ITEMS_PER_PAGE = 12;
-
-const CATEGORY_SLUG: Record<string, string> = Object.fromEntries(
-  categories.map((c) => [c.name, c.slug])
-);
 
 export default function ShopPageWrapper() {
   return (
@@ -27,6 +24,11 @@ export default function ShopPageWrapper() {
 }
 
 function ShopPage() {
+  const { data: categories = [] } = useCategories();
+  const CATEGORY_SLUG: Record<string, string> = useMemo(
+    () => Object.fromEntries(categories.map((c) => [c.name, c.slug])),
+    [categories]
+  );
   const searchParams = useSearchParams();
   const router = useRouter();
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);

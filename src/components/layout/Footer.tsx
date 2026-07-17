@@ -9,9 +9,10 @@ import {
   Heart,
 } from "lucide-react";
 import Link from "next/link";
-import { categories } from "@/src/lib/constants";
+import { useCategories } from "@/src/hooks/useApi";
 
 export const Footer = memo(function Footer() {
+  const { data: categories = [] } = useCategories();
   return (
     <footer className="bg-zinc-900 dark:bg-black text-zinc-300 dark:text-zinc-400">
       <div className="container py-16 md:py-20">
