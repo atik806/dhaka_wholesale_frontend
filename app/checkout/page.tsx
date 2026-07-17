@@ -89,7 +89,18 @@ export default function CheckoutPage() {
     }
   }, [step, validateShipping, validatePayment, session, shipping]);
 
+  const outOfStockInCart = useMemo(
+    () => items.filter((i) => i.product.stock === "out-of-stock"),
+    [items],
+  );
+
   const handlePlaceOrder = useCallback(async () => {
+    if (outOfStockInCart.length > 0) {
+      setPlaceError(
+        `Remove out-of-stock items before checkout: ${outOfStockInCart.map((i) => i.product.name).join(", ")}`,
+      );
+      return;
+    }
     setPlacing(true);
     setPlaceError("");
     try {
@@ -123,7 +134,7 @@ export default function CheckoutPage() {
     } finally {
       setPlacing(false);
     }
-  }, [shipping, items, clearCart]);
+  }, [shipping, items, clearCart, outOfStockInCart]);
 
   if (!authHydrated || !isLoggedIn) {
     return (
@@ -230,6 +241,14 @@ export default function CheckoutPage() {
     >
       <Breadcrumbs items={[{ label: "Checkout" }]} />
 
+      {outOfStockInCart.length > 0 && (
+        <p className="max-w-lg mx-auto mb-6 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl px-4 py-3 text-center">
+          Some items in your cart are out of stock. Remove them in{" "}
+          <Link href="/cart" className="underline font-medium">your cart</Link>{" "}
+          to continue.
+        </p>
+      )}
+
       <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 sm:mb-10">
         {steps.map((s, i) => {
           const Icon = s.icon;
@@ -299,7 +318,7 @@ export default function CheckoutPage() {
               Continue <ChevronRight className="w-4 h-4" />
             </Button>
           ) : (
-            <Button onClick={handlePlaceOrder} disabled={placing}>
+            <Button onClick={handlePlaceOrder} disabled={placing || outOfStockInCart.length > 0}>
               {placing ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Placing...</>
               ) : (

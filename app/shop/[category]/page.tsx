@@ -11,6 +11,10 @@ import { useCategory, useProducts } from "@/src/hooks/useApi";
 export default function CategoryPage() {
   const params = useParams();
   const categorySlug = params.category as string;
+  return <CategoryPageContent key={categorySlug} categorySlug={categorySlug} />;
+}
+
+function CategoryPageContent({ categorySlug }: { categorySlug: string }) {
   const [page, setPage] = useState(1);
   const limit = 12;
 

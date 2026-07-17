@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
+import useSWR from "swr";
 import Link from "next/link";
 import { Plus, Edit, Trash2, Package, AlertTriangle, CheckCircle } from "lucide-react";
 import { fetchProducts, fetchCategories, fetchProductStockStats } from "@/src/lib/api";
@@ -19,15 +20,11 @@ const PER_PAGE = 10;
 export default function AdminProductsPage() {
   const { addToast } = useToast();
   const { confirm, dialog } = useConfirm();
-  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalProducts, setTotalProducts] = useState(0);
   const [stockStats, setStockStats] = useState({ total: 0, lowStock: 0, outOfStock: 0 });
 
   useEffect(() => {
@@ -51,29 +48,32 @@ export default function AdminProductsPage() {
     return categories.find((c) => c.name === categoryFilter)?.slug;
   }, [categories, categoryFilter]);
 
-  const loadProducts = useCallback(async () => {
-    setLoading(true);
-    try {
-      const result = await fetchProducts({
+  const categorySlugReady = !categoryFilter || Boolean(categorySlug);
+
+  const productsKey = categorySlugReady
+    ? `admin-products:${page}:${debouncedSearch}:${categorySlug ?? ""}`
+    : null;
+
+  const { data: productsData, isLoading: loading, mutate } = useSWR(
+    productsKey,
+    () =>
+      fetchProducts({
         page,
         limit: PER_PAGE,
         search: debouncedSearch || undefined,
         category: categorySlug,
         sort: "newest",
-      });
-      setProducts(result.products);
-      setTotalPages(Math.max(result.totalPages, 1));
-      setTotalProducts(result.total);
-    } catch {
-      addToast("Failed to load products", "error");
-    } finally {
-      setLoading(false);
-    }
-  }, [page, debouncedSearch, categorySlug, addToast]);
+      }),
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+      onError: () => addToast("Failed to load products", "error"),
+    },
+  );
 
-  useEffect(() => {
-    loadProducts();
-  }, [loadProducts]);
+  const products = productsData?.products ?? [];
+  const totalPages = Math.max(productsData?.totalPages ?? 1, 1);
+  const totalProducts = productsData?.total ?? 0;
 
   const handleFilterChange = (value: string) => {
     setCategoryFilter(value);
@@ -97,7 +97,7 @@ export default function AdminProductsPage() {
       if (products.length === 1 && page > 1) {
         setPage((p) => p - 1);
       } else {
-        await loadProducts();
+        await mutate();
       }
     } catch (err) {
       addToast(err instanceof Error ? err.message : "Failed to delete product", "error");
