@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
@@ -10,9 +11,11 @@ import { useCategory, useProducts } from "@/src/hooks/useApi";
 export default function CategoryPage() {
   const params = useParams();
   const categorySlug = params.category as string;
+  const [page, setPage] = useState(1);
+  const limit = 12;
 
   const { data: category, isLoading: catLoading } = useCategory(categorySlug);
-  const { data: result, isLoading: prodLoading } = useProducts({ category: categorySlug, limit: 100 });
+  const { data: result, isLoading: prodLoading } = useProducts({ category: categorySlug, page, limit });
 
   const loading = catLoading || prodLoading;
 
@@ -50,6 +53,28 @@ export default function CategoryPage() {
       </div>
 
       <ProductGrid products={result?.products || []} />
+
+      {result && result.totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-8">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-4 py-2 border rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-600">
+            Page {page} of {result.totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(result.totalPages, p + 1))}
+            disabled={page === result.totalPages}
+            className="px-4 py-2 border rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 }

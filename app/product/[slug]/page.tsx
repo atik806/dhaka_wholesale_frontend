@@ -14,9 +14,9 @@ import { Button } from "@/src/components/ui/Button";
 import { ProductDetailSkeleton } from "@/src/components/ui/Skeleton";
 import { formatPrice } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
-import { categories } from "@/src/lib/constants";
+
 import { useToast } from "@/src/providers/ToastProvider";
-import { useProduct, useRelatedProducts } from "@/src/hooks/useApi";
+import { useProduct, useRelatedProducts, useCategories } from "@/src/hooks/useApi";
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -29,6 +29,7 @@ export default function ProductDetailPage() {
 
   const { data: product, isLoading } = useProduct(slug);
   const { data: related } = useRelatedProducts(slug);
+  const { data: liveCategories = [] } = useCategories();
 
   if (isLoading) {
     return <ProductDetailSkeleton />;
@@ -72,7 +73,7 @@ export default function ProductDetailPage() {
       <Breadcrumbs
         items={[
           { label: "Shop", href: "/shop" },
-          { label: product.category, href: `/shop/${categories.find((c) => c.name === product.category)?.slug ?? product.category.toLowerCase()}` },
+          { label: product.category, href: `/shop/${liveCategories.find((c) => c.name === product.category)?.slug ?? product.category.toLowerCase()}` },
           { label: product.name },
         ]}
       />

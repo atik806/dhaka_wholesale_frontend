@@ -94,8 +94,8 @@ export function ProductFilters({ filters, onChange, onClose }: ProductFiltersPro
             >
               <input
                 type="checkbox"
-                checked={filters.categories.includes(cat.name)}
-                onChange={() => toggleCategory(cat.name)}
+                checked={filters.categories.includes(cat.slug)}
+                onChange={() => toggleCategory(cat.slug)}
                 className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-primary dark:text-primary-light focus:ring-primary/30"
               />
               <span className="text-sm text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">

@@ -83,6 +83,9 @@ function ShopPage() {
     async () => {
       const params = buildFetchParams();
       const result = await fetchProducts(params as Parameters<typeof fetchProducts>[0]);
+      // NOTE: Multi-category server-side filtering is not supported by the API.
+      // When multiple categories are selected, we fetch all products (first category only
+      // is sent to API as a fallback) and filter client-side. This is a known limitation.
       if (selectedCategoryNames.length > 1) {
         result.products = result.products.filter((p) =>
           selectedCategoryNames.includes(p.category)

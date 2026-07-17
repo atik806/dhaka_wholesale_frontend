@@ -29,21 +29,4 @@ export interface Category {
   description: string;
 }
 
-export interface Review {
-  id: string;
-  productId: string;
-  author: string;
-  rating: number;
-  text: string;
-  date: string;
-  avatar?: string;
-}
 
-export interface Testimonial {
-  id: string;
-  name: string;
-  role: string;
-  avatar: string;
-  text: string;
-  rating: number;
-}
