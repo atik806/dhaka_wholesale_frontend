@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { fetchDashboard } from "@/src/lib/admin-api";
+import { SiteLogo } from "@/src/components/brand/SiteLogo";
 
 interface BadgeCounts {
   pendingOrders: number;
@@ -96,12 +97,16 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
       )}
 
       <aside className={`fixed top-0 left-0 h-full bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 z-50 transition-all duration-300 flex flex-col ${collapsed ? "w-16" : "w-64"} ${onClose ? (open ? "translate-x-0" : "-translate-x-full lg:translate-x-0") : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
-          {!collapsed && (
-            <Link href="/admin" onClick={handleNavClick} className="font-serif text-xl font-bold text-primary dark:text-primary-light">
-              Admin
-            </Link>
-          )}
+        <div className={`border-b border-zinc-200 dark:border-zinc-700 ${collapsed ? "p-2 flex flex-col items-center gap-2" : "p-4 flex items-center justify-between gap-2"}`}>
+          <Link href="/admin" onClick={handleNavClick} className={`flex items-center min-w-0 ${collapsed ? "" : "gap-2.5"}`} title="Admin">
+            <SiteLogo variant="mark" href={null} />
+            {!collapsed && (
+              <span className="leading-tight">
+                <span className="block text-sm font-bold text-zinc-900 dark:text-zinc-100">Dhaka Wholesale</span>
+                <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#E31C23]">Admin</span>
+              </span>
+            )}
+          </Link>
           <div className="flex items-center gap-1">
             {!collapsed && totalBadges > 0 && (
               <span className="mr-1 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5">

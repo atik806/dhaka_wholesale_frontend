@@ -50,7 +50,7 @@ export function SceneContainer({
           <directionalLight position={[5, 5, 5]} intensity={1} />
           <directionalLight position={[-3, 1, -4]} intensity={0.8} color="#5eead4" />
           <directionalLight position={[0, -5, 3]} intensity={0.25} color="#0d9488" />
-          <pointLight position={[2.5, 0.5, 2]} intensity={0.4} color="#14b8a6" />
+          <pointLight position={[2.5, 0.5, 2]} intensity={0.4} color="#1a4a8a" />
           {children}
           <AdaptiveDpr />
           <AdaptiveEvents />

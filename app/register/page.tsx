@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { UserPlus } from "lucide-react";
 import Link from "next/link";
 import { registerUser } from "@/src/lib/auth-api";
 import { useAuthStore } from "@/src/store/useAuthStore";
+import { SiteLogo } from "@/src/components/brand/SiteLogo";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -54,8 +54,8 @@ export default function RegisterPage() {
       >
         <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-8">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
-              <UserPlus className="w-7 h-7 text-primary dark:text-primary-light" />
+            <div className="flex justify-center mb-5">
+              <SiteLogo variant="auth" href="/" priority />
             </div>
             <h1 className="font-serif text-2xl font-bold">Create Account</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">

@@ -21,6 +21,23 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "Dhaka Wholesale — Your Trusted Wholesale Marketplace",
   description: "Your trusted wholesale marketplace for quality products at competitive prices",
+  metadataBase: new URL("https://dhakawholesale.com"),
+  icons: {
+    icon: [
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  openGraph: {
+    title: "Dhaka Wholesale — Your Trusted Wholesale Marketplace",
+    description: "Your trusted wholesale marketplace for quality products at competitive prices",
+    url: "https://dhakawholesale.com",
+    siteName: "Dhaka Wholesale",
+    images: [{ url: "/logo.png", width: 1024, height: 1024, alt: "Dhaka Wholesale" }],
+    type: "website",
+  },
 };
 
 export default function RootLayout({

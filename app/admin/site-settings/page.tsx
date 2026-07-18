@@ -189,7 +189,7 @@ export default function SiteSettingsPage() {
             {promo.enabled ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
             Preview
           </p>
-          <div className="rounded-xl overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-emerald-800 p-5">
+          <div className="rounded-xl overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-[#5a0f14] p-5">
             {promo.badge && (
               <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-xs font-medium px-3 py-1 rounded-full mb-3 border border-white/10">
                 {promo.badge}
@@ -198,7 +198,7 @@ export default function SiteSettingsPage() {
             <h3 className="font-serif text-lg font-bold text-white mb-1">
               {promo.title || "Your title here"}
             </h3>
-            <p className="text-emerald-100/80 text-xs">{promo.subtitle}</p>
+            <p className="text-white/75 text-xs">{promo.subtitle}</p>
             <div className="mt-3 inline-flex items-center gap-2 bg-white text-primary px-5 py-2 rounded-lg text-sm font-medium">
               {promo.button_text || "Button"} →
             </div>

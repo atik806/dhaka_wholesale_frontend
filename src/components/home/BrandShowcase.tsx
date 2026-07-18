@@ -25,14 +25,14 @@ const cards: ShowcaseCard[] = [
   {
     label: "Premium Tote",
     tag: "New Collection",
-    gradient: "from-emerald-500 via-teal-500 to-emerald-600",
+    gradient: "from-[#0b2c5f] via-[#1a4a8a] to-[#e31c23]",
     rotate: -3,
     x: "55%",
     y: "8%",
     w: "220px",
     h: "280px",
     delay: 0.2,
-    accentColor: "#0f766e",
+    accentColor: "#0b2c5f",
     imageSrc: "/images/tote-bag.jpg",
   },
   {

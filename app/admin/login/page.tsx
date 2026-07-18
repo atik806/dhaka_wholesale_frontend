@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { ShieldAlert } from "lucide-react";
-
 import { API_BASE } from "@/src/lib/constants";
+import { SiteLogo } from "@/src/components/brand/SiteLogo";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -46,7 +45,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-amber-50 dark:from-emerald-950/30 dark:via-zinc-900 dark:to-amber-950/30 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0b2c5f]/10 via-white to-[#e31c23]/5 dark:from-[#0b2c5f]/40 dark:via-zinc-900 dark:to-[#e31c23]/10 p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -54,11 +53,11 @@ export default function AdminLoginPage() {
       >
         <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-8">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
-              <ShieldAlert className="w-7 h-7 text-primary dark:text-primary-light" />
+            <div className="flex justify-center mb-5">
+              <SiteLogo variant="auth" href="/" priority />
             </div>
             <h1 className="font-serif text-2xl font-bold">Admin Login</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Sign in to manage your store</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Sign in to manage Dhaka Wholesale</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

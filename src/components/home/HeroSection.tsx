@@ -1,20 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { BrandShowcase } from "./BrandShowcase";
-
-const titleWords = ["Discover", "Premium", "Lifestyle"];
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[60vh] md:min-h-[80vh] lg:min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-amber-50 dark:from-emerald-950/30 dark:via-zinc-900 dark:to-amber-950/30">
+    <section className="relative min-h-[60vh] md:min-h-[80vh] lg:min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-[#eef3f9] via-white to-[#fff5f5] dark:from-[#071f43]/60 dark:via-zinc-900 dark:to-[#3a0a0c]/40">
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-40"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 20% 50%, rgba(15, 118, 110, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.06) 0%, transparent 50%)",
+            "radial-gradient(circle at 18% 45%, rgba(11, 44, 95, 0.10) 0%, transparent 48%), radial-gradient(circle at 82% 18%, rgba(227, 28, 35, 0.08) 0%, transparent 45%), radial-gradient(circle at 70% 80%, rgba(240, 161, 26, 0.08) 0%, transparent 40%)",
         }}
       />
 
@@ -22,44 +21,47 @@ export function HeroSection() {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="max-w-xl">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary-light text-sm font-medium px-4 py-1.5 rounded-full mb-6 border border-primary/20 dark:border-primary/30"
+              initial={{ opacity: 0, y: 16, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.55 }}
+              className="mb-7"
             >
-              <Sparkles className="w-4 h-4" />
-              New Collection Available
+              <SiteLogo variant="auth" href={null} priority />
             </motion.div>
 
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1] tracking-tight mb-6 text-zinc-900 dark:text-zinc-100">
-              {titleWords.map((word, i) => (
-                <motion.span
-                  key={word}
-                  initial={{ opacity: 0, y: 60 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 + i * 0.15 }}
-                  className="block"
-                >
-                  {word}
-                  {i === 0 && <span className="text-primary dark:text-primary-light">.</span>}
-                </motion.span>
-              ))}
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight mb-6 text-zinc-900 dark:text-zinc-100">
+              <motion.span
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.15 }}
+                className="block"
+              >
+                Wholesale value.
+              </motion.span>
+              <motion.span
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.28 }}
+                className="block text-primary dark:text-primary-light"
+              >
+                Delivered to your door.
+              </motion.span>
             </h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
+              transition={{ duration: 0.6, delay: 0.45 }}
               className="text-base md:text-lg text-zinc-500 dark:text-zinc-400 max-w-lg mb-8 leading-relaxed"
             >
-              Curated collections of the finest products from around the
-              world. Quality you can see, feel, and trust.
+              Quality products sourced for Bangladesh — competitive prices,
+              trusted delivery, and a catalog built for real shops and homes.
             </motion.p>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.9 }}
+              transition={{ duration: 0.6, delay: 0.6 }}
                className="flex flex-wrap items-center gap-3 mb-8 md:mb-12"
             >
               <Link

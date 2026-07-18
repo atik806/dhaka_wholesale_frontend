@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useEffect } from "react";
 import { useCategories } from "@/src/hooks/useApi";
+import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
 
@@ -74,7 +75,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
             className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white dark:bg-zinc-800 z-[70] shadow-2xl"
           >
             <div className="flex items-center justify-between p-4 border-b border-zinc-200 dark:border-zinc-700">
-              <span className="font-serif text-xl font-bold text-primary dark:text-primary-light">Menu</span>
+              <SiteLogo variant="mobile" href={null} />
               <button
                 onClick={onClose}
                 className="p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
