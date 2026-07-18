@@ -22,6 +22,7 @@ import { useCategories } from "@/src/hooks/useApi";
 import { fetchProducts } from "@/src/lib/api";
 import { formatPrice, safeImage } from "@/src/lib/utils";
 import { MobileNav } from "./MobileNav";
+import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import type { Product } from "@/src/types/product";
 
@@ -177,11 +178,9 @@ export const Header = memo(function Header() {
         }`}
       >
         <div className="container flex items-center justify-between h-16 md:h-20">
-          <Link href="/" className="relative z-10 group">
-              <span className="font-serif text-2xl font-bold tracking-tight text-primary dark:text-primary-light">
-                Dhaka<span className="text-zinc-900 dark:text-zinc-100 group-hover:text-primary transition-colors duration-300"> Wholesale</span>
-              </span>
-          </Link>
+          <div className="relative z-10">
+            <SiteLogo variant="header" priority />
+          </div>
 
           <nav className="hidden md:flex items-center gap-8">
             <Link

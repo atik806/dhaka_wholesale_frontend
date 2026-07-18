@@ -56,7 +56,7 @@ export function PromoBanner() {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary-dark to-emerald-800 p-6 md:p-10 lg:p-16"
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary-dark to-[#5a0f14] p-6 md:p-10 lg:p-16"
         >
           <SceneContainer className="opacity-40">
             <ParticleField count={150} color="#ffffff" size={0.02} opacity={0.3} />
@@ -65,7 +65,7 @@ export function PromoBanner() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_70%,rgba(255,255,255,0.15)_0%,transparent_50%)]" />
 
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-emerald-400/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-[#e31c23]/20 rounded-full blur-3xl" />
 
           <div className="relative z-10">
             <motion.div
@@ -94,7 +94,7 @@ export function PromoBanner() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.2 }}
-                  className="text-emerald-100/80 text-sm leading-relaxed max-w-md"
+                  className="text-white/75 text-sm leading-relaxed max-w-md"
                 >
                   {promo.subtitle}
                 </motion.p>
@@ -108,7 +108,7 @@ export function PromoBanner() {
               >
                 <Link
                   href={promo.button_link || "/shop"}
-                  className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3.5 rounded-xl font-medium hover:bg-emerald-50 transition-all shadow-xl hover:shadow-white/20 hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 bg-white text-primary px-8 py-3.5 rounded-xl font-medium hover:bg-[#eef3f9] transition-all shadow-xl hover:shadow-white/20 hover:-translate-y-0.5"
                 >
                   {promo.button_text} <ArrowRight className="w-4 h-4" />
                 </Link>

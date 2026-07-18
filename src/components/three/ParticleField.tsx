@@ -32,7 +32,7 @@ _geo.setAttribute("position", new THREE.Float32BufferAttribute(_pos, 3));
 
 export function ParticleField({
   count = 300,
-  color = "#0f766e",
+  color = "#0b2c5f",
   size = 0.015,
   opacity = 0.2,
 }: ParticleFieldProps) {

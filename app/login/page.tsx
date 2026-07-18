@@ -3,11 +3,11 @@
 import { Suspense, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { loginUser } from "@/src/lib/auth-api";
 import { getSupabase } from "@/src/lib/supabase";
 import { useAuthStore } from "@/src/store/useAuthStore";
+import { SiteLogo } from "@/src/components/brand/SiteLogo";
 
 function safeRedirect(path: string | null): string {
   if (!path || !path.startsWith("/") || path.startsWith("//")) return "/";
@@ -114,12 +114,12 @@ function LoginForm() {
       >
         <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-8">
           <div className="text-center mb-8">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
-              <LogIn className="w-7 h-7 text-primary dark:text-primary-light" />
+            <div className="flex justify-center mb-5">
+              <SiteLogo variant="auth" href="/" priority />
             </div>
             <h1 className="font-serif text-2xl font-bold">Welcome Back</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Sign in to your account
+              Sign in to Dhaka Wholesale
             </p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
