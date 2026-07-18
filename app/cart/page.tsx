@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
 import { formatPrice as fp, safeImage } from "@/src/lib/utils";
+import { DELIVERY_CHARGES } from "@/src/lib/constants";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 
@@ -21,10 +22,9 @@ export default function CartPage() {
       (sum, item) => sum + (item.product.price || 0) * item.quantity,
       0
     );
-    const shipping = subtotal >= 50 ? 0 : 5;
-    const tax = subtotal * 0.08;
-    const total = subtotal + shipping + tax;
-    return { subtotal, shipping, tax, total };
+    const shipping = DELIVERY_CHARGES.inside_dhaka;
+    const total = subtotal + shipping;
+    return { subtotal, shipping, total };
   }, [items]);
 
   if (items.length === 0) {
@@ -136,12 +136,8 @@ export default function CartPage() {
                 <span>{fp(computedTotal.subtotal)}</span>
               </div>
               <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
-                <span>Shipping</span>
-                <span>{computedTotal.shipping === 0 ? "Free" : fp(computedTotal.shipping)}</span>
-              </div>
-              <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
-                <span>Tax</span>
-                <span>{fp(computedTotal.tax)}</span>
+                <span>Delivery (Inside Dhaka)</span>
+                <span>{fp(computedTotal.shipping)}</span>
               </div>
               <div className="border-t border-zinc-200 dark:border-zinc-700 pt-2 flex justify-between font-semibold">
                 <span>Total</span>

@@ -17,6 +17,13 @@ export const sortOptions = [
   { value: "popular", label: "Most Popular" },
 ];
 
+export const DELIVERY_CHARGES = {
+  inside_dhaka: 80,
+  outside_dhaka: 120,
+} as const;
+
+export type DeliveryZone = keyof typeof DELIVERY_CHARGES;
+
 export const priceRanges = [
   { value: "all", label: "All Prices" },
   { value: "0-25", label: "Under ৳25" },
