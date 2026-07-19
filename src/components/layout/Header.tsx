@@ -198,7 +198,7 @@ export const Header = memo(function Header() {
       >
         <div className="container flex items-center justify-between h-14 md:h-16">
           <div className="relative z-10">
-            <SiteLogo variant="header" priority />
+            <SiteLogo variant="header" priority showWordmark />
           </div>
 
           <nav className="hidden md:flex items-center gap-7">

@@ -12,7 +12,7 @@ export function TrustBar() {
   return (
     <section className="py-12 md:py-16 border-b border-zinc-100 dark:border-zinc-800">
       <div className="container">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 md:gap-8">
           {features.map(({ icon: Icon, title, description }, i) => (
             <motion.div
               key={title}

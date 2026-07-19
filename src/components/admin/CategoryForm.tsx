@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
 import { slugify } from "@/src/lib/utils";
+import { ImageUpload } from "./ImageUpload";
 
 export interface CategoryFormData {
   name: string;
@@ -105,13 +106,11 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1.5">Image URL</label>
-                <input
-                  type="url"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://example.com/image.jpg"
-                  className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                <label className="block text-sm font-medium mb-1.5">Image</label>
+                <ImageUpload
+                  value={imageUrl ? [imageUrl] : []}
+                  onChange={(urls) => setImageUrl(urls[0] || "")}
+                  maxImages={1}
                 />
               </div>
               {error && (

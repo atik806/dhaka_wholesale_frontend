@@ -55,7 +55,7 @@ export default function RegisterPage() {
         <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-8">
           <div className="text-center mb-8">
             <div className="flex justify-center mb-5">
-              <SiteLogo variant="auth" href="/" priority />
+              <SiteLogo variant="auth" href="/" priority showWordmark />
             </div>
             <h1 className="font-serif text-2xl font-bold">Create Account</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">

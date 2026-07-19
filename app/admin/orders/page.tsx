@@ -24,7 +24,7 @@ export default function OrdersPage() {
   const { data: orders, loading } = useRealtimeData<Order>({
     table: "orders",
     initialFetch: useCallback(async () => {
-      const result = await fetchOrders({ page: 1, limit: 1000 });
+      const result = await fetchOrders({ page: 1, limit: 100 });
       return result.orders;
     }, []),
   });

@@ -111,7 +111,7 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
               className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white dark:bg-zinc-900 z-[70] shadow-2xl"
             >
               <div className="flex items-center justify-between p-4 border-b border-zinc-100 dark:border-zinc-800">
-                <SiteLogo variant="mobile" href={null} />
+                <SiteLogo variant="mobile" href={null} showWordmark />
                 <button
                   onClick={onClose}
                   className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"

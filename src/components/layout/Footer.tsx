@@ -64,7 +64,7 @@ export const Footer = memo(function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
           <div className="lg:col-span-2">
             <div className="mb-5">
-              <SiteLogo variant="footer" />
+              <SiteLogo variant="footer" showWordmark />
             </div>
             <p className="text-zinc-400 dark:text-zinc-500 max-w-sm text-sm leading-relaxed mb-5">
               Curating the finest products from around the world, delivered to

@@ -129,9 +129,38 @@ export async function syncProfile(
   return json.data;
 }
 
+export interface UserOrder {
+  id: string;
+  status: string;
+  subtotal: number;
+  shipping_cost: number;
+  tax: number;
+  total: number;
+  payment_method: string;
+  payment_status: string;
+  shipping_address: ShippingAddress;
+  created_at: string;
+  order_items: {
+    id: string;
+    product_name: string;
+    product_image: string | null;
+    price: number;
+    quantity: number;
+    selected_size: string | null;
+    selected_color: string | null;
+  }[];
+}
+
+export async function fetchUserOrders(): Promise<UserOrder[]> {
+  const res = await authFetch(`${API_BASE}/orders`);
+  const json = await res.json();
+  if (!res.ok) throw new Error(parseError(res, json));
+  return json.data || [];
+}
+
 export async function updateProfile(
   _token: string,
-  updates: { name?: string; phone?: string; avatar_url?: string; shipping_address?: ShippingAddress },
+  updates: { name?: string; phone?: string; shipping_address?: ShippingAddress },
 ): Promise<AuthUser> {
   const res = await authFetch(`${API_BASE}/auth/profile`, {
     method: "PATCH",

@@ -139,7 +139,7 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
           ))}
 
           {meta && meta.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-4">
+            <div className="flex items-center justify-center gap-2 pt-4 flex-wrap">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { User, Mail, Phone, Save, LogOut, Loader2, MapPin, ChevronDown, ChevronUp } from "lucide-react";
+import { User, Mail, Phone, Save, LogOut, Loader2, MapPin, ChevronDown, ChevronUp, Package } from "lucide-react";
 import { useAuthStore, useAuthHydrated } from "@/src/store/useAuthStore";
-import { updateProfile, type ShippingAddress } from "@/src/lib/auth-api";
+import { updateProfile, fetchUserOrders, type ShippingAddress, type UserOrder } from "@/src/lib/auth-api";
+import { formatPrice, formatDate } from "@/src/lib/utils";
 
 export default function AccountPage() {
   const router = useRouter();
@@ -27,12 +28,25 @@ export default function AccountPage() {
   const [addrMessage, setAddrMessage] = useState("");
   const [addrError, setAddrError] = useState("");
   const [addrOpen, setAddrOpen] = useState(false);
+  const [orders, setOrders] = useState<UserOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState("");
 
   useEffect(() => {
     if (hydrated && !user) {
       router.replace("/login?redirect=/account");
     }
   }, [hydrated, user, router]);
+
+  useEffect(() => {
+    if (!hydrated || !user) return;
+    let active = true;
+    setOrdersLoading(true);
+    fetchUserOrders()
+      .then((data) => { if (active) { setOrders(data); setOrdersLoading(false); } })
+      .catch((err) => { if (active) { setOrdersError(err instanceof Error ? err.message : "Failed to load orders"); setOrdersLoading(false); } });
+    return () => { active = false; };
+  }, [hydrated, user]);
 
   if (!hydrated || !user) {
     return (
@@ -309,6 +323,45 @@ export default function AccountPage() {
                 </button>
               </form>
             </motion.div>
+          )}
+        </div>
+
+        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Package className="w-5 h-5 text-primary dark:text-primary-light" />
+            <h2 className="font-semibold text-zinc-900 dark:text-zinc-100">Order History</h2>
+          </div>
+          {ordersLoading ? (
+            <div className="flex justify-center py-6">
+              <Loader2 className="w-5 h-5 animate-spin text-zinc-400" />
+            </div>
+          ) : ordersError ? (
+            <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-3">{ordersError}</p>
+          ) : orders.length === 0 ? (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center py-6">No orders yet</p>
+          ) : (
+            <div className="divide-y divide-zinc-100 dark:divide-zinc-700/50">
+              {orders.map((order) => (
+                <div key={order.id} className="py-3 first:pt-0 last:pb-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full capitalize ${
+                      order.status === "delivered" ? "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400" :
+                      order.status === "cancelled" ? "bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400" :
+                      order.status === "shipped" ? "bg-blue-100 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400" :
+                      "bg-amber-100 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400"
+                    }`}>{order.status}</span>
+                    <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{formatPrice(order.total)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(order.created_at)}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{order.payment_method.replace(/_/g, " ")}</p>
+                  </div>
+                  <div className="mt-1.5 text-xs text-zinc-400 dark:text-zinc-500">
+                    {order.order_items?.map((item) => item.product_name).join(", ")}
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
