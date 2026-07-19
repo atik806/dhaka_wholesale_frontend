@@ -7,7 +7,6 @@ import {
   MapPin,
   ArrowRight,
   Heart,
-  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { useCategories } from "@/src/hooks/useApi";
