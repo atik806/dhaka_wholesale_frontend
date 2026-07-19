@@ -1,88 +1,98 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Truck, ShieldCheck, Headphones, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { SiteLogo } from "@/src/components/brand/SiteLogo";
-import { BrandShowcase } from "./BrandShowcase";
+
+const trustBadges = [
+  { icon: Truck, label: "Free Delivery over ৳500" },
+  { icon: ShieldCheck, label: "Secure Payment" },
+  { icon: Headphones, label: "24/7 Support" },
+  { icon: RotateCcw, label: "Easy Returns" },
+];
 
 export function HeroSection() {
   return (
-    <section className="relative min-h-[60vh] md:min-h-[80vh] lg:min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-[#eef3f9] via-white to-[#fff5f5] dark:from-[#071f43]/60 dark:via-zinc-900 dark:to-[#3a0a0c]/40">
-      <div
-        className="absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 18% 45%, rgba(11, 44, 95, 0.10) 0%, transparent 48%), radial-gradient(circle at 82% 18%, rgba(227, 28, 35, 0.08) 0%, transparent 45%), radial-gradient(circle at 70% 80%, rgba(240, 161, 26, 0.08) 0%, transparent 40%)",
-        }}
-      />
+    <section className="relative overflow-hidden bg-gradient-to-br from-[#0b2c5f] via-[#0d3570] to-[#1a4a8a]">
+      <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, rgba(227,28,35,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(240,161,26,0.2) 0%, transparent 40%)" }} />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-white/5 -translate-y-1/2 translate-x-1/4 blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#e31c23]/10 translate-y-1/2 -translate-x-1/4 blur-3xl" />
 
-      <div className="container relative z-10 py-16 md:py-32">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          <div className="max-w-xl">
-            <motion.div
-              initial={{ opacity: 0, y: 16, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.55 }}
-              className="mb-7"
+      <div className="container relative z-10 py-14 md:py-20 lg:py-28">
+        <div className="max-w-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-xs font-medium px-4 py-2 rounded-full mb-6 border border-white/10"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#f0a11a] animate-pulse" />
+            Wholesale Prices for Everyone
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white mb-6"
+          >
+            Quality Products.
+            <br />
+            <span className="text-[#f0a11a]">Wholesale Prices.</span>
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="text-base md:text-lg text-white/70 max-w-lg mb-8 leading-relaxed"
+          >
+            Your trusted wholesale marketplace for quality products at competitive prices.
+            Built for real shops and homes across Bangladesh.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-wrap items-center gap-3 mb-10"
+          >
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-2 bg-[#f0a11a] text-[#0b2c5f] px-8 py-3.5 rounded-xl font-semibold hover:bg-[#f5b84a] transition-all shadow-lg shadow-[#f0a11a]/25 hover:shadow-[#f0a11a]/40 hover:-translate-y-0.5 text-sm"
             >
-              <SiteLogo variant="auth" href={null} priority />
-            </motion.div>
-
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight mb-6 text-zinc-900 dark:text-zinc-100">
-              <motion.span
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.15 }}
-                className="block"
-              >
-                Wholesale value.
-              </motion.span>
-              <motion.span
-                initial={{ opacity: 0, y: 40 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.55, delay: 0.28 }}
-                className="block text-primary dark:text-primary-light"
-              >
-                Delivered to your door.
-              </motion.span>
-            </h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.45 }}
-              className="text-base md:text-lg text-zinc-500 dark:text-zinc-400 max-w-lg mb-8 leading-relaxed"
+              Shop Now <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              href="/shop?sort=newest"
+              className="inline-flex items-center gap-2 text-sm font-medium text-white/80 hover:text-white transition-colors px-5 py-3.5 rounded-xl border border-white/20 hover:border-white/40"
             >
-              Quality products sourced for Bangladesh — competitive prices,
-              trusted delivery, and a catalog built for real shops and homes.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.6 }}
-               className="flex flex-wrap items-center gap-3 mb-8 md:mb-12"
-            >
-              <Link
-                href="/shop"
-                className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3.5 rounded-xl font-medium hover:bg-primary-dark transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5"
-              >
-                Shop Now <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/shop?sort=newest"
-                className="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors px-5 py-3.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500"
-              >
-                New Arrivals
-              </Link>
-            </motion.div>
-          </div>
-
-          <div className="relative hidden lg:block h-[550px] w-full">
-            <BrandShowcase />
-          </div>
+              New Arrivals
+            </Link>
+          </motion.div>
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.55 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4"
+        >
+          {trustBadges.map(({ icon: Icon, label }, i) => (
+            <motion.div
+              key={label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 + i * 0.08 }}
+              className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/10"
+            >
+              <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4 text-[#f0a11a]" />
+              </div>
+              <span className="text-white/80 text-xs font-medium leading-tight">{label}</span>
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
     </section>
   );

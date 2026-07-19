@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck, Tag, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
@@ -37,7 +37,7 @@ export default function CartPage() {
       >
         <Breadcrumbs items={[{ label: "Cart" }]} />
         <EmptyState
-          icon={<ShoppingBag className="w-10 h-10 text-primary dark:text-primary-light" />}
+          icon={<ShoppingBag className="w-10 h-10 text-[#0b2c5f] dark:text-primary-light" />}
           title="Your cart is empty"
           description="Looks like you haven't added anything yet. Browse our collection and find something you love."
           actionLabel="Start Shopping"
@@ -61,7 +61,7 @@ export default function CartPage() {
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
-        <div className="lg:col-span-2 space-y-4">
+        <div className="lg:col-span-2 space-y-3">
           {items.map((item) => (
             <motion.div
               key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
@@ -69,9 +69,9 @@ export default function CartPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="flex gap-4 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-4"
+              className="flex gap-4 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-4 shadow-sm"
             >
-              <div className="relative w-20 sm:w-24 h-20 sm:h-24 rounded-xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0">
+              <div className="relative w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0">
                 <Image
                   src={safeImage(item.product.images)}
                   alt={item.product.name}
@@ -83,30 +83,32 @@ export default function CartPage() {
               <div className="flex-1 min-w-0">
                 <Link
                   href={`/product/${item.product.slug}`}
-                  className="font-medium text-sm hover:text-primary dark:hover:text-primary-light transition-colors line-clamp-1"
+                  className="font-medium text-sm hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors line-clamp-1"
                 >
                   {item.product.name}
                 </Link>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
                   {item.product.category}
+                  {item.selectedSize && ` · Size: ${item.selectedSize}`}
+                  {item.selectedColor && ` · ${item.selectedColor}`}
                 </p>
-                <p className="font-semibold text-sm mt-1">
+                <p className="font-semibold text-sm mt-1.5">
                   {fp(item.product.price)}
                 </p>
               </div>
               <div className="flex flex-col items-end justify-between">
                 <button
                   onClick={() => removeItem(item.product.id, item.selectedSize, item.selectedColor)}
-                  className="p-2 rounded-lg hover:bg-danger/10 text-zinc-500 dark:text-zinc-400 hover:text-danger transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-zinc-400 hover:text-red-500 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
-                <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl p-1">
+                <div className="flex items-center gap-1.5 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg p-0.5">
                   <button
                     onClick={() =>
                       updateQuantity(item.product.id, item.quantity - 1, item.selectedSize, item.selectedColor)
                     }
-                    className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    className="w-8 h-8 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
                   >
                     <Minus className="w-3 h-3" />
                   </button>
@@ -117,7 +119,7 @@ export default function CartPage() {
                     onClick={() =>
                       updateQuantity(item.product.id, item.quantity + 1, item.selectedSize, item.selectedColor)
                     }
-                    className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                    className="w-8 h-8 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
                   >
                     <Plus className="w-3 h-3" />
                   </button>
@@ -128,34 +130,69 @@ export default function CartPage() {
         </div>
 
         <div className="lg:col-span-1">
-          <div className="sticky top-24 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 space-y-4">
-            <h3 className="font-semibold">Order Summary</h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
-                <span>Subtotal</span>
-                <span>{fp(computedTotal.subtotal)}</span>
+          <div className="sticky top-24 space-y-4">
+            <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-5 shadow-sm">
+              <h3 className="font-semibold mb-4">Order Summary</h3>
+
+              {/* Coupon Code */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="flex items-center gap-2 flex-1 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg px-3 py-2 border border-zinc-200 dark:border-zinc-600">
+                  <Tag className="w-3.5 h-3.5 text-zinc-400" />
+                  <input
+                    type="text"
+                    placeholder="Coupon code"
+                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-400"
+                  />
+                </div>
+                <button className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors">
+                  Apply
+                </button>
               </div>
-              <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
-                <span>Delivery (Inside Dhaka)</span>
-                <span>{fp(computedTotal.shipping)}</span>
+
+              <div className="space-y-2.5 text-sm">
+                <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
+                  <span>Subtotal</span>
+                  <span>{fp(computedTotal.subtotal)}</span>
+                </div>
+                <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
+                  <span className="flex items-center gap-1">
+                    <Truck className="w-3.5 h-3.5" /> Delivery
+                  </span>
+                  <span>{fp(computedTotal.shipping)}</span>
+                </div>
+                <div className="border-t border-zinc-100 dark:border-zinc-700 pt-2.5 flex justify-between font-semibold text-base">
+                  <span>Total</span>
+                  <span>{fp(computedTotal.total)}</span>
+                </div>
               </div>
-              <div className="border-t border-zinc-200 dark:border-zinc-700 pt-2 flex justify-between font-semibold">
-                <span>Total</span>
-                <span>{fp(computedTotal.total)}</span>
+
+              <Link
+                href="/checkout"
+                className="flex items-center justify-center gap-2 w-full bg-[#0b2c5f] text-white rounded-lg py-3 text-sm font-medium hover:bg-[#071f43] transition-colors mt-5"
+              >
+                Proceed to Checkout <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/shop"
+                className="block text-center text-sm text-zinc-500 dark:text-zinc-400 hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors mt-3"
+              >
+                Continue Shopping
+              </Link>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-4 shadow-sm">
+              <div className="space-y-3">
+                <div className="flex items-center gap-2.5">
+                  <Truck className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light shrink-0" />
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">Delivery within 1-3 business days</span>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <ShieldCheck className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light shrink-0" />
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">Secure payment with SSL encryption</span>
+                </div>
               </div>
             </div>
-            <Link
-              href="/checkout"
-              className="flex items-center justify-center gap-2 w-full bg-primary text-white rounded-xl py-3 text-sm font-medium hover:bg-primary-dark transition-colors"
-            >
-              Proceed to Checkout <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/shop"
-              className="block text-center text-sm text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary-light transition-colors"
-            >
-              Continue Shopping
-            </Link>
           </div>
         </div>
       </div>

@@ -28,7 +28,25 @@ async function validateToken(): Promise<boolean> {
     const res = await fetch(`${API_BASE}/auth/profile`, {
       headers: { Authorization: `Bearer ${session.session.access_token}` },
     });
-    return res.ok;
+    if (res.ok) return true;
+    if (res.status !== 401) return false;
+    const refreshToken = session.session.refresh_token;
+    if (!refreshToken) return false;
+    const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+    if (!refreshRes.ok) return false;
+    const refreshData = await refreshRes.json();
+    if (refreshData?.data?.session) {
+      localStorage.setItem("admin_session", JSON.stringify({
+        ...session,
+        session: refreshData.data.session,
+      }));
+      return true;
+    }
+    return false;
   } catch {
     return false;
   }

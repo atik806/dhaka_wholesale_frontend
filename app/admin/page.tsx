@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -12,6 +12,7 @@ import { StatsCard } from "@/src/components/admin/StatsCard";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { RevenueChart } from "@/src/components/admin/RevenueChart";
 import { formatPrice, formatDate } from "@/src/lib/utils";
+import { useRealtimeInvalidate } from "@/src/hooks/useRealtimeInvalidate";
 
 const dateRanges = [
   { label: "7 Days", value: "7d" },
@@ -24,32 +25,33 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState("30d");
 
-  useEffect(() => {
-    let active = true;
-    async function loadData() {
-      setLoading(true);
-      try {
-        const params: { from?: string; to?: string } = {};
-        if (dateRange !== "all") {
-          const days = dateRange === "7d" ? 7 : 30;
-          const from = new Date();
-          from.setDate(from.getDate() - days);
-          params.from = from.toISOString();
-        }
-        const result = await fetchDashboard(params);
-        if (active) setData(result);
-      } catch {
-        if (active) {
-          const session = localStorage.getItem("admin_session");
-          if (!session) window.location.href = "/admin/login";
-        }
-      } finally {
-        if (active) setLoading(false);
+  const loadData = useCallback(async (range: string) => {
+    setLoading(true);
+    try {
+      const params: { from?: string; to?: string } = {};
+      if (range !== "all") {
+        const days = range === "7d" ? 7 : 30;
+        const from = new Date();
+        from.setDate(from.getDate() - days);
+        params.from = from.toISOString();
       }
+      const result = await fetchDashboard(params);
+      setData(result);
+    } catch {
+      const session = localStorage.getItem("admin_session");
+      if (!session) window.location.href = "/admin/login";
+    } finally {
+      setLoading(false);
     }
-    loadData();
-    return () => { active = false; };
-  }, [dateRange]);
+  }, []);
+
+  useEffect(() => {
+    loadData(dateRange);
+  }, [dateRange, loadData]);
+
+  useRealtimeInvalidate({ table: "orders", onInvalidate: () => loadData(dateRange) });
+  useRealtimeInvalidate({ table: "products", onInvalidate: () => loadData(dateRange) });
+  useRealtimeInvalidate({ table: "contact_messages", onInvalidate: () => loadData(dateRange) });
 
   if (loading && !data) {
     return (

@@ -51,15 +51,15 @@ function mapProduct(p: BackendProduct): Product {
     images: p.images ?? [],
     rating: p.rating ?? 0,
     reviewCount: p.review_count ?? 0,
-    stock: p.stock as Product['stock'],
+    stock: (['in-stock', 'low-stock', 'out-of-stock'].includes(p.stock) ? p.stock : 'in-stock') as Product['stock'],
     description: p.description ?? '',
     tags: p.tags ?? [],
     variants: {
       sizes: sizes.length > 0 ? sizes : undefined,
       colors: colors.length > 0 ? colors : undefined,
     },
-    isNew: p.is_new || undefined,
-    isFeatured: p.is_featured || undefined,
+    isNew: p.is_new ?? undefined,
+    isFeatured: p.is_featured ?? undefined,
     createdAt: p.created_at,
   };
 }
@@ -69,9 +69,9 @@ function mapCategory(c: BackendCategory): Category {
     id: c.id,
     name: c.name,
     slug: c.slug,
-    image: c.image_url,
+    image: c.image_url ?? '',
     productCount: c.product_count,
-    description: c.description,
+    description: c.description ?? '',
   };
 }
 

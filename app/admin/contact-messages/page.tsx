@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Eye, EyeOff, Trash2, X, Loader2 } from "lucide-react";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
@@ -11,64 +11,50 @@ import {
   deleteContactMessage,
   type ContactMessage,
 } from "@/src/lib/admin-api";
+import { useRealtimeData } from "@/src/hooks/useRealtimeData";
+import { useToast } from "@/src/providers/ToastProvider";
 
 export default function AdminContactMessagesPage() {
-  const [messages, setMessages] = useState<ContactMessage[]>([]);
-  const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
+  const { addToast } = useToast();
   const [selected, setSelected] = useState<ContactMessage | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState("");
 
-  const load = async (page: number) => {
-    setLoading(true);
-    try {
-      const res = await fetchContactMessages({ page, limit: 20 });
-      setMessages(res.messages);
-      setMeta(res.meta);
-    } catch {
-      // handled by adminFetcher 401 redirect
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: messages, loading } = useRealtimeData<ContactMessage>({
+    table: "contact_messages",
+    initialFetch: useCallback(async () => {
+      const res = await fetchContactMessages({ page: 1, limit: 1000 });
+      return res.messages;
+    }, []),
+  });
 
+  // Sync selected message when realtime updates arrive
   useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const res = await fetchContactMessages({ page: 1, limit: 20 });
-        if (active) { setMessages(res.messages); setMeta(res.meta); }
-      } catch { /* 401 redirect */ }
-      finally { if (active) setLoading(false); }
-    })();
-    return () => { active = false; };
-  }, []);
+    if (!selected) return;
+    const updated = messages.find((m) => m.id === selected.id);
+    if (updated && updated !== selected) setSelected(updated);
+  }, [messages, selected]);
 
-  const handleMarkRead = async (msg: ContactMessage) => {
+  const handleMarkRead = useCallback(async (msg: ContactMessage) => {
     if (msg.is_read) return;
     try {
       await markMessageRead(msg.id);
-      setMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, is_read: true } : m));
-      if (selected?.id === msg.id) setSelected((prev) => prev ? { ...prev, is_read: true } : null);
+      addToast("Message marked as read", "success");
     } catch {
-      // handled by adminFetcher 401 redirect
+      addToast("Failed to mark as read", "error");
     }
-  };
+  }, [addToast]);
 
-  const handleDelete = async () => {
-    if (!selected) return;
+  const handleDelete = useCallback(async (selectedMsg: ContactMessage) => {
     setDeleting(true);
     try {
-      await deleteContactMessage(selected.id);
-      setMessages((prev) => prev.filter((m) => m.id !== selected.id));
+      await deleteContactMessage(selectedMsg.id);
       setSelected(null);
+      addToast("Message deleted", "success");
     } catch {
-      // handled by adminFetcher 401 redirect
-    } finally {
-      setDeleting(false);
-    }
-  };
+      addToast("Failed to delete message", "error");
+    } finally { setDeleting(false); }
+  }, [addToast]);
 
   const filtered = search
     ? messages.filter(
@@ -80,7 +66,7 @@ export default function AdminContactMessagesPage() {
       )
     : messages;
 
-  const columns: Column<ContactMessage>[] = [
+  const columns: Column<ContactMessage>[] = useMemo(() => [
     {
       key: "status",
       label: "",
@@ -138,7 +124,7 @@ export default function AdminContactMessagesPage() {
         <span className="text-zinc-500 dark:text-zinc-400 text-sm">{formatDate(msg.created_at)}</span>
       ),
     },
-  ];
+  ], [handleMarkRead]);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -146,8 +132,8 @@ export default function AdminContactMessagesPage() {
         <div>
           <h1 className="font-serif text-2xl font-bold">Contact Messages</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            {meta.total} total{", "}
-            {messages.filter((m) => !m.is_read).length} unread
+            {messages.length} total{", "}
+            <span className="text-primary font-medium">{messages.filter((m) => !m.is_read).length}</span> unread
           </p>
         </div>
       </div>
@@ -161,11 +147,6 @@ export default function AdminContactMessagesPage() {
         searchValue={search}
         onSearchChange={setSearch}
         loading={loading}
-        pagination={{
-          page: meta.page,
-          totalPages: meta.totalPages,
-          onPageChange: (page) => load(page),
-        }}
         mobileCard={(msg) => (
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -275,7 +256,7 @@ export default function AdminContactMessagesPage() {
                   </button>
                 )}
                 <button
-                  onClick={handleDelete}
+                  onClick={() => handleDelete(selected!)}
                   disabled={deleting}
                   className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors disabled:opacity-50 ml-auto"
                 >

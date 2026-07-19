@@ -78,9 +78,11 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
     if (onClose) onClose();
   };
 
+  const isActive = (href: string) => href === "/admin" ? pathname === href : pathname.startsWith(href + "/") || pathname === href;
+
   const linkClass = (href: string) =>
     `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-      pathname === href
+      isActive(href)
         ? "bg-primary text-white shadow-sm"
         : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
     }`;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { fetchOrders, deleteOrder } from "@/src/lib/admin-api";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
@@ -8,31 +8,46 @@ import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { formatPrice, formatDate } from "@/src/lib/utils";
 import { Trash2 } from "lucide-react";
+import { useRealtimeData } from "@/src/hooks/useRealtimeData";
+import { useToast } from "@/src/providers/ToastProvider";
 import type { Order } from "@/src/lib/admin-api";
 
 const statusFilters = ["All", "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled"];
 
 export default function OrdersPage() {
   const router = useRouter();
+  const { addToast } = useToast();
   const { confirm, dialog } = useConfirm();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 0 });
-  const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("All");
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1);
 
-  const handleFilterChange = (filter: string) => {
-    setStatusFilter(filter);
-    setPage(1);
-  };
+  const { data: orders, loading } = useRealtimeData<Order>({
+    table: "orders",
+    initialFetch: useCallback(async () => {
+      const result = await fetchOrders({ page: 1, limit: 1000 });
+      return result.orders;
+    }, []),
+  });
 
-  const handleSearchChange = (value: string) => {
-    setSearch(value);
-    setPage(1);
-  };
+  const filtered = useMemo(() => {
+    let list = orders;
+    if (statusFilter !== "All") {
+      list = list.filter((o) => o.status === statusFilter.toLowerCase());
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      list = list.filter((o) => {
+        const addr = o.shipping_address as Record<string, string> | undefined;
+        const name = addr?.firstName && addr?.lastName
+          ? `${addr.firstName} ${addr.lastName}`.toLowerCase()
+          : (o.profiles?.name || "").toLowerCase();
+        return name.includes(q) || o.id.toLowerCase().includes(q);
+      });
+    }
+    return list;
+  }, [orders, statusFilter, search]);
 
-  const handleDelete = async (e: React.MouseEvent, orderId: string) => {
+  const handleDelete = useCallback(async (e: React.MouseEvent, orderId: string) => {
     e.stopPropagation();
     const ok = await confirm(
       "Delete Order",
@@ -42,37 +57,13 @@ export default function OrdersPage() {
     if (!ok) return;
     try {
       await deleteOrder(orderId);
-      setOrders((prev) => prev.filter((o) => o.id !== orderId));
-      setMeta((prev) => ({ ...prev, total: prev.total - 1 }));
+      addToast("Order deleted", "success");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete order");
+      addToast(err instanceof Error ? err.message : "Failed to delete order", "error");
     }
-  };
+  }, [confirm, addToast]);
 
-  useEffect(() => {
-    let active = true;
-    async function loadOrders() {
-      setLoading(true);
-      try {
-        const params: { page: number; limit: number; status?: string; search?: string } = { page, limit: 20 };
-        if (statusFilter !== "All") params.status = statusFilter.toLowerCase();
-        if (search.trim()) params.search = search.trim();
-        const result = await fetchOrders(params);
-        if (active) {
-          setOrders(result.orders);
-          setMeta(result.meta);
-        }
-      } catch {
-        if (active) setOrders([]);
-      } finally {
-        if (active) setLoading(false);
-      }
-    }
-    loadOrders();
-    return () => { active = false; };
-  }, [page, statusFilter, search]);
-
-  const columns: Column<Order>[] = [
+  const columns: Column<Order>[] = useMemo(() => [
     {
       key: "id",
       label: "Order ID",
@@ -120,21 +111,21 @@ export default function OrdersPage() {
         </button>
       ),
     },
-  ];
+  ], []);
 
   return (
     <div>
       {dialog}
       <div className="mb-6">
         <h1 className="font-serif text-2xl font-bold">Orders</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage customer orders</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage customer orders &mdash; <span className="text-primary font-medium">{filtered.length}</span> shown</p>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
         {statusFilters.map((s) => (
           <button
             key={s}
-            onClick={() => handleFilterChange(s)}
+            onClick={() => setStatusFilter(s)}
             className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-colors ${
               statusFilter === s
                 ? "bg-primary text-white"
@@ -148,17 +139,12 @@ export default function OrdersPage() {
 
       <DataTable<Order>
         columns={columns}
-        data={orders}
+        data={filtered}
         keyExtractor={(o) => o.id}
         onRowClick={(order) => router.push(`/admin/orders/${order.id}`)}
         searchable
         searchValue={search}
-        onSearchChange={handleSearchChange}
-        pagination={{
-          page: meta.page,
-          totalPages: meta.totalPages,
-          onPageChange: setPage,
-        }}
+        onSearchChange={setSearch}
         loading={loading}
         mobileCard={(order) => (
           <div className="flex items-start justify-between gap-3">

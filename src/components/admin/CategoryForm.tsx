@@ -41,7 +41,7 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
     if (!name.trim()) { setError("Name is required"); return; }
     if (!slug.trim()) { setError("Slug is required"); return; }
     try {
-      await onSubmit({ name: name.trim(), slug: slug.trim(), description: description.trim(), image_url: imageUrl.trim() });
+      await onSubmit({ name: name.trim(), slug: slug.trim(), description: description.trim(), image_url: imageUrl.trim() || '' });
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

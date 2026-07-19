@@ -54,7 +54,6 @@ function ShopPage() {
     selectedCategoryNames.length !== 1 || Boolean(CATEGORY_SLUG[selectedCategoryNames[0]]);
 
   const swrKey = useMemo(() => {
-    // Avoid fetching with a missing category slug while categories are still loading
     if (!categorySlugReady) return null;
     const parts: string[] = [];
     if (selectedCategoryNames.length === 1) parts.push(`cat=${CATEGORY_SLUG[selectedCategoryNames[0]]}`);
@@ -88,9 +87,6 @@ function ShopPage() {
     async () => {
       const params = buildFetchParams();
       const result = await fetchProducts(params as Parameters<typeof fetchProducts>[0]);
-      // NOTE: Multi-category server-side filtering is not supported by the API.
-      // When multiple categories are selected, we fetch all products (first category only
-      // is sent to API as a fallback) and filter client-side. This is a known limitation.
       if (selectedCategoryNames.length > 1) {
         result.products = result.products.filter((p) =>
           selectedCategoryNames.includes(p.category)
@@ -145,118 +141,125 @@ function ShopPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container py-8"
     >
-      <Breadcrumbs items={[{ label: "Shop" }]} />
-
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-1">
-            All Products
+      {/* Page Header */}
+      <div className="bg-zinc-50 dark:bg-zinc-800/50 border-b border-zinc-100 dark:border-zinc-800">
+        <div className="container py-10 md:py-14">
+          <Breadcrumbs items={[{ label: "Shop" }]} />
+          <h1 className="font-serif text-3xl md:text-4xl font-bold mt-3">
+            {selectedCategoryNames.length === 1
+              ? selectedCategoryNames[0]
+              : "All Products"}
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm">
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-1">
             {isLoading ? "Loading..." : `${total} products found`}
           </p>
         </div>
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <button
-            onClick={() => setMobileFilterOpen(true)}
-            className="flex items-center justify-center gap-2 lg:hidden px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors flex-1 sm:flex-initial"
-          >
-            <SlidersHorizontal className="w-4 h-4" /> Filters
-          </button>
-          <select
-            value={sort}
-            onChange={(e) => updateParams({ sort: e.target.value !== "popular" ? e.target.value : null, page: null })}
-            className="text-sm border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 bg-white dark:bg-zinc-800 outline-none focus:ring-2 focus:ring-primary/20 flex-1 sm:flex-initial"
-          >
-            {sortOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
-      <div className="flex gap-8">
-        <aside className="hidden lg:block w-64 shrink-0">
-          <div className="sticky top-24">
-            <ProductFilters filters={filters} onChange={setFilters} />
+      <div className="container py-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+          <div />
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={() => setMobileFilterOpen(true)}
+              className="flex items-center justify-center gap-2 lg:hidden px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors flex-1 sm:flex-initial"
+            >
+              <SlidersHorizontal className="w-4 h-4" /> Filters
+            </button>
+            <select
+              value={sort}
+              onChange={(e) => updateParams({ sort: e.target.value !== "popular" ? e.target.value : null, page: null })}
+              className="text-sm border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 py-2.5 bg-white dark:bg-zinc-800 outline-none focus:ring-2 focus:ring-[#0b2c5f]/20 flex-1 sm:flex-initial"
+            >
+              {sortOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
           </div>
-        </aside>
+        </div>
 
-        <div className="flex-1 min-w-0">
-          {isLoading ? (
-            <ShopSkeleton />
-          ) : (
-            <>
-              <AnimatePresence mode="wait">
-                <ProductGrid key={searchParams.toString() || "default"} products={products} />
-              </AnimatePresence>
+        <div className="flex gap-8">
+          <aside className="hidden lg:block w-64 shrink-0">
+            <div className="sticky top-24">
+              <ProductFilters filters={filters} onChange={setFilters} />
+            </div>
+          </aside>
 
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-12 flex-wrap">
-                  <button
-                    onClick={() => updateParams({ page: String(safePage - 1) })}
-                    disabled={safePage <= 1}
-                    className="p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  {Array.from({ length: totalPages }).map((_, i) => (
+          <div className="flex-1 min-w-0">
+            {isLoading ? (
+              <ShopSkeleton />
+            ) : (
+              <>
+                <AnimatePresence mode="wait">
+                  <ProductGrid key={searchParams.toString() || "default"} products={products} />
+                </AnimatePresence>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-12 flex-wrap">
                     <button
-                      key={i}
-                      onClick={() => updateParams({ page: String(i + 1) })}
-                      className={`w-10 h-10 rounded-xl text-sm font-medium transition-colors ${
-                        safePage === i + 1
-                          ? "bg-primary text-white"
-                          : "border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                      }`}
+                      onClick={() => updateParams({ page: String(safePage - 1) })}
+                      disabled={safePage <= 1}
+                      className="p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                     >
-                      {i + 1}
+                      <ChevronLeft className="w-4 h-4" />
                     </button>
-                  ))}
-                  <button
-                    onClick={() => updateParams({ page: String(safePage + 1) })}
-                    disabled={safePage >= totalPages}
-                    className="p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => updateParams({ page: String(i + 1) })}
+                        className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+                          safePage === i + 1
+                            ? "bg-[#0b2c5f] text-white"
+                            : "border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => updateParams({ page: String(safePage + 1) })}
+                      disabled={safePage >= totalPages}
+                      className="p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        <AnimatePresence>
+          {mobileFilterOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setMobileFilterOpen(false)}
+                className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] lg:hidden"
+              />
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                className="fixed top-0 left-0 right-0 bottom-0 w-full max-w-sm bg-white dark:bg-zinc-900 z-[70] shadow-2xl p-6 overflow-y-auto lg:hidden"
+              >
+                <ProductFilters
+                  filters={filters}
+                  onChange={setFilters}
+                  onClose={() => setMobileFilterOpen(false)}
+                />
+              </motion.div>
             </>
           )}
-        </div>
+        </AnimatePresence>
       </div>
-
-      <AnimatePresence>
-        {mobileFilterOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileFilterOpen(false)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] lg:hidden"
-            />
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 left-0 right-0 bottom-0 w-full max-w-sm bg-white dark:bg-zinc-800 z-[70] shadow-2xl p-6 overflow-y-auto lg:hidden"
-            >
-              <ProductFilters
-                filters={filters}
-                onChange={setFilters}
-                onClose={() => setMobileFilterOpen(false)}
-              />
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }

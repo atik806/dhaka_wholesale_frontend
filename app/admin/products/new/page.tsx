@@ -20,10 +20,12 @@ export default function NewProductPage() {
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   useEffect(() => {
+    let active = true;
     fetchCategories()
-      .then(setCategories)
-      .catch(() => addToast("Failed to load categories", "error"))
-      .finally(() => setCategoriesLoading(false));
+      .then((cats) => { if (active) setCategories(cats); })
+      .catch(() => { if (active) addToast("Failed to load categories", "error"); })
+      .finally(() => { if (active) setCategoriesLoading(false); });
+    return () => { active = false; };
   }, [addToast]);
 
   const handleSubmit = async (values: ProductFormValues) => {

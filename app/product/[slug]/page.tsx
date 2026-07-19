@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import { Heart, ShoppingBag, Minus, Plus } from "lucide-react";
+import { Heart, ShoppingBag, Minus, Plus, Truck, ShieldCheck, RotateCcw, Share2 } from "lucide-react";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { ReviewSection } from "@/src/components/product/ReviewSection";
@@ -12,9 +12,8 @@ import { Badge } from "@/src/components/ui/Badge";
 import { Rating } from "@/src/components/ui/Rating";
 import { Button } from "@/src/components/ui/Button";
 import { ProductDetailSkeleton } from "@/src/components/ui/Skeleton";
-import { formatPrice } from "@/src/lib/utils";
+import { formatPrice, slugify } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
-
 import { useToast } from "@/src/providers/ToastProvider";
 import { useProduct, useRelatedProducts, useCategories } from "@/src/hooks/useApi";
 
@@ -55,6 +54,15 @@ export default function ProductDetailPage() {
     addToast(`${product.name} added to cart`, "success");
   };
 
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({ title: product.name, url: window.location.href });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      addToast("Link copied to clipboard", "success");
+    }
+  };
+
   const badge = product.isNew
     ? { variant: "new" as const, label: "New Arrival" }
     : product.originalPrice
@@ -68,26 +76,26 @@ export default function ProductDetailPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container py-8"
+      className="container py-6 md:py-8"
     >
       <Breadcrumbs
         items={[
           { label: "Shop", href: "/shop" },
-          { label: product.category, href: `/shop/${liveCategories.find((c) => c.name === product.category)?.slug ?? product.category.toLowerCase()}` },
+          { label: product.category, href: `/shop/${liveCategories.find((c) => c.name === product.category)?.slug ?? slugify(product.category)}` },
           { label: product.name },
         ]}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-20 pb-24 lg:pb-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 mb-16">
         <ProductGallery images={product.images} name={product.name} />
 
         <div className="flex flex-col">
-          <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex items-start justify-between gap-4 mb-3">
             <div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-2">
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1.5">
                 {product.category}
               </p>
-              <h1 className="font-serif text-3xl md:text-4xl font-bold leading-tight">
+              <h1 className="font-serif text-2xl md:text-3xl font-bold leading-tight">
                 {product.name}
               </h1>
             </div>
@@ -96,32 +104,37 @@ export default function ProductDetailPage() {
 
           <Rating value={product.rating} count={product.reviewCount} size="md" />
 
-          <div className="flex items-baseline gap-3 mt-6">
-            <span className="text-3xl font-bold">
+          <div className="flex items-baseline gap-3 mt-5">
+            <span className="text-2xl md:text-3xl font-bold">
               {formatPrice(product.price)}
             </span>
             {product.originalPrice && (
-              <span className="text-lg text-zinc-500 dark:text-zinc-400 line-through">
+              <span className="text-base text-zinc-400 dark:text-zinc-500 line-through">
                 {formatPrice(product.originalPrice)}
+              </span>
+            )}
+            {product.originalPrice && (
+              <span className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                Save {formatPrice(product.originalPrice - product.price)}
               </span>
             )}
           </div>
 
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed mt-6">
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-relaxed mt-5">
             {product.description}
           </p>
 
           {product.variants?.sizes && (
-            <div className="mt-8">
-              <p className="text-sm font-medium mb-2">Size</p>
+            <div className="mt-7">
+              <p className="text-sm font-medium mb-2.5">Size</p>
               <div className="flex flex-wrap gap-2">
                 {product.variants.sizes.map((size) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
                       selectedSize === size
-                        ? "border-primary bg-primary-50 dark:bg-primary-50/20 text-primary dark:text-primary-light"
+                        ? "border-[#0b2c5f] bg-[#0b2c5f]/5 dark:bg-primary/10 text-[#0b2c5f] dark:text-primary-light ring-1 ring-[#0b2c5f]/20"
                         : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-500"
                     }`}
                   >
@@ -133,8 +146,8 @@ export default function ProductDetailPage() {
           )}
 
           {product.variants?.colors && (
-            <div className="mt-6">
-              <p className="text-sm font-medium mb-2">Color</p>
+            <div className="mt-5">
+              <p className="text-sm font-medium mb-2.5">Color</p>
               <div className="flex gap-2">
                 {product.variants.colors.map((color) => (
                   <button
@@ -142,7 +155,7 @@ export default function ProductDetailPage() {
                     onClick={() => setSelectedColor(color.name)}
                     className={`w-9 h-9 rounded-full border-2 transition-all ${
                       selectedColor === color.name
-                        ? "border-primary scale-110"
+                        ? "border-[#0b2c5f] ring-2 ring-[#0b2c5f]/20 scale-110"
                         : "border-transparent hover:scale-105"
                     }`}
                     style={{ backgroundColor: color.hex }}
@@ -153,42 +166,64 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          <div className="mt-8">
-            <p className="text-sm font-medium mb-2">Quantity</p>
+          <div className="mt-5">
+            <p className="text-sm font-medium mb-2.5">Quantity</p>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className="w-10 h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
               >
                 <Minus className="w-4 h-4" />
               </button>
               <span className="w-12 text-center font-medium">{quantity}</span>
               <button
                 onClick={() => setQuantity((q) => q + 1)}
-                className="w-10 h-10 rounded-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                className="w-10 h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-3 mt-8">
-                <Button size="lg" className="flex-1 min-h-[48px]" onClick={handleAdd}>
-                  <ShoppingBag className="w-5 h-5" /> Add to Cart
-                </Button>
-                <button
-                  onClick={() => toggleWishlist(product.id)}
-                  className="w-12 h-12 shrink-0 rounded-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                >
+          <div className="flex items-center gap-3 mt-7">
+            <Button size="lg" className="flex-1 min-h-[48px]" onClick={handleAdd}>
+              <ShoppingBag className="w-5 h-5" /> Add to Cart
+            </Button>
+            <button
+              onClick={() => toggleWishlist(product.id)}
+              className="w-12 h-12 shrink-0 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            >
               <Heart
                 className={`w-5 h-5 ${
                   wishlisted ? "fill-red-500 dark:fill-red-400 text-red-500 dark:text-red-400" : ""
                 }`}
               />
             </button>
+            <button
+              onClick={handleShare}
+              className="w-12 h-12 shrink-0 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <Share2 className="w-5 h-5" />
+            </button>
           </div>
 
-          <div className="mt-6 text-xs text-zinc-500 dark:text-zinc-400">
+          {/* Trust Badges */}
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <div className="flex flex-col items-center text-center gap-1.5 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
+              <Truck className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light" />
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400">Free Delivery</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-1.5 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
+              <ShieldCheck className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light" />
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400">Secure Payment</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-1.5 p-3 rounded-lg bg-zinc-50 dark:bg-zinc-800/50">
+              <RotateCcw className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light" />
+              <span className="text-[11px] text-zinc-500 dark:text-zinc-400">Easy Returns</span>
+            </div>
+          </div>
+
+          <div className="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
             Tags: {product.tags.map((t) => `#${t}`).join(", ")}
           </div>
         </div>
@@ -205,23 +240,24 @@ export default function ProductDetailPage() {
         </section>
       )}
 
+      {/* Mobile Bottom Bar */}
       <motion.div
         initial={{ y: 100 }}
         animate={{ y: 0 }}
-        className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700 p-4 flex items-center gap-4 lg:hidden z-40 shadow-2xl"
+        className="fixed bottom-14 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-3 flex items-center gap-3 z-40 shadow-2xl md:hidden"
       >
         <div className="flex-1">
           <div className="flex items-baseline gap-2">
-            <span className="text-xl font-bold">{formatPrice(product.price)}</span>
+            <span className="text-lg font-bold">{formatPrice(product.price)}</span>
             {product.originalPrice && (
-              <span className="text-sm text-zinc-500 dark:text-zinc-400 line-through">
+              <span className="text-xs text-zinc-400 dark:text-zinc-500 line-through">
                 {formatPrice(product.originalPrice)}
               </span>
             )}
           </div>
         </div>
-        <Button size="lg" className="flex-1 min-h-[48px]" onClick={handleAdd}>
-          <ShoppingBag className="w-5 h-5" /> Add to Cart
+        <Button size="lg" className="flex-1 min-h-[44px]" onClick={handleAdd}>
+          <ShoppingBag className="w-4 h-4" /> Add to Cart
         </Button>
       </motion.div>
     </motion.div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import { Plus, Edit, Trash2, Package, AlertTriangle, CheckCircle } from "lucide-react";
@@ -14,6 +14,7 @@ import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { formatPrice, safeImage } from "@/src/lib/utils";
 import { useToast } from "@/src/providers/ToastProvider";
 import { adminFetcher } from "@/src/lib/admin-api";
+import { useRealtimeInvalidate } from "@/src/hooks/useRealtimeInvalidate";
 
 const PER_PAGE = 10;
 
@@ -36,10 +37,10 @@ export default function AdminProductsPage() {
     let active = true;
     fetchCategories()
       .then((cats) => { if (active) setCategories(cats); })
-      .catch(() => { /* categories optional for chips */ });
+      .catch(() => {});
     fetchProductStockStats()
       .then((stats) => { if (active) setStockStats(stats); })
-      .catch(() => { /* stats cards fall back to zeros */ });
+      .catch(() => {});
     return () => { active = false; };
   }, []);
 
@@ -71,6 +72,15 @@ export default function AdminProductsPage() {
     },
   );
 
+  const refreshAll = useCallback(async () => {
+    await mutate();
+    const stats = await fetchProductStockStats().catch(() => null);
+    if (stats) setStockStats(stats);
+  }, [mutate]);
+
+  useRealtimeInvalidate({ table: "products", onInvalidate: refreshAll });
+  useRealtimeInvalidate({ table: "categories", onInvalidate: refreshAll });
+
   const products = productsData?.products ?? [];
   const totalPages = Math.max(productsData?.totalPages ?? 1, 1);
   const totalProducts = productsData?.total ?? 0;
@@ -85,26 +95,19 @@ export default function AdminProductsPage() {
     setPage(1);
   };
 
-  const handleDelete = async (product: Product) => {
+  const handleDelete = useCallback(async (product: Product) => {
     const ok = await confirm(`Delete "${product.name}"?`, "This cannot be undone.", { confirmLabel: "Delete", danger: true });
     if (!ok) return;
     try {
       await adminFetcher(`/products/${product.id}`, { method: "DELETE" });
       addToast("Product deleted successfully", "success");
-      const stats = await fetchProductStockStats().catch(() => null);
-      if (stats) setStockStats(stats);
-      // If we deleted the last item on a page, step back
-      if (products.length === 1 && page > 1) {
-        setPage((p) => p - 1);
-      } else {
-        await mutate();
-      }
+      await refreshAll();
     } catch (err) {
       addToast(err instanceof Error ? err.message : "Failed to delete product", "error");
     }
-  };
+  }, [confirm, addToast, refreshAll]);
 
-  const columns: Column<Product>[] = [
+  const columns: Column<Product>[] = useMemo(() => [
     {
       key: "image",
       label: "",
@@ -113,6 +116,7 @@ export default function AdminProductsPage() {
           src={safeImage(p.images)}
           alt={p.name}
           className="w-10 h-10 rounded-lg object-cover"
+          onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
         />
       ),
     },
@@ -183,7 +187,7 @@ export default function AdminProductsPage() {
         </div>
       ),
     },
-  ];
+  ], [handleDelete]);
 
   const categoryOptions = useMemo(
     () =>
@@ -255,7 +259,7 @@ export default function AdminProductsPage() {
         pagination={totalPages > 1 ? { page, totalPages, onPageChange: setPage } : undefined}
         mobileCard={(p) => (
           <div className="flex items-start gap-3">
-            <img src={safeImage(p.images)} alt={p.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />
+            <img src={safeImage(p.images)} alt={p.name} className="w-12 h-12 rounded-lg object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
             <div className="min-w-0 flex-1">
               <p className="font-medium truncate">{p.name}</p>
               <div className="flex items-center gap-2 mt-1">

@@ -77,7 +77,7 @@ export async function fetchOrders(params?: { page?: number; limit?: number; stat
   if (params?.search) qs.set("search", params.search);
   const q = qs.toString();
   const res = await adminFetcher<Order[]>(`/admin/orders${q ? `?${q}` : ""}`);
-  return { orders: res.data || [], meta: res.meta! };
+  return { orders: res.data || [], meta: res.meta || { total: 0, page: 1, limit: 20, totalPages: 0 } };
 }
 export async function fetchOrder(id: string): Promise<Order> {
   const res = await adminFetcher<Order>(`/admin/orders/${id}`);
@@ -138,7 +138,7 @@ export async function fetchAdminReviews(params?: { page?: number; limit?: number
   if (params?.limit) qs.set("limit", String(params.limit));
   const q = qs.toString();
   const res = await adminFetcher<AdminReview[]>(`/admin/reviews${q ? `?${q}` : ""}`);
-  return { reviews: res.data || [], meta: res.meta! };
+  return { reviews: res.data || [], meta: res.meta || { total: 0, page: 1, limit: 20, totalPages: 0 } };
 }
 export async function deleteAdminReview(id: string): Promise<void> {
   await adminFetcher(`/admin/reviews/${id}`, { method: "DELETE" });
@@ -154,7 +154,7 @@ export async function fetchContactMessages(params?: { page?: number; limit?: num
   if (params?.limit) qs.set("limit", String(params.limit));
   const q = qs.toString();
   const res = await adminFetcher<ContactMessage[]>(`/admin/contact-messages${q ? `?${q}` : ""}`);
-  return { messages: res.data || [], meta: res.meta! };
+  return { messages: res.data || [], meta: res.meta || { total: 0, page: 1, limit: 20, totalPages: 0 } };
 }
 export async function markMessageRead(id: string): Promise<void> {
   await adminFetcher(`/admin/contact-messages/${id}/read`, { method: "PATCH" });
@@ -190,7 +190,7 @@ export async function fetchBugReports(params?: {
   const res = await adminFetcher<BugReport[]>(
     `/admin/bug-reports${q ? `?${q}` : ""}`
   );
-  return { reports: res.data || [], meta: res.meta! };
+  return { reports: res.data || [], meta: res.meta || { total: 0, page: 1, limit: 20, totalPages: 0 } };
 }
 export async function updateBugReport(
   id: string,

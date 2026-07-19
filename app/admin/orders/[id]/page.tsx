@@ -67,6 +67,7 @@ export default function OrderDetailPage() {
 
   const handleDownloadReceipt = useCallback(async () => {
     if (!order) return;
+    try {
     const { jsPDF } = await import("jspdf");
     const addr = order.shipping_address as Record<string, string> | undefined;
     const customerName = addr?.firstName && addr?.lastName
@@ -210,6 +211,9 @@ export default function OrderDetailPage() {
 
     const fileName = `receipt-${order.id.slice(0, 8)}.pdf`;
     doc.save(fileName);
+    } catch {
+      alert("Failed to generate receipt");
+    }
   }, [order]);
 
   const handlePaymentStatusChange = async (newStatus: string) => {
@@ -218,6 +222,8 @@ export default function OrderDetailPage() {
     try {
       const updated = await updatePaymentStatus(order.id, newStatus);
       setOrder(updated);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update payment status");
     } finally {
       setUpdating(false);
     }

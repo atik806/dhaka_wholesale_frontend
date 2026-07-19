@@ -1,65 +1,55 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Trash2, Star } from "lucide-react";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { formatDate } from "@/src/lib/utils";
 import { fetchAdminReviews, deleteAdminReview, type AdminReview } from "@/src/lib/admin-api";
+import { useRealtimeData } from "@/src/hooks/useRealtimeData";
+import { useToast } from "@/src/providers/ToastProvider";
 
 export default function AdminReviewsPage() {
+  const { addToast } = useToast();
   const { confirm, dialog } = useConfirm();
-  const [reviews, setReviews] = useState<AdminReview[]>([]);
-  const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
-  const load = async (page: number) => {
-    setLoading(true);
-    setError("");
-    try {
-      const res = await fetchAdminReviews({ page, limit: 20 });
-      setReviews(res.reviews);
-      setMeta(res.meta);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load reviews");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: reviews, loading, error } = useRealtimeData<AdminReview>({
+    table: "reviews",
+    initialFetch: useCallback(async () => {
+      const res = await fetchAdminReviews({ page: 1, limit: 1000 });
+      return res.reviews;
+    }, []),
+  });
 
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const res = await fetchAdminReviews({ page: 1, limit: 20 });
-        if (active) { setReviews(res.reviews); setMeta(res.meta); }
-      } catch (err) {
-        if (active) setError(err instanceof Error ? err.message : "Failed to load reviews");
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => { active = false; };
-  }, []);
+  const filtered = useMemo(() => {
+    if (!search.trim()) return reviews;
+    const q = search.toLowerCase();
+    return reviews.filter(
+      (r) =>
+        (r.products?.name || "").toLowerCase().includes(q) ||
+        (r.profiles?.name || "").toLowerCase().includes(q) ||
+        r.text.toLowerCase().includes(q)
+    );
+  }, [reviews, search]);
 
-  const handleDelete = async (review: AdminReview) => {
+  const handleDelete = useCallback(async (review: AdminReview) => {
     const ok = await confirm("Delete Review", "Are you sure you want to delete this review? This cannot be undone.", { confirmLabel: "Delete", danger: true });
     if (!ok) return;
     setActionLoading(review.id);
     try {
       await deleteAdminReview(review.id);
-      setReviews((prev) => prev.filter((r) => r.id !== review.id));
+      addToast("Review deleted", "success");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete review");
+      addToast(err instanceof Error ? err.message : "Failed to delete review", "error");
     } finally {
       setActionLoading(null);
     }
-  };
+  }, [confirm, addToast]);
 
-  const columns: Column<AdminReview>[] = [
+  const columns: Column<AdminReview>[] = useMemo(() => [
     {
       key: "product",
       label: "Product",
@@ -133,7 +123,7 @@ export default function AdminReviewsPage() {
         </button>
       ),
     },
-  ];
+  ], [actionLoading, handleDelete]);
 
   if (error) {
     return (
@@ -152,21 +142,19 @@ export default function AdminReviewsPage() {
         <div>
           <h1 className="font-serif text-2xl font-bold">Reviews</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Manage customer product reviews
+            Manage customer product reviews &mdash; <span className="text-primary font-medium">{reviews.length}</span> total
           </p>
         </div>
       </div>
 
       <DataTable<AdminReview>
         columns={columns}
-        data={reviews}
+        data={filtered}
         keyExtractor={(r) => r.id}
+        searchable
+        searchValue={search}
+        onSearchChange={setSearch}
         loading={loading}
-        pagination={{
-          page: meta.page,
-          totalPages: meta.totalPages,
-          onPageChange: (page) => load(page),
-        }}
         mobileCard={(review) => (
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">

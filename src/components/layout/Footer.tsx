@@ -1,11 +1,13 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import {
-  Globe,
-  MessageCircle,
-  Video,
-  Radio,
+  Facebook,
+  Instagram,
+  Mail,
+  Phone,
+  MapPin,
+  ArrowRight,
   Heart,
 } from "lucide-react";
 import Link from "next/link";
@@ -14,38 +16,86 @@ import { SiteLogo } from "@/src/components/brand/SiteLogo";
 
 export const Footer = memo(function Footer() {
   const { data: categories = [] } = useCategories();
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setSubscribed(true);
+      setEmail("");
+    }
+  };
+
   return (
     <footer className="bg-zinc-900 dark:bg-black text-zinc-300 dark:text-zinc-400">
-      <div className="container py-16 md:py-20">
+      {/* Newsletter Bar */}
+      <div className="border-b border-zinc-800">
+        <div className="container py-10 md:py-12">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div>
+              <h3 className="text-white font-serif text-xl font-bold mb-1">Stay Updated</h3>
+              <p className="text-zinc-400 text-sm">Get the latest deals, new arrivals, and exclusive offers.</p>
+            </div>
+            {subscribed ? (
+              <p className="text-sm text-emerald-400 font-medium">Thanks for subscribing!</p>
+            ) : (
+              <form onSubmit={handleSubscribe} className="flex w-full md:w-auto">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="flex-1 md:w-72 bg-zinc-800 border border-zinc-700 rounded-l-lg px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-zinc-600 transition-colors"
+                />
+                <button
+                  type="submit"
+                  className="bg-[#0b2c5f] hover:bg-[#1a4a8a] text-white px-5 py-2.5 rounded-r-lg text-sm font-medium transition-colors flex items-center gap-1.5 shrink-0"
+                >
+                  Subscribe <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main Footer */}
+      <div className="container py-12 md:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
           <div className="lg:col-span-2">
             <div className="mb-5">
               <SiteLogo variant="footer" />
             </div>
-            <p className="text-zinc-400 dark:text-zinc-500 max-w-sm text-sm leading-relaxed mb-6">
+            <p className="text-zinc-400 dark:text-zinc-500 max-w-sm text-sm leading-relaxed mb-5">
               Curating the finest products from around the world, delivered to
               your doorstep. Quality you can see, feel, and trust.
             </p>
-            <div className="flex items-center gap-2 mb-6">
-              {[Globe, MessageCircle, Video, Radio].map((Icon, i) => (
-                <div
-                  key={i}
-                  className="w-9 h-9 rounded-xl bg-zinc-800 dark:bg-zinc-800 flex items-center justify-center opacity-60"
-                >
-                  <Icon className="w-4 h-4" />
-                </div>
-              ))}
+            <div className="flex items-center gap-2 mb-5">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-[#0b2c5f] flex items-center justify-center transition-colors">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-[#e31c23] flex items-center justify-center transition-colors">
+                <Instagram className="w-4 h-4" />
+              </a>
+              <a href="mailto:atikrj8@gmail.com" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors">
+                <Mail className="w-4 h-4" />
+              </a>
+              <a href="tel:01302228993" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors">
+                <Phone className="w-4 h-4" />
+              </a>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-600">
-              <Heart className="w-3 h-3 text-primary-light" />
-              Made with care for quality living
+            <div className="flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-600">
+              <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
+              <span>Kuril, Koylabari, Tushar Villa, Dhaka</span>
             </div>
           </div>
 
           <div>
             <h4 className="text-white font-semibold text-sm mb-5">Shop</h4>
-            <ul className="space-y-3">
-              {categories.slice(0, 5).map((cat) => (
+            <ul className="space-y-2.5">
+              {categories.slice(0, 6).map((cat) => (
                 <li key={cat.id}>
                   <Link
                     href={`/shop/${cat.slug}`}
@@ -60,7 +110,7 @@ export const Footer = memo(function Footer() {
 
           <div>
             <h4 className="text-white font-semibold text-sm mb-5">Support</h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {[
                 { label: "Contact Us", href: "/contact" },
                 { label: "Shipping & Returns", href: "/shipping-returns" },
@@ -82,7 +132,7 @@ export const Footer = memo(function Footer() {
 
           <div>
             <h4 className="text-white font-semibold text-sm mb-5">Company</h4>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {[
                 { label: "About Us", href: "/about" },
               ].map(({ label, href }) => (
@@ -96,13 +146,31 @@ export const Footer = memo(function Footer() {
                 </li>
               ))}
             </ul>
+
+            <h4 className="text-white font-semibold text-sm mb-3 mt-6">Payment Methods</h4>
+            <div className="flex flex-wrap items-center gap-2">
+              {["bKash", "Nagad", "COD", "Visa"].map((method) => (
+                <span
+                  key={method}
+                  className="px-2.5 py-1 rounded-md bg-zinc-800 text-[11px] font-medium text-zinc-400 border border-zinc-700/50"
+                >
+                  {method}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="mt-14 pt-8 border-t border-zinc-800 dark:border-zinc-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <p className="text-sm text-zinc-500 dark:text-zinc-600">
-            &copy; 2026 Dhaka Wholesale. All rights reserved.
+      {/* Bottom Bar */}
+      <div className="border-t border-zinc-800">
+        <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-zinc-500 dark:text-zinc-600">
+            &copy; {new Date().getFullYear()} Dhaka Wholesale. All rights reserved.
           </p>
+          <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-600">
+            Made with <Heart className="w-3 h-3 text-[#e31c23]" /> in Bangladesh
+          </div>
         </div>
       </div>
     </footer>

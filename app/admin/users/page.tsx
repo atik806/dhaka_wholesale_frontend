@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useToast } from "@/src/providers/ToastProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Shield, User, Plus, X } from "lucide-react";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
@@ -8,12 +9,11 @@ import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { formatDate } from "@/src/lib/utils";
 import { fetchUsers, updateUserRole, deleteUser, createUser, type UserProfile } from "@/src/lib/admin-api";
+import { useRealtimeData } from "@/src/hooks/useRealtimeData";
 
 export default function AdminUsersPage() {
+  const { addToast } = useToast();
   const { confirm, dialog } = useConfirm();
-  const [users, setUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -21,20 +21,13 @@ export default function AdminUsersPage() {
   const [formError, setFormError] = useState("");
   const [formLoading, setFormLoading] = useState(false);
 
-  useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const data = await fetchUsers();
-        if (active) setUsers(data);
-      } catch (err) {
-        if (active) setError(err instanceof Error ? err.message : "Failed to load users");
-      } finally {
-        if (active) setLoading(false);
-      }
-    })();
-    return () => { active = false; };
-  }, []);
+  const { data: users, loading, error } = useRealtimeData<UserProfile>({
+    table: "profiles",
+    initialFetch: useCallback(async () => {
+      const data = await fetchUsers();
+      return data;
+    }, []),
+  });
 
   const filtered = useMemo(() => {
     if (!search.trim()) return users;
@@ -44,7 +37,7 @@ export default function AdminUsersPage() {
     );
   }, [users, search]);
 
-  const handleRoleToggle = async (user: UserProfile) => {
+  const handleRoleToggle = useCallback(async (user: UserProfile) => {
     const newRole = user.role === "admin" ? "customer" : "admin";
     const ok = await confirm(
       "Change Role",
@@ -54,16 +47,16 @@ export default function AdminUsersPage() {
     if (!ok) return;
     setActionLoading(user.id);
     try {
-      const updated = await updateUserRole(user.id, newRole);
-      setUsers((prev) => prev.map((u) => (u.id === updated.id ? updated : u)));
+      await updateUserRole(user.id, newRole);
+      addToast(`User role changed to ${newRole}`, "success");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to update role");
+      addToast(err instanceof Error ? err.message : "Failed to update role", "error");
     } finally {
       setActionLoading(null);
     }
-  };
+  }, [confirm, addToast]);
 
-  const handleDelete = async (user: UserProfile) => {
+  const handleDelete = useCallback(async (user: UserProfile) => {
     const ok = await confirm(
       "Delete User",
       `Are you sure you want to delete user "${user.name}"? This cannot be undone.`,
@@ -73,15 +66,15 @@ export default function AdminUsersPage() {
     setActionLoading(user.id);
     try {
       await deleteUser(user.id);
-      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+      addToast("User deleted", "success");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete user");
+      addToast(err instanceof Error ? err.message : "Failed to delete user", "error");
     } finally {
       setActionLoading(null);
     }
-  };
+  }, [confirm, addToast]);
 
-  const columns: Column<UserProfile>[] = [
+  const columns: Column<UserProfile>[] = useMemo(() => [
     {
       key: "name",
       label: "Name",
@@ -92,6 +85,7 @@ export default function AdminUsersPage() {
               src={user.avatar_url}
               alt=""
               className="w-8 h-8 rounded-full object-cover bg-zinc-100 dark:bg-zinc-700"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           ) : (
             <div className="w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
@@ -144,7 +138,7 @@ export default function AdminUsersPage() {
         </div>
       ),
     },
-  ];
+  ], [actionLoading, handleRoleToggle, handleDelete]);
 
   if (error) {
     return (
@@ -163,7 +157,7 @@ export default function AdminUsersPage() {
           <div>
             <h1 className="font-serif text-2xl font-bold">Users</h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Manage customer and admin accounts
+              Manage customer and admin accounts &mdash; <span className="text-primary font-medium">{users.length}</span> total
             </p>
           </div>
           <button
@@ -202,8 +196,7 @@ export default function AdminUsersPage() {
                   setFormError("");
                   setFormLoading(true);
                   try {
-                    const newUser = await createUser(form);
-                    setUsers((prev) => [newUser, ...prev]);
+                    await createUser(form);
                     setShowModal(false);
                     setForm({ name: "", email: "", password: "" });
                   } catch (err) {
@@ -285,7 +278,7 @@ export default function AdminUsersPage() {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               {user.avatar_url ? (
-                <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+                <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <User className="w-5 h-5 text-primary" />

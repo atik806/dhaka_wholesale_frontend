@@ -13,6 +13,7 @@ import {
   User,
   LogOut,
   X,
+  Phone,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -72,7 +73,7 @@ export const Header = memo(function Header() {
         setSearchResults(result.products);
         setSearchTotal(result.total);
       } catch {
-        // aborted or failed — ignore
+        // aborted or failed
       } finally {
         setSearchLoading(false);
       }
@@ -151,7 +152,7 @@ export const Header = memo(function Header() {
               {searchTotal > 6 && (
                 <button
                   onClick={handleSearchSubmit}
-                  className="w-full px-4 py-2.5 text-sm text-primary dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors border-t border-zinc-100 dark:border-zinc-700"
+                  className="w-full px-4 py-2.5 text-sm text-[#0b2c5f] dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors border-t border-zinc-100 dark:border-zinc-700"
                 >
                   View all {searchTotal} results
                 </button>
@@ -170,22 +171,42 @@ export const Header = memo(function Header() {
 
   return (
     <>
+      {/* Announcement Bar */}
+      <div className="bg-[#0b2c5f] text-white text-xs py-2 hidden md:block">
+        <div className="container flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5">
+              <Phone className="w-3 h-3" />
+              01302228993
+            </span>
+            <span className="text-white/40">|</span>
+            <span>Free delivery on orders over ৳500</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="/track-order" className="hover:text-white/80 transition-colors">Track Order</Link>
+            <span className="text-white/40">|</span>
+            <Link href="/contact" className="hover:text-white/80 transition-colors">Help Center</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Header */}
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/50 dark:border-zinc-700/50 shadow-sm"
-            : "bg-gradient-to-b from-white/50 to-transparent dark:from-zinc-900/50 dark:to-transparent"
+            ? "bg-white dark:bg-zinc-900 shadow-sm border-b border-zinc-100 dark:border-zinc-800"
+            : "bg-white dark:bg-zinc-900"
         }`}
       >
-        <div className="container flex items-center justify-between h-16 md:h-20">
+        <div className="container flex items-center justify-between h-14 md:h-16">
           <div className="relative z-10">
             <SiteLogo variant="header" priority />
           </div>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-7">
             <Link
               href="/shop"
-              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+              className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
             >
               Shop All
             </Link>
@@ -194,7 +215,7 @@ export const Header = memo(function Header() {
               onMouseEnter={() => setCategoryOpen(true)}
               onMouseLeave={() => setCategoryOpen(false)}
             >
-              <button className="flex items-center gap-1 text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
+              <button className="flex items-center gap-1 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
                 Categories <ChevronDown className="w-3.5 h-3.5" />
               </button>
               <AnimatePresence>
@@ -210,7 +231,7 @@ export const Header = memo(function Header() {
                       <Link
                         key={cat.id}
                         href={`/shop/${cat.slug}`}
-                        className="block px-4 py-2.5 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                        className="block px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
                         onClick={() => setCategoryOpen(false)}
                       >
                         {cat.name}
@@ -222,21 +243,21 @@ export const Header = memo(function Header() {
             </div>
             <Link
               href="/shop?sort=newest"
-              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+              className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
             >
               New Arrivals
             </Link>
             <Link
               href="/shop?sort=popular"
-              className="text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full"
+              className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
             >
               Best Sellers
             </Link>
           </nav>
 
-          <div className="flex items-center gap-1 md:gap-2">
+          <div className="flex items-center gap-1 md:gap-1.5">
             <div ref={searchRef} className="relative hidden sm:block">
-              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-3 py-2 w-56 lg:w-72 transition-colors focus-within:ring-2 focus-within:ring-primary/30 focus-within:bg-white dark:focus-within:bg-zinc-700">
+              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2 w-52 lg:w-64 transition-colors focus-within:ring-2 focus-within:ring-[#0b2c5f]/20 focus-within:bg-white dark:focus-within:bg-zinc-700">
                 <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
                 <input
                   ref={searchInputRef}
@@ -270,10 +291,8 @@ export const Header = memo(function Header() {
               {renderSearchDropdown()}
             </div>
             <button
-              onClick={() => {
-                setMobileSearchOpen(true);
-              }}
-              className="sm:hidden p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              onClick={() => setMobileSearchOpen(true)}
+              className="sm:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <Search className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
             </button>
@@ -281,7 +300,7 @@ export const Header = memo(function Header() {
             <button
               onClick={toggleTheme}
               suppressHydrationWarning
-              className="p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? (
@@ -293,7 +312,7 @@ export const Header = memo(function Header() {
 
             <Link
               href="/wishlist"
-              className="hidden sm:flex p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors relative"
+              className="hidden sm:flex p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors relative"
             >
               <Heart className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
             </Link>
@@ -302,10 +321,10 @@ export const Header = memo(function Header() {
               {authHydrated && isLoggedIn ? (
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-1.5 p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 >
-                  <div className="w-5 h-5 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-primary dark:text-primary-light">
+                  <div className="w-6 h-6 rounded-full bg-[#0b2c5f] dark:bg-primary flex items-center justify-center">
+                    <span className="text-[10px] font-bold text-white">
                       {user?.name?.charAt(0)?.toUpperCase() || "U"}
                     </span>
                   </div>
@@ -313,7 +332,7 @@ export const Header = memo(function Header() {
               ) : authHydrated ? (
                 <Link
                   href="/login"
-                  className="p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 >
                   <User className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
                 </Link>
@@ -338,7 +357,7 @@ export const Header = memo(function Header() {
                     <Link
                       href="/account"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
                     >
                       <User className="w-4 h-4" />
                       My Account
@@ -349,7 +368,7 @@ export const Header = memo(function Header() {
                         logout();
                         router.push("/");
                       }}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
                       Sign Out
@@ -361,16 +380,11 @@ export const Header = memo(function Header() {
 
             <Link
               href="/cart"
-              className="p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors relative"
+              className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors relative"
             >
-              <motion.div
-                animate={totalItems > 0 ? { scale: [1, 1.15, 1] } : {}}
-                transition={{ duration: 0.4 }}
-              >
-                <ShoppingBag className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
-              </motion.div>
+              <ShoppingBag className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
               {cartHydrated && totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 flex items-center justify-center bg-primary text-white text-[10px] font-bold rounded-full shadow-sm">
+                <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 flex items-center justify-center bg-[#e31c23] text-white text-[10px] font-bold rounded-full shadow-sm">
                   {totalItems}
                 </span>
               )}
@@ -378,14 +392,13 @@ export const Header = memo(function Header() {
 
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="md:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
             >
               <Menu className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
             </button>
           </div>
         </div>
       </header>
-      <div className="h-16 md:h-20" />
 
       <MobileNav open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
 
@@ -398,7 +411,7 @@ export const Header = memo(function Header() {
             className="fixed inset-0 z-[60] bg-white dark:bg-zinc-900 sm:hidden"
           >
             <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-              <div className="flex items-center gap-2 flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2 flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2">
                 <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
                 <input
                   ref={mobileSearchInputRef}
@@ -463,7 +476,7 @@ export const Header = memo(function Header() {
                   {searchTotal > 6 && (
                     <button
                       onClick={handleSearchSubmit}
-                      className="w-full px-4 py-3 text-sm text-primary dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-t border-zinc-100 dark:border-zinc-800"
+                      className="w-full px-4 py-3 text-sm text-[#0b2c5f] dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-t border-zinc-100 dark:border-zinc-800"
                     >
                       View all {searchTotal} results
                     </button>

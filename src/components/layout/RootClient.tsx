@@ -25,7 +25,7 @@ export function RootClient({ children }: { children: React.ReactNode }) {
     <>
       <PageLoader />
       {!isAdmin && <Header />}
-      <main id="main-content" className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1 pb-14 md:pb-0">{children}</main>
       {!isAdmin && !isAuthPage && <Footer />}
       {!isAdmin && <CartDrawer />}
       <Toaster />

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { Package } from "lucide-react";
 import type { Product } from "@/src/types/product";
 import { ProductCard } from "./ProductCard";
 import { ProductCardSkeleton } from "@/src/components/ui/Skeleton";
@@ -18,6 +19,24 @@ export function ProductGrid({ products, loading }: ProductGridProps) {
           <ProductCardSkeleton key={i} />
         ))}
       </div>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="flex flex-col items-center justify-center py-20 text-center"
+      >
+        <Package className="w-16 h-16 text-zinc-300 dark:text-zinc-600 mb-4" />
+        <h3 className="text-lg font-semibold text-zinc-600 dark:text-zinc-400 mb-1">
+          No products found
+        </h3>
+        <p className="text-sm text-zinc-400 dark:text-zinc-500">
+          Try adjusting your search or filter criteria.
+        </p>
+      </motion.div>
     );
   }
 

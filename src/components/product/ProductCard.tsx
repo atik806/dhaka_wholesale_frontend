@@ -2,7 +2,7 @@
 
 import { useRef, memo } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/src/types/product";
@@ -10,7 +10,6 @@ import { Badge } from "@/src/components/ui/Badge";
 import { Rating } from "@/src/components/ui/Rating";
 import { formatPrice, safeImage } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
-import { TiltCard } from "@/src/components/three/TiltCard";
 import { useToast } from "@/src/providers/ToastProvider";
 
 interface ProductCardProps {
@@ -65,70 +64,75 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
     >
-      <TiltCard tiltDegree={6} scale={1.01} glare={false}>
-        <Link href={`/product/${product.slug}`} className="group block">
-          <div className="relative aspect-square rounded-2xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 mb-3">
-            <Image
-              src={safeImage(product.images)}
-              alt={product.name}
-              fill
-              className="object-cover transition-transform duration-700 group-hover:scale-110"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+      <Link href={`/product/${product.slug}`} className="group block">
+        <div className="relative aspect-square rounded-xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 mb-3">
+          <Image
+            src={safeImage(product.images)}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+          />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
 
-            {badge && (
-              <div className="absolute top-3 left-3">
-                <Badge variant={badge.variant}>{badge.label}</Badge>
-              </div>
-            )}
+          {badge && (
+            <div className="absolute top-2 left-2">
+              <Badge variant={badge.variant}>{badge.label}</Badge>
+            </div>
+          )}
 
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5">
             <button
               onClick={handleWishlist}
-              className="absolute top-3 right-3 w-10 h-10 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 shadow-sm hover:bg-white dark:bg-zinc-800"
+              className="w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 shadow-sm hover:bg-white dark:bg-zinc-800"
             >
               <Heart
-                className={`w-4 h-4 transition-colors ${
+                className={`w-3.5 h-3.5 transition-colors ${
                   wishlisted ? "fill-red-500 dark:fill-red-400 text-red-500 dark:text-red-400" : "text-zinc-500 dark:text-zinc-400"
                 }`}
               />
             </button>
-
-            <motion.div
-              initial={false}
-              className="absolute bottom-0 left-0 right-0 p-3 translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-300"
+            <Link
+              href={`/product/${product.slug}`}
+              className="w-8 h-8 rounded-full bg-white/90 dark:bg-zinc-800/90 backdrop-blur-sm flex items-center justify-center opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-300 shadow-sm hover:bg-white dark:bg-zinc-800"
+              onClick={(e) => e.stopPropagation()}
             >
-              <button
-                onClick={handleAddToCart}
-                className="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-xl py-3 text-sm font-medium hover:bg-primary-dark transition-colors shadow-lg min-h-[44px]"
-              >
-                <ShoppingBag className="w-4 h-4" />
-                Add to Cart
-              </button>
-            </motion.div>
+              <Eye className="w-3.5 h-3.5 text-zinc-500 dark:text-zinc-400" />
+            </Link>
           </div>
 
-          <div className="px-1">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">
-              {product.category}
-            </p>
-            <h3 className="font-medium text-sm leading-tight mb-1.5 line-clamp-1 group-hover:text-primary dark:group-hover:text-primary-light transition-colors">
-              {product.name}
-            </h3>
-            <Rating value={product.rating} count={product.reviewCount} size="sm" />
-            <div className="flex items-center gap-2 mt-2">
-              <span className="font-semibold text-sm">
-                {formatPrice(product.price)}
-              </span>
-              {product.originalPrice && (
-                <span className="text-xs text-zinc-500 dark:text-zinc-400 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
-              )}
-            </div>
+          <div className="absolute bottom-0 left-0 right-0 p-2.5 translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-300">
+            <button
+              onClick={handleAddToCart}
+              className="w-full flex items-center justify-center gap-2 bg-[#0b2c5f] text-white rounded-lg py-2.5 text-xs font-medium hover:bg-[#071f43] transition-colors shadow-lg min-h-[40px]"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              Add to Cart
+            </button>
           </div>
-        </Link>
-      </TiltCard>
+        </div>
+
+        <div className="px-0.5">
+          <p className="text-[11px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-0.5">
+            {product.category}
+          </p>
+          <h3 className="font-medium text-sm leading-tight mb-1 line-clamp-1 group-hover:text-[#0b2c5f] dark:group-hover:text-primary-light transition-colors">
+            {product.name}
+          </h3>
+          <Rating value={product.rating} count={product.reviewCount} size="sm" />
+          <div className="flex items-center gap-2 mt-1.5">
+            <span className="font-semibold text-sm">
+              {formatPrice(product.price)}
+            </span>
+            {product.originalPrice && (
+              <span className="text-xs text-zinc-400 dark:text-zinc-500 line-through">
+                {formatPrice(product.originalPrice)}
+              </span>
+            )}
+          </div>
+        </div>
+      </Link>
     </motion.div>
   );
 });

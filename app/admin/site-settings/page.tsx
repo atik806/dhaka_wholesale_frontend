@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { API_BASE } from "@/src/lib/constants";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Save, Eye, EyeOff, Megaphone, Loader2 } from "lucide-react";
+import { adminFetcher } from "@/src/lib/admin-api";
+import { useToast } from "@/src/providers/ToastProvider";
+import { useRealtimeInvalidate } from "@/src/hooks/useRealtimeInvalidate";
 
 interface PromoBannerSettings {
   badge: string;
@@ -13,18 +15,8 @@ interface PromoBannerSettings {
   enabled: boolean;
 }
 
-function getSessionToken() {
-  try {
-    const s = localStorage.getItem("admin_session");
-    if (!s) return null;
-    const session = JSON.parse(s);
-    return session.session?.access_token || null;
-  } catch {
-    return null;
-  }
-}
-
 export default function SiteSettingsPage() {
+  const { addToast } = useToast();
   const [promo, setPromo] = useState<PromoBannerSettings>({
     badge: "Limited Time Offer",
     title: "",
@@ -36,43 +28,45 @@ export default function SiteSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  const loadSettings = useCallback(async () => {
+    try {
+      const res = await adminFetcher<{ promo_banner: PromoBannerSettings }>("/site-settings");
+      if (res.data?.promo_banner) {
+        setPromo(res.data.promo_banner);
+      }
+    } catch {
+      addToast("Failed to load settings", "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [addToast]);
 
   useEffect(() => {
     let active = true;
-    async function fetchSettings() {
-      try {
-        const res = await fetch(`${API_BASE}/site-settings`);
-        const data = await res.json();
-        if (active && data.promo_banner) {
-          setPromo(data.promo_banner);
-        }
-      } catch {
-        // silently fail
-      } finally {
-        if (active) setLoading(false);
-      }
-    }
-    fetchSettings();
+    (async () => {
+      await loadSettings();
+    })();
     return () => { active = false; };
-  }, []);
+  }, [loadSettings]);
+
+  useRealtimeInvalidate({ table: "site_settings", onInvalidate: loadSettings });
 
   async function handleSave() {
     setSaving(true);
     setSaved(false);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     try {
-      const token = getSessionToken();
-      await fetch(`${API_BASE}/site-settings`, {
+      await adminFetcher("/site-settings", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
         body: JSON.stringify({ promo_banner: promo }),
       });
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      savedTimerRef.current = setTimeout(() => setSaved(false), 3000);
+      addToast("Settings saved successfully", "success");
     } catch {
-      alert("Failed to save settings");
+      addToast("Failed to save settings", "error");
     } finally {
       setSaving(false);
     }

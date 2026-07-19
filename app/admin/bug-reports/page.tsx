@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bug, X, Loader2, ExternalLink, Image as ImageIcon,
@@ -14,6 +14,7 @@ import {
   updateBugReport,
   type BugReport,
 } from "@/src/lib/admin-api";
+import { useRealtimeData } from "@/src/hooks/useRealtimeData";
 
 const PRIORITY_STYLES: Record<string, string> = {
   low: "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300",
@@ -36,79 +37,56 @@ const PRIORITY_ICON: Record<string, React.ReactNode> = {
 };
 
 export default function AdminBugReportsPage() {
-  const [reports, setReports] = useState<BugReport[]>([]);
-  const [meta, setMeta] = useState({ total: 0, page: 1, limit: 20, totalPages: 1 });
-  const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<BugReport | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [updating, setUpdating] = useState(false);
   const [replyText, setReplyText] = useState("");
 
-  const load = async (page: number) => {
-    setLoading(true);
-    try {
-      const res = await fetchBugReports({ page, limit: 20 });
-      setReports(res.reports);
-      setMeta(res.meta);
-    } catch { /* 401 redirect */ }
-    finally { setLoading(false); }
-  };
+  const { data: reports, loading } = useRealtimeData<BugReport>({
+    table: "bug_reports",
+    initialFetch: useCallback(async () => {
+      const res = await fetchBugReports({ page: 1, limit: 1000 });
+      return res.reports;
+    }, []),
+  });
 
   useEffect(() => {
-    let active = true;
-    (async () => {
-      try {
-        const res = await fetchBugReports({ page: 1, limit: 20 });
-        if (active) { setReports(res.reports); setMeta(res.meta); }
-      } catch { /* 401 redirect */ }
-      finally { if (active) setLoading(false); }
-    })();
-    return () => { active = false; };
+    if (!selected) return;
+    const updated = reports.find((r) => r.id === selected.id);
+    if (updated && updated !== selected) {
+      setSelected(updated);
+      setReplyText(updated.admin_reply || "");
+    }
+  }, [reports, selected]);
+
+  const handleStatusChange = useCallback(async (report: BugReport, status: string) => {
+    setUpdating(true);
+    try {
+      await updateBugReport(report.id, { status });
+    } catch {}
+    finally { setUpdating(false); }
   }, []);
 
-  const handleStatusChange = async (report: BugReport, status: string) => {
+  const handlePriorityChange = useCallback(async (report: BugReport, priority: string) => {
     setUpdating(true);
     try {
-      const updated = await updateBugReport(report.id, { status });
-      setReports((prev) => prev.map((r) => r.id === report.id ? updated : r));
-      if (selected?.id === report.id) setSelected(updated);
-    } catch {
-      // handled by adminFetcher
-    } finally {
-      setUpdating(false);
-    }
-  };
+      await updateBugReport(report.id, { priority });
+    } catch {}
+    finally { setUpdating(false); }
+  }, []);
 
-  const handlePriorityChange = async (report: BugReport, priority: string) => {
-    setUpdating(true);
-    try {
-      const updated = await updateBugReport(report.id, { priority });
-      setReports((prev) => prev.map((r) => r.id === report.id ? updated : r));
-      if (selected?.id === report.id) setSelected(updated);
-    } catch {
-      // handled by adminFetcher
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  const handleSaveReply = async () => {
+  const handleSaveReply = useCallback(async () => {
     if (!selected) return;
     setUpdating(true);
     try {
-      const updated = await updateBugReport(selected.id, {
+      await updateBugReport(selected.id, {
         admin_reply: replyText,
         status: selected.status === "pending" ? "reviewed" : selected.status,
       });
-      setReports((prev) => prev.map((r) => r.id === selected.id ? updated : r));
-      setSelected(updated);
-    } catch {
-      // handled by adminFetcher
-    } finally {
-      setUpdating(false);
-    }
-  };
+    } catch {}
+    finally { setUpdating(false); }
+  }, [selected, replyText]);
 
   const filtered = search
     ? reports.filter(
@@ -122,7 +100,7 @@ export default function AdminBugReportsPage() {
     ? filtered.filter((r) => r.status === statusFilter)
     : filtered;
 
-  const columns: Column<BugReport>[] = [
+  const columns: Column<BugReport>[] = useMemo(() => [
     {
       key: "priority",
       label: "Priority",
@@ -164,7 +142,7 @@ export default function AdminBugReportsPage() {
       render: (r) =>
         r.screenshot_url ? (
           <div className="w-10 h-10 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700">
-            <img src={r.screenshot_url} alt="" className="w-full h-full object-cover" />
+            <img src={r.screenshot_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
           </div>
         ) : (
           <span className="text-xs text-zinc-400">—</span>
@@ -177,7 +155,7 @@ export default function AdminBugReportsPage() {
         <span className="text-zinc-500 dark:text-zinc-400 text-sm">{formatDate(r.created_at)}</span>
       ),
     },
-  ];
+  ], []);
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -185,7 +163,7 @@ export default function AdminBugReportsPage() {
         <div>
           <h1 className="font-serif text-2xl font-bold">Bug Reports</h1>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            {meta.total} total
+            {reports.length} total
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -217,11 +195,6 @@ export default function AdminBugReportsPage() {
         searchValue={search}
         onSearchChange={setSearch}
         loading={loading}
-        pagination={{
-          page: meta.page,
-          totalPages: meta.totalPages,
-          onPageChange: (page) => load(page),
-        }}
         mobileCard={(r) => (
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -324,6 +297,7 @@ export default function AdminBugReportsPage() {
                         src={selected.screenshot_url}
                         alt="Bug screenshot"
                         className="w-full max-h-60 object-contain bg-zinc-50 dark:bg-zinc-900"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
                       />
                     </div>
                   </div>

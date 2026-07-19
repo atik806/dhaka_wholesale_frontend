@@ -41,9 +41,14 @@ export default function EditProductPage() {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
+    let active = true;
     const slug = params.id;
+    setLoading(true);
+    setNotFound(false);
+    setProduct(null);
     Promise.all([fetchProductBySlug(slug), fetchCategories()])
       .then(([prod, cats]) => {
+        if (!active) return;
         if (!prod) {
           setNotFound(true);
           return;
@@ -51,8 +56,9 @@ export default function EditProductPage() {
         setProduct(prod);
         setCategories(cats);
       })
-      .catch(() => addToast("Failed to load product", "error"))
-      .finally(() => setLoading(false));
+      .catch(() => { if (active) addToast("Failed to load product", "error"); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, [params.id, addToast]);
 
   const handleSubmit = async (values: ProductFormValues) => {
@@ -147,6 +153,7 @@ export default function EditProductPage() {
         className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6"
       >
         <ProductForm
+          key={product.id}
           initialValues={initialValues}
           onSubmit={handleSubmit}
           loading={saving}

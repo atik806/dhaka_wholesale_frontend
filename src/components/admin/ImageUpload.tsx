@@ -4,6 +4,8 @@ import { useState, useRef } from "react";
 import { X, Loader2, ImagePlus } from "lucide-react";
 import { API_BASE } from "@/src/lib/constants";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
 interface ImageUploadProps {
   value: string[];
   onChange: (urls: string[]) => void;
@@ -37,7 +39,20 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
     const token = getToken();
 
     const remainingSlots = maxImages - value.length;
-    const filesToUpload = Array.from(files).slice(0, remainingSlots);
+    const fileArray = Array.from(files);
+
+    const oversized = fileArray.filter((f) => f.size > MAX_FILE_SIZE);
+    if (oversized.length > 0) {
+      errors.push(`${oversized.map((f) => f.name).join(", ")} exceed 5MB limit`);
+    }
+
+    const validFiles = fileArray.filter((f) => f.size <= MAX_FILE_SIZE);
+    const skippedCount = fileArray.length - Math.min(fileArray.length, remainingSlots);
+    const filesToUpload = validFiles.slice(0, remainingSlots);
+
+    if (skippedCount > 0) {
+      errors.push(`${skippedCount} file(s) skipped (max ${maxImages} images)`);
+    }
 
     const results = await Promise.allSettled(
       filesToUpload.map(async (file) => {
@@ -87,9 +102,9 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
       {value.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {value.map((url, i) => (
-            <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700">
+            <div key={url} className="relative group aspect-square rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={`Upload ${i + 1}`} className="w-full h-full object-cover" />
+              <img src={url} alt={`Upload ${i + 1}`} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
               <button
                 type="button"
                 onClick={() => removeImage(i)}
