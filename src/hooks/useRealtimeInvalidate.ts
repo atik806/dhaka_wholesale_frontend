@@ -15,7 +15,7 @@ export function useRealtimeInvalidate({
   enabled = true,
 }: InvalidateOptions) {
   const onInvalidateRef = useRef(onInvalidate);
-  onInvalidateRef.current = onInvalidate;
+  useEffect(() => { onInvalidateRef.current = onInvalidate; });
 
   const stableInvalidate = useCallback(() => onInvalidateRef.current(), []);
 

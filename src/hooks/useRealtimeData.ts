@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { getAdminSupabase } from "@/src/lib/admin-supabase";
 import type { SupabaseClient, RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
@@ -14,19 +14,23 @@ interface RealtimeOptions<T> {
 }
 
 function defaultOnUpdate<T>(current: T[], newRow: Record<string, unknown>, primaryKey: string): T[] {
-  return current.map((item) =>
-    (item as Record<string, unknown>)[primaryKey] === newRow[primaryKey]
-      ? { ...item, ...newRow } as unknown as T
-      : item
-  );
+  return current.map((item) => {
+    const record = item as unknown as Record<string, unknown>;
+    return record[primaryKey] === newRow[primaryKey]
+      ? ({ ...record, ...newRow } as T)
+      : item;
+  });
 }
 
 function defaultOnDelete<T>(current: T[], deleted: Record<string, unknown>, primaryKey: string): T[] {
   const pk = deleted[primaryKey];
-  return current.filter((item) => (item as Record<string, unknown>)[primaryKey] !== pk);
+  return current.filter((item) => {
+    const record = item as unknown as Record<string, unknown>;
+    return record[primaryKey] !== pk;
+  });
 }
 
-export function useRealtimeData<T extends { [key: string]: any }>({
+export function useRealtimeData<T>({
   table,
   initialFetch,
   primaryKey = "id",
@@ -40,7 +44,7 @@ export function useRealtimeData<T extends { [key: string]: any }>({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const initialFetchRef = useRef(initialFetch);
-  initialFetchRef.current = initialFetch;
+  useEffect(() => { initialFetchRef.current = initialFetch; });
 
   useEffect(() => {
     if (!enabled) return;
