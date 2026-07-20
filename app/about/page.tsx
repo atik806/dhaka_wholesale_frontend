@@ -26,7 +26,7 @@ export default function AboutPage() {
       exit={{ opacity: 0 }}
     >
       {/* Page Hero */}
-      <div className="bg-gradient-to-br from-[#0b2c5f] via-[#0d3570] to-[#1a4a8a] text-white">
+      <div className="bg-gradient-to-br from-primary via-primary-dark to-primary-light text-white">
         <div className="container py-14 md:py-20">
           <Breadcrumbs items={[{ label: "About Us" }]} />
           <div className="max-w-2xl mt-4">
@@ -57,7 +57,7 @@ export default function AboutPage() {
               <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
                 And just like that — with zero business plan, zero funding, and one very strong cup of tea — Dhaka Wholesale was born. We started from our rooms, source products we actually believe in, and now we&apos;re here. Still drinking tea. Still figuring things out. But now we&apos;re doing it with a website and everything.
               </p>
-              <div className="flex items-center gap-2 text-[#0b2c5f] dark:text-primary-light pt-2">
+              <div className="flex items-center gap-2 text-primary dark:text-primary-light pt-2">
                 <Coffee className="w-4 h-4" />
                 <p className="text-sm font-medium">Fun fact: The tea stall still doesn&apos;t know they inspired a business.</p>
               </div>
@@ -76,8 +76,8 @@ export default function AboutPage() {
                   transition={{ delay: i * 0.05 }}
                   className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-6 shadow-sm"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[#0b2c5f]/5 dark:bg-primary/10 flex items-center justify-center mb-4">
-                    <Icon className="w-5 h-5 text-[#0b2c5f] dark:text-primary-light" />
+                  <div className="w-10 h-10 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                    <Icon className="w-5 h-5 text-primary dark:text-primary-light" />
                   </div>
                   <h3 className="font-semibold mb-2">{title}</h3>
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{description}</p>
@@ -98,13 +98,13 @@ export default function AboutPage() {
                   transition={{ delay: i * 0.1 }}
                   className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-6 text-center shadow-sm"
                 >
-                  <div className="w-16 h-16 rounded-full bg-[#0b2c5f]/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                    <span className="font-serif text-xl font-bold text-[#0b2c5f] dark:text-primary-light">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
+                    <span className="font-serif text-xl font-bold text-primary dark:text-primary-light">
                       {i === 0 ? "TG" : "OW"}
                     </span>
                   </div>
                   <h3 className="font-semibold mb-1">{name}</h3>
-                  <p className="text-xs text-[#0b2c5f] dark:text-primary-light font-medium mb-3">{role}</p>
+                  <p className="text-xs text-primary dark:text-primary-light font-medium mb-3">{role}</p>
                   <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{bio}</p>
                 </motion.div>
               ))}
@@ -117,7 +117,7 @@ export default function AboutPage() {
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">Browse our collection and find something you love.</p>
             <Link
               href="/shop"
-              className="inline-flex items-center gap-2 bg-[#0b2c5f] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#071f43] transition-colors text-sm"
+              className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-dark transition-colors text-sm"
             >
               Shop Now <ArrowRight className="w-4 h-4" />
             </Link>

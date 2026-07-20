@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, memo } from "react";
+import { useRef, useState, memo } from "react";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Eye } from "lucide-react";
 import Image from "next/image";
@@ -23,6 +23,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
   const { addToast } = useToast();
   const wishlisted = useCartStore((s) => s.wishlistIds.includes(product.id));
   const cardRef = useRef<HTMLDivElement>(null);
+  const [imgSrc, setImgSrc] = useState(safeImage(product.images));
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -67,12 +68,12 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
       <Link href={`/product/${product.slug}`} className="group block">
         <div className="relative aspect-square rounded-xl overflow-hidden bg-zinc-50 dark:bg-zinc-800 mb-3">
           <Image
-            src={safeImage(product.images)}
+            src={imgSrc}
             alt={product.name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+            onError={() => setImgSrc("/placeholder.svg")}
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
 
@@ -105,7 +106,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
           <div className="absolute bottom-0 left-0 right-0 p-2.5 translate-y-0 sm:translate-y-full sm:group-hover:translate-y-0 transition-transform duration-300">
             <button
               onClick={handleAddToCart}
-              className="w-full flex items-center justify-center gap-2 bg-[#0b2c5f] text-white rounded-lg py-2.5 text-xs font-medium hover:bg-[#071f43] transition-colors shadow-lg min-h-[40px]"
+              className="w-full flex items-center justify-center gap-2 bg-primary text-white rounded-lg py-2.5 text-xs font-medium hover:bg-primary-dark transition-colors shadow-lg min-h-[40px]"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               Add to Cart
@@ -117,7 +118,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
           <p className="text-[11px] text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-0.5">
             {product.category}
           </p>
-          <h3 className="font-medium text-sm leading-tight mb-1 line-clamp-1 group-hover:text-[#0b2c5f] dark:group-hover:text-primary-light transition-colors">
+          <h3 className="font-medium text-sm leading-tight mb-1 line-clamp-1 group-hover:text-primary dark:group-hover:text-primary-light transition-colors">
             {product.name}
           </h3>
           <Rating value={product.rating} count={product.reviewCount} size="sm" />

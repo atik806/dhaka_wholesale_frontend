@@ -89,7 +89,7 @@ export function SiteLogo({
         </span>
         <span
           className={`block text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.18em] ${
-            isFooter ? "text-red-400" : "text-[#E31C23]"
+            isFooter ? "text-red-400" : "text-danger"
           }`}
         >
           Wholesale

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, Percent } from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 import Link from "next/link";
 import { API_BASE } from "@/src/lib/constants";
 
@@ -26,7 +26,8 @@ export function PromoBanner() {
   });
 
   useEffect(() => {
-    fetch(`${API_BASE}/site-settings/promo_banner`)
+    const controller = new AbortController();
+    fetch(`${API_BASE}/site-settings/promo_banner`, { signal: controller.signal })
       .then((r) => r.json())
       .then((data) => {
         if (data && data.enabled !== false) {
@@ -34,6 +35,7 @@ export function PromoBanner() {
         }
       })
       .catch(() => {});
+    return () => controller.abort();
   }, []);
 
   if (!promo.enabled) return null;
@@ -45,7 +47,7 @@ export function PromoBanner() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#e31c23] via-[#c41820] to-[#a0141a] p-8 md:p-12 lg:p-16"
+          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-danger via-danger/80 to-danger/60 p-8 md:p-12 lg:p-16"
         >
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(240,161,26,0.2) 0%, transparent 40%)" }} />
           <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
@@ -90,13 +92,9 @@ export function PromoBanner() {
               transition={{ delay: 0.3 }}
               className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
             >
-              <div className="flex items-center gap-2 text-white/80">
-                <Percent className="w-5 h-5" />
-                <span className="text-sm font-medium">Up to 40% Off</span>
-              </div>
               <Link
                 href={promo.button_link || "/shop"}
-                className="inline-flex items-center gap-2 bg-white text-[#e31c23] px-8 py-3.5 rounded-xl font-semibold hover:bg-white/90 transition-all shadow-xl hover:-translate-y-0.5 text-sm"
+                className="inline-flex items-center gap-2 bg-white text-danger px-8 py-3.5 rounded-xl font-semibold hover:bg-white/90 transition-all shadow-xl hover:-translate-y-0.5 text-sm"
               >
                 {promo.button_text} <ArrowRight className="w-4 h-4" />
               </Link>

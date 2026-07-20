@@ -49,7 +49,7 @@ export const Footer = memo(function Footer() {
                 />
                 <button
                   type="submit"
-                  className="bg-[#0b2c5f] hover:bg-[#1a4a8a] text-white px-5 py-2.5 rounded-r-lg text-sm font-medium transition-colors flex items-center gap-1.5 shrink-0"
+                  className="bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-r-lg text-sm font-medium transition-colors flex items-center gap-1.5 shrink-0"
                 >
                   Subscribe <ArrowRight className="w-3.5 h-3.5" />
                 </button>
@@ -71,10 +71,10 @@ export const Footer = memo(function Footer() {
               your doorstep. Quality you can see, feel, and trust.
             </p>
             <div className="flex items-center gap-2 mb-5">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-[#0b2c5f] flex items-center justify-center transition-colors" aria-label="Facebook">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-primary flex items-center justify-center transition-colors" aria-label="Facebook">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-[#e31c23] flex items-center justify-center transition-colors" aria-label="Instagram">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-danger flex items-center justify-center transition-colors" aria-label="Instagram">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
               </a>
               <a href="mailto:atikrj8@gmail.com" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors">
@@ -133,6 +133,10 @@ export const Footer = memo(function Footer() {
             <ul className="space-y-2.5">
               {[
                 { label: "About Us", href: "/about" },
+                { label: "FAQ", href: "/faq" },
+                { label: "Contact Us", href: "/contact" },
+                { label: "Terms of Service", href: "/privacy-policy" },
+                { label: "Privacy Policy", href: "/privacy-policy" },
               ].map(({ label, href }) => (
                 <li key={label}>
                   <Link
@@ -167,7 +171,7 @@ export const Footer = memo(function Footer() {
             &copy; {new Date().getFullYear()} Dhaka Wholesale. All rights reserved.
           </p>
           <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-600">
-            Made with <Heart className="w-3 h-3 text-[#e31c23]" /> in Bangladesh
+            Made with <Heart className="w-3 h-3 text-danger" /> in Bangladesh
           </div>
         </div>
       </div>

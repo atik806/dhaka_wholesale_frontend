@@ -2,8 +2,9 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Loader2, Truck, ShieldCheck, CreditCard } from "lucide-react";
+import { Lock, Loader2, Truck, ShieldCheck, CreditCard } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useIsLoggedIn, useAuthHydrated, useAuthStore } from "@/src/store/useAuthStore";
@@ -116,7 +117,7 @@ export default function CheckoutPage() {
   if (!authHydrated || !isLoggedIn) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#0b2c5f]" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -161,7 +162,7 @@ export default function CheckoutPage() {
           { label: "Review", icon: ShieldCheck },
         ].map(({ label, icon: Icon }, i) => (
           <div key={label} className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#0b2c5f] dark:bg-primary flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-primary dark:bg-primary flex items-center justify-center">
               <Icon className="w-4 h-4 text-white" />
             </div>
             <span className="text-sm font-medium hidden sm:block">{label}</span>
@@ -208,10 +209,24 @@ export default function CheckoutPage() {
             <h3 className="font-semibold mb-4">Order Summary</h3>
             <div className="space-y-2 text-sm max-h-60 overflow-y-auto mb-4">
               {items.map((item) => (
-                <div key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`} className="flex justify-between">
-                  <span className="text-zinc-500 dark:text-zinc-400 truncate mr-2">
-                    {item.product.name} × {item.quantity}
-                  </span>
+                <div key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`} className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-10 h-10 relative rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-700 shrink-0">
+                      {item.product.images?.[0] ? (
+                        <Image
+                          src={item.product.images[0]}
+                          alt={item.product.name}
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-zinc-400">N/A</div>
+                      )}
+                    </div>
+                    <span className="text-zinc-500 dark:text-zinc-400 truncate">
+                      {item.product.name} × {item.quantity}
+                    </span>
+                  </div>
                   <span className="shrink-0">{formatPrice(item.product.price * item.quantity)}</span>
                 </div>
               ))}
@@ -244,7 +259,7 @@ export default function CheckoutPage() {
                 {placing ? (
                   <><Loader2 className="w-5 h-5 animate-spin" /> Placing Order...</>
                 ) : (
-                  <>Place Order — {formatPrice(orderSummary.total)} <Sparkles className="w-5 h-5" /></>
+                  <>Place Order — {formatPrice(orderSummary.total)} <Lock className="w-5 h-5" /></>
                 )}
               </Button>
             </div>

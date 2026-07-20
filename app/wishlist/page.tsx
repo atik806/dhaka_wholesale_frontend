@@ -8,6 +8,7 @@ import { useCartStore } from "@/src/store/useCartStore";
 import { ProductCard } from "@/src/components/product/ProductCard";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
+import { ProductCardSkeleton } from "@/src/components/ui/Skeleton";
 import { fetchProducts } from "@/src/lib/api";
 
 export default function WishlistPage() {
@@ -64,9 +65,13 @@ export default function WishlistPage() {
         My Wishlist ({loading ? "..." : wishlistProducts.length})
       </h1>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-        {wishlistProducts.map((product, i) => (
-          <ProductCard key={product.id} product={product} index={i} />
-        ))}
+        {loading
+          ? Array.from({ length: Math.min(wishlistIds.length, 8) }).map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))
+          : wishlistProducts.map((product, i) => (
+              <ProductCard key={product.id} product={product} index={i} />
+            ))}
       </div>
     </motion.div>
   );

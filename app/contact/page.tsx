@@ -46,7 +46,7 @@ export default function ContactPage() {
       exit={{ opacity: 0 }}
     >
       {/* Page Hero */}
-      <div className="bg-gradient-to-br from-[#0b2c5f] via-[#0d3570] to-[#1a4a8a] text-white">
+      <div className="bg-gradient-to-br from-primary via-primary-dark to-primary-light text-white">
         <div className="container py-14 md:py-20">
           <Breadcrumbs items={[{ label: "Contact Us" }]} />
           <div className="max-w-2xl mt-4">
@@ -86,7 +86,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         placeholder="John"
                         required
-                        className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#0b2c5f]/20 focus:border-[#0b2c5f] bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 transition-colors"
+                        className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 transition-colors"
                       />
                     </div>
                     <div>
@@ -98,7 +98,7 @@ export default function ContactPage() {
                         onChange={handleChange}
                         placeholder="Doe"
                         required
-                        className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#0b2c5f]/20 focus:border-[#0b2c5f] bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 transition-colors"
+                        className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 transition-colors"
                       />
                     </div>
                   </div>
@@ -111,7 +111,7 @@ export default function ContactPage() {
                       onChange={handleChange}
                       placeholder="john@example.com"
                       required
-                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#0b2c5f]/20 focus:border-[#0b2c5f] bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 transition-colors"
+                      className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 transition-colors"
                     />
                   </div>
                   <div>
@@ -123,7 +123,7 @@ export default function ContactPage() {
                       onChange={handleChange}
                       placeholder="How can we help?"
                       required
-                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#0b2c5f]/20 focus:border-[#0b2c5f] bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 transition-colors"
+                      className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 transition-colors"
                     />
                   </div>
                   <div>
@@ -135,7 +135,7 @@ export default function ContactPage() {
                       onChange={handleChange}
                       placeholder="Tell us more about your inquiry..."
                       required
-                      className="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[#0b2c5f]/20 focus:border-[#0b2c5f] bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 resize-none transition-colors"
+                      className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 resize-none transition-colors"
                     />
                   </div>
                   {error && (
@@ -154,8 +154,8 @@ export default function ContactPage() {
                 <h2 className="font-semibold mb-5">Contact Information</h2>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#0b2c5f]/5 dark:bg-primary/10 flex items-center justify-center shrink-0">
-                      <Mail className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light" />
+                    <div className="w-9 h-9 rounded-lg bg-primary/5 dark:bg-primary/10 flex items-center justify-center shrink-0">
+                      <Mail className="w-4 h-4 text-primary dark:text-primary-light" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">Email</p>
@@ -163,8 +163,8 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#0b2c5f]/5 dark:bg-primary/10 flex items-center justify-center shrink-0">
-                      <Phone className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light" />
+                    <div className="w-9 h-9 rounded-lg bg-primary/5 dark:bg-primary/10 flex items-center justify-center shrink-0">
+                      <Phone className="w-4 h-4 text-primary dark:text-primary-light" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">Phone</p>
@@ -173,8 +173,8 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#0b2c5f]/5 dark:bg-primary/10 flex items-center justify-center shrink-0">
-                      <MapPin className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light" />
+                    <div className="w-9 h-9 rounded-lg bg-primary/5 dark:bg-primary/10 flex items-center justify-center shrink-0">
+                      <MapPin className="w-4 h-4 text-primary dark:text-primary-light" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">Address</p>
@@ -182,8 +182,8 @@ export default function ContactPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#0b2c5f]/5 dark:bg-primary/10 flex items-center justify-center shrink-0">
-                      <Clock className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light" />
+                    <div className="w-9 h-9 rounded-lg bg-primary/5 dark:bg-primary/10 flex items-center justify-center shrink-0">
+                      <Clock className="w-4 h-4 text-primary dark:text-primary-light" />
                     </div>
                     <div>
                       <p className="text-sm font-medium">Business Hours</p>

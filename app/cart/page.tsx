@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck, Tag, ShieldCheck } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
 import { formatPrice as fp, safeImage } from "@/src/lib/utils";
-import { DELIVERY_CHARGES } from "@/src/lib/constants";
+import { DELIVERY_CHARGES, type DeliveryZone } from "@/src/lib/constants";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 
@@ -16,16 +16,17 @@ export default function CartPage() {
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const totalItems = useCartStore((s) => s.totalItems);
+  const [deliveryZone, setDeliveryZone] = useState<DeliveryZone>("inside_dhaka");
 
   const computedTotal = useMemo(() => {
     const subtotal = items.reduce(
       (sum, item) => sum + (item.product.price || 0) * item.quantity,
       0
     );
-    const shipping = DELIVERY_CHARGES.inside_dhaka;
+    const shipping = DELIVERY_CHARGES[deliveryZone];
     const total = subtotal + shipping;
     return { subtotal, shipping, total };
-  }, [items]);
+  }, [items, deliveryZone]);
 
   if (items.length === 0) {
     return (
@@ -37,7 +38,7 @@ export default function CartPage() {
       >
         <Breadcrumbs items={[{ label: "Cart" }]} />
         <EmptyState
-          icon={<ShoppingBag className="w-10 h-10 text-[#0b2c5f] dark:text-primary-light" />}
+          icon={<ShoppingBag className="w-10 h-10 text-primary dark:text-primary-light" />}
           title="Your cart is empty"
           description="Looks like you haven't added anything yet. Browse our collection and find something you love."
           actionLabel="Start Shopping"
@@ -83,7 +84,7 @@ export default function CartPage() {
               <div className="flex-1 min-w-0">
                 <Link
                   href={`/product/${item.product.slug}`}
-                  className="font-medium text-sm hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors line-clamp-1"
+                  className="font-medium text-sm hover:text-primary dark:hover:text-primary-light transition-colors line-clamp-1"
                 >
                   {item.product.name}
                 </Link>
@@ -134,19 +135,29 @@ export default function CartPage() {
             <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-5 shadow-sm">
               <h3 className="font-semibold mb-4">Order Summary</h3>
 
-              {/* Coupon Code */}
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex items-center gap-2 flex-1 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg px-3 py-2 border border-zinc-200 dark:border-zinc-600">
-                  <Tag className="w-3.5 h-3.5 text-zinc-400" />
+              <div className="space-y-2 mb-4">
+                <label className="flex items-center gap-3 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors">
                   <input
-                    type="text"
-                    placeholder="Coupon code"
-                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-400"
+                    type="radio"
+                    name="delivery_zone"
+                    value="inside_dhaka"
+                    checked={deliveryZone === "inside_dhaka"}
+                    onChange={() => setDeliveryZone("inside_dhaka")}
+                    className="accent-[#0b2c5f]"
                   />
-                </div>
-                <button className="px-4 py-2 rounded-lg border border-zinc-200 dark:border-zinc-600 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors">
-                  Apply
-                </button>
+                  <span className="text-sm">Inside Dhaka (৳{DELIVERY_CHARGES.inside_dhaka})</span>
+                </label>
+                <label className="flex items-center gap-3 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors">
+                  <input
+                    type="radio"
+                    name="delivery_zone"
+                    value="outside_dhaka"
+                    checked={deliveryZone === "outside_dhaka"}
+                    onChange={() => setDeliveryZone("outside_dhaka")}
+                    className="accent-[#0b2c5f]"
+                  />
+                  <span className="text-sm">Outside Dhaka (৳{DELIVERY_CHARGES.outside_dhaka})</span>
+                </label>
               </div>
 
               <div className="space-y-2.5 text-sm">
@@ -168,13 +179,13 @@ export default function CartPage() {
 
               <Link
                 href="/checkout"
-                className="flex items-center justify-center gap-2 w-full bg-[#0b2c5f] text-white rounded-lg py-3 text-sm font-medium hover:bg-[#071f43] transition-colors mt-5"
+                className="flex items-center justify-center gap-2 w-full bg-primary text-white rounded-lg py-3 text-sm font-medium hover:bg-primary-dark transition-colors mt-5"
               >
                 Proceed to Checkout <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 href="/shop"
-                className="block text-center text-sm text-zinc-500 dark:text-zinc-400 hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors mt-3"
+                className="block text-center text-sm text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary-light transition-colors mt-3"
               >
                 Continue Shopping
               </Link>
@@ -184,11 +195,11 @@ export default function CartPage() {
             <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-4 shadow-sm">
               <div className="space-y-3">
                 <div className="flex items-center gap-2.5">
-                  <Truck className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light shrink-0" />
+                  <Truck className="w-4 h-4 text-primary dark:text-primary-light shrink-0" />
                   <span className="text-xs text-zinc-500 dark:text-zinc-400">Delivery within 1-3 business days</span>
                 </div>
                 <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-[#0b2c5f] dark:text-primary-light shrink-0" />
+                  <ShieldCheck className="w-4 h-4 text-primary dark:text-primary-light shrink-0" />
                   <span className="text-xs text-zinc-500 dark:text-zinc-400">Secure payment with SSL encryption</span>
                 </div>
               </div>

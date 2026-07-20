@@ -62,21 +62,13 @@ function LoginForm() {
         },
       });
 
-      // Debug: verify PKCE verifier was stored before redirect
-      const lsKeys = Object.keys(localStorage);
-      const pkceKey = lsKeys.find((k) => k.includes("code-verifier"));
-      console.log("[OAuth Login] localStorage keys:", lsKeys);
-      console.log("[OAuth Login] PKCE verifier stored:", pkceKey ? "YES" : "NO");
-
       if (oauthErr) {
         setOauthError(oauthErr.message || "Failed to start Google sign-in");
         setGoogleLoading(false);
         return;
       }
 
-      // Manual redirect after confirming PKCE verifier is stored
       if (data?.url) {
-        console.log("[OAuth Login] Redirecting to Google OAuth URL...");
         window.location.href = data.url;
       }
     } catch {
@@ -146,6 +138,11 @@ function LoginForm() {
                 required
                 className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
               />
+              <div className="mt-1.5 text-right">
+                <Link href="#" className="text-xs text-zinc-400 hover:text-primary">
+                  Forgot Password?
+                </Link>
+              </div>
             </div>
             {(error || oauthError) && (
               <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-2">

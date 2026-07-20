@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { Heart, ShoppingBag, Minus, Plus, Share2 } from "lucide-react";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
@@ -43,6 +44,7 @@ export default function ProductDetailPage() {
   }
 
   const wishlisted = isInWishlist(product.id);
+  const isOutOfStock = product.stock === "out-of-stock";
 
   const handleAdd = () => {
     addItem({
@@ -134,7 +136,7 @@ export default function ProductDetailPage() {
                     onClick={() => setSelectedSize(size)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
                       selectedSize === size
-                        ? "border-[#0b2c5f] bg-[#0b2c5f]/5 dark:bg-primary/10 text-[#0b2c5f] dark:text-primary-light ring-1 ring-[#0b2c5f]/20"
+                        ? "border-primary bg-primary/5 dark:bg-primary/10 text-primary dark:text-primary-light ring-1 ring-primary/20"
                         : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-500"
                     }`}
                   >
@@ -155,7 +157,7 @@ export default function ProductDetailPage() {
                     onClick={() => setSelectedColor(color.name)}
                     className={`w-9 h-9 rounded-full border-2 transition-all ${
                       selectedColor === color.name
-                        ? "border-[#0b2c5f] ring-2 ring-[#0b2c5f]/20 scale-110"
+                        ? "border-primary ring-2 ring-primary/20 scale-110"
                         : "border-transparent hover:scale-105"
                     }`}
                     style={{ backgroundColor: color.hex }}
@@ -171,14 +173,16 @@ export default function ProductDetailPage() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="w-10 h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                disabled={isOutOfStock}
+                className="w-10 h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Minus className="w-4 h-4" />
               </button>
-              <span className="w-12 text-center font-medium">{quantity}</span>
+              <span className="w-12 text-center font-medium">{isOutOfStock ? 0 : quantity}</span>
               <button
-                onClick={() => setQuantity((q) => q + 1)}
-                className="w-10 h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                onClick={() => setQuantity((q) => Math.min(q + 1, 10))}
+                disabled={isOutOfStock}
+                className="w-10 h-10 rounded-lg border border-zinc-200 dark:border-zinc-700 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -186,8 +190,8 @@ export default function ProductDetailPage() {
           </div>
 
           <div className="flex items-center gap-3 mt-7">
-            <Button size="lg" className="flex-1 min-h-[48px]" onClick={handleAdd}>
-              <ShoppingBag className="w-5 h-5" /> Add to Cart
+            <Button size="lg" className="flex-1 min-h-[48px]" onClick={handleAdd} disabled={isOutOfStock}>
+              <ShoppingBag className="w-5 h-5" /> {isOutOfStock ? "Sold Out" : "Add to Cart"}
             </Button>
             <button
               onClick={() => toggleWishlist(product.id)}
@@ -210,7 +214,17 @@ export default function ProductDetailPage() {
 
 
           <div className="mt-4 text-xs text-zinc-400 dark:text-zinc-500">
-            Tags: {product.tags.map((t) => `#${t}`).join(", ")}
+            Tags:{" "}
+            {product.tags.map((t) => (
+              <Link
+                key={t}
+                href={`/shop?categories=${encodeURIComponent(t)}`}
+                className="hover:text-primary dark:hover:text-primary-light transition-colors"
+              >
+                #{t}
+              </Link>
+            ))}
+            {product.tags.length > 1 && ", "}
           </div>
         </div>
       </div>
@@ -227,25 +241,27 @@ export default function ProductDetailPage() {
       )}
 
       {/* Mobile Bottom Bar */}
-      <motion.div
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        className="fixed bottom-14 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-3 flex items-center gap-3 z-40 shadow-2xl md:hidden"
-      >
-        <div className="flex-1">
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-bold">{formatPrice(product.price)}</span>
-            {product.originalPrice && (
-              <span className="text-xs text-zinc-400 dark:text-zinc-500 line-through">
-                {formatPrice(product.originalPrice)}
-              </span>
-            )}
+      {!isOutOfStock && (
+        <motion.div
+          initial={{ y: 100 }}
+          animate={{ y: 0 }}
+          className="fixed bottom-14 left-0 right-0 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 p-3 flex items-center gap-3 z-40 shadow-2xl md:hidden"
+        >
+          <div className="flex-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-bold">{formatPrice(product.price)}</span>
+              {product.originalPrice && (
+                <span className="text-xs text-zinc-400 dark:text-zinc-500 line-through">
+                  {formatPrice(product.originalPrice)}
+                </span>
+              )}
+            </div>
           </div>
-        </div>
-        <Button size="lg" className="flex-1 min-h-[44px]" onClick={handleAdd}>
-          <ShoppingBag className="w-4 h-4" /> Add to Cart
-        </Button>
-      </motion.div>
+          <Button size="lg" className="flex-1 min-h-[44px]" onClick={handleAdd}>
+            <ShoppingBag className="w-4 h-4" /> Add to Cart
+          </Button>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

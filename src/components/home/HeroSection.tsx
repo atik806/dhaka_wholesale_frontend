@@ -6,10 +6,10 @@ import Link from "next/link";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#0b2c5f] via-[#0d3570] to-[#1a4a8a]">
+    <section className="relative overflow-hidden bg-gradient-to-br from-primary via-primary-dark to-primary-light">
       <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 50%, rgba(227,28,35,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(240,161,26,0.2) 0%, transparent 40%)" }} />
       <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full bg-white/5 -translate-y-1/2 translate-x-1/4 blur-3xl" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-[#e31c23]/10 translate-y-1/2 -translate-x-1/4 blur-3xl" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-danger/10 translate-y-1/2 -translate-x-1/4 blur-3xl" />
 
       <div className="container relative z-10 py-14 md:py-20 lg:py-28">
         <div className="max-w-2xl">
@@ -19,7 +19,7 @@ export function HeroSection() {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white/90 text-xs font-medium px-4 py-2 rounded-full mb-6 border border-white/10"
           >
-            <span className="w-2 h-2 rounded-full bg-[#f0a11a] animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
             Wholesale Prices for Everyone
           </motion.div>
 
@@ -31,7 +31,7 @@ export function HeroSection() {
           >
             Quality Products.
             <br />
-            <span className="text-[#f0a11a]">Wholesale Prices.</span>
+            <span className="text-accent">Wholesale Prices.</span>
           </motion.h1>
 
           <motion.p
@@ -52,7 +52,7 @@ export function HeroSection() {
           >
             <Link
               href="/shop"
-              className="inline-flex items-center gap-2 bg-[#f0a11a] text-[#0b2c5f] px-8 py-3.5 rounded-xl font-semibold hover:bg-[#f5b84a] transition-all shadow-lg shadow-[#f0a11a]/25 hover:shadow-[#f0a11a]/40 hover:-translate-y-0.5 text-sm"
+              className="inline-flex items-center gap-2 bg-accent text-primary-dark px-8 py-3.5 rounded-xl font-semibold hover:bg-accent-light transition-all shadow-lg shadow-accent/25 hover:shadow-accent/40 hover:-translate-y-0.5 text-sm"
             >
               Shop Now <ArrowRight className="w-4 h-4" />
             </Link>

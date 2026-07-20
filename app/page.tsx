@@ -7,7 +7,6 @@ import { FeaturedCategories } from "@/src/components/home/FeaturedCategories";
 import { TrendingProducts } from "@/src/components/home/TrendingProducts";
 import { CustomerReviews } from "@/src/components/home/CustomerReviews";
 import { PromoBanner } from "@/src/components/home/PromoBanner";
-import { Newsletter } from "@/src/components/home/Newsletter";
 
 export default function Home() {
   return (
@@ -22,7 +21,6 @@ export default function Home() {
       <TrendingProducts />
       <PromoBanner />
       <CustomerReviews />
-      <Newsletter />
     </motion.div>
   );
 }

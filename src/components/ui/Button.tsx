@@ -17,7 +17,7 @@ const variants = {
   primary: "bg-primary text-white hover:bg-primary-dark shadow-sm",
   secondary: "bg-zinc-900 dark:bg-zinc-800 text-white hover:bg-zinc-800 dark:hover:bg-zinc-700",
   outline: "border-2 border-primary text-primary dark:text-primary-light hover:bg-primary-50 dark:hover:bg-primary-50/10",
-  ghost: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800",
+  ghost: "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800",
 };
 
 const sizes = {

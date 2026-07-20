@@ -21,7 +21,7 @@ export function TrendingProducts() {
           className="flex items-end justify-between mb-8 md:mb-12"
         >
           <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#f0a11a] mb-2 block">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent mb-2 block">
               Trending Now
             </span>
             <h2 className="font-serif text-3xl md:text-4xl font-bold">
@@ -33,7 +33,7 @@ export function TrendingProducts() {
           </div>
           <Link
             href="/shop"
-            className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-[#0b2c5f] dark:text-primary-light hover:text-[#071f43] dark:hover:text-primary transition-colors"
+            className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary transition-colors"
           >
             View All <ArrowRight className="w-4 h-4" />
           </Link>
@@ -52,7 +52,7 @@ export function TrendingProducts() {
         <div className="mt-8 text-center sm:hidden">
           <Link
             href="/shop"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0b2c5f]"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary"
           >
             View All Products <ArrowRight className="w-4 h-4" />
           </Link>

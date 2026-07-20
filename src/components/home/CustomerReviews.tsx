@@ -21,11 +21,13 @@ export function CustomerReviews() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_BASE}/reviews/recent`)
+    const controller = new AbortController();
+    fetch(`${API_BASE}/reviews/recent`, { signal: controller.signal })
       .then((res) => res.json())
       .then((json) => setReviews(json.data ?? []))
       .catch(() => setReviews([]))
       .finally(() => setLoading(false));
+    return () => controller.abort();
   }, []);
 
   if (loading || reviews.length === 0) return null;
@@ -39,7 +41,7 @@ export function CustomerReviews() {
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <span className="text-xs font-semibold uppercase tracking-widest text-[#f0a11a] mb-2 block">
+          <span className="text-xs font-semibold uppercase tracking-widest text-accent mb-2 block">
             Testimonials
           </span>
           <h2 className="font-serif text-3xl md:text-4xl font-bold">
@@ -57,7 +59,7 @@ export function CustomerReviews() {
               transition={{ delay: i * 0.08 }}
               className="relative bg-white dark:bg-zinc-800/80 rounded-2xl p-6 border border-zinc-100 dark:border-zinc-700/50 shadow-sm hover:shadow-md transition-shadow"
             >
-              <Quote className="absolute top-4 right-4 w-8 h-8 text-[#0b2c5f]/10 dark:text-primary-light/10" />
+              <Quote className="absolute top-4 right-4 w-8 h-8 text-primary/10 dark:text-primary-light/10" />
               <div className="flex items-center gap-0.5 mb-3">
                 {Array.from({ length: 5 }).map((_, j) => (
                   <Star
@@ -74,7 +76,7 @@ export function CustomerReviews() {
                 &ldquo;{review.text}&rdquo;
               </p>
               <div className="flex items-center gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-700/50">
-                <div className="w-10 h-10 rounded-full bg-[#0b2c5f]/10 dark:bg-primary/20 flex items-center justify-center text-sm font-bold text-[#0b2c5f] dark:text-primary-light shrink-0">
+                <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-sm font-bold text-primary dark:text-primary-light shrink-0">
                   {review.profiles?.name?.[0]?.toUpperCase() ?? "?"}
                 </div>
                 <div className="min-w-0">
@@ -84,7 +86,7 @@ export function CustomerReviews() {
                   {review.products && (
                     <Link
                       href={`/product/${review.products.slug}`}
-                      className="text-xs text-zinc-400 hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors truncate block"
+                      className="text-xs text-zinc-400 hover:text-primary dark:hover:text-primary-light transition-colors truncate block"
                     >
                       {review.products.name}
                     </Link>

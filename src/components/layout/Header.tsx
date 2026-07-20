@@ -152,7 +152,7 @@ export const Header = memo(function Header() {
               {searchTotal > 6 && (
                 <button
                   onClick={handleSearchSubmit}
-                  className="w-full px-4 py-2.5 text-sm text-[#0b2c5f] dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors border-t border-zinc-100 dark:border-zinc-700"
+                  className="w-full px-4 py-2.5 text-sm text-primary dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors border-t border-zinc-100 dark:border-zinc-700"
                 >
                   View all {searchTotal} results
                 </button>
@@ -172,7 +172,7 @@ export const Header = memo(function Header() {
   return (
     <>
       {/* Announcement Bar */}
-      <div className="bg-[#0b2c5f] text-white text-xs py-2 hidden md:block">
+      <div className="bg-primary text-white text-xs py-2 hidden md:block">
         <div className="container flex items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
@@ -255,7 +255,7 @@ export const Header = memo(function Header() {
 
           <div className="flex items-center gap-1 md:gap-1.5">
             <div ref={searchRef} className="relative hidden sm:block">
-              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2 w-52 lg:w-64 transition-colors focus-within:ring-2 focus-within:ring-[#0b2c5f]/20 focus-within:bg-white dark:focus-within:bg-zinc-700">
+              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2 w-52 lg:w-64 transition-colors focus-within:ring-2 focus-within:ring-primary/20 focus-within:bg-white dark:focus-within:bg-zinc-700">
                 <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
                 <input
                   ref={searchInputRef}
@@ -321,7 +321,7 @@ export const Header = memo(function Header() {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 >
-                  <div className="w-6 h-6 rounded-full bg-[#0b2c5f] dark:bg-primary flex items-center justify-center">
+                  <div className="w-6 h-6 rounded-full bg-primary dark:bg-primary flex items-center justify-center">
                     <span className="text-[10px] font-bold text-white">
                       {user?.name?.charAt(0)?.toUpperCase() || "U"}
                     </span>
@@ -382,7 +382,7 @@ export const Header = memo(function Header() {
             >
               <ShoppingBag className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
               {cartHydrated && totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 flex items-center justify-center bg-[#e31c23] text-white text-[10px] font-bold rounded-full shadow-sm">
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 flex items-center justify-center bg-danger text-white text-[10px] font-bold rounded-full shadow-sm">
                   {totalItems}
                 </span>
               )}
@@ -474,7 +474,7 @@ export const Header = memo(function Header() {
                   {searchTotal > 6 && (
                     <button
                       onClick={handleSearchSubmit}
-                      className="w-full px-4 py-3 text-sm text-[#0b2c5f] dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-t border-zinc-100 dark:border-zinc-800"
+                      className="w-full px-4 py-3 text-sm text-primary dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-t border-zinc-100 dark:border-zinc-800"
                     >
                       View all {searchTotal} results
                     </button>

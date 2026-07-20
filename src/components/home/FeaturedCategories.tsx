@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -20,7 +21,7 @@ export function FeaturedCategories() {
           className="flex items-end justify-between mb-8 md:mb-12"
         >
           <div>
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#f0a11a] mb-2 block">
+            <span className="text-xs font-semibold uppercase tracking-widest text-accent mb-2 block">
               Browse
             </span>
             <h2 className="font-serif text-3xl md:text-4xl font-bold">
@@ -29,7 +30,7 @@ export function FeaturedCategories() {
           </div>
           <Link
             href="/shop"
-            className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-[#0b2c5f] dark:text-primary-light hover:text-[#071f43] dark:hover:text-primary transition-colors"
+            className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-primary dark:text-primary-light hover:text-primary-dark dark:hover:text-primary transition-colors"
           >
             View All <ArrowRight className="w-4 h-4" />
           </Link>
@@ -45,27 +46,7 @@ export function FeaturedCategories() {
               transition={{ duration: 0.4, delay: i * 0.05 }}
               className="min-w-[260px] md:min-w-0 snap-start"
             >
-              <Link
-                href={`/shop/${cat.slug}`}
-                className="group relative block aspect-[4/3] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800"
-              >
-                <Image
-                  src={cat.image || "/placeholder.svg"}
-                  alt={cat.name}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 260px, 33vw"
-                  onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-5">
-                  <h3 className="text-white font-semibold text-lg mb-0.5">{cat.name}</h3>
-                  <p className="text-white/60 text-sm">{cat.productCount} Products</p>
-                </div>
-                <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-4 h-4 text-white" />
-                </div>
-              </Link>
+              <CategoryCard cat={cat} />
             </motion.div>
           ))}
         </div>
@@ -73,12 +54,40 @@ export function FeaturedCategories() {
         <div className="mt-6 text-center sm:hidden">
           <Link
             href="/shop"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0b2c5f]"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary"
           >
             View All Categories <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
     </section>
+  );
+}
+
+function CategoryCard({ cat }: { cat: { id: string; name: string; slug: string; image: string; productCount: number } }) {
+  const [imgSrc, setImgSrc] = useState(cat.image || "/placeholder.svg");
+
+  return (
+    <Link
+      href={`/shop/${cat.slug}`}
+      className="group relative block aspect-[4/3] rounded-2xl overflow-hidden bg-zinc-100 dark:bg-zinc-800"
+    >
+      <Image
+        src={imgSrc}
+        alt={cat.name}
+        fill
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
+        sizes="(max-width: 768px) 260px, 33vw"
+        onError={() => setImgSrc("/placeholder.svg")}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 p-5">
+        <h3 className="text-white font-semibold text-lg mb-0.5">{cat.name}</h3>
+        <p className="text-white/60 text-sm">{cat.productCount} Products</p>
+      </div>
+      <div className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+        <ArrowRight className="w-4 h-4 text-white" />
+      </div>
+    </Link>
   );
 }
