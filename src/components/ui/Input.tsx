@@ -11,19 +11,21 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, className, ...props }, ref) => {
     return (
-      <div>
-        <label className="block text-sm font-medium mb-1.5">{label}</label>
+      <div className="w-full">
+        <label className="block font-mono text-xs font-bold uppercase tracking-wider text-[#132A3A] mb-1.5">
+          {label}
+        </label>
         <input
           ref={ref}
           {...props}
-          className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-all text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 bg-white dark:bg-zinc-800 ${
+          className={`w-full rounded-[3px] border-2 px-4 py-2.5 text-xs font-mono outline-none transition-all text-[#132A3A] placeholder:text-[#1C1A17]/40 bg-white ${
             error
-              ? "border-red-400 dark:border-red-500 focus:ring-2 focus:ring-red-200 dark:focus:ring-red-900/30"
-              : "border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              ? "border-[#BE3D1F] focus:ring-2 focus:ring-[#BE3D1F]/20"
+              : "border-[#E7DCC4] focus:border-[#F5A300] focus:ring-2 focus:ring-[#F5A300]/20"
           } ${className ?? ""}`}
         />
         {error && (
-          <p className="text-xs text-red-500 dark:text-red-400 mt-1">{error}</p>
+          <p className="font-mono text-[11px] font-bold text-[#BE3D1F] mt-1">{error}</p>
         )}
       </div>
     );

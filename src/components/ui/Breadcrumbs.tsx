@@ -14,19 +14,20 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   return (
-    <nav className="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400 mb-6">
-      <Link href="/" className="hover:text-primary dark:hover:text-primary-light transition-colors">
-        <Home className="w-4 h-4" />
+    <nav className="flex items-center gap-1.5 font-mono text-xs text-[#132A3A]/70 mb-6 flex-wrap bg-[#FBF6EC] border border-[#E7DCC4] px-3 py-1.5 rounded-[2px] w-fit">
+      <Link href="/" className="hover:text-[#F5A300] transition-colors flex items-center gap-1">
+        <Home className="w-3.5 h-3.5 text-[#F5A300]" />
+        <span>HOME</span>
       </Link>
       {items.map((item, i) => (
         <span key={i} className="flex items-center gap-1.5">
-          <ChevronRight className="w-3.5 h-3.5" />
+          <ChevronRight className="w-3.5 h-3.5 text-[#BE3D1F]" />
           {item.href ? (
-            <Link href={item.href} className="hover:text-primary dark:hover:text-primary-light transition-colors">
+            <Link href={item.href} className="hover:text-[#F5A300] transition-colors">
               {item.label}
             </Link>
           ) : (
-            <span className="text-zinc-900 dark:text-zinc-100 font-medium">{item.label}</span>
+            <span className="text-[#132A3A] font-bold uppercase">{item.label}</span>
           )}
         </span>
       ))}

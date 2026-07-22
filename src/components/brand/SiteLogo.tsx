@@ -4,42 +4,6 @@ import { SITE_NAME } from "@/src/lib/constants";
 
 type LogoVariant = "header" | "footer" | "auth" | "mark" | "mobile";
 
-const sizeMap: Record<
-  LogoVariant,
-  { width: number; height: number; className: string; imageClass: string }
-> = {
-  header: {
-    width: 48,
-    height: 48,
-    className: "h-10 w-10 md:h-12 md:w-12",
-    imageClass: "object-contain",
-  },
-  mobile: {
-    width: 44,
-    height: 44,
-    className: "h-11 w-11",
-    imageClass: "object-contain",
-  },
-  footer: {
-    width: 80,
-    height: 80,
-    className: "h-20 w-20",
-    imageClass: "object-contain",
-  },
-  auth: {
-    width: 96,
-    height: 96,
-    className: "h-24 w-24",
-    imageClass: "object-contain",
-  },
-  mark: {
-    width: 36,
-    height: 36,
-    className: "h-9 w-9",
-    imageClass: "object-contain",
-  },
-};
-
 interface SiteLogoProps {
   variant?: LogoVariant;
   href?: string | null;
@@ -53,46 +17,50 @@ export function SiteLogo({
   href = "/",
   priority = false,
   className = "",
-  showWordmark = false,
+  showWordmark = true,
 }: SiteLogoProps) {
-  const size = sizeMap[variant];
   const isFooter = variant === "footer";
 
   const mark = (
     <span
-      className={`relative inline-flex shrink-0 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-black/5 ${size.className} ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md -rotate-6 transition-transform duration-300 group-hover:rotate-0 p-1 ${
+        variant === "footer"
+          ? "w-14 h-14"
+          : variant === "auth"
+          ? "w-16 h-16"
+          : "w-10 h-10 md:w-11 md:h-11"
+      } ${className}`}
     >
-      <Image
-        src="/logo.png"
-        alt={SITE_NAME}
-        width={size.width}
-        height={size.height}
-        priority={priority}
-        className={size.imageClass}
-        sizes={`${size.width}px`}
-      />
+      <span className="relative w-full h-full rounded-full bg-[#0D1F2C] border border-[#E7DCC4]/30 flex items-center justify-center overflow-hidden">
+        <Image
+          src="/logo.png"
+          alt={SITE_NAME}
+          width={36}
+          height={36}
+          priority={priority}
+          className="object-contain p-0.5"
+          onError={(e) => {
+            (e.target as HTMLElement).style.display = "none";
+          }}
+        />
+        <span className="font-serif font-bold text-xs text-[#F5A300] tracking-tighter">
+          DW
+        </span>
+      </span>
+      {/* Decorative stamp dot */}
+      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#BE3D1F] border border-[#F5A300]" />
     </span>
   );
 
   const content = showWordmark ? (
     <span className="inline-flex items-center gap-2.5 group">
       {mark}
-      <span
-        className={`leading-tight tracking-tight ${
-          isFooter
-            ? "text-white"
-            : "text-zinc-900 dark:text-zinc-100"
-        }`}
-      >
-        <span className="block font-bold text-sm md:text-[15px]">
+      <span className="leading-none tracking-tight">
+        <span className="block font-serif font-extrabold text-base md:text-lg text-white tracking-tight">
           DHAKA
         </span>
-        <span
-          className={`block text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.18em] ${
-            isFooter ? "text-red-400" : "text-danger"
-          }`}
-        >
-          Wholesale
+        <span className="block font-mono text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-[#F5A300] mt-0.5">
+          WHOLESALE
         </span>
       </span>
     </span>
@@ -105,7 +73,7 @@ export function SiteLogo({
   return (
     <Link
       href={href}
-      className="inline-flex items-center transition-transform duration-300 hover:scale-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 rounded-xl"
+      className="inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5A300] focus-visible:ring-offset-2 rounded-[3px]"
       aria-label={SITE_NAME}
     >
       {content}

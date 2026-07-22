@@ -8,7 +8,7 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "rounded-lg bg-zinc-200 dark:bg-zinc-700 animate-[shimmer_2s_ease-in-out_infinite] bg-[length:200%_100%] bg-gradient-to-r from-zinc-200 via-zinc-100 to-zinc-200 dark:from-zinc-700 dark:via-zinc-600 dark:to-zinc-700",
+        "rounded-[2px] bg-[#E7DCC4] animate-[shimmer_2s_ease-in-out_infinite] bg-[length:200%_100%] bg-gradient-to-r from-[#E7DCC4] via-[#FBF6EC] to-[#E7DCC4]",
         className
       )}
     />
@@ -18,7 +18,7 @@ export function Skeleton({ className }: SkeletonProps) {
 export function ProductCardSkeleton() {
   return (
     <div className="space-y-3">
-      <Skeleton className="aspect-square w-full rounded-xl" />
+      <Skeleton className="aspect-square w-full rounded-[3px]" />
       <Skeleton className="h-4 w-3/4" />
       <Skeleton className="h-4 w-1/2" />
       <Skeleton className="h-5 w-1/3" />
@@ -28,10 +28,10 @@ export function ProductCardSkeleton() {
 
 export function ProductDetailSkeleton() {
   return (
-    <div className="container py-8">
+    <div className="container py-8 bg-[#FBF6EC]">
       <Skeleton className="h-4 w-48 mb-8" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-        <Skeleton className="aspect-square w-full rounded-2xl" />
+        <Skeleton className="aspect-square w-full rounded-[3px]" />
         <div className="space-y-4">
           <Skeleton className="h-4 w-24" />
           <Skeleton className="h-10 w-3/4" />
@@ -43,11 +43,11 @@ export function ProductDetailSkeleton() {
             <Skeleton className="h-4 w-2/3" />
           </div>
           <div className="flex gap-2 pt-4">
-            <Skeleton className="h-10 w-16 rounded-xl" />
-            <Skeleton className="h-10 w-16 rounded-xl" />
-            <Skeleton className="h-10 w-16 rounded-xl" />
+            <Skeleton className="h-10 w-16 rounded-[3px]" />
+            <Skeleton className="h-10 w-16 rounded-[3px]" />
+            <Skeleton className="h-10 w-16 rounded-[3px]" />
           </div>
-          <Skeleton className="h-12 w-full rounded-xl" />
+          <Skeleton className="h-12 w-full rounded-[3px]" />
         </div>
       </div>
     </div>
