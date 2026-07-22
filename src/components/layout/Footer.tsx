@@ -1,12 +1,12 @@
 "use client";
 
-import { memo, useState } from "react";
+import { memo } from "react";
 import {
   Mail,
   Phone,
   MapPin,
-  ArrowRight,
   Heart,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useCategories } from "@/src/hooks/useApi";
@@ -14,90 +14,97 @@ import { SiteLogo } from "@/src/components/brand/SiteLogo";
 
 export const Footer = memo(function Footer() {
   const { data: categories = [] } = useCategories();
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setSubscribed(true);
-      setEmail("");
-    }
-  };
 
   return (
-    <footer className="bg-zinc-900 dark:bg-black text-zinc-300 dark:text-zinc-400">
-      {/* Newsletter Bar */}
-      <div className="border-b border-zinc-800">
-        <div className="container py-10 md:py-12">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <h3 className="text-white font-serif text-xl font-bold mb-1">Stay Updated</h3>
-              <p className="text-zinc-400 text-sm">Get the latest deals, new arrivals, and exclusive offers.</p>
-            </div>
-            {subscribed ? (
-              <p className="text-sm text-emerald-400 font-medium">Thanks for subscribing!</p>
-            ) : (
-              <form onSubmit={handleSubscribe} className="flex w-full md:w-auto">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="flex-1 md:w-72 bg-zinc-800 border border-zinc-700 rounded-l-lg px-4 py-2.5 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-zinc-600 transition-colors"
-                />
-                <button
-                  type="submit"
-                  className="bg-primary hover:bg-primary-light text-white px-5 py-2.5 rounded-r-lg text-sm font-medium transition-colors flex items-center gap-1.5 shrink-0"
-                >
-                  Subscribe <ArrowRight className="w-3.5 h-3.5" />
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Footer */}
+    <footer className="bg-[#132A3A] text-[#E7DCC4] border-t-2 border-[#E7DCC4]/30">
+      {/* Main Footer Content */}
       <div className="container py-12 md:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
-          <div className="lg:col-span-2">
-            <div className="mb-5">
+          {/* Column 1: Logo + About Text + Social Icons + Contact Info */}
+          <div className="lg:col-span-2 space-y-4">
+            <div>
               <SiteLogo variant="footer" showWordmark />
             </div>
-            <p className="text-zinc-400 dark:text-zinc-500 max-w-sm text-sm leading-relaxed mb-5">
-              Curating the finest products from around the world, delivered to
-              your doorstep. Quality you can see, feel, and trust.
+
+            <p className="text-xs sm:text-sm text-[#E7DCC4]/80 max-w-sm leading-relaxed font-sans">
+              Dhaka Wholesale is Bangladesh&apos;s trusted online store. Quality products, cash on delivery, and fast shipping nationwide.
             </p>
-            <div className="flex items-center gap-2 mb-5">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-primary flex items-center justify-center transition-colors" aria-label="Facebook">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+
+            {/* Contact Details */}
+            <div className="space-y-2 pt-2 font-mono text-xs">
+              <div className="flex items-center gap-2 text-[#E7DCC4]/90">
+                <Phone className="w-3.5 h-3.5 text-[#F5A300]" />
+                <span>+880 1302 228993</span>
+              </div>
+              <div className="flex items-center gap-2 text-[#E7DCC4]/90">
+                <Mail className="w-3.5 h-3.5 text-[#F5A300]" />
+                <span>atikrj8@gmail.com</span>
+              </div>
+              <div className="flex items-start gap-2 text-[#E7DCC4]/90">
+                <MapPin className="w-3.5 h-3.5 text-[#F5A300] mt-0.5 shrink-0" />
+                <span>Kuril, Koylabari, Tushar Villa, Dhaka, Bangladesh</span>
+              </div>
+            </div>
+
+            {/* Social Icons */}
+            <div className="flex items-center gap-2 pt-2">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] border border-[#E7DCC4]/30 hover:bg-[#F5A300] hover:text-[#132A3A] hover:border-[#D88900] flex items-center justify-center transition-colors text-white"
+                aria-label="Facebook"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                </svg>
               </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-danger flex items-center justify-center transition-colors" aria-label="Instagram">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] border border-[#E7DCC4]/30 hover:bg-[#BE3D1F] hover:text-white hover:border-red-900 flex items-center justify-center transition-colors text-white"
+                aria-label="Instagram"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
               </a>
-              <a href="mailto:atikrj8@gmail.com" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors">
+              <a
+                href="mailto:atikrj8@gmail.com"
+                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] border border-[#E7DCC4]/30 hover:bg-[#F5A300] hover:text-[#132A3A] flex items-center justify-center transition-colors text-white"
+                aria-label="Email"
+              >
                 <Mail className="w-4 h-4" />
               </a>
-              <a href="tel:01302228993" className="w-9 h-9 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center transition-colors">
+              <a
+                href="tel:01302228993"
+                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] border border-[#E7DCC4]/30 hover:bg-[#1F6F50] hover:text-white flex items-center justify-center transition-colors text-white"
+                aria-label="Phone Call"
+              >
                 <Phone className="w-4 h-4" />
               </a>
             </div>
-            <div className="flex items-start gap-2 text-xs text-zinc-500 dark:text-zinc-600">
-              <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
-              <span>Kuril, Koylabari, Tushar Villa, Dhaka</span>
-            </div>
           </div>
 
+          {/* Column 2: Shop Links */}
           <div>
-            <h4 className="text-white font-semibold text-sm mb-5">Shop</h4>
-            <ul className="space-y-2.5">
-              {categories.slice(0, 6).map((cat) => (
+            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-[#F5A300] inline-block" /> Shop
+            </h4>
+            <ul className="space-y-2.5 font-sans text-xs">
+              <li>
+                <Link href="/shop" className="text-[#E7DCC4]/80 hover:text-[#F5A300] transition-colors">
+                  Shop All Products
+                </Link>
+              </li>
+              {categories.slice(0, 5).map((cat) => (
                 <li key={cat.id}>
                   <Link
                     href={`/shop/${cat.slug}`}
-                    className="text-sm text-zinc-400 dark:text-zinc-500 hover:text-white transition-colors"
+                    className="text-[#E7DCC4]/80 hover:text-[#F5A300] transition-colors"
                   >
                     {cat.name}
                   </Link>
@@ -106,12 +113,15 @@ export const Footer = memo(function Footer() {
             </ul>
           </div>
 
+          {/* Column 3: Support Links */}
           <div>
-            <h4 className="text-white font-semibold text-sm mb-5">Support</h4>
-            <ul className="space-y-2.5">
+            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-[#BE3D1F] inline-block" /> Customer Care
+            </h4>
+            <ul className="space-y-2.5 font-sans text-xs">
               {[
-                { label: "Contact Us", href: "/contact" },
-                { label: "Shipping & Returns", href: "/shipping-returns" },
+                { label: "Contact Market Help", href: "/contact" },
+                { label: "Shipping & Returns Policy", href: "/shipping-returns" },
                 { label: "FAQ", href: "/faq" },
                 { label: "Size Guide", href: "/size-guide" },
                 { label: "Privacy Policy", href: "/privacy-policy" },
@@ -119,7 +129,7 @@ export const Footer = memo(function Footer() {
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-sm text-zinc-400 dark:text-zinc-500 hover:text-white transition-colors"
+                    className="text-[#E7DCC4]/80 hover:text-[#F5A300] transition-colors"
                   >
                     {label}
                   </Link>
@@ -128,20 +138,22 @@ export const Footer = memo(function Footer() {
             </ul>
           </div>
 
+          {/* Column 4: Company Links & Payment Method Tags */}
           <div>
-            <h4 className="text-white font-semibold text-sm mb-5">Company</h4>
-            <ul className="space-y-2.5">
+            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 flex items-center gap-1.5">
+              <span className="w-2 h-2 bg-[#1F6F50] inline-block" /> Company
+            </h4>
+            <ul className="space-y-2.5 font-sans text-xs mb-6">
               {[
-                { label: "About Us", href: "/about" },
-                { label: "FAQ", href: "/faq" },
+                { label: "About Dhaka Wholesale", href: "/about" },
+                { label: "Track Your Order", href: "/track-order" },
                 { label: "Contact Us", href: "/contact" },
                 { label: "Terms of Service", href: "/privacy-policy" },
-                { label: "Privacy Policy", href: "/privacy-policy" },
               ].map(({ label, href }) => (
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-sm text-zinc-400 dark:text-zinc-500 hover:text-white transition-colors"
+                    className="text-[#E7DCC4]/80 hover:text-[#F5A300] transition-colors"
                   >
                     {label}
                   </Link>
@@ -149,12 +161,15 @@ export const Footer = memo(function Footer() {
               ))}
             </ul>
 
-            <h4 className="text-white font-semibold text-sm mb-3 mt-6">Payment Methods</h4>
+            <h5 className="font-mono text-xs font-bold text-[#F5A300] uppercase tracking-wider mb-2.5 flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5" /> Accepted Payments
+            </h5>
+            {/* Small bordered mono labels for payment methods */}
             <div className="flex flex-wrap items-center gap-2">
               {["bKash", "Nagad", "COD", "Visa"].map((method) => (
                 <span
                   key={method}
-                  className="px-2.5 py-1 rounded-md bg-zinc-800 text-[11px] font-medium text-zinc-400 border border-zinc-700/50"
+                  className="font-mono text-[11px] font-bold px-2.5 py-1 bg-[#0D1F2C] text-[#E7DCC4] border border-[#E7DCC4]/40 rounded-[2px] shadow-sm uppercase tracking-wider"
                 >
                   {method}
                 </span>
@@ -164,14 +179,14 @@ export const Footer = memo(function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
-      <div className="border-t border-zinc-800">
-        <div className="container py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-zinc-500 dark:text-zinc-600">
-            &copy; {new Date().getFullYear()} Dhaka Wholesale. All rights reserved.
+      {/* Bottom Row: Darker Navy base with Copyright & Payment Method tags note */}
+      <div className="bg-[#0D1F2C] border-t border-[#E7DCC4]/20 py-5 text-xs font-mono text-[#E7DCC4]/70">
+        <div className="container flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+          <p>
+            &copy; {new Date().getFullYear()} DHAKADROP. ALL RIGHTS RESERVED.
           </p>
-          <div className="flex items-center gap-1.5 text-xs text-zinc-500 dark:text-zinc-600">
-            Made with <Heart className="w-3 h-3 text-danger" /> in Bangladesh
+          <div className="flex items-center gap-1.5 text-[#E7DCC4]">
+            TRUSTED ONLINE STORE <Heart className="w-3 h-3 text-[#BE3D1F]" /> IN BANGLADESH
           </div>
         </div>
       </div>

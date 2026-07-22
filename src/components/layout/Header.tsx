@@ -14,6 +14,9 @@ import {
   LogOut,
   X,
   Phone,
+  Truck,
+  ShieldCheck,
+  Package,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -121,47 +124,50 @@ export const Header = memo(function Header() {
     <AnimatePresence>
       {searchOpen && (
         <motion.div
-          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+          initial={{ opacity: 0, y: 8, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 8, scale: 0.95 }}
-          className="absolute top-full right-0 mt-2 w-[calc(100vw-2rem)] sm:w-96 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 overflow-hidden z-50"
+          exit={{ opacity: 0, y: 8, scale: 0.98 }}
+          className="absolute top-full right-0 mt-2 w-72 sm:w-96 max-w-[calc(100vw-2rem)] bg-[#FBF6EC] rounded-[3px] shadow-2xl border border-[#E7DCC4] overflow-hidden z-50 text-[#1C1A17]"
         >
           {searchLoading && (
-            <div className="px-4 py-3 text-sm text-zinc-400 dark:text-zinc-500">Searching...</div>
+            <div className="px-4 py-3 text-xs font-mono text-[#132A3A]/70">SEARCHING...</div>
           )}
           {!searchLoading && searchResults.length > 0 && (
             <div className="py-1">
+              <div className="px-3 py-1.5 bg-[#132A3A] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider">
+                Matching Items ({searchResults.length})
+              </div>
               {searchResults.map((product) => (
                 <Link
                   key={product.id}
                   href={`/product/${product.slug}`}
                   onClick={handleResultClick}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 border-b border-[#E7DCC4]/50 hover:bg-[#F5A300]/10 transition-colors"
                 >
                   <img
                     src={safeImage(product.images)}
                     alt={product.name}
-                    className="w-10 h-10 rounded-lg object-cover bg-zinc-100 dark:bg-zinc-700"
+                    className="w-10 h-10 rounded-[2px] object-cover bg-white border border-[#E7DCC4]"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">{product.name}</p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{formatPrice(product.price)}</p>
+                    <p className="text-xs font-bold text-[#132A3A] truncate">{product.name}</p>
+                    <p className="text-xs font-mono font-bold text-[#1F6F50]">{formatPrice(product.price)}</p>
                   </div>
                 </Link>
               ))}
               {searchTotal > 6 && (
                 <button
                   onClick={handleSearchSubmit}
-                  className="w-full px-4 py-2.5 text-sm text-primary dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors border-t border-zinc-100 dark:border-zinc-700"
+                  className="w-full px-4 py-2.5 text-xs font-mono font-bold text-[#132A3A] bg-[#E7DCC4]/40 hover:bg-[#F5A300] hover:text-[#132A3A] transition-colors border-t border-[#E7DCC4]"
                 >
-                  View all {searchTotal} results
+                  VIEW ALL {searchTotal} RESULTS &rarr;
                 </button>
               )}
             </div>
           )}
           {!searchLoading && searchQuery.trim() && searchResults.length === 0 && (
             <div className="px-4 py-6 text-center">
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">No products found</p>
+              <p className="text-xs font-mono text-[#1C1A17]/60">NO MATCHES FOUND FOR &quot;{searchQuery}&quot;</p>
             </div>
           )}
         </motion.div>
@@ -171,40 +177,54 @@ export const Header = memo(function Header() {
 
   return (
     <>
-      {/* Announcement Bar */}
-      <div className="bg-primary text-white text-xs py-2 hidden md:block">
+      {/* 1. Dark mono-font announcement bar on top */}
+      <div className="bg-[#0D1F2C] text-[#E7DCC4] text-[11px] font-mono py-2 border-b border-[#E7DCC4]/20 hidden md:block">
         <div className="container flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-5">
+            <span className="flex items-center gap-1.5 text-[#F5A300] font-bold">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              COD AVAILABLE NATIONWIDE
+            </span>
+            <span className="text-[#E7DCC4]/30">|</span>
             <span className="flex items-center gap-1.5">
-              <Phone className="w-3 h-3" />
+              <Truck className="w-3.5 h-3.5 text-[#F5A300]" />
+              FREE DELIVERY ON ORDERS &gt; ৳1,000
+            </span>
+            <span className="text-[#E7DCC4]/30">|</span>
+            <span className="flex items-center gap-1.5">
+              <Phone className="w-3.5 h-3.5 text-[#F5A300]" />
               01302228993
             </span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/track-order" className="hover:text-white/80 transition-colors">Track Order</Link>
-            <span className="text-white/40">|</span>
-            <Link href="/contact" className="hover:text-white/80 transition-colors">Help Center</Link>
+          <div className="flex items-center gap-4 text-[11px]">
+            <Link href="/track-order" className="hover:text-[#F5A300] transition-colors flex items-center gap-1">
+              <Package className="w-3 h-3 text-[#F5A300]" /> Track Order
+            </Link>
+            <span className="text-[#E7DCC4]/30">|</span>
+            <Link href="/contact" className="hover:text-[#F5A300] transition-colors">
+              Help Center
+            </Link>
           </div>
         </div>
       </div>
 
-      {/* Main Header */}
+      {/* 2. Navy header with circular rotated logo mark, marigold underline on nav hover, pill-shaped account button in marigold */}
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-white dark:bg-zinc-900 shadow-sm border-b border-zinc-100 dark:border-zinc-800"
-            : "bg-white dark:bg-zinc-900"
+        className={`sticky top-0 z-50 bg-[#132A3A] transition-all duration-200 border-b border-[#E7DCC4]/20 ${
+          scrolled ? "shadow-xl py-0.5" : ""
         }`}
       >
-        <div className="container flex items-center justify-between h-14 md:h-16">
-          <div className="relative z-10">
+        <div className="container flex items-center justify-between h-16 md:h-20">
+          {/* Logo */}
+          <div className="relative z-10 shrink-0">
             <SiteLogo variant="header" priority showWordmark />
           </div>
 
-          <nav className="hidden md:flex items-center gap-7">
+          {/* Nav links with marigold underline on hover */}
+          <nav className="hidden lg:flex items-center gap-7">
             <Link
               href="/shop"
-              className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+              className="relative py-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >
               Shop All
             </Link>
@@ -213,26 +233,32 @@ export const Header = memo(function Header() {
               onMouseEnter={() => setCategoryOpen(true)}
               onMouseLeave={() => setCategoryOpen(false)}
             >
-              <button className="flex items-center gap-1 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
-                Categories <ChevronDown className="w-3.5 h-3.5" />
+              <button className="relative py-1 flex items-center gap-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left">
+                Categories <ChevronDown className="w-3.5 h-3.5 text-[#F5A300]" />
               </button>
               <AnimatePresence>
                 {categoryOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
+                    exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-2"
+                    className="absolute top-full left-0 mt-2 w-60 bg-[#FBF6EC] rounded-[3px] shadow-2xl border border-[#E7DCC4] py-2 text-[#1C1A17]"
                   >
+                    <div className="px-4 py-1.5 bg-[#132A3A] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider mb-1">
+                      Market Categories
+                    </div>
                     {categories.map((cat) => (
                       <Link
                         key={cat.id}
                         href={`/shop/${cat.slug}`}
-                        className="block px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+                        className="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-[#132A3A] hover:bg-[#F5A300]/15 hover:text-[#D88900] transition-colors border-b border-[#E7DCC4]/40 last:border-0"
                         onClick={() => setCategoryOpen(false)}
                       >
-                        {cat.name}
+                        <span>{cat.name}</span>
+                        <span className="font-mono text-[10px] bg-[#132A3A] text-[#E7DCC4] px-1.5 py-0.5 rounded-[2px]">
+                          {cat.productCount}
+                        </span>
                       </Link>
                     ))}
                   </motion.div>
@@ -241,22 +267,30 @@ export const Header = memo(function Header() {
             </div>
             <Link
               href="/shop?sort=newest"
-              className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+              className="relative py-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >
               New Arrivals
             </Link>
             <Link
               href="/shop?sort=popular"
-              className="text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+              className="relative py-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >
               Best Sellers
             </Link>
+            <Link
+              href="/contact"
+              className="relative py-1 text-sm font-semibold text-[#F5A300] hover:text-white transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+            >
+              Contact Us
+            </Link>
           </nav>
 
-          <div className="flex items-center gap-1 md:gap-1.5">
-            <div ref={searchRef} className="relative hidden sm:block">
-              <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2 w-52 lg:w-64 transition-colors focus-within:ring-2 focus-within:ring-primary/20 focus-within:bg-white dark:focus-within:bg-zinc-700">
-                <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
+          {/* Right Action Icons & Pill-shaped Account Button */}
+          <div className="flex items-center gap-2 md:gap-3">
+            {/* Search Box */}
+            <div ref={searchRef} className="relative hidden md:block">
+              <div className="flex items-center gap-2 bg-[#0D1F2C] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-1.5 w-48 lg:w-60 focus-within:border-[#F5A300] transition-colors">
+                <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
                 <input
                   ref={searchInputRef}
                   type="text"
@@ -271,7 +305,7 @@ export const Header = memo(function Header() {
                     if (e.key === "Escape") setSearchOpen(false);
                   }}
                   placeholder="Search products..."
-                  className="flex-1 bg-transparent text-sm outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
+                  className="flex-1 bg-transparent text-xs font-mono outline-none text-white placeholder:text-[#E7DCC4]/50"
                 />
                 {searchQuery && (
                   <button
@@ -280,84 +314,103 @@ export const Header = memo(function Header() {
                       setSearchResults([]);
                       searchInputRef.current?.focus();
                     }}
-                    className="shrink-0 p-0.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+                    className="shrink-0 p-0.5 hover:text-[#F5A300] text-[#E7DCC4]"
                   >
-                    <X className="w-3.5 h-3.5 text-zinc-400" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
               {renderSearchDropdown()}
             </div>
+
             <button
               onClick={() => setMobileSearchOpen(true)}
-              className="sm:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="md:hidden p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
+              aria-label="Search"
             >
-              <Search className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+              <Search className="w-5 h-5" />
             </button>
 
             <button
               onClick={toggleTheme}
               suppressHydrationWarning
-              className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? (
-                <Sun className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+                <Sun className="w-5 h-5" />
               ) : (
-                <Moon className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+                <Moon className="w-5 h-5" />
               )}
             </button>
 
             <Link
               href="/wishlist"
-              className="hidden sm:flex p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors relative"
+              className="hidden md:block p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative"
+              aria-label="Wishlist"
             >
-              <Heart className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+              <Heart className="w-5 h-5" />
             </Link>
 
-            <div ref={userMenuRef} className="relative hidden sm:block">
+            {/* Cart Button */}
+            <Link
+              href="/cart"
+              className="p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative flex items-center gap-1 bg-[#0D1F2C] border border-[#E7DCC4]/30 rounded-[3px] px-2.5 py-1.5"
+              aria-label="Shopping Cart"
+            >
+              <ShoppingBag className="w-4 h-4 text-[#F5A300]" />
+              <span className="font-mono text-xs font-bold text-white hidden md:inline">Cart</span>
+              {cartHydrated && totalItems > 0 && (
+                <span className="w-4 h-4 flex items-center justify-center bg-[#BE3D1F] text-white font-mono text-[10px] font-bold rounded-full border border-white">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
+
+            {/* Pill-shaped Account Button in Marigold */}
+            <div ref={userMenuRef} className="relative">
               {authHydrated && isLoggedIn ? (
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-1.5 p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="inline-flex items-center gap-1.5 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#D88900] shadow-sm transition-transform active:scale-95"
                 >
-                  <div className="w-6 h-6 rounded-full bg-primary dark:bg-primary flex items-center justify-center">
-                    <span className="text-[10px] font-bold text-white">
-                      {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                    </span>
-                  </div>
+                  <User className="w-3.5 h-3.5" />
+                  <span className="max-w-[80px] truncate">{user?.name?.split(" ")[0] || "Account"}</span>
+                  <ChevronDown className="w-3 h-3" />
                 </button>
               ) : authHydrated ? (
                 <Link
                   href="/login"
-                  className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="inline-flex items-center gap-1.5 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#D88900] shadow-sm transition-transform active:scale-95"
                 >
-                  <User className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+                  <User className="w-3.5 h-3.5" />
+                  <span>Account</span>
                 </Link>
               ) : null}
+
               <AnimatePresence>
                 {userMenuOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 6, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute top-full right-0 mt-2 w-56 bg-white dark:bg-zinc-800 rounded-xl shadow-xl border border-zinc-200 dark:border-zinc-700 py-2 z-50"
+                    className="absolute top-full right-0 mt-2 w-56 bg-[#FBF6EC] rounded-[3px] shadow-2xl border border-[#E7DCC4] py-2 z-50 text-[#1C1A17]"
                   >
-                    <div className="px-4 py-2 border-b border-zinc-100 dark:border-zinc-700">
-                      <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">
+                    <div className="px-4 py-2 border-b border-[#E7DCC4] bg-[#132A3A] text-white">
+                      <p className="text-xs font-bold truncate text-[#F5A300]">
                         {user?.name}
                       </p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                      <p className="text-[10px] font-mono text-[#E7DCC4]/70 truncate">
                         {user?.email}
                       </p>
                     </div>
                     <Link
                       href="/account"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#132A3A] hover:bg-[#F5A300]/15 transition-colors border-b border-[#E7DCC4]/40"
                     >
-                      <User className="w-4 h-4" />
+                      <User className="w-4 h-4 text-[#F5A300]" />
                       My Account
                     </Link>
                     <button
@@ -366,7 +419,7 @@ export const Header = memo(function Header() {
                         logout();
                         router.push("/");
                       }}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+                      className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-bold text-[#BE3D1F] hover:bg-[#BE3D1F]/10 transition-colors"
                     >
                       <LogOut className="w-4 h-4" />
                       Sign Out
@@ -376,41 +429,32 @@ export const Header = memo(function Header() {
               </AnimatePresence>
             </div>
 
-            <Link
-              href="/cart"
-              className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors relative"
-            >
-              <ShoppingBag className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
-              {cartHydrated && totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 flex items-center justify-center bg-danger text-white text-[10px] font-bold rounded-full shadow-sm">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-
+            {/* Mobile Menu Toggle — tablets only (768px–1024px), phones use bottom nav */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="md:hidden p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              className="hidden md:flex lg:hidden p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
+              aria-label="Open mobile menu"
             >
-              <Menu className="w-5 h-5 text-zinc-500 dark:text-zinc-400" />
+              <Menu className="w-6 h-6" />
             </button>
           </div>
         </div>
       </header>
 
-      <MobileNav open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+      <MobileNav open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} onSearchOpen={() => setMobileSearchOpen(true)} />
 
+      {/* Mobile Search Modal */}
       <AnimatePresence>
         {mobileSearchOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-white dark:bg-zinc-900 sm:hidden"
+            className="fixed inset-0 z-[60] bg-[#132A3A] text-white md:hidden"
           >
-            <div className="flex items-center gap-2 px-4 pt-3 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-              <div className="flex items-center gap-2 flex-1 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2">
-                <Search className="w-4 h-4 text-zinc-400 dark:text-zinc-500 shrink-0" />
+            <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-[#E7DCC4]/20">
+              <div className="flex items-center gap-2 flex-1 bg-[#0D1F2C] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-2">
+                <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
                 <input
                   ref={mobileSearchInputRef}
                   type="text"
@@ -421,7 +465,7 @@ export const Header = memo(function Header() {
                     if (e.key === "Escape") setMobileSearchOpen(false);
                   }}
                   placeholder="Search products..."
-                  className="flex-1 bg-transparent text-sm outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
+                  className="flex-1 bg-transparent text-xs font-mono outline-none text-white placeholder:text-[#E7DCC4]/50"
                 />
                 {searchQuery && (
                   <button
@@ -430,9 +474,9 @@ export const Header = memo(function Header() {
                       setSearchResults([]);
                       mobileSearchInputRef.current?.focus();
                     }}
-                    className="shrink-0 p-0.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-colors"
+                    className="shrink-0 p-0.5 text-[#E7DCC4]"
                   >
-                    <X className="w-3.5 h-3.5 text-zinc-400" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -442,48 +486,46 @@ export const Header = memo(function Header() {
                   setSearchQuery("");
                   setSearchResults([]);
                 }}
-                className="text-sm font-medium text-zinc-500 dark:text-zinc-400 shrink-0"
+                className="text-xs font-mono font-bold text-[#F5A300] shrink-0 px-2"
               >
-                Cancel
+                CLOSE
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(100vh-60px)]">
+            <div className="overflow-y-auto max-h-[calc(100vh-70px)] bg-[#FBF6EC] text-[#1C1A17]">
               {searchLoading && (
-                <div className="px-4 py-3 text-sm text-zinc-400 dark:text-zinc-500">Searching...</div>
+                <div className="px-4 py-4 text-xs font-mono text-[#132A3A]">Searching...</div>
               )}
               {!searchLoading && searchResults.length > 0 && (
-                <div className="py-1">
+                <div>
+                  <div className="px-4 py-2 bg-[#132A3A] text-[#F5A300] font-mono text-xs font-bold">
+                    Results ({searchResults.length})
+                  </div>
                   {searchResults.map((product) => (
                     <Link
                       key={product.id}
                       href={`/product/${product.slug}`}
                       onClick={handleResultClick}
-                      className="flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 border-b border-[#E7DCC4] hover:bg-[#F5A300]/10"
                     >
                       <img
                         src={safeImage(product.images)}
                         alt={product.name}
-                        className="w-12 h-12 rounded-lg object-cover bg-zinc-100 dark:bg-zinc-700"
+                        className="w-12 h-12 rounded-[2px] object-cover bg-white border border-[#E7DCC4]"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 truncate">{product.name}</p>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">{formatPrice(product.price)}</p>
+                        <p className="text-sm font-bold text-[#132A3A] truncate">{product.name}</p>
+                        <p className="text-xs font-mono font-bold text-[#1F6F50]">{formatPrice(product.price)}</p>
                       </div>
                     </Link>
                   ))}
                   {searchTotal > 6 && (
                     <button
                       onClick={handleSearchSubmit}
-                      className="w-full px-4 py-3 text-sm text-primary dark:text-primary-light font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors border-t border-zinc-100 dark:border-zinc-800"
+                      className="w-full px-4 py-3 text-xs font-mono font-bold text-[#132A3A] bg-[#E7DCC4]/50 border-t border-[#E7DCC4]"
                     >
-                      View all {searchTotal} results
+                      VIEW ALL {searchTotal} RESULTS &rarr;
                     </button>
                   )}
-                </div>
-              )}
-              {!searchLoading && searchQuery.trim() && searchResults.length === 0 && (
-                <div className="px-4 py-10 text-center">
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">No products found</p>
                 </div>
               )}
             </div>

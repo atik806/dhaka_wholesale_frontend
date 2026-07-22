@@ -1,9 +1,23 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Heart, Sun, Moon, User, LogOut, Home, ShoppingBag, Grid3X3 } from "lucide-react";
+import {
+  X,
+  Heart,
+  Sun,
+  Moon,
+  User,
+  LogOut,
+  Home,
+  ShoppingBag,
+  Grid3X3,
+  Search,
+  Sparkles,
+  TrendingUp,
+  Phone,
+} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useRef, useEffect } from "react";
 import { useCategories } from "@/src/hooks/useApi";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
@@ -14,9 +28,19 @@ import { useCartStore, useCartHydrated } from "@/src/store/useCartStore";
 interface MobileNavProps {
   open: boolean;
   onClose: () => void;
+  onSearchOpen: () => void;
 }
 
-export function MobileNav({ open, onClose }: MobileNavProps) {
+const navItems = [
+  { href: "/", icon: Home, label: "Home" },
+  { href: "/shop", icon: Grid3X3, label: "Shop" },
+  { href: "/cart", icon: ShoppingBag, label: "Cart", isCart: true },
+  { href: "/wishlist", icon: Heart, label: "Wishlist", isWishlist: true },
+  { href: "/account", icon: User, label: "Account", isAccount: true },
+];
+
+export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
+  const pathname = usePathname();
   const { data: categories = [] } = useCategories();
   const navRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
@@ -28,6 +52,12 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
   const cartHydrated = useCartHydrated();
   const cartItems = useCartStore((s) => s.items);
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const wishlistIds = useCartStore((s) => s.wishlistIds);
+
+  const isActive = (href: string) => {
+    if (href === "/") return pathname === "/";
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -58,37 +88,86 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
 
   return (
     <>
-      {/* Bottom Navigation Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 safe-area-bottom">
+      {/* Bottom Navigation Bar — phones only (< 768px) */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#132A3A] border-t border-[#E7DCC4]/20"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        aria-label="Mobile navigation"
+      >
         <div className="flex items-center justify-around h-14">
-          <Link href="/" className="flex flex-col items-center gap-0.5 text-zinc-500 dark:text-zinc-400 hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors min-w-[48px]">
-            <Home className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Home</span>
-          </Link>
-          <Link href="/shop" className="flex flex-col items-center gap-0.5 text-zinc-500 dark:text-zinc-400 hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors min-w-[48px]">
-            <Grid3X3 className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Shop</span>
-          </Link>
-          <Link href="/cart" className="flex flex-col items-center gap-0.5 text-zinc-500 dark:text-zinc-400 hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors min-w-[48px] relative">
-            <ShoppingBag className="w-5 h-5" />
-            {cartHydrated && totalItems > 0 && (
-              <span className="absolute -top-0.5 right-1 w-4 h-4 flex items-center justify-center bg-[#e31c23] text-white text-[9px] font-bold rounded-full">
-                {totalItems}
-              </span>
-            )}
-            <span className="text-[10px] font-medium">Cart</span>
-          </Link>
-          <Link href="/wishlist" className="flex flex-col items-center gap-0.5 text-zinc-500 dark:text-zinc-400 hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors min-w-[48px]">
-            <Heart className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Wishlist</span>
-          </Link>
-          <Link href={isLoggedIn ? "/account" : "/login"} className="flex flex-col items-center gap-0.5 text-zinc-500 dark:text-zinc-400 hover:text-[#0b2c5f] dark:hover:text-primary-light transition-colors min-w-[48px]">
-            <User className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Account</span>
-          </Link>
+          {navItems.map((item) => {
+            const active = item.isAccount
+              ? (item.href === "/account" && (pathname === "/account" || pathname.startsWith("/account/"))) ||
+                (item.href === "/login" && pathname === "/login")
+              : isActive(item.href);
+            const href = item.isAccount && isLoggedIn ? "/account" : item.isAccount ? "/login" : item.href;
+
+            if (item.isCart) {
+              return (
+                <Link
+                  key={item.label}
+                  href={href}
+                  className={`flex flex-col items-center gap-0.5 transition-colors min-w-[48px] relative ${
+                    active ? "text-[#F5A300]" : "text-[#E7DCC4]/60 hover:text-[#F5A300]"
+                  }`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <motion.div whileTap={{ scale: 0.85 }} className="relative">
+                    <item.icon className="w-5 h-5" />
+                    {cartHydrated && totalItems > 0 && (
+                      <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 flex items-center justify-center bg-[#BE3D1F] text-white text-[9px] font-mono font-bold rounded-full px-0.5">
+                        {totalItems}
+                      </span>
+                    )}
+                  </motion.div>
+                  <span className="text-[10px] font-medium font-mono">{item.label}</span>
+                </Link>
+              );
+            }
+
+            if (item.isWishlist) {
+              return (
+                <Link
+                  key={item.label}
+                  href={href}
+                  className={`flex flex-col items-center gap-0.5 transition-colors min-w-[48px] relative ${
+                    active ? "text-[#F5A300]" : "text-[#E7DCC4]/60 hover:text-[#F5A300]"
+                  }`}
+                  aria-current={active ? "page" : undefined}
+                >
+                  <motion.div whileTap={{ scale: 0.85 }} className="relative">
+                    <item.icon className="w-5 h-5" />
+                    {wishlistIds.length > 0 && (
+                      <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 flex items-center justify-center bg-[#BE3D1F] text-white text-[9px] font-mono font-bold rounded-full px-0.5">
+                        {wishlistIds.length}
+                      </span>
+                    )}
+                  </motion.div>
+                  <span className="text-[10px] font-medium font-mono">{item.label}</span>
+                </Link>
+              );
+            }
+
+            return (
+              <Link
+                key={item.label}
+                href={href}
+                className={`flex flex-col items-center gap-0.5 transition-colors min-w-[48px] ${
+                  active ? "text-[#F5A300]" : "text-[#E7DCC4]/60 hover:text-[#F5A300]"
+                }`}
+                aria-current={active ? "page" : undefined}
+              >
+                <motion.div whileTap={{ scale: 0.85 }}>
+                  <item.icon className="w-5 h-5" />
+                </motion.div>
+                <span className="text-[10px] font-medium font-mono">{item.label}</span>
+              </Link>
+            );
+          })}
         </div>
       </nav>
 
+      {/* Slide-out Menu — triggered by hamburger on tablets (768px–1024px) and also accessible on phones */}
       <AnimatePresence>
         {open && (
           <>
@@ -108,34 +187,30 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-white dark:bg-zinc-900 z-[70] shadow-2xl"
+              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-[#FBF6EC] z-[70] shadow-2xl"
             >
-              <div className="flex items-center justify-between p-4 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex items-center justify-between p-4 border-b border-[#E7DCC4] bg-[#132A3A]">
                 <SiteLogo variant="mobile" href={null} showWordmark />
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                  className="p-2 rounded-[2px] hover:bg-[#0D1F2C] transition-colors text-[#E7DCC4] hover:text-[#F5A300]"
+                  aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
               <div className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-70px)]">
-                <Link
-                  href="/"
-                  onClick={onClose}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                {/* Quick Search */}
+                <button
+                  onClick={() => { onClose(); onSearchOpen(); }}
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] bg-[#E7DCC4]/40 hover:bg-[#F5A300]/20 transition-colors"
                 >
-                  <Home className="w-4 h-4 text-zinc-400" /> Home
-                </Link>
-                <Link
-                  href="/shop"
-                  onClick={onClose}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  <Grid3X3 className="w-4 h-4 text-zinc-400" /> Shop All
-                </Link>
+                  <Search className="w-4 h-4 text-[#F5A300]" /> Search Products...
+                </button>
+
+                {/* Categories */}
                 <div className="pt-3 pb-1">
-                  <p className="px-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-1">
+                  <p className="px-4 text-[11px] font-mono font-bold uppercase tracking-wider text-[#BE3D1F] mb-1">
                     Categories
                   </p>
                   {categories.map((cat) => (
@@ -143,54 +218,69 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                       key={cat.id}
                       href={`/shop/${cat.slug}`}
                       onClick={onClose}
-                      className="block px-4 py-2.5 rounded-lg text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                      className={`block px-4 py-2.5 rounded-[2px] text-sm font-sans transition-colors ${
+                        pathname === `/shop/${cat.slug}`
+                          ? "text-[#D88900] bg-[#F5A300]/15 font-bold"
+                          : "text-[#1C1A17]/80 hover:text-[#D88900] hover:bg-[#F5A300]/10"
+                      }`}
                     >
                       {cat.name}
                     </Link>
                   ))}
                 </div>
-                <hr className="my-3 border-zinc-100 dark:border-zinc-800" />
+
+                <hr className="my-3 border-[#E7DCC4]" />
+
+                {/* Quick Links — secondary nav not in bottom bar */}
                 <Link
                   href="/shop?sort=newest"
                   onClick={onClose}
-                  className="block px-4 py-3 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  className={`flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans transition-colors ${
+                    pathname === "/shop" && pathname.includes("newest")
+                      ? "text-[#D88900] bg-[#F5A300]/15"
+                      : "text-[#132A3A] hover:bg-[#F5A300]/10 hover:text-[#D88900]"
+                  }`}
                 >
-                  New Arrivals
+                  <Sparkles className="w-4 h-4 text-[#F5A300]" /> New Arrivals
                 </Link>
                 <Link
                   href="/shop?sort=popular"
                   onClick={onClose}
-                  className="block px-4 py-3 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors"
                 >
-                  Best Sellers
+                  <TrendingUp className="w-4 h-4 text-[#F5A300]" /> Best Sellers
                 </Link>
                 <Link
-                  href="/wishlist"
+                  href="/contact"
                   onClick={onClose}
-                  className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#F5A300] hover:bg-[#F5A300]/10 transition-colors"
                 >
-                  <Heart className="w-4 h-4 text-zinc-400" /> Wishlist
+                  <Phone className="w-4 h-4" /> Contact Us
                 </Link>
+
+                <hr className="my-3 border-[#E7DCC4]" />
+
+                {/* Account Section */}
                 {authHydrated && (
                   isLoggedIn ? (
                     <div className="pt-2 pb-1">
-                      <p className="px-4 text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 mb-1">
+                      <p className="px-4 text-[11px] font-mono font-bold uppercase tracking-wider text-[#132A3A]/60 mb-1">
                         Account
                       </p>
-                      <div className="px-4 py-2 mb-1">
-                        <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{user?.name}</p>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">{user?.email}</p>
+                      <div className="px-4 py-2 mb-1 bg-[#132A3A] rounded-[2px]">
+                        <p className="text-sm font-bold text-[#F5A300] font-sans">{user?.name}</p>
+                        <p className="text-xs text-[#E7DCC4]/70 font-mono">{user?.email}</p>
                       </div>
                       <Link
                         href="/account"
                         onClick={onClose}
-                        className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 rounded-[2px] text-sm font-sans text-[#132A3A] hover:bg-[#F5A300]/10 transition-colors"
                       >
-                        <User className="w-4 h-4" /> My Account
+                        <User className="w-4 h-4 text-[#F5A300]" /> My Account
                       </Link>
                       <button
                         onClick={() => { logout(); onClose(); router.push("/"); }}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 rounded-lg text-sm text-red-600 dark:text-red-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center gap-3 w-full px-4 py-2.5 rounded-[2px] text-sm font-sans text-[#BE3D1F] hover:bg-[#BE3D1F]/10 transition-colors"
                       >
                         <LogOut className="w-4 h-4" /> Sign Out
                       </button>
@@ -199,21 +289,24 @@ export function MobileNav({ open, onClose }: MobileNavProps) {
                     <Link
                       href="/login"
                       onClick={onClose}
-                      className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors"
                     >
-                      <User className="w-4 h-4" /> Sign In / Register
+                      <User className="w-4 h-4 text-[#F5A300]" /> Sign In / Register
                     </Link>
                   )
                 )}
-                <hr className="my-3 border-zinc-100 dark:border-zinc-800" />
+
+                <hr className="my-3 border-[#E7DCC4]" />
+
+                {/* Theme Toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors min-h-[44px]"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors min-h-[44px]"
                 >
                   {theme === "dark" ? (
-                    <Sun className="w-4 h-4" />
+                    <Sun className="w-4 h-4 text-[#F5A300]" />
                   ) : (
-                    <Moon className="w-4 h-4" />
+                    <Moon className="w-4 h-4 text-[#F5A300]" />
                   )}
                   {theme === "dark" ? "Light Mode" : "Dark Mode"}
                 </button>
