@@ -1,37 +1,40 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Ruler } from "lucide-react";
+import { Ruler, BookOpen } from "lucide-react";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 
 const sizeTables = [
   {
     category: "Clothing",
-    sizes: [
-      { size: "XS", chest: "31-33", waist: "26-28", hip: "33-35" },
-      { size: "S", chest: "34-36", waist: "29-31", hip: "36-38" },
-      { size: "M", chest: "37-39", waist: "32-34", hip: "39-41" },
-      { size: "L", chest: "40-42", waist: "35-37", hip: "42-44" },
-      { size: "XL", chest: "43-45", waist: "38-40", hip: "45-47" },
-      { size: "XXL", chest: "46-48", waist: "41-43", hip: "48-50" },
+    headers: ["Size", "Chest", "Waist", "Hip"],
+    rows: [
+      ["XS", "31-33", "26-28", "33-35"],
+      ["S", "34-36", "29-31", "36-38"],
+      ["M", "37-39", "32-34", "39-41"],
+      ["L", "40-42", "35-37", "42-44"],
+      ["XL", "43-45", "38-40", "45-47"],
+      ["XXL", "46-48", "41-43", "48-50"],
     ],
   },
   {
     category: "Shoes",
-    sizes: [
-      { size: "US 6", chest: "UK 5.5", waist: "EU 39", hip: "9.4\"" },
-      { size: "US 7", chest: "UK 6.5", waist: "EU 40", hip: "9.8\"" },
-      { size: "US 8", chest: "UK 7.5", waist: "EU 41", hip: "10.2\"" },
-      { size: "US 9", chest: "UK 8.5", waist: "EU 42", hip: "10.6\"" },
-      { size: "US 10", chest: "UK 9.5", waist: "EU 43", hip: "11\"" },
-      { size: "US 11", chest: "UK 10.5", waist: "EU 44", hip: "11.4\"" },
+    headers: ["Size", "UK", "EU", "Foot Length"],
+    rows: [
+      ["US 6", "5.5", "39", "9.4\""],
+      ["US 7", "6.5", "40", "9.8\""],
+      ["US 8", "7.5", "41", "10.2\""],
+      ["US 9", "8.5", "42", "10.6\""],
+      ["US 10", "9.5", "43", "11\""],
+      ["US 11", "10.5", "44", "11.4\""],
     ],
   },
   {
     category: "Accessories (One Size)",
-    sizes: [
-      { size: "Standard", chest: "Adjustable", waist: "Fits most", hip: "" },
-      { size: "Extended", chest: "Larger fit", waist: "Fits plus size", hip: "" },
+    headers: ["Size", "Fit", "Adjustable"],
+    rows: [
+      ["Standard", "Fits most", "Yes"],
+      ["Extended", "Larger fit", "Yes"],
     ],
   },
 ];
@@ -42,75 +45,83 @@ export default function SizeGuidePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container py-8"
+      className="bg-[#FBF6EC]"
     >
-      <Breadcrumbs items={[{ label: "Size Guide" }]} />
-
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
-            <Ruler className="w-7 h-7 text-primary dark:text-primary-light" />
+      {/* Page Hero Header */}
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-12 md:py-16">
+        <div className="container">
+          <Breadcrumbs items={[{ label: "Size Guide" }]} />
+          <div className="max-w-2xl mt-4">
+            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
+              <Ruler className="w-3.5 h-3.5" /> SIZE GUIDE
+            </div>
+            <h1 className="font-serif text-3xl md:text-5xl font-extrabold mb-3">
+              Size Guide
+            </h1>
+            <p className="text-[#E7DCC4]/90 text-sm sm:text-base font-sans">
+              Find your perfect fit with our detailed size charts. Measurements are in inches unless noted.
+            </p>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-3">Size Guide</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm max-w-lg mx-auto">
-            Find your perfect fit with our detailed size charts. Measurements are in inches unless noted.
-          </p>
         </div>
+      </div>
 
-        <div className="space-y-10">
-          {sizeTables.map((table, i) => (
-            <motion.div
-              key={table.category}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.15 }}
-            >
-              <h2 className="font-semibold text-lg mb-4">{table.category}</h2>
-              <div className="overflow-x-auto rounded-2xl border border-zinc-200 dark:border-zinc-700">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-zinc-50 dark:bg-zinc-800/50">
-                      {Object.keys(table.sizes[0]).map((key) => (
-                        <th
-                          key={key}
-                          className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400 capitalize whitespace-nowrap"
-                        >
-                          {key}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {table.sizes.map((row, j) => (
-                      <tr
-                        key={j}
-                        className="border-t border-zinc-100 dark:border-zinc-700/50"
-                      >
-                        {Object.values(row).map((val, k) => (
-                          <td
-                            key={k}
-                            className="px-4 py-3 whitespace-nowrap text-zinc-700 dark:text-zinc-300"
+      <div className="container py-12">
+        <div className="max-w-4xl mx-auto">
+          <div className="space-y-10">
+            {sizeTables.map((table, i) => (
+              <motion.div
+                key={table.category}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.15 }}
+              >
+                <h2 className="font-serif font-bold text-lg text-[#132A3A] mb-4">{table.category}</h2>
+                <div className="overflow-x-auto rounded-[3px] border-2 border-[#E7DCC4]">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-[#132A3A]">
+                        {table.headers.map((header) => (
+                          <th
+                            key={header}
+                            className="text-left px-4 py-3 font-mono text-[11px] font-bold text-[#F5A300] uppercase tracking-wider whitespace-nowrap"
                           >
-                            {val || "-"}
-                          </td>
+                            {header}
+                          </th>
                         ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                    </thead>
+                    <tbody>
+                      {table.rows.map((row, j) => (
+                        <tr
+                          key={j}
+                          className={`border-t border-[#E7DCC4] ${j % 2 === 0 ? "bg-white" : "bg-[#FBF6EC]"}`}
+                        >
+                          {row.map((val, k) => (
+                            <td
+                              key={k}
+                              className="px-4 py-3 whitespace-nowrap text-[#132A3A] font-mono text-xs"
+                            >
+                              {val || "-"}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
-        <div className="mt-12 bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 sm:p-8">
-          <h2 className="font-semibold text-lg mb-3">How to Measure</h2>
-          <ul className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-            <li><strong className="text-zinc-900 dark:text-zinc-100">Chest:</strong> Measure around the fullest part of your chest, keeping the tape parallel to the floor.</li>
-            <li><strong className="text-zinc-900 dark:text-zinc-100">Waist:</strong> Measure around your natural waistline, keeping the tape snug but not tight.</li>
-            <li><strong className="text-zinc-900 dark:text-zinc-100">Hip:</strong> Measure around the fullest part of your hips, about 8 inches below your waist.</li>
-            <li><strong className="text-zinc-900 dark:text-zinc-100">Inseam:</strong> Measure from the top of your inner thigh to the bottom of your ankle.</li>
-          </ul>
+          <div className="mt-12 bg-white rounded-[3px] border-2 border-[#E7DCC4] p-6 sm:p-8 shadow-sm">
+            <h2 className="font-serif font-bold text-lg text-[#132A3A] mb-3">How to Measure</h2>
+            <ul className="space-y-2 text-sm text-[#1C1A17]/70 font-sans">
+              <li><strong className="text-[#132A3A]">Chest:</strong> Measure around the fullest part of your chest, keeping the tape parallel to the floor.</li>
+              <li><strong className="text-[#132A3A]">Waist:</strong> Measure around your natural waistline, keeping the tape snug but not tight.</li>
+              <li><strong className="text-[#132A3A]">Hip:</strong> Measure around the fullest part of your hips, about 8 inches below your waist.</li>
+              <li><strong className="text-[#132A3A]">Inseam:</strong> Measure from the top of your inner thigh to the bottom of your ankle.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </motion.div>

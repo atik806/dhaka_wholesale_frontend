@@ -7,6 +7,8 @@ import Link from "next/link";
 import { registerUser } from "@/src/lib/auth-api";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
+import { BookOpen } from "lucide-react";
+import { Button } from "@/src/components/ui/Button";
 
 function getPasswordStrength(pw: string): { score: number; label: string; color: string } {
   let score = 0;
@@ -14,9 +16,9 @@ function getPasswordStrength(pw: string): { score: number; label: string; color:
   if (/[A-Z]/.test(pw)) score++;
   if (/[0-9]/.test(pw) || /[^a-zA-Z0-9]/.test(pw)) score++;
 
-  if (score <= 1) return { score, label: "Weak", color: "bg-red-500" };
-  if (score === 2) return { score, label: "Medium", color: "bg-amber-500" };
-  return { score, label: "Strong", color: "bg-green-500" };
+  if (score <= 1) return { score, label: "Weak", color: "bg-[#BE3D1F]" };
+  if (score === 2) return { score, label: "Medium", color: "bg-[#F5A300]" };
+  return { score, label: "Strong", color: "bg-[#1F6F50]" };
 }
 
 export default function RegisterPage() {
@@ -66,49 +68,60 @@ export default function RegisterPage() {
   const strength = getPasswordStrength(password);
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FBF6EC]">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
+        className="w-full max-w-md"
       >
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-8">
+        <div className="bg-white rounded-[3px] border-2 border-[#E7DCC4] shadow-xl p-8 relative overflow-hidden">
+          {/* Top Stamp Tag */}
+          <div className="absolute top-0 right-0 bg-[#132A3A] text-[#F5A300] font-mono text-[9px] font-bold px-3 py-1 uppercase tracking-widest border-b border-l border-[#E7DCC4]">
+            NEW ACCOUNT
+          </div>
+
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-5">
+            <div className="flex justify-center mb-4">
               <SiteLogo variant="auth" href="/" priority showWordmark />
             </div>
-            <h1 className="font-serif text-2xl font-bold">Create Account</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Join Dhaka Wholesale today
+            <div className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase text-[#1F6F50] bg-[#1F6F50]/10 px-2 py-0.5 rounded-[2px] mb-2">
+              <BookOpen className="w-3 h-3" /> NEW ACCOUNT
+            </div>
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#132A3A]">
+              Create Your Account
+            </h1>
+            <p className="font-mono text-xs text-[#1C1A17]/70 mt-1">
+              Create your account today
             </p>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Name</label>
+              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your full name"
+                placeholder="Full Name"
                 required
                 minLength={2}
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Email</label>
+              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">
-                Password
+              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">
+                Account Password
               </label>
               <input
                 type="password"
@@ -117,7 +130,7 @@ export default function RegisterPage() {
                 placeholder="Min 8 characters"
                 required
                 minLength={8}
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
               />
               {password.length > 0 && (
                 <div className="mt-2 flex items-center gap-2">
@@ -125,77 +138,74 @@ export default function RegisterPage() {
                     {[0, 1, 2].map((i) => (
                       <div
                         key={i}
-                        className={`h-1.5 flex-1 rounded-full ${
-                          i < strength.score ? strength.color : "bg-zinc-200 dark:bg-zinc-700"
+                        className={`h-1.5 flex-1 rounded-[2px] ${
+                          i < strength.score ? strength.color : "bg-[#E7DCC4]"
                         }`}
                       />
                     ))}
                   </div>
-                  <span className={`text-xs font-medium ${
-                    strength.score <= 1 ? "text-red-500" : strength.score === 2 ? "text-amber-500" : "text-green-500"
-                  }`}>
-                    {strength.label}
+                  <span className="font-mono text-[10px] font-bold text-[#132A3A]">
+                    {strength.label.toUpperCase()}
                   </span>
                 </div>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">
+              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">
                 Confirm Password
               </label>
               <input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Repeat your password"
+                placeholder="Repeat password"
                 required
                 minLength={8}
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
               />
             </div>
-            <label className="flex items-start gap-2 cursor-pointer">
+            <label className="flex items-start gap-2 cursor-pointer font-sans text-xs text-[#1C1A17]">
               <input
                 type="checkbox"
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="mt-0.5 rounded border-zinc-300 dark:border-zinc-600 text-primary focus:ring-primary/20"
+                className="mt-0.5 rounded-[2px] accent-[#F5A300]"
               />
-              <span className="text-sm text-zinc-600 dark:text-zinc-400">
+              <span>
                 I agree to the{" "}
-                <Link href="/privacy-policy" className="text-primary dark:text-primary-light hover:underline">
+                <Link href="/privacy-policy" className="text-[#BE3D1F] font-bold underline">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="/privacy-policy" className="text-primary dark:text-primary-light hover:underline">
+                <Link href="/privacy-policy" className="text-[#BE3D1F] font-bold underline">
                   Privacy Policy
                 </Link>
               </span>
             </label>
+
             {error && (
-              <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-2">
+              <p className="font-mono text-xs font-bold text-[#BE3D1F] bg-[#BE3D1F]/10 rounded-[2px] border border-[#BE3D1F]/30 p-3">
                 {error}
               </p>
             )}
             {success && (
-              <p className="text-sm text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 rounded-xl px-4 py-2">
+              <p className="font-mono text-xs font-bold text-[#1F6F50] bg-[#1F6F50]/10 rounded-[2px] border border-[#1F6F50]/30 p-3">
                 {success}
               </p>
             )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary text-white rounded-xl py-2.5 text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
-            >
-              {loading ? "Creating account..." : "Create Account"}
-            </button>
+
+            <Button type="submit" size="lg" className="w-full" disabled={loading} rotate>
+              {loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}
+            </Button>
           </form>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center mt-6">
+
+          <p className="font-mono text-xs text-[#1C1A17]/70 text-center mt-6">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-primary dark:text-primary-light font-medium hover:underline"
+              className="text-[#132A3A] font-bold underline hover:text-[#BE3D1F]"
             >
-              Sign in
+              SIGN IN TO ACCOUNT
             </Link>
           </p>
         </div>

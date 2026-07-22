@@ -8,6 +8,8 @@ import { loginUser } from "@/src/lib/auth-api";
 import { getSupabase } from "@/src/lib/supabase";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
+import { BookOpen } from "lucide-react";
+import { Button } from "@/src/components/ui/Button";
 
 function safeRedirect(path: string | null): string {
   if (!path || !path.startsWith("/") || path.startsWith("//")) return "/";
@@ -19,7 +21,7 @@ function getOAuthError(
   desc: string | null,
 ): string {
   if (errorType === "oauth_profile_failed") {
-    return "Could not create your profile. Please try again or contact support.";
+    return "Could not create your account. Please try again.";
   }
   if (errorType === "oauth_exchange_failed") {
     return "Google sign-in timed out. Please try again.";
@@ -28,7 +30,7 @@ function getOAuthError(
     const msg = desc ? decodeURIComponent(desc) : "";
     if (msg.includes("No session found") || msg.includes("no_session")) {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
-      return `Google sign-in failed: session not created. Please ensure the Supabase redirect URL includes ${origin}/auth/callback in your Supabase Dashboard (Authentication > URL Configuration > Redirect URLs).`;
+      return `Google sign-in failed. Please ensure the Supabase redirect URL includes ${origin}/auth/callback.`;
     }
     return "Google sign-in failed. Please try again.";
   }
@@ -98,37 +100,48 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center px-4">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FBF6EC]">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
+        className="w-full max-w-md"
       >
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-8">
+        <div className="bg-white rounded-[3px] border-2 border-[#E7DCC4] shadow-xl p-8 relative overflow-hidden">
+          {/* Top Stamp Tag */}
+          <div className="absolute top-0 right-0 bg-[#132A3A] text-[#F5A300] font-mono text-[9px] font-bold px-3 py-1 uppercase tracking-widest border-b border-l border-[#E7DCC4]">
+            SIGN IN
+          </div>
+
           <div className="text-center mb-8">
-            <div className="flex justify-center mb-5">
+            <div className="flex justify-center mb-4">
               <SiteLogo variant="auth" href="/" priority showWordmark />
             </div>
-            <h1 className="font-serif text-2xl font-bold">Welcome Back</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Sign in to Dhaka Wholesale
+            <div className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase text-[#1F6F50] bg-[#1F6F50]/10 px-2 py-0.5 rounded-[2px] mb-2">
+              <BookOpen className="w-3 h-3" /> CUSTOMER ACCOUNT
+            </div>
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#132A3A]">
+              Sign In
+            </h1>
+            <p className="font-mono text-xs text-[#1C1A17]/70 mt-1">
+              Access your orders, wishlist & account
             </p>
           </div>
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
             <div>
-              <label className="block text-sm font-medium mb-1.5">Email</label>
+              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder="you@email.com"
                 required
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">
-                Password
+              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">
+                Account Password
               </label>
               <input
                 type="password"
@@ -136,44 +149,39 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
               />
-              <div className="mt-1.5 text-right">
-                <Link href="#" className="text-xs text-zinc-400 hover:text-primary">
-                  Forgot Password?
-                </Link>
-              </div>
             </div>
+
             {(error || oauthError) && (
-              <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-2">
+              <p className="font-mono text-xs font-bold text-[#BE3D1F] bg-[#BE3D1F]/10 rounded-[2px] border border-[#BE3D1F]/30 p-3">
                 {oauthError || error}
               </p>
             )}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary text-white rounded-xl py-2.5 text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
-            >
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
+
+            <Button type="submit" size="lg" className="w-full" disabled={loading} rotate>
+              {loading ? "AUTHENTICATING..." : "SIGN IN"}
+            </Button>
           </form>
+
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-zinc-200 dark:border-zinc-700" />
+              <div className="w-full border-t border-[#E7DCC4]" />
             </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-white dark:bg-zinc-800 px-3 text-zinc-400">
-                or
+            <div className="relative flex justify-center font-mono text-xs uppercase">
+              <span className="bg-white px-3 text-[#1C1A17]/50 font-bold">
+                OR
               </span>
             </div>
           </div>
+
           <button
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 border border-zinc-200 dark:border-zinc-700 rounded-xl py-2.5 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 border-2 border-[#E7DCC4] rounded-[3px] py-2.5 font-mono text-xs font-bold text-[#132A3A] bg-[#FBF6EC] hover:bg-[#F5A300] transition-colors disabled:opacity-50"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
                 fill="#4285F4"
@@ -191,15 +199,16 @@ function LoginForm() {
                 fill="#EA4335"
               />
             </svg>
-            Sign in with Google
+            SIGN IN WITH GOOGLE
           </button>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center mt-6">
-            Don&apos;t have an account?{" "}
+
+          <p className="font-mono text-xs text-[#1C1A17]/70 text-center mt-6">
+            New here?{" "}
             <Link
               href="/register"
-              className="text-primary dark:text-primary-light font-medium hover:underline"
+              className="text-[#BE3D1F] font-bold underline hover:text-[#132A3A]"
             >
-              Create one
+              CREATE AN ACCOUNT
             </Link>
           </p>
         </div>
@@ -212,8 +221,8 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[80vh] flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="min-h-[80vh] flex items-center justify-center bg-[#FBF6EC]">
+          <div className="w-8 h-8 border-2 border-[#F5A300] border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

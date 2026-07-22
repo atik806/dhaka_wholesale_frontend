@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
               <SiteLogo variant="auth" href="/" priority showWordmark />
             </div>
             <h1 className="font-serif text-2xl font-bold">Admin Login</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Sign in to manage Dhaka Wholesale</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Sign in to manage the store</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Shield } from "lucide-react";
+import { Shield, BookOpen } from "lucide-react";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 
 const sections = [
@@ -53,36 +53,44 @@ export default function PrivacyPolicyPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container py-8"
+      className="bg-[#FBF6EC]"
     >
-      <Breadcrumbs items={[{ label: "Privacy Policy" }]} />
-
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="w-14 h-14 rounded-xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-4">
-            <Shield className="w-7 h-7 text-primary dark:text-primary-light" />
+      {/* Page Hero Header */}
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-12 md:py-16">
+        <div className="container">
+          <Breadcrumbs items={[{ label: "Privacy Policy" }]} />
+          <div className="max-w-2xl mt-4">
+            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
+              <Shield className="w-3.5 h-3.5" /> PRIVACY POLICY
+            </div>
+            <h1 className="font-serif text-3xl md:text-5xl font-extrabold mb-3">
+              Privacy Policy
+            </h1>
+            <p className="font-mono text-xs text-[#E7DCC4]/80">
+              Last updated: July 2026
+            </p>
           </div>
-          <h1 className="font-serif text-3xl md:text-4xl font-bold mb-3">Privacy Policy</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 text-sm">
-            Last updated: July 2026
-          </p>
         </div>
+      </div>
 
-        <div className="space-y-6">
-          {sections.map(({ title, content }, i) => (
-            <motion.div
-              key={title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 sm:p-8"
-            >
-              <h2 className="font-semibold text-lg mb-3">{title}</h2>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                {content}
-              </p>
-            </motion.div>
-          ))}
+      <div className="container py-12">
+        <div className="max-w-3xl mx-auto">
+          <div className="space-y-6">
+            {sections.map(({ title, content }, i) => (
+              <motion.div
+                key={title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="bg-white rounded-[3px] border-2 border-[#E7DCC4] p-6 sm:p-8 shadow-sm"
+              >
+                <h2 className="font-serif font-bold text-lg text-[#132A3A] mb-3">{title}</h2>
+                <p className="text-sm text-[#1C1A17]/70 leading-relaxed font-sans">
+                  {content}
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </motion.div>
