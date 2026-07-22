@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Truck, ShieldCheck, RefreshCw, Layers } from "lucide-react";
+import { Truck, ShieldCheck, RefreshCw } from "lucide-react";
 import Link from "next/link";
 
 export function HeroSection() {
@@ -61,14 +61,6 @@ STORE
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-wrap items-center gap-4"
             >
-              {/* Primary CTA Button: Marigold, -2deg rotation */}
-              <Link
-                href="/shop"
-                className="inline-flex items-center gap-2 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-extrabold text-sm px-7 py-3.5 rounded-[3px] shadow-lg border border-[#D88900] transition-all hover:scale-[1.02] active:scale-95 -rotate-2 hover:rotate-0"
-              >
-                BROWSE MARKET CATALOG <ArrowRight className="w-4 h-4" />
-              </Link>
-
               {/* Secondary CTA Button: Brick Red, 2deg rotation */}
               <Link
                 href="/shop?sort=discount"
