@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Star, Quote } from "lucide-react";
+import { Star, Quote, Award } from "lucide-react";
 import Link from "next/link";
 import { API_BASE } from "@/src/lib/constants";
 
@@ -33,60 +33,63 @@ export function CustomerReviews() {
   if (loading || reviews.length === 0) return null;
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-14 md:py-20 bg-[#FBF6EC]">
       <div className="container">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <span className="text-xs font-semibold uppercase tracking-widest text-accent mb-2 block">
-            Testimonials
-          </span>
-          <h2 className="font-serif text-3xl md:text-4xl font-bold">
-            What Our Customers Say
+          <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#132A3A] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-2 -rotate-1">
+            <Award className="w-3.5 h-3.5" /> VERIFIED MARKET FEEDBACK
+          </div>
+          <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A]">
+            Customer Reviews
           </h2>
+          <p className="text-xs sm:text-sm text-[#1C1A17]/70 mt-1 font-sans">
+            Real feedback from customers across Bangladesh.
+          </p>
         </motion.div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {reviews.map((review, i) => (
             <motion.div
               key={review.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              className="relative bg-white dark:bg-zinc-800/80 rounded-2xl p-6 border border-zinc-100 dark:border-zinc-700/50 shadow-sm hover:shadow-md transition-shadow"
+              transition={{ delay: i * 0.06 }}
+              className="relative bg-white rounded-[3px] p-6 border-2 border-[#E7DCC4] shadow-sm hover:border-[#F5A300] transition-all duration-200"
             >
-              <Quote className="absolute top-4 right-4 w-8 h-8 text-primary/10 dark:text-primary-light/10" />
-              <div className="flex items-center gap-0.5 mb-3">
+              <Quote className="absolute top-4 right-4 w-7 h-7 text-[#132A3A]/10" />
+              <div className="flex items-center gap-1 mb-3">
                 {Array.from({ length: 5 }).map((_, j) => (
                   <Star
                     key={j}
                     className={`w-4 h-4 ${
                       j < review.rating
-                        ? "fill-amber-400 text-amber-400"
-                        : "fill-zinc-200 dark:fill-zinc-600 text-zinc-200 dark:text-zinc-600"
+                        ? "fill-[#F5A300] text-[#F5A300]"
+                        : "fill-[#E7DCC4] text-[#E7DCC4]"
                     }`}
                   />
                 ))}
               </div>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed mb-5 line-clamp-4">
+              <p className="text-xs sm:text-sm text-[#1C1A17] leading-relaxed mb-5 line-clamp-4 font-sans">
                 &ldquo;{review.text}&rdquo;
               </p>
-              <div className="flex items-center gap-3 pt-4 border-t border-zinc-100 dark:border-zinc-700/50">
-                <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-sm font-bold text-primary dark:text-primary-light shrink-0">
+              <div className="flex items-center gap-3 pt-4 border-t border-[#E7DCC4]">
+                <div className="w-10 h-10 rounded-[2px] bg-[#132A3A] text-[#F5A300] font-mono font-bold flex items-center justify-center text-sm border border-[#E7DCC4] shrink-0">
                   {review.profiles?.name?.[0]?.toUpperCase() ?? "?"}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                    {review.profiles?.name ?? "Anonymous"}
+                  <p className="font-serif font-bold text-sm text-[#132A3A] truncate">
+                    {review.profiles?.name ?? "Verified Merchant"}
                   </p>
                   {review.products && (
                     <Link
                       href={`/product/${review.products.slug}`}
-                      className="text-xs text-zinc-400 hover:text-primary dark:hover:text-primary-light transition-colors truncate block"
+                      className="font-mono text-[11px] text-[#1F6F50] hover:underline truncate block"
                     >
                       {review.products.name}
                     </Link>

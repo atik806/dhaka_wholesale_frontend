@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Clock } from "lucide-react";
+import { ArrowRight, Tag } from "lucide-react";
 import Link from "next/link";
 import { API_BASE } from "@/src/lib/constants";
 
@@ -17,10 +17,10 @@ interface PromoBannerData {
 
 export function PromoBanner() {
   const [promo, setPromo] = useState<PromoBannerData>({
-    badge: "Limited Time Offer",
-    title: "Summer Sale — Up to 40% Off",
-    subtitle: "Exclusive discounts on our most-loved products. Don't miss out on these incredible deals.",
-    button_text: "Shop Sale",
+    badge: "DHAKADROP CLEARANCE SALE",
+    title: "Seasonal Sale — Up to 40% Off",
+    subtitle: "Hundreds of trending items at great prices. Cash on delivery available on all items.",
+    button_text: "CLAIM DISCOUNT",
     button_link: "/shop",
     enabled: true,
   });
@@ -41,65 +41,69 @@ export function PromoBanner() {
   if (!promo.enabled) return null;
 
   return (
-    <section className="py-12 md:py-16">
-      <div className="container">
+    <section className="py-12 md:py-16 bg-[#BE3D1F] border-y-2 border-[#E7DCC4] text-white relative overflow-hidden">
+      {/* Subtle stamped ledger watermark pattern */}
+      <div
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 30% 50%, white 1px, transparent 1px)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+
+      <div className="container relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-danger via-danger/80 to-danger/60 p-8 md:p-12 lg:p-16"
+          className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12"
         >
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 20% 80%, rgba(255,255,255,0.3) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(240,161,26,0.2) 0%, transparent 40%)" }} />
-          <div className="absolute -top-20 -right-20 w-64 h-64 bg-white/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-black/10 rounded-full blur-3xl" />
-
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-            <div className="max-w-lg">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white text-xs font-medium px-4 py-2 rounded-full mb-5 border border-white/10"
-              >
-                <Clock className="w-3.5 h-3.5" />
-                {promo.badge}
-              </motion.div>
-
-              <motion.h2
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="font-serif text-3xl md:text-4xl font-bold text-white mb-3"
-              >
-                {promo.title}
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="text-white/75 text-sm leading-relaxed max-w-md"
-              >
-                {promo.subtitle}
-              </motion.p>
+          {/* Text Content */}
+          <div className="max-w-2xl text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 bg-[#132A3A] text-[#F5A300] font-mono text-xs px-3.5 py-1 font-bold -rotate-1 rounded-[2px] border border-[#F5A300]/40 shadow-sm uppercase tracking-wider mb-4">
+              <Tag className="w-3.5 h-3.5" />
+              {promo.badge}
             </div>
 
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+            <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white mb-4 leading-tight">
+              {promo.title}
+            </h2>
+
+            <p className="text-white/85 text-sm sm:text-base max-w-xl leading-relaxed font-sans mb-6">
+              {promo.subtitle}
+            </p>
+
+            <Link
+              href={promo.button_link || "/shop"}
+              className="inline-flex items-center gap-2 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-extrabold text-sm px-8 py-3.5 rounded-[3px] shadow-xl border border-[#D88900] transition-all hover:scale-[1.02] active:scale-95 -rotate-2 hover:rotate-0"
             >
-              <Link
-                href={promo.button_link || "/shop"}
-                className="inline-flex items-center gap-2 bg-white text-danger px-8 py-3.5 rounded-xl font-semibold hover:bg-white/90 transition-all shadow-xl hover:-translate-y-0.5 text-sm"
-              >
-                {promo.button_text} <ArrowRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
+              {promo.button_text} <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
+
+          {/* Large circular rotated 'stamp' showing the discount percentage, like a rubber ink stamp */}
+          <motion.div
+            initial={{ rotate: -15, scale: 0.9 }}
+            whileInView={{ rotate: -8, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 200 }}
+            className="shrink-0 relative"
+          >
+            <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full border-4 border-dashed border-white/90 bg-[#132A3A]/40 backdrop-blur-sm p-3 flex flex-col items-center justify-center text-center shadow-2xl relative group">
+              <div className="absolute inset-1 rounded-full border border-white/40 pointer-events-none" />
+              <span className="font-mono text-[9px] sm:text-[10px] font-bold tracking-widest text-[#F5A300] uppercase mb-0.5">
+                DHAKADROP
+              </span>
+              <span className="font-serif text-2xl sm:text-3xl font-extrabold text-white leading-none">
+                40% OFF
+              </span>
+              <span className="font-mono text-[9px] font-bold text-[#E7DCC4] uppercase tracking-wider mt-1">
+                RUBBER STAMPED
+              </span>
+              <div className="w-2 h-2 rounded-full bg-[#F5A300] mt-1" />
+            </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

@@ -1,51 +1,91 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, SendHorizonal } from "lucide-react";
+import { Mail, SendHorizonal, CheckCircle2 } from "lucide-react";
 
 export function Newsletter() {
-  return (
-    <section className="py-16 md:py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent dark:via-primary/10" />
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
 
-      <div className="container relative">
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setSubscribed(true);
+      setEmail("");
+    }
+  };
+
+  return (
+    <section className="py-14 md:py-20 bg-[#FBF6EC]">
+      <div className="container">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="max-w-2xl mx-auto"
+          className="max-w-4xl mx-auto"
         >
-          <div className="relative rounded-3xl bg-white dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 shadow-xl p-8 md:p-12 text-center">
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2">
-              <div className="w-10 h-10 rounded-xl bg-primary shadow-lg shadow-primary/25 flex items-center justify-center">
-                <Mail className="w-5 h-5 text-white" />
-              </div>
+          {/* White 'ledger' card with a vertical divider line */}
+          <div className="bg-white rounded-[3px] border-2 border-[#E7DCC4] shadow-lg p-6 sm:p-10 md:p-12 relative overflow-hidden">
+            {/* Top ledger stamp mark */}
+            <div className="absolute top-0 right-0 bg-[#132A3A] text-[#F5A300] font-mono text-[9px] font-bold px-3 py-1 uppercase tracking-widest border-b border-l border-[#E7DCC4]">
+              NEWSLETTER
             </div>
 
-            <h2 className="font-serif text-3xl md:text-4xl font-bold mb-3 mt-2">
-              Stay in the Loop
-            </h2>
-            <p className="text-zinc-500 dark:text-zinc-400 text-sm mb-8 max-w-md mx-auto">
-              Be the first to know about new arrivals, exclusive offers, and
-              behind-the-scenes stories.
-            </p>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl p-1.5 border border-zinc-200 dark:border-zinc-700 max-w-lg mx-auto">
-              <Mail className="w-4 h-4 text-zinc-400 dark:text-zinc-500 ml-3 shrink-0 hidden sm:block" />
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 bg-transparent px-3 py-2.5 text-sm outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 min-w-0"
-              />
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors whitespace-nowrap flex items-center justify-center gap-1.5 shadow-lg shadow-primary/25"
-              >
-                Subscribe <SendHorizonal className="w-4 h-4" />
-              </motion.button>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-10">
+              {/* Left Column: Heading + Description */}
+              <div className="md:w-1/2 text-left">
+                <div className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#1F6F50] bg-[#1F6F50]/10 px-2.5 py-0.5 border border-[#1F6F50]/20 rounded-[2px] mb-3">
+                  <Mail className="w-3.5 h-3.5" /> STOCK ALERTS
+                </div>
+
+                <h2 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#132A3A] mb-2 leading-tight">
+                  Join the DhakaDrop Newsletter
+                </h2>
+
+                <p className="text-xs sm:text-sm text-[#1C1A17]/70 font-sans leading-relaxed">
+                  Receive stock alerts, new product announcements, and exclusive deals directly to your inbox.
+                </p>
+              </div>
+
+              {/* Vertical Divider Line */}
+              <div className="hidden md:block w-px bg-[#E7DCC4] self-stretch" />
+
+              {/* Right Column: Input + button combined as ONE block */}
+              <div className="w-full md:w-1/2">
+                {subscribed ? (
+                  <div className="flex items-center gap-2 p-4 bg-[#1F6F50]/10 border border-[#1F6F50]/30 rounded-[3px] text-[#1F6F50]">
+                    <CheckCircle2 className="w-5 h-5 shrink-0" />
+                    <span className="font-mono text-xs font-bold">
+                      SUCCESS! You're subscribed.
+                    </span>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit} className="w-full">
+                    {/* Combined block: Input + Button joined together */}
+                    <div className="flex items-stretch border-2 border-[#E7DCC4] rounded-[3px] overflow-hidden focus-within:border-[#F5A300] bg-[#FBF6EC] shadow-sm">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="ENTER YOUR EMAIL..."
+                        required
+                        className="flex-1 bg-transparent px-4 py-3 text-xs font-mono outline-none text-[#132A3A] placeholder:text-[#1C1A17]/50 min-w-0"
+                      />
+                      <button
+                        type="submit"
+                        className="bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-mono text-xs font-extrabold px-5 py-3 flex items-center gap-1.5 transition-colors shrink-0 uppercase tracking-wider border-l-2 border-[#D88900]"
+                      >
+                        SUBSCRIBE <SendHorizonal className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="font-mono text-[10px] text-[#1C1A17]/50 mt-2">
+                      *NO SPAM. UNSUBSCRIBE ANYTIME.
+                    </p>
+                  </form>
+                )}
+              </div>
             </div>
-            <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-3">
-              No spam. Unsubscribe anytime.
-            </p>
           </div>
         </motion.div>
       </div>

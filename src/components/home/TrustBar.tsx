@@ -1,37 +1,36 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CreditCard, Truck, ShieldCheck, HeadphonesIcon, RefreshCw } from "lucide-react";
+import { CreditCard, Truck, ShieldCheck, HeadphonesIcon, RefreshCw, CheckSquare } from "lucide-react";
 
 const features = [
-  { icon: CreditCard, title: "COD Available", description: "Pay on delivery" },
-  { icon: Truck, title: "Fast Shipping", description: "1-3 business days" },
-  { icon: ShieldCheck, title: "Secure Payment", description: "SSL encrypted checkout" },
-  { icon: RefreshCw, title: "Easy Returns", description: "7-day return policy" },
-  { icon: HeadphonesIcon, title: "24/7 Support", description: "We're always here" },
-  { icon: Truck, title: "Free Delivery", description: "On orders over ৳1000" },
+  { icon: CreditCard, title: "COD AVAILABLE", description: "Pay on delivery at door" },
+  { icon: Truck, title: "EXPRESS SHIPPING", description: "24-48h nationwide delivery" },
+  { icon: ShieldCheck, title: "VERIFIED QUALITY", description: "Premium quality guaranteed" },
+  { icon: RefreshCw, title: "7-DAY RETURNS", description: "Easy item exchanges" },
+  { icon: HeadphonesIcon, title: "CUSTOMER CARE", description: "Dedicated support team" },
 ];
 
 export function TrustBar() {
   return (
-    <section className="py-12 md:py-16 border-b border-zinc-100 dark:border-zinc-800">
+    <section className="py-10 bg-[#FBF6EC] border-b border-[#E7DCC4]">
       <div className="container">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
           {features.map(({ icon: Icon, title, description }, i) => (
             <motion.div
               key={title}
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.06 }}
-              className="flex flex-col items-center text-center gap-3"
+              transition={{ delay: i * 0.05 }}
+              className="bg-white p-4 rounded-[3px] border border-[#E7DCC4] hover:border-[#F5A300] hover:shadow-sm transition-all flex flex-col items-center text-center gap-2"
             >
-              <div className="w-12 h-12 rounded-2xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-primary dark:text-primary-light" />
+              <div className="w-10 h-10 rounded-full bg-[#132A3A] text-[#F5A300] flex items-center justify-center border border-[#E7DCC4] shadow-inner shrink-0">
+                <Icon className="w-4 h-4" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{description}</p>
+                <p className="font-mono text-xs font-bold text-[#132A3A] tracking-tight">{title}</p>
+                <p className="text-[11px] text-[#1C1A17]/70 font-sans mt-0.5 leading-snug">{description}</p>
               </div>
             </motion.div>
           ))}

@@ -1,8 +1,8 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Package, Sparkles, Layers, Tag, Box, Grid } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Category } from "@/src/types/product";
@@ -12,36 +12,65 @@ interface CategoryCardProps {
   index?: number;
 }
 
+const pastelColors = [
+  "bg-[#F5A300]/15 text-[#D88900] border-[#F5A300]/30",
+  "bg-[#BE3D1F]/15 text-[#BE3D1F] border-[#BE3D1F]/30",
+  "bg-[#1F6F50]/15 text-[#1F6F50] border-[#1F6F50]/30",
+  "bg-[#132A3A]/15 text-[#132A3A] border-[#132A3A]/30",
+];
+
+const categoryIcons = [Package, Sparkles, Layers, Tag, Box, Grid];
+
 export const CategoryCard = memo(function CategoryCard({ category, index = 0 }: CategoryCardProps) {
+  const [imgSrc, setImgSrc] = useState(category.image || "/placeholder.svg");
+  const colorClass = pastelColors[index % pastelColors.length];
+  const IconComponent = categoryIcons[index % categoryIcons.length];
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4, delay: index * 0.08 }}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.35, delay: index * 0.05 }}
     >
       <Link
         href={`/shop/${category.slug}`}
-        className="group relative block aspect-[4/3] rounded-xl overflow-hidden"
+        className="group block bg-white rounded-[3px] border border-[#E7DCC4] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-[#F5A300] relative overflow-hidden"
       >
-        <Image
-          src={category.image || "/placeholder.svg"}
-          alt={category.name}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-          sizes="(max-width: 768px) 100vw, 33vw"
-          onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg"; }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-5">
-          <h3 className="text-white font-serif text-xl font-bold mb-0.5">
-            {category.name}
-          </h3>
-          <p className="text-white/60 text-sm mb-3">
-            {category.productCount} Products
-          </p>
-          <span className="inline-flex items-center gap-1.5 text-white text-sm font-medium opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
-            Explore <ArrowRight className="w-4 h-4" />
+        {/* Soft pastel icon circle at top */}
+        <div className="flex items-start justify-between mb-4">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center border shadow-sm ${colorClass}`}>
+            <IconComponent className="w-6 h-6" />
+          </div>
+          <span className="font-mono text-[10px] font-bold text-[#132A3A] bg-[#FBF6EC] border border-[#E7DCC4] px-2 py-1 rounded-[2px]">
+            #{index + 1}
+          </span>
+        </div>
+
+        {/* Image preview thumbnail box */}
+        <div className="relative w-full h-28 rounded-[2px] overflow-hidden bg-[#FBF6EC] border border-[#E7DCC4]/60 mb-4">
+          <Image
+            src={imgSrc}
+            alt={category.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, 33vw"
+            onError={() => setImgSrc("/placeholder.svg")}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#132A3A]/40 to-transparent" />
+        </div>
+
+        <div className="flex items-end justify-between">
+          <div>
+            <h3 className="font-serif text-lg font-bold text-[#132A3A] group-hover:text-[#F5A300] transition-colors leading-snug">
+              {category.name}
+            </h3>
+            <p className="font-mono text-xs text-[#1F6F50] font-bold mt-1">
+              {category.productCount} ITEMS
+            </p>
+          </div>
+          <span className="w-8 h-8 rounded-[2px] bg-[#132A3A] text-white flex items-center justify-center group-hover:bg-[#F5A300] group-hover:text-[#132A3A] transition-colors shrink-0">
+            <ArrowRight className="w-4 h-4" />
           </span>
         </div>
       </Link>
