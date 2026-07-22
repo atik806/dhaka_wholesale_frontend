@@ -103,16 +103,16 @@ export function ReportModal({ open, onClose }: ReportModalProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[70] bg-white dark:bg-zinc-800 rounded-t-2xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-2xl w-full sm:max-w-md p-6"
+            className="fixed bottom-0 left-0 right-0 sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[70] bg-white dark:bg-[#132A3A] rounded-t-2xl sm:rounded-2xl border border-zinc-200 dark:border-[#2a3d4d] shadow-2xl w-full sm:max-w-md p-6"
             role="dialog"
             aria-modal="true"
             aria-label="Report a bug"
           >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-serif text-xl font-bold">Report a Bug</h2>
+              <h2 className="font-serif text-xl font-bold text-[#132A3A] dark:text-[#E7DCC4]">Report a Bug</h2>
               <button
                 onClick={onClose}
-                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-zinc-100 dark:hover:bg-[#0D1F2C] transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -123,15 +123,15 @@ export function ReportModal({ open, onClose }: ReportModalProps) {
                 <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-3">
                   <span className="text-2xl">✓</span>
                 </div>
-                <p className="font-medium">Thank you for your report!</p>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                <p className="font-medium text-[#132A3A] dark:text-[#E7DCC4]">Thank you for your report!</p>
+                <p className="text-sm text-zinc-500 dark:text-[#a0b4c4] mt-1">
                   We&apos;ll look into it.
                 </p>
               </div>
             ) : (
               <>
                 <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1.5">
+                  <label className="block text-sm font-medium mb-1.5 text-[#132A3A] dark:text-[#E7DCC4]">
                     Describe the bug
                   </label>
                   <textarea
@@ -140,15 +140,15 @@ export function ReportModal({ open, onClose }: ReportModalProps) {
                     placeholder="What happened? What did you expect?"
                     rows={4}
                     maxLength={2000}
-                    className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 resize-none"
+                    className="w-full rounded-xl border border-zinc-200 dark:border-[#2a3d4d] px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-[#0D1F2C] text-zinc-900 dark:text-[#E7DCC4] placeholder:text-zinc-400 dark:placeholder:text-[#a0b4c4] resize-none"
                   />
-                  <p className="text-xs text-zinc-400 mt-1 text-right">
+                  <p className="text-xs text-zinc-400 dark:text-[#a0b4c4] mt-1 text-right">
                     {message.length}/2000
                   </p>
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1.5">
+                  <label className="block text-sm font-medium mb-1.5 text-[#132A3A] dark:text-[#E7DCC4]">
                     Priority
                   </label>
                   <div className="flex gap-2">
@@ -163,9 +163,9 @@ export function ReportModal({ open, onClose }: ReportModalProps) {
                         type="button"
                         onClick={() => setPriority(p.value as typeof priority)}
                         className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${
-                          priority === p.value
-                            ? "border-primary bg-primary/5 text-primary"
-                            : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 text-zinc-600 dark:text-zinc-300"
+                        priority === p.value
+                          ? "border-[#F5A300] bg-[#F5A300]/10 text-[#132A3A] dark:text-white"
+                          : "border-zinc-200 dark:border-[#2a3d4d] hover:border-zinc-300 dark:hover:border-[#2a3d4d] text-zinc-600 dark:text-[#a0b4c4]"
                         }`}
                       >
                         <p.icon className={`w-3 h-3 ${priority === p.value ? "" : p.color}`} />
@@ -176,11 +176,11 @@ export function ReportModal({ open, onClose }: ReportModalProps) {
                 </div>
 
                 <div className="mb-5">
-                  <label className="block text-sm font-medium mb-1.5">
+                  <label className="block text-sm font-medium mb-1.5 text-[#132A3A] dark:text-[#E7DCC4]">
                     Screenshot (optional)
                   </label>
                   {preview ? (
-                    <div className="relative rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700">
+                    <div className="relative rounded-xl overflow-hidden border border-zinc-200 dark:border-[#2a3d4d]">
                       <img
                         src={preview}
                         alt="Screenshot preview"
@@ -209,7 +209,7 @@ export function ReportModal({ open, onClose }: ReportModalProps) {
                       className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
                         dragOver
                           ? "border-primary bg-primary/5"
-                          : "border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"
+                          : "border-zinc-200 dark:border-[#2a3d4d] hover:border-zinc-300 dark:hover:border-[#2a3d4d]"
                       }`}
                     >
                       <ImageIcon className="w-8 h-8 mx-auto text-zinc-400 mb-2" />
@@ -245,14 +245,14 @@ export function ReportModal({ open, onClose }: ReportModalProps) {
                 <div className="flex gap-3">
                   <button
                     onClick={onClose}
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-sm font-medium hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                    className="flex-1 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-[#2a3d4d] text-sm font-medium text-[#132A3A] dark:text-[#E7DCC4] hover:bg-zinc-100 dark:hover:bg-[#0D1F2C] transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleSubmit}
                     disabled={loading || !message.trim()}
-                    className="flex-1 px-4 py-2.5 rounded-xl bg-primary text-white text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50"
+                    className="flex-1 px-4 py-2.5 rounded-xl bg-[#F5A300] text-[#132A3A] text-sm font-bold hover:bg-[#D88900] transition-colors disabled:opacity-50"
                   >
                     {loading ? (
                       <span className="flex items-center justify-center gap-2">
