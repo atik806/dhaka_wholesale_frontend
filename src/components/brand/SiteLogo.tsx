@@ -23,7 +23,7 @@ export function SiteLogo({
 
   const mark = (
     <span
-      className={`relative inline-flex items-center justify-center shrink-0 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md -rotate-6 transition-transform duration-300 group-hover:rotate-0 p-1 ${
+      className={`relative inline-flex items-center justify-center shrink-0 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md -rotate-6 transition-transform duration-300 group-hover:rotate-0 ${
         variant === "footer"
           ? "w-14 h-14"
           : variant === "auth"
@@ -31,21 +31,14 @@ export function SiteLogo({
           : "w-10 h-10 md:w-11 md:h-11"
       } ${className}`}
     >
-      <span className="relative w-full h-full rounded-full bg-[#0D1F2C] border border-[#E7DCC4]/30 flex items-center justify-center overflow-hidden">
+      <span className="relative w-full h-full rounded-full bg-[#0D1F2C] border border-[#E7DCC4]/30 overflow-hidden">
         <Image
           src="/logo.png"
           alt={SITE_NAME}
-          width={36}
-          height={36}
+          fill
           priority={priority}
-          className="object-contain p-0.5"
-          onError={(e) => {
-            (e.target as HTMLElement).style.display = "none";
-          }}
+          className="object-cover"
         />
-        <span className="font-serif font-bold text-xs text-[#F5A300] tracking-tighter">
-          DW
-        </span>
       </span>
       {/* Decorative stamp dot */}
       <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#BE3D1F] border border-[#F5A300]" />
