@@ -59,10 +59,10 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
     >
-      <div className="group block bg-white rounded-[3px] border border-[#E7DCC4] p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-[#F5A300] relative">
+      <div className="group block bg-white dark:bg-[#132A3A] rounded-[3px] border border-[#E7DCC4] dark:border-[#2a3d4d] p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-[#F5A300] relative">
         <Link href={`/product/${product.slug}`} className="block">
           {/* Colored Image Block Container */}
-          <div className="relative aspect-square rounded-[2px] overflow-hidden bg-[#FBF6EC] border border-[#E7DCC4]/80 mb-3 group-hover:border-[#E7DCC4] transition-colors">
+          <div className="relative aspect-square rounded-[2px] overflow-hidden bg-[#FBF6EC] dark:bg-[#0D1F2C] border border-[#E7DCC4]/80 dark:border-[#2a3d4d]/80 mb-3 group-hover:border-[#E7DCC4] dark:group-hover:border-[#2a3d4d] transition-colors">
             <Image
               src={imgSrc}
               alt={product.name}
@@ -98,37 +98,37 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
             <div className="absolute top-2 right-2 z-10 flex flex-col gap-1.5">
               <button
                 onClick={handleWishlist}
-                className="w-8 h-8 rounded-full bg-white/90 border border-[#E7DCC4] flex items-center justify-center shadow-sm hover:bg-[#F5A300] hover:border-[#D88900] transition-colors"
+                className="w-8 h-8 rounded-full bg-white/90 dark:bg-[#132A3A]/90 border border-[#E7DCC4] dark:border-[#2a3d4d] flex items-center justify-center shadow-sm hover:bg-[#F5A300] hover:border-[#D88900] transition-colors"
                 aria-label="Add to wishlist"
               >
                 <Heart
                   className={`w-3.5 h-3.5 transition-colors ${
                     wishlisted
                       ? "fill-[#BE3D1F] text-[#BE3D1F]"
-                      : "text-[#132A3A]"
+                      : "text-[#132A3A] dark:text-[#E7DCC4]"
                   }`}
                 />
               </button>
               <Link
                 href={`/product/${product.slug}`}
-                className="w-8 h-8 rounded-full bg-white/90 border border-[#E7DCC4] flex items-center justify-center shadow-sm hover:bg-[#132A3A] hover:text-white transition-colors"
+                className="w-8 h-8 rounded-full bg-white/90 dark:bg-[#132A3A]/90 border border-[#E7DCC4] dark:border-[#2a3d4d] flex items-center justify-center shadow-sm hover:bg-[#132A3A] hover:text-white transition-colors"
                 onClick={(e) => e.stopPropagation()}
                 aria-label="Quick view"
               >
-                <Eye className="w-3.5 h-3.5 text-[#132A3A] hover:text-white" />
+                <Eye className="w-3.5 h-3.5 text-[#132A3A] dark:text-[#E7DCC4] hover:text-white" />
               </Link>
             </div>
           </div>
 
           <div className="px-0.5">
             <div className="flex items-center justify-between gap-1 mb-1">
-              <span className="font-mono text-[10px] text-[#132A3A]/70 uppercase tracking-widest font-bold truncate">
+              <span className="font-mono text-[10px] text-[#132A3A]/70 dark:text-[#a0b4c4] uppercase tracking-widest font-bold truncate">
                 {product.category}
               </span>
               <Rating value={product.rating} count={product.reviewCount} size="sm" />
             </div>
 
-            <h3 className="font-serif font-bold text-sm text-[#132A3A] leading-snug line-clamp-1 group-hover:text-[#F5A300] transition-colors">
+            <h3 className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4] leading-snug line-clamp-1 group-hover:text-[#F5A300] transition-colors">
               {product.name}
             </h3>
 
@@ -138,7 +138,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
                 {formatPrice(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="font-mono text-xs text-[#1C1A17]/50 line-through">
+                <span className="font-mono text-xs text-[#1C1A17]/50 dark:text-[#a0b4c4] line-through">
                   {formatPrice(product.originalPrice)}
                 </span>
               )}

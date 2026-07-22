@@ -116,7 +116,7 @@ export default function CheckoutPage() {
 
   if (!authHydrated || !isLoggedIn) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-[#FBF6EC]">
+      <div className="flex items-center justify-center min-h-[60vh] bg-[#FBF6EC] dark:bg-[#0D1F2C]">
         <Loader2 className="w-8 h-8 animate-spin text-[#F5A300]" />
       </div>
     );
@@ -128,7 +128,7 @@ export default function CheckoutPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="container py-8 bg-[#FBF6EC]"
+        className="container py-8 bg-[#FBF6EC] dark:bg-[#0D1F2C]"
       >
         <Breadcrumbs items={[{ label: "Checkout" }]} />
         <EmptyState
@@ -150,13 +150,13 @@ export default function CheckoutPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] min-h-screen py-8"
+      className="bg-[#FBF6EC] dark:bg-[#0D1F2C] min-h-screen py-8"
     >
       <div className="container">
         <Breadcrumbs items={[{ label: "Checkout" }]} />
 
         {/* Header banner */}
-        <div className="bg-[#132A3A] text-white border-2 border-[#E7DCC4] p-5 sm:p-6 rounded-[3px] shadow-sm mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="bg-[#132A3A] text-white border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-5 sm:p-6 rounded-[3px] shadow-sm mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-[#F5A300] bg-[#0D1F2C] px-2.5 py-0.5 rounded-[2px] mb-1">
               <BookOpen className="w-3.5 h-3.5" /> SECURE CHECKOUT
@@ -178,10 +178,10 @@ export default function CheckoutPage() {
             { label: "3. CONFIRMATION", icon: ShieldCheck },
           ].map(({ label, icon: Icon }, i) => (
             <div key={label} className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-[2px] bg-[#132A3A] text-[#F5A300] border border-[#E7DCC4] flex items-center justify-center font-bold">
+              <div className="w-8 h-8 rounded-[2px] bg-[#132A3A] text-[#F5A300] border border-[#E7DCC4] dark:border-[#2a3d4d] flex items-center justify-center font-bold">
                 <Icon className="w-4 h-4" />
               </div>
-              <span className="font-bold text-[#132A3A] hidden sm:block">{label}</span>
+              <span className="font-bold text-[#132A3A] dark:text-[#E7DCC4] hidden sm:block">{label}</span>
               {i < 2 && <div className="w-8 h-0.5 bg-[#E7DCC4] mx-2 hidden sm:block" />}
             </div>
           ))}
@@ -197,7 +197,7 @@ export default function CheckoutPage() {
 
         <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <section className="bg-white rounded-[3px] border-2 border-[#E7DCC4] p-6 shadow-sm">
+            <section className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 shadow-sm">
               <ShippingForm
                 values={shipping}
                 onChange={setShipping}
@@ -207,11 +207,11 @@ export default function CheckoutPage() {
               />
             </section>
 
-            <section className="bg-white rounded-[3px] border-2 border-[#E7DCC4] p-6 shadow-sm">
+            <section className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 shadow-sm">
               <PaymentForm />
             </section>
 
-            <section className="bg-white rounded-[3px] border-2 border-[#E7DCC4] p-6 shadow-sm">
+            <section className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 shadow-sm">
               <ReviewOrder
                 shipping={shipping}
                 deliveryZone={deliveryZone}
@@ -221,15 +221,15 @@ export default function CheckoutPage() {
 
           {/* Order Summary Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-white rounded-[3px] border-2 border-[#E7DCC4] p-5 shadow-sm">
-              <h3 className="font-serif font-bold text-base text-[#132A3A] mb-4 pb-2 border-b border-[#E7DCC4]">
+            <div className="sticky top-24 bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-5 shadow-sm">
+              <h3 className="font-serif font-bold text-base text-[#132A3A] dark:text-[#E7DCC4] mb-4 pb-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d]">
                 Order Summary
               </h3>
               <div className="space-y-2 font-mono text-xs max-h-60 overflow-y-auto mb-4">
                 {items.map((item) => (
-                  <div key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`} className="flex items-center justify-between gap-2 border-b border-[#E7DCC4]/40 pb-2">
+                  <div key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`} className="flex items-center justify-between gap-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d]/40 pb-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-9 h-9 relative rounded-[2px] overflow-hidden bg-[#FBF6EC] border border-[#E7DCC4] shrink-0">
+                      <div className="w-9 h-9 relative rounded-[2px] overflow-hidden bg-[#FBF6EC] dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d] shrink-0">
                         {item.product.images?.[0] ? (
                           <Image
                             src={item.product.images[0]}
@@ -238,10 +238,10 @@ export default function CheckoutPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[9px] text-[#1C1A17]/40">N/A</div>
+                          <div className="w-full h-full flex items-center justify-center text-[9px] text-[#1C1A17]/40 dark:text-[#a0b4c4]">N/A</div>
                         )}
                       </div>
-                      <span className="text-[#132A3A] font-bold truncate">
+                      <span className="text-[#132A3A] dark:text-[#E7DCC4] font-bold truncate">
                         {item.product.name} × {item.quantity}
                       </span>
                     </div>
@@ -249,16 +249,16 @@ export default function CheckoutPage() {
                   </div>
                 ))}
               </div>
-              <div className="border-t border-[#E7DCC4] pt-3 space-y-2 font-mono text-xs">
-                <div className="flex justify-between text-[#1C1A17]/80">
+              <div className="border-t border-[#E7DCC4] dark:border-[#2a3d4d] pt-3 space-y-2 font-mono text-xs">
+                <div className="flex justify-between text-[#1C1A17]/80 dark:text-[#a0b4c4]">
                   <span>Subtotal</span>
                   <span>{formatPrice(orderSummary.subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-[#1C1A17]/80">
+                <div className="flex justify-between text-[#1C1A17]/80 dark:text-[#a0b4c4]">
                   <span>Shipping</span>
                   <span>{formatPrice(orderSummary.shipping)}</span>
                 </div>
-                <div className="border-t border-[#E7DCC4] pt-2 flex justify-between font-extrabold text-base text-[#132A3A]">
+                <div className="border-t border-[#E7DCC4] dark:border-[#2a3d4d] pt-2 flex justify-between font-extrabold text-base text-[#132A3A] dark:text-[#E7DCC4]">
                   <span>Total</span>
                   <span className="text-[#1F6F50]">{formatPrice(orderSummary.total)}</span>
                 </div>

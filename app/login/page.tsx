@@ -100,15 +100,15 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FBF6EC]">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FBF6EC] dark:bg-[#0D1F2C]">
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <div className="bg-white rounded-[3px] border-2 border-[#E7DCC4] shadow-xl p-8 relative overflow-hidden">
+        <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-xl p-8 relative overflow-hidden">
           {/* Top Stamp Tag */}
-          <div className="absolute top-0 right-0 bg-[#132A3A] text-[#F5A300] font-mono text-[9px] font-bold px-3 py-1 uppercase tracking-widest border-b border-l border-[#E7DCC4]">
+          <div className="absolute top-0 right-0 bg-[#132A3A] text-[#F5A300] font-mono text-[9px] font-bold px-3 py-1 uppercase tracking-widest border-b border-l border-[#E7DCC4] dark:border-[#2a3d4d]">
             SIGN IN
           </div>
 
@@ -119,28 +119,28 @@ function LoginForm() {
             <div className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase text-[#1F6F50] bg-[#1F6F50]/10 px-2 py-0.5 rounded-[2px] mb-2">
               <BookOpen className="w-3 h-3" /> CUSTOMER ACCOUNT
             </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#132A3A]">
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">
               Sign In
             </h1>
-            <p className="font-mono text-xs text-[#1C1A17]/70 mt-1">
+            <p className="font-mono text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] mt-1">
               Access your orders, wishlist & account
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
             <div>
-              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">Email</label>
+              <label className="block font-bold text-[#132A3A] dark:text-[#E7DCC4] uppercase tracking-wider mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@email.com"
                 required
-                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4]"
               />
             </div>
             <div>
-              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">
+              <label className="block font-bold text-[#132A3A] dark:text-[#E7DCC4] uppercase tracking-wider mb-1">
                 Account Password
               </label>
               <input
@@ -149,7 +149,7 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4]"
               />
             </div>
 
@@ -166,10 +166,10 @@ function LoginForm() {
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#E7DCC4]" />
+              <div className="w-full border-t border-[#E7DCC4] dark:border-[#2a3d4d]" />
             </div>
             <div className="relative flex justify-center font-mono text-xs uppercase">
-              <span className="bg-white px-3 text-[#1C1A17]/50 font-bold">
+              <span className="bg-white dark:bg-[#132A3A] px-3 text-[#1C1A17]/50 dark:text-[#a0b4c4] font-bold">
                 OR
               </span>
             </div>
@@ -179,7 +179,7 @@ function LoginForm() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 border-2 border-[#E7DCC4] rounded-[3px] py-2.5 font-mono text-xs font-bold text-[#132A3A] bg-[#FBF6EC] hover:bg-[#F5A300] transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-3 border-2 border-[#E7DCC4] dark:border-[#2a3d4d] rounded-[3px] py-2.5 font-mono text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] bg-[#FBF6EC] dark:bg-[#0D1F2C] hover:bg-[#F5A300] transition-colors disabled:opacity-50"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24">
               <path
@@ -202,11 +202,11 @@ function LoginForm() {
             SIGN IN WITH GOOGLE
           </button>
 
-          <p className="font-mono text-xs text-[#1C1A17]/70 text-center mt-6">
+          <p className="font-mono text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] text-center mt-6">
             New here?{" "}
             <Link
               href="/register"
-              className="text-[#BE3D1F] font-bold underline hover:text-[#132A3A]"
+              className="text-[#BE3D1F] font-bold underline hover:text-[#132A3A] dark:text-[#E7DCC4]"
             >
               CREATE AN ACCOUNT
             </Link>
@@ -221,7 +221,7 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[80vh] flex items-center justify-center bg-[#FBF6EC]">
+        <div className="min-h-[80vh] flex items-center justify-center bg-[#FBF6EC] dark:bg-[#0D1F2C]">
           <div className="w-8 h-8 border-2 border-[#F5A300] border-t-transparent rounded-full animate-spin" />
         </div>
       }

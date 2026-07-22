@@ -17,7 +17,7 @@ const ITEMS_PER_PAGE = 12;
 
 export default function ShopPageWrapper() {
   return (
-    <Suspense fallback={<div className="container py-20 text-center font-mono text-xs text-[#132A3A]">LOADING MARKET LEDGER...</div>}>
+    <Suspense fallback={<div className="container py-20 text-center font-mono text-xs text-[#132A3A] dark:text-[#E7DCC4]">LOADING MARKET LEDGER...</div>}>
       <ShopPage />
     </Suspense>
   );
@@ -141,10 +141,10 @@ function ShopPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] min-h-screen"
+      className="bg-[#FBF6EC] dark:bg-[#0D1F2C] min-h-screen"
     >
       {/* Page Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-10 md:py-14">
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-10 md:py-14">
         <div className="container">
           <Breadcrumbs items={[{ label: "Shop" }]} />
           <div className="inline-flex items-center gap-2 font-mono text-xs text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3 uppercase">
@@ -162,21 +162,21 @@ function ShopPage() {
       </div>
 
       <div className="container py-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 bg-white p-4 rounded-[3px] border border-[#E7DCC4]">
-          <div className="font-mono text-xs font-bold text-[#132A3A] uppercase">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 bg-white dark:bg-[#132A3A] p-4 rounded-[3px] border border-[#E7DCC4] dark:border-[#2a3d4d]">
+          <div className="font-mono text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] uppercase">
             SHOWING PAGE {safePage} OF {totalPages || 1}
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={() => setMobileFilterOpen(true)}
-              className="flex items-center justify-center gap-2 lg:hidden px-4 py-2 rounded-[3px] border border-[#E7DCC4] bg-[#FBF6EC] font-mono text-xs font-bold text-[#132A3A] hover:bg-[#F5A300] transition-colors flex-1 sm:flex-initial"
+              className="flex items-center justify-center gap-2 lg:hidden px-4 py-2 rounded-[3px] border border-[#E7DCC4] dark:border-[#2a3d4d] bg-[#FBF6EC] dark:bg-[#0D1F2C] font-mono text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300] transition-colors flex-1 sm:flex-initial"
             >
               <SlidersHorizontal className="w-4 h-4 text-[#BE3D1F]" /> FILTER
             </button>
             <select
               value={sort}
               onChange={(e) => updateParams({ sort: e.target.value !== "popular" ? e.target.value : null, page: null })}
-              className="font-mono text-xs font-bold border-2 border-[#E7DCC4] rounded-[3px] px-3 py-2 bg-white text-[#132A3A] outline-none focus:border-[#F5A300] flex-1 sm:flex-initial"
+              className="font-mono text-xs font-bold border-2 border-[#E7DCC4] dark:border-[#2a3d4d] rounded-[3px] px-3 py-2 bg-white dark:bg-[#132A3A] text-[#132A3A] dark:text-[#E7DCC4] outline-none focus:border-[#F5A300] flex-1 sm:flex-initial"
             >
               {sortOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -208,7 +208,7 @@ function ShopPage() {
                     <button
                       onClick={() => updateParams({ page: String(safePage - 1) })}
                       disabled={safePage <= 1}
-                      className="p-2.5 rounded-[3px] border border-[#E7DCC4] bg-white text-[#132A3A] hover:bg-[#F5A300] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-bold"
+                      className="p-2.5 rounded-[3px] border border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-bold"
                     >
                       <ChevronLeft className="w-4 h-4" />
                     </button>
@@ -219,7 +219,7 @@ function ShopPage() {
                         className={`w-10 h-10 rounded-[3px] font-mono font-extrabold transition-colors border ${
                           safePage === i + 1
                             ? "bg-[#132A3A] text-[#F5A300] border-[#132A3A]"
-                            : "bg-white text-[#132A3A] border-[#E7DCC4] hover:bg-[#F5A300]/20"
+                            : "bg-white dark:bg-[#132A3A] text-[#132A3A] dark:text-[#E7DCC4] border-[#E7DCC4] dark:border-[#2a3d4d] hover:bg-[#F5A300]/20"
                         }`}
                       >
                         {i + 1}
@@ -228,7 +228,7 @@ function ShopPage() {
                     <button
                       onClick={() => updateParams({ page: String(safePage + 1) })}
                       disabled={safePage >= totalPages}
-                      className="p-2.5 rounded-[3px] border border-[#E7DCC4] bg-white text-[#132A3A] hover:bg-[#F5A300] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-bold"
+                      className="p-2.5 rounded-[3px] border border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300] transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-bold"
                     >
                       <ChevronRight className="w-4 h-4" />
                     </button>
@@ -254,7 +254,7 @@ function ShopPage() {
                 animate={{ x: 0 }}
                 exit={{ x: "-100%" }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                className="fixed top-0 left-0 right-0 bottom-0 w-full max-w-sm bg-[#FBF6EC] z-[70] shadow-2xl p-6 overflow-y-auto lg:hidden border-r-2 border-[#E7DCC4]"
+                className="fixed top-0 left-0 right-0 bottom-0 w-full max-w-sm bg-[#FBF6EC] dark:bg-[#0D1F2C] z-[70] shadow-2xl p-6 overflow-y-auto lg:hidden border-r-2 border-[#E7DCC4] dark:border-[#2a3d4d]"
               >
                 <ProductFilters
                   filters={filters}

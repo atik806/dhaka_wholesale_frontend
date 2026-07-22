@@ -90,7 +90,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
     <>
       {/* Bottom Navigation Bar — phones only (< 768px) */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#132A3A] border-t border-[#E7DCC4]/20"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#132A3A] dark:bg-[#0A1A28] border-t border-[#E7DCC4]/20"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         aria-label="Mobile navigation"
       >
@@ -187,13 +187,13 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-[#FBF6EC] z-[70] shadow-2xl"
+              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-[#FBF6EC] dark:bg-[#0D1F2C] z-[70] shadow-2xl"
             >
-              <div className="flex items-center justify-between p-4 border-b border-[#E7DCC4] bg-[#132A3A]">
+              <div className="flex items-center justify-between p-4 border-b border-[#E7DCC4] dark:border-[#2a3d4d] bg-[#132A3A] dark:bg-[#0A1A28]">
                 <SiteLogo variant="mobile" href={null} showWordmark />
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-[2px] hover:bg-[#0D1F2C] transition-colors text-[#E7DCC4] hover:text-[#F5A300]"
+                  className="p-2 rounded-[2px] hover:bg-[#0D1F2C] dark:hover:bg-[#071520] transition-colors text-[#E7DCC4] hover:text-[#F5A300]"
                   aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
@@ -203,7 +203,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                 {/* Quick Search */}
                 <button
                   onClick={() => { onClose(); onSearchOpen(); }}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] bg-[#E7DCC4]/40 hover:bg-[#F5A300]/20 transition-colors"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] bg-[#E7DCC4]/40 dark:bg-[#132A3A] hover:bg-[#F5A300]/20 transition-colors"
                 >
                   <Search className="w-4 h-4 text-[#F5A300]" /> Search Products...
                 </button>
@@ -221,7 +221,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                       className={`block px-4 py-2.5 rounded-[2px] text-sm font-sans transition-colors ${
                         pathname === `/shop/${cat.slug}`
                           ? "text-[#D88900] bg-[#F5A300]/15 font-bold"
-                          : "text-[#1C1A17]/80 hover:text-[#D88900] hover:bg-[#F5A300]/10"
+                          : "text-[#1C1A17]/80 dark:text-[#a0b4c4] hover:text-[#D88900] hover:bg-[#F5A300]/10"
                       }`}
                     >
                       {cat.name}
@@ -229,7 +229,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                   ))}
                 </div>
 
-                <hr className="my-3 border-[#E7DCC4]" />
+                <hr className="my-3 border-[#E7DCC4] dark:border-[#2a3d4d]" />
 
                 {/* Quick Links — secondary nav not in bottom bar */}
                 <Link
@@ -238,7 +238,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                   className={`flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans transition-colors ${
                     pathname === "/shop" && pathname.includes("newest")
                       ? "text-[#D88900] bg-[#F5A300]/15"
-                      : "text-[#132A3A] hover:bg-[#F5A300]/10 hover:text-[#D88900]"
+                      : "text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 hover:text-[#D88900]"
                   }`}
                 >
                   <Sparkles className="w-4 h-4 text-[#F5A300]" /> New Arrivals
@@ -246,7 +246,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                 <Link
                   href="/shop?sort=popular"
                   onClick={onClose}
-                  className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors"
                 >
                   <TrendingUp className="w-4 h-4 text-[#F5A300]" /> Best Sellers
                 </Link>
@@ -258,23 +258,23 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                   <Phone className="w-4 h-4" /> Contact Us
                 </Link>
 
-                <hr className="my-3 border-[#E7DCC4]" />
+                <hr className="my-3 border-[#E7DCC4] dark:border-[#2a3d4d]" />
 
                 {/* Account Section */}
                 {authHydrated && (
                   isLoggedIn ? (
                     <div className="pt-2 pb-1">
-                      <p className="px-4 text-[11px] font-mono font-bold uppercase tracking-wider text-[#132A3A]/60 mb-1">
+                      <p className="px-4 text-[11px] font-mono font-bold uppercase tracking-wider text-[#132A3A]/60 dark:text-[#a0b4c4] mb-1">
                         Account
                       </p>
-                      <div className="px-4 py-2 mb-1 bg-[#132A3A] rounded-[2px]">
+                      <div className="px-4 py-2 mb-1 bg-[#132A3A] dark:bg-[#0A1A28] rounded-[2px]">
                         <p className="text-sm font-bold text-[#F5A300] font-sans">{user?.name}</p>
                         <p className="text-xs text-[#E7DCC4]/70 font-mono">{user?.email}</p>
                       </div>
                       <Link
                         href="/account"
                         onClick={onClose}
-                        className="flex items-center gap-3 px-4 py-2.5 rounded-[2px] text-sm font-sans text-[#132A3A] hover:bg-[#F5A300]/10 transition-colors"
+                        className="flex items-center gap-3 px-4 py-2.5 rounded-[2px] text-sm font-sans text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 transition-colors"
                       >
                         <User className="w-4 h-4 text-[#F5A300]" /> My Account
                       </Link>
@@ -289,19 +289,19 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                     <Link
                       href="/login"
                       onClick={onClose}
-                      className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors"
+                      className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors"
                     >
                       <User className="w-4 h-4 text-[#F5A300]" /> Sign In / Register
                     </Link>
                   )
                 )}
 
-                <hr className="my-3 border-[#E7DCC4]" />
+                <hr className="my-3 border-[#E7DCC4] dark:border-[#2a3d4d]" />
 
                 {/* Theme Toggle */}
                 <button
                   onClick={toggleTheme}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors min-h-[44px]"
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors min-h-[44px]"
                 >
                   {theme === "dark" ? (
                     <Sun className="w-4 h-4 text-[#F5A300]" />

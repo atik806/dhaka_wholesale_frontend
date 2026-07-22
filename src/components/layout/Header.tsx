@@ -127,14 +127,14 @@ export const Header = memo(function Header() {
           initial={{ opacity: 0, y: 8, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 8, scale: 0.98 }}
-          className="absolute top-full right-0 mt-2 w-72 sm:w-96 max-w-[calc(100vw-2rem)] bg-[#FBF6EC] rounded-[3px] shadow-2xl border border-[#E7DCC4] overflow-hidden z-50 text-[#1C1A17]"
+          className="absolute top-full right-0 mt-2 w-72 sm:w-96 max-w-[calc(100vw-2rem)] bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] overflow-hidden z-50 text-[#1C1A17] dark:text-[#E7DCC4]"
         >
           {searchLoading && (
-            <div className="px-4 py-3 text-xs font-mono text-[#132A3A]/70">SEARCHING...</div>
+            <div className="px-4 py-3 text-xs font-mono text-[#132A3A]/70 dark:text-[#E7DCC4]/70">SEARCHING...</div>
           )}
           {!searchLoading && searchResults.length > 0 && (
             <div className="py-1">
-              <div className="px-3 py-1.5 bg-[#132A3A] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider">
+              <div className="px-3 py-1.5 bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider">
                 Matching Items ({searchResults.length})
               </div>
               {searchResults.map((product) => (
@@ -142,15 +142,15 @@ export const Header = memo(function Header() {
                   key={product.id}
                   href={`/product/${product.slug}`}
                   onClick={handleResultClick}
-                  className="flex items-center gap-3 px-4 py-2.5 border-b border-[#E7DCC4]/50 hover:bg-[#F5A300]/10 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 border-b border-[#E7DCC4]/50 dark:border-[#2a3d4d] hover:bg-[#F5A300]/10 transition-colors"
                 >
                   <img
                     src={safeImage(product.images)}
                     alt={product.name}
-                    className="w-10 h-10 rounded-[2px] object-cover bg-white border border-[#E7DCC4]"
+                    className="w-10 h-10 rounded-[2px] object-cover bg-white dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d]"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-[#132A3A] truncate">{product.name}</p>
+                    <p                     className="text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] truncate">{product.name}</p>
                     <p className="text-xs font-mono font-bold text-[#1F6F50]">{formatPrice(product.price)}</p>
                   </div>
                 </Link>
@@ -158,7 +158,7 @@ export const Header = memo(function Header() {
               {searchTotal > 6 && (
                 <button
                   onClick={handleSearchSubmit}
-                  className="w-full px-4 py-2.5 text-xs font-mono font-bold text-[#132A3A] bg-[#E7DCC4]/40 hover:bg-[#F5A300] hover:text-[#132A3A] transition-colors border-t border-[#E7DCC4]"
+                  className="w-full px-4 py-2.5 text-xs font-mono font-bold text-[#132A3A] dark:text-[#E7DCC4] bg-[#E7DCC4]/40 dark:bg-[#0A1A28] hover:bg-[#F5A300] hover:text-[#132A3A] transition-colors border-t border-[#E7DCC4] dark:border-[#2a3d4d]"
                 >
                   VIEW ALL {searchTotal} RESULTS &rarr;
                 </button>
@@ -167,7 +167,7 @@ export const Header = memo(function Header() {
           )}
           {!searchLoading && searchQuery.trim() && searchResults.length === 0 && (
             <div className="px-4 py-6 text-center">
-              <p className="text-xs font-mono text-[#1C1A17]/60">NO MATCHES FOUND FOR &quot;{searchQuery}&quot;</p>
+              <p className="text-xs font-mono text-[#1C1A17]/60 dark:text-[#a0b4c4]">NO MATCHES FOUND FOR &quot;{searchQuery}&quot;</p>
             </div>
           )}
         </motion.div>
@@ -178,7 +178,7 @@ export const Header = memo(function Header() {
   return (
     <>
       {/* 1. Dark mono-font announcement bar on top */}
-      <div className="bg-[#0D1F2C] text-[#E7DCC4] text-[11px] font-mono py-2 border-b border-[#E7DCC4]/20 hidden md:block">
+      <div className="bg-[#0D1F2C] dark:bg-[#071520] text-[#E7DCC4] text-[11px] font-mono py-2 border-b border-[#E7DCC4]/20 hidden md:block">
         <div className="container flex items-center justify-between">
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5 text-[#F5A300] font-bold">
@@ -205,7 +205,7 @@ export const Header = memo(function Header() {
 
       {/* 2. Navy header with circular rotated logo mark, marigold underline on nav hover, pill-shaped account button in marigold */}
       <header
-        className={`sticky top-0 z-50 bg-[#132A3A] transition-all duration-200 border-b border-[#E7DCC4]/20 ${
+        className={`sticky top-0 z-50 bg-[#132A3A] dark:bg-[#0A1A28] transition-all duration-200 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d]/20 ${
           scrolled ? "shadow-xl py-0.5" : ""
         }`}
       >
@@ -238,20 +238,20 @@ export const Header = memo(function Header() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute top-full left-0 mt-2 w-60 bg-[#FBF6EC] rounded-[3px] shadow-2xl border border-[#E7DCC4] py-2 text-[#1C1A17]"
+                     className="absolute top-full left-0 mt-2 w-60 bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] py-2 text-[#1C1A17] dark:text-[#E7DCC4]"
                   >
-                    <div className="px-4 py-1.5 bg-[#132A3A] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider mb-1">
+                    <div className="px-4 py-1.5 bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider mb-1">
                       Market Categories
                     </div>
                     {categories.map((cat) => (
                       <Link
                         key={cat.id}
                         href={`/shop/${cat.slug}`}
-                        className="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-[#132A3A] hover:bg-[#F5A300]/15 hover:text-[#D88900] transition-colors border-b border-[#E7DCC4]/40 last:border-0"
+                        className="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/15 hover:text-[#D88900] transition-colors border-b border-[#E7DCC4]/40 last:border-0"
                         onClick={() => setCategoryOpen(false)}
                       >
                         <span>{cat.name}</span>
-                        <span className="font-mono text-[10px] bg-[#132A3A] text-[#E7DCC4] px-1.5 py-0.5 rounded-[2px]">
+                          <span className="font-mono text-[10px] bg-[#132A3A] dark:bg-[#0A1A28] text-[#E7DCC4] px-1.5 py-0.5 rounded-[2px]">
                           {cat.productCount}
                         </span>
                       </Link>
@@ -284,7 +284,7 @@ export const Header = memo(function Header() {
           <div className="flex items-center gap-2 md:gap-3">
             {/* Search Box */}
             <div ref={searchRef} className="relative hidden md:block">
-              <div className="flex items-center gap-2 bg-[#0D1F2C] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-1.5 w-48 lg:w-60 focus-within:border-[#F5A300] transition-colors">
+              <div className="flex items-center gap-2 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-1.5 w-48 lg:w-60 focus-within:border-[#F5A300] transition-colors">
                 <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
                 <input
                   ref={searchInputRef}
@@ -350,7 +350,7 @@ export const Header = memo(function Header() {
             {/* Cart Button */}
             <Link
               href="/cart"
-              className="p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative flex items-center gap-1 bg-[#0D1F2C] border border-[#E7DCC4]/30 rounded-[3px] px-2.5 py-1.5"
+              className="p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative flex items-center gap-1 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-2.5 py-1.5"
               aria-label="Shopping Cart"
             >
               <ShoppingBag className="w-4 h-4 text-[#F5A300]" />
@@ -390,9 +390,9 @@ export const Header = memo(function Header() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.98 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute top-full right-0 mt-2 w-56 bg-[#FBF6EC] rounded-[3px] shadow-2xl border border-[#E7DCC4] py-2 z-50 text-[#1C1A17]"
+                    className="absolute top-full right-0 mt-2 w-56 bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] py-2 z-50 text-[#1C1A17] dark:text-[#E7DCC4]"
                   >
-                    <div className="px-4 py-2 border-b border-[#E7DCC4] bg-[#132A3A] text-white">
+                    <div className="px-4 py-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d] bg-[#132A3A] dark:bg-[#0A1A28] text-white">
                       <p className="text-xs font-bold truncate text-[#F5A300]">
                         {user?.name}
                       </p>
@@ -403,7 +403,7 @@ export const Header = memo(function Header() {
                     <Link
                       href="/account"
                       onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#132A3A] hover:bg-[#F5A300]/15 transition-colors border-b border-[#E7DCC4]/40"
+                      className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/15 transition-colors border-b border-[#E7DCC4]/40 dark:border-[#2a3d4d]"
                     >
                       <User className="w-4 h-4 text-[#F5A300]" />
                       My Account
@@ -445,10 +445,10 @@ export const Header = memo(function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-[#132A3A] text-white md:hidden"
+            className="fixed inset-0 z-[60] bg-[#132A3A] dark:bg-[#0A1A28] text-white md:hidden"
           >
-            <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-[#E7DCC4]/20">
-              <div className="flex items-center gap-2 flex-1 bg-[#0D1F2C] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-2">
+            <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d]/20">
+              <div className="flex items-center gap-2 flex-1 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-2">
                 <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
                 <input
                   ref={mobileSearchInputRef}
@@ -486,13 +486,13 @@ export const Header = memo(function Header() {
                 CLOSE
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(100vh-70px)] bg-[#FBF6EC] text-[#1C1A17]">
+            <div className="overflow-y-auto max-h-[calc(100vh-70px)] bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#1C1A17] dark:text-[#E7DCC4]">
               {searchLoading && (
-                <div className="px-4 py-4 text-xs font-mono text-[#132A3A]">Searching...</div>
+                <div className="px-4 py-4 text-xs font-mono text-[#132A3A] dark:text-[#E7DCC4]">Searching...</div>
               )}
               {!searchLoading && searchResults.length > 0 && (
                 <div>
-                  <div className="px-4 py-2 bg-[#132A3A] text-[#F5A300] font-mono text-xs font-bold">
+                  <div className="px-4 py-2 bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono text-xs font-bold">
                     Results ({searchResults.length})
                   </div>
                   {searchResults.map((product) => (
@@ -500,15 +500,15 @@ export const Header = memo(function Header() {
                       key={product.id}
                       href={`/product/${product.slug}`}
                       onClick={handleResultClick}
-                      className="flex items-center gap-3 px-4 py-3 border-b border-[#E7DCC4] hover:bg-[#F5A300]/10"
+                      className="flex items-center gap-3 px-4 py-3 border-b border-[#E7DCC4] dark:border-[#2a3d4d] hover:bg-[#F5A300]/10"
                     >
                       <img
                         src={safeImage(product.images)}
                         alt={product.name}
-                        className="w-12 h-12 rounded-[2px] object-cover bg-white border border-[#E7DCC4]"
+                        className="w-12 h-12 rounded-[2px] object-cover bg-white dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d]"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-[#132A3A] truncate">{product.name}</p>
+                        <p className="text-sm font-bold text-[#132A3A] dark:text-[#E7DCC4] truncate">{product.name}</p>
                         <p className="text-xs font-mono font-bold text-[#1F6F50]">{formatPrice(product.price)}</p>
                       </div>
                     </Link>
@@ -516,7 +516,7 @@ export const Header = memo(function Header() {
                   {searchTotal > 6 && (
                     <button
                       onClick={handleSearchSubmit}
-                      className="w-full px-4 py-3 text-xs font-mono font-bold text-[#132A3A] bg-[#E7DCC4]/50 border-t border-[#E7DCC4]"
+                      className="w-full px-4 py-3 text-xs font-mono font-bold text-[#132A3A] dark:text-[#E7DCC4] bg-[#E7DCC4]/50 dark:bg-[#0A1A28] border-t border-[#E7DCC4] dark:border-[#2a3d4d]"
                     >
                       VIEW ALL {searchTotal} RESULTS &rarr;
                     </button>

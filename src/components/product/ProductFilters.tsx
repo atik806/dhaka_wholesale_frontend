@@ -33,13 +33,13 @@ function CustomCheckbox({
       onClick={onChange}
       className={`flex-shrink-0 w-4 h-4 rounded-[2px] border transition-colors duration-150 flex items-center justify-center ${
         checked
-          ? "bg-[#F5A300] border-[#D88900] text-[#132A3A]"
-          : "bg-white border-[#E7DCC4]"
+          ? "bg-[#F5A300] border-[#D88900] text-[#132A3A] dark:text-[#E7DCC4]"
+          : "bg-white dark:bg-[#132A3A] border-[#E7DCC4] dark:border-[#2a3d4d]"
       }`}
     >
       {checked && (
         <svg
-          className="w-3 h-3 text-[#132A3A]"
+          className="w-3 h-3 text-[#132A3A] dark:text-[#E7DCC4]"
           viewBox="0 0 12 12"
           fill="none"
           stroke="currentColor"
@@ -69,8 +69,8 @@ function CustomRadio({
       onClick={onChange}
       className={`flex-shrink-0 w-4 h-4 rounded-full border transition-colors duration-150 flex items-center justify-center ${
         checked
-          ? "border-[#F5A300] bg-[#132A3A]"
-          : "bg-white border-[#E7DCC4]"
+          ? "border-[#F5A300] bg-[#132A3A] dark:bg-[#0A1A28]"
+          : "bg-white dark:bg-[#132A3A] border-[#E7DCC4] dark:border-[#2a3d4d]"
       }`}
     >
       {checked && (
@@ -117,11 +117,11 @@ export function ProductFilters({ filters, onChange, onClose }: ProductFiltersPro
     filters.rating !== null;
 
   return (
-    <div className="bg-white rounded-[3px] border-2 border-[#E7DCC4] p-5 shadow-sm space-y-6">
-      <div className="flex items-center justify-between pb-3 border-b border-[#E7DCC4]">
+    <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-5 shadow-sm space-y-6">
+      <div className="flex items-center justify-between pb-3 border-b border-[#E7DCC4] dark:border-[#2a3d4d]">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-[#F5A300]" />
-          <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#132A3A]">
+          <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#132A3A] dark:text-[#E7DCC4]">
             Market Filters
           </span>
         </div>
@@ -137,7 +137,7 @@ export function ProductFilters({ filters, onChange, onClose }: ProductFiltersPro
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1 rounded-[2px] hover:bg-[#FBF6EC] transition-colors md:hidden text-[#132A3A]"
+              className="p-1 rounded-[2px] hover:bg-[#FBF6EC] dark:hover:bg-[#0D1F2C] transition-colors md:hidden text-[#132A3A] dark:text-[#E7DCC4]"
             >
               <X className="w-4 h-4" />
             </button>
@@ -160,7 +160,7 @@ export function ProductFilters({ filters, onChange, onClose }: ProductFiltersPro
                 checked={filters.categories.includes(cat.slug)}
                 onChange={() => toggleCategory(cat.slug)}
               />
-              <span className="text-xs font-sans font-medium text-[#1C1A17] group-hover:text-[#F5A300] transition-colors">
+              <span className="text-xs font-sans font-medium text-[#1C1A17] dark:text-[#E7DCC4] group-hover:text-[#F5A300] transition-colors">
                 {cat.name}
               </span>
             </label>
@@ -183,7 +183,7 @@ export function ProductFilters({ filters, onChange, onClose }: ProductFiltersPro
                 checked={filters.priceRange === range.value}
                 onChange={() => setPrice(range.value)}
               />
-              <span className="font-mono text-xs text-[#1C1A17] group-hover:text-[#F5A300] transition-colors">
+              <span className="font-mono text-xs text-[#1C1A17] dark:text-[#E7DCC4] group-hover:text-[#F5A300] transition-colors">
                 {range.label}
               </span>
             </label>
@@ -206,7 +206,7 @@ export function ProductFilters({ filters, onChange, onClose }: ProductFiltersPro
                 checked={filters.rating === star}
                 onChange={() => setRating(star)}
               />
-              <span className="flex items-center gap-1 font-mono text-xs text-[#1C1A17] group-hover:text-[#F5A300] transition-colors">
+              <span className="flex items-center gap-1 font-mono text-xs text-[#1C1A17] dark:text-[#E7DCC4] group-hover:text-[#F5A300] transition-colors">
                 {Array.from({ length: star }, (_, i) => (
                   <Star
                     key={i}
@@ -222,7 +222,7 @@ export function ProductFilters({ filters, onChange, onClose }: ProductFiltersPro
               checked={filters.rating === null}
               onChange={() => setRating(null)}
             />
-            <span className="font-mono text-xs text-[#1C1A17] group-hover:text-[#F5A300] transition-colors">
+            <span className="font-mono text-xs text-[#1C1A17] dark:text-[#E7DCC4] group-hover:text-[#F5A300] transition-colors">
               Any Rating
             </span>
           </label>
@@ -244,10 +244,10 @@ function FilterSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-[#E7DCC4] pb-4">
+    <div className="border-b border-[#E7DCC4] dark:border-[#2a3d4d] pb-4">
       <button
         onClick={onToggle}
-        className="flex items-center justify-between w-full py-1 font-serif font-bold text-sm text-[#132A3A]"
+        className="flex items-center justify-between w-full py-1 font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4]"
       >
         {title}
         <motion.div

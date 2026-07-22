@@ -53,10 +53,10 @@ export default function PrivacyPolicyPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC]"
+      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
     >
       {/* Page Hero Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-12 md:py-16">
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-16">
         <div className="container">
           <Breadcrumbs items={[{ label: "Privacy Policy" }]} />
           <div className="max-w-2xl mt-4">
@@ -82,10 +82,10 @@ export default function PrivacyPolicyPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white rounded-[3px] border-2 border-[#E7DCC4] p-6 sm:p-8 shadow-sm"
+                className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 sm:p-8 shadow-sm"
               >
-                <h2 className="font-serif font-bold text-lg text-[#132A3A] mb-3">{title}</h2>
-                <p className="text-sm text-[#1C1A17]/70 leading-relaxed font-sans">
+                <h2 className="font-serif font-bold text-lg text-[#132A3A] dark:text-[#E7DCC4] mb-3">{title}</h2>
+                <p className="text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] leading-relaxed font-sans">
                   {content}
                 </p>
               </motion.div>

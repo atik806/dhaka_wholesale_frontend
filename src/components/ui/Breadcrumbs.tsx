@@ -14,7 +14,7 @@ interface BreadcrumbsProps {
 
 export function Breadcrumbs({ items }: BreadcrumbsProps) {
   return (
-    <nav className="flex items-center gap-1.5 font-mono text-xs text-[#132A3A]/70 mb-6 flex-wrap bg-[#FBF6EC] border border-[#E7DCC4] px-3 py-1.5 rounded-[2px] w-fit">
+    <nav className="flex items-center gap-1.5 font-mono text-xs text-[#132A3A]/70 dark:text-[#a0b4c4] mb-6 flex-wrap bg-[#FBF6EC] dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d] px-3 py-1.5 rounded-[2px] w-fit">
       <Link href="/" className="hover:text-[#F5A300] transition-colors flex items-center gap-1">
         <Home className="w-3.5 h-3.5 text-[#F5A300]" />
         <span>HOME</span>
@@ -27,7 +27,7 @@ export function Breadcrumbs({ items }: BreadcrumbsProps) {
               {item.label}
             </Link>
           ) : (
-            <span className="text-[#132A3A] font-bold uppercase">{item.label}</span>
+            <span className="text-[#132A3A] dark:text-[#E7DCC4] font-bold uppercase">{item.label}</span>
           )}
         </span>
       ))}

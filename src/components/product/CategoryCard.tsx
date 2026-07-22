@@ -35,20 +35,20 @@ export const CategoryCard = memo(function CategoryCard({ category, index = 0 }: 
     >
       <Link
         href={`/shop/${category.slug}`}
-        className="group block bg-white rounded-[3px] border border-[#E7DCC4] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-[#F5A300] relative overflow-hidden"
+        className="group block bg-white dark:bg-[#132A3A] rounded-[3px] border border-[#E7DCC4] dark:border-[#2a3d4d] p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-[#F5A300] relative overflow-hidden"
       >
         {/* Soft pastel icon circle at top */}
         <div className="flex items-start justify-between mb-4">
           <div className={`w-12 h-12 rounded-full flex items-center justify-center border shadow-sm ${colorClass}`}>
             <IconComponent className="w-6 h-6" />
           </div>
-          <span className="font-mono text-[10px] font-bold text-[#132A3A] bg-[#FBF6EC] border border-[#E7DCC4] px-2 py-1 rounded-[2px]">
+          <span className="font-mono text-[10px] font-bold text-[#132A3A] dark:text-[#E7DCC4] bg-[#FBF6EC] dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d] px-2 py-1 rounded-[2px]">
             #{index + 1}
           </span>
         </div>
 
         {/* Image preview thumbnail box */}
-        <div className="relative w-full h-28 rounded-[2px] overflow-hidden bg-[#FBF6EC] border border-[#E7DCC4]/60 mb-4">
+        <div className="relative w-full h-28 rounded-[2px] overflow-hidden bg-[#FBF6EC] dark:bg-[#0D1F2C] border border-[#E7DCC4]/60 dark:border-[#2a3d4d]/60 mb-4">
           <Image
             src={imgSrc}
             alt={category.name}
@@ -62,7 +62,7 @@ export const CategoryCard = memo(function CategoryCard({ category, index = 0 }: 
 
         <div className="flex items-end justify-between">
           <div>
-            <h3 className="font-serif text-lg font-bold text-[#132A3A] group-hover:text-[#F5A300] transition-colors leading-snug">
+            <h3 className="font-serif text-lg font-bold text-[#132A3A] dark:text-[#E7DCC4] group-hover:text-[#F5A300] transition-colors leading-snug">
               {category.name}
             </h3>
             <p className="font-mono text-xs text-[#1F6F50] font-bold mt-1">

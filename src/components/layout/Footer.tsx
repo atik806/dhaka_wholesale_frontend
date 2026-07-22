@@ -16,7 +16,7 @@ export const Footer = memo(function Footer() {
   const { data: categories = [] } = useCategories();
 
   return (
-    <footer className="bg-[#132A3A] text-[#E7DCC4] border-t-2 border-[#E7DCC4]/30">
+    <footer className="bg-[#132A3A] dark:bg-[#0A1A28] text-[#E7DCC4] border-t-2 border-[#E7DCC4]/30">
       {/* Main Footer Content */}
       <div className="container py-12 md:py-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-10">
@@ -52,7 +52,7 @@ export const Footer = memo(function Footer() {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] border border-[#E7DCC4]/30 hover:bg-[#F5A300] hover:text-[#132A3A] hover:border-[#D88900] flex items-center justify-center transition-colors text-white"
+                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 dark:border-[#2a3d4d] hover:bg-[#F5A300] hover:text-[#132A3A] hover:border-[#D88900] flex items-center justify-center transition-colors text-white"
                 aria-label="Facebook"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -63,7 +63,7 @@ export const Footer = memo(function Footer() {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] border border-[#E7DCC4]/30 hover:bg-[#BE3D1F] hover:text-white hover:border-red-900 flex items-center justify-center transition-colors text-white"
+                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 dark:border-[#2a3d4d] hover:bg-[#BE3D1F] hover:text-white hover:border-red-900 flex items-center justify-center transition-colors text-white"
                 aria-label="Instagram"
               >
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -74,14 +74,14 @@ export const Footer = memo(function Footer() {
               </a>
               <a
                 href="mailto:atikrj8@gmail.com"
-                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] border border-[#E7DCC4]/30 hover:bg-[#F5A300] hover:text-[#132A3A] flex items-center justify-center transition-colors text-white"
+                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 dark:border-[#2a3d4d] hover:bg-[#F5A300] hover:text-[#132A3A] flex items-center justify-center transition-colors text-white"
                 aria-label="Email"
               >
                 <Mail className="w-4 h-4" />
               </a>
               <a
                 href="tel:01302228993"
-                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] border border-[#E7DCC4]/30 hover:bg-[#1F6F50] hover:text-white flex items-center justify-center transition-colors text-white"
+                className="w-9 h-9 rounded-[2px] bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 dark:border-[#2a3d4d] hover:bg-[#1F6F50] hover:text-white flex items-center justify-center transition-colors text-white"
                 aria-label="Phone Call"
               >
                 <Phone className="w-4 h-4" />
@@ -91,7 +91,7 @@ export const Footer = memo(function Footer() {
 
           {/* Column 2: Shop Links */}
           <div>
-            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 flex items-center gap-1.5">
+            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d] flex items-center gap-1.5">
               <span className="w-2 h-2 bg-[#F5A300] inline-block" /> Shop
             </h4>
             <ul className="space-y-2.5 font-sans text-xs">
@@ -115,7 +115,7 @@ export const Footer = memo(function Footer() {
 
           {/* Column 3: Support Links */}
           <div>
-            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 flex items-center gap-1.5">
+            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d] flex items-center gap-1.5">
               <span className="w-2 h-2 bg-[#BE3D1F] inline-block" /> Customer Care
             </h4>
             <ul className="space-y-2.5 font-sans text-xs">
@@ -140,7 +140,7 @@ export const Footer = memo(function Footer() {
 
           {/* Column 4: Company Links & Payment Method Tags */}
           <div>
-            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 flex items-center gap-1.5">
+            <h4 className="font-serif font-bold text-white text-base mb-4 pb-2 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d] flex items-center gap-1.5">
               <span className="w-2 h-2 bg-[#1F6F50] inline-block" /> Company
             </h4>
             <ul className="space-y-2.5 font-sans text-xs mb-6">
@@ -169,7 +169,7 @@ export const Footer = memo(function Footer() {
               {["bKash", "Nagad", "COD", "Visa"].map((method) => (
                 <span
                   key={method}
-                  className="font-mono text-[11px] font-bold px-2.5 py-1 bg-[#0D1F2C] text-[#E7DCC4] border border-[#E7DCC4]/40 rounded-[2px] shadow-sm uppercase tracking-wider"
+                  className="font-mono text-[11px] font-bold px-2.5 py-1 bg-[#0D1F2C] dark:bg-[#071520] text-[#E7DCC4] border border-[#E7DCC4]/40 dark:border-[#2a3d4d] rounded-[2px] shadow-sm uppercase tracking-wider"
                 >
                   {method}
                 </span>
@@ -180,7 +180,7 @@ export const Footer = memo(function Footer() {
       </div>
 
       {/* Bottom Row: Darker Navy base with Copyright & Payment Method tags note */}
-      <div className="bg-[#0D1F2C] border-t border-[#E7DCC4]/20 py-5 text-xs font-mono text-[#E7DCC4]/70">
+      <div className="bg-[#0D1F2C] dark:bg-[#071520] border-t border-[#E7DCC4]/20 dark:border-[#2a3d4d] py-5 text-xs font-mono text-[#E7DCC4]/70">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <p>
             &copy; {new Date().getFullYear()} DHAKADROP. ALL RIGHTS RESERVED.

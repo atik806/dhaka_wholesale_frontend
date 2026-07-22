@@ -69,10 +69,10 @@ export default function FAQPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC]"
+      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
     >
       {/* Page Hero Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-12 md:py-16">
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-16">
         <div className="container">
           <Breadcrumbs items={[{ label: "FAQ" }]} />
           <div className="max-w-2xl mt-4">
@@ -91,20 +91,20 @@ export default function FAQPage() {
 
       <div className="container py-12">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 bg-white rounded-[3px] border-2 border-[#E7DCC4] px-4 mb-8 max-w-md mx-auto focus-within:border-[#F5A300] transition-colors">
+          <div className="flex items-center gap-2 bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 mb-8 max-w-md mx-auto focus-within:border-[#F5A300] transition-colors">
             <Search className="w-5 h-5 text-[#F5A300] shrink-0" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search FAQs..."
-              className="flex-1 bg-transparent py-3 text-sm outline-none text-[#132A3A] placeholder:text-[#1C1A17]/40 font-mono"
+              className="flex-1 bg-transparent py-3 text-sm outline-none text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4] font-mono"
             />
           </div>
 
           <div className="space-y-3">
             {filtered.length === 0 ? (
-              <p className="text-center text-[#1C1A17]/60 py-10 font-mono text-xs">No results found for &quot;{search}&quot;</p>
+              <p className="text-center text-[#1C1A17]/60 dark:text-[#a0b4c4] py-10 font-mono text-xs">No results found for &quot;{search}&quot;</p>
             ) : (
               filtered.map((item, i) => (
                 <motion.div
@@ -112,15 +112,15 @@ export default function FAQPage() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="bg-white rounded-[3px] border-2 border-[#E7DCC4] overflow-hidden"
+                  className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] overflow-hidden"
                 >
                   <button
                     onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                    className="flex items-center justify-between w-full px-6 py-4 text-left hover:bg-[#FBF6EC] transition-colors"
+                    className="flex items-center justify-between w-full px-6 py-4 text-left hover:bg-[#FBF6EC] dark:bg-[#0D1F2C] transition-colors"
                   >
                     <div>
                       <p className="font-mono text-[10px] text-[#F5A300] font-bold uppercase tracking-wider mb-0.5">{item.category}</p>
-                      <span className="font-serif font-bold text-sm text-[#132A3A]">{item.q}</span>
+                      <span className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4]">{item.q}</span>
                     </div>
                     <ChevronDown
                       className={`w-4 h-4 text-[#F5A300] shrink-0 transition-transform duration-200 ${
@@ -137,7 +137,7 @@ export default function FAQPage() {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <p className="px-6 pb-4 text-sm text-[#1C1A17]/70 leading-relaxed font-sans border-t border-[#E7DCC4] pt-3">
+                        <p className="px-6 pb-4 text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] leading-relaxed font-sans border-t border-[#E7DCC4] dark:border-[#2a3d4d] pt-3">
                           {item.a}
                         </p>
                       </motion.div>

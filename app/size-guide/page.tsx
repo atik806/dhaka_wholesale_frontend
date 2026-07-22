@@ -45,10 +45,10 @@ export default function SizeGuidePage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC]"
+      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
     >
       {/* Page Hero Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-12 md:py-16">
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-16">
         <div className="container">
           <Breadcrumbs items={[{ label: "Size Guide" }]} />
           <div className="max-w-2xl mt-4">
@@ -75,8 +75,8 @@ export default function SizeGuidePage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.15 }}
               >
-                <h2 className="font-serif font-bold text-lg text-[#132A3A] mb-4">{table.category}</h2>
-                <div className="overflow-x-auto rounded-[3px] border-2 border-[#E7DCC4]">
+                <h2 className="font-serif font-bold text-lg text-[#132A3A] dark:text-[#E7DCC4] mb-4">{table.category}</h2>
+                <div className="overflow-x-auto rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d]">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="bg-[#132A3A]">
@@ -94,12 +94,12 @@ export default function SizeGuidePage() {
                       {table.rows.map((row, j) => (
                         <tr
                           key={j}
-                          className={`border-t border-[#E7DCC4] ${j % 2 === 0 ? "bg-white" : "bg-[#FBF6EC]"}`}
+                          className={`border-t border-[#E7DCC4] dark:border-[#2a3d4d] ${j % 2 === 0 ? "bg-white dark:bg-[#132A3A]" : "bg-[#FBF6EC] dark:bg-[#0D1F2C]"}`}
                         >
                           {row.map((val, k) => (
                             <td
                               key={k}
-                              className="px-4 py-3 whitespace-nowrap text-[#132A3A] font-mono text-xs"
+                              className="px-4 py-3 whitespace-nowrap text-[#132A3A] dark:text-[#E7DCC4] font-mono text-xs"
                             >
                               {val || "-"}
                             </td>
@@ -113,13 +113,13 @@ export default function SizeGuidePage() {
             ))}
           </div>
 
-          <div className="mt-12 bg-white rounded-[3px] border-2 border-[#E7DCC4] p-6 sm:p-8 shadow-sm">
-            <h2 className="font-serif font-bold text-lg text-[#132A3A] mb-3">How to Measure</h2>
-            <ul className="space-y-2 text-sm text-[#1C1A17]/70 font-sans">
-              <li><strong className="text-[#132A3A]">Chest:</strong> Measure around the fullest part of your chest, keeping the tape parallel to the floor.</li>
-              <li><strong className="text-[#132A3A]">Waist:</strong> Measure around your natural waistline, keeping the tape snug but not tight.</li>
-              <li><strong className="text-[#132A3A]">Hip:</strong> Measure around the fullest part of your hips, about 8 inches below your waist.</li>
-              <li><strong className="text-[#132A3A]">Inseam:</strong> Measure from the top of your inner thigh to the bottom of your ankle.</li>
+          <div className="mt-12 bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 sm:p-8 shadow-sm">
+            <h2 className="font-serif font-bold text-lg text-[#132A3A] dark:text-[#E7DCC4] mb-3">How to Measure</h2>
+            <ul className="space-y-2 text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">
+              <li><strong className="text-[#132A3A] dark:text-[#E7DCC4]">Chest:</strong> Measure around the fullest part of your chest, keeping the tape parallel to the floor.</li>
+              <li><strong className="text-[#132A3A] dark:text-[#E7DCC4]">Waist:</strong> Measure around your natural waistline, keeping the tape snug but not tight.</li>
+              <li><strong className="text-[#132A3A] dark:text-[#E7DCC4]">Hip:</strong> Measure around the fullest part of your hips, about 8 inches below your waist.</li>
+              <li><strong className="text-[#132A3A] dark:text-[#E7DCC4]">Inseam:</strong> Measure from the top of your inner thigh to the bottom of your ankle.</li>
             </ul>
           </div>
         </div>

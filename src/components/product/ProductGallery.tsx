@@ -39,7 +39,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
         onMouseEnter={() => { setZoomed(true); setShowArrows(true); }}
         onMouseLeave={() => { setZoomed(false); setShowArrows(false); }}
         onMouseMove={handleMouseMove}
-        className="relative aspect-square rounded-[3px] overflow-hidden bg-white border-2 border-[#E7DCC4] shadow-sm cursor-crosshair group"
+        className="relative aspect-square rounded-[3px] overflow-hidden bg-white dark:bg-[#132A3A] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-sm cursor-crosshair group"
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -68,7 +68,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                 priority
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#1C1A17]/40">
+              <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#1C1A17]/40 dark:text-[#a0b4c4]">
                 NO PREVIEW
               </div>
             )}
@@ -107,7 +107,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
             className={`relative w-16 sm:w-20 h-16 sm:h-20 shrink-0 rounded-[2px] overflow-hidden border-2 transition-colors ${
               i === activeIndex
                 ? "border-[#F5A300] ring-1 ring-[#F5A300]"
-                : "border-[#E7DCC4] hover:border-[#132A3A]"
+                : "border-[#E7DCC4] dark:border-[#2a3d4d] hover:border-[#132A3A] dark:hover:border-[#E7DCC4]"
             }`}
           >
             {img ? (
@@ -119,7 +119,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                 sizes="80px"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center font-mono text-[10px] text-[#1C1A17]/40">N/A</div>
+              <div className="w-full h-full flex items-center justify-center font-mono text-[10px] text-[#1C1A17]/40 dark:text-[#a0b4c4]">N/A</div>
             )}
           </button>
         ))}

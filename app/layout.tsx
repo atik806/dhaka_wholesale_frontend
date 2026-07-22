@@ -68,7 +68,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${workSans.variable} ${ibmPlexMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="min-h-dvh flex flex-col bg-[#FBF6EC] text-[#1C1A17] font-sans antialiased selection:bg-[#F5A300]/30 selection:text-[#132A3A]">
+      <body className="min-h-dvh flex flex-col bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#1C1A17] dark:text-[#E7DCC4] font-sans antialiased selection:bg-[#F5A300]/30 selection:text-[#132A3A]">
         <ThemeInit />
         <a
           href="#main-content"

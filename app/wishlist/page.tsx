@@ -39,9 +39,9 @@ export default function WishlistPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="bg-[#FBF6EC]"
+        className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
       >
-        <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-10 md:py-14">
+        <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-10 md:py-14">
           <div className="container">
             <Breadcrumbs items={[{ label: "Wishlist" }]} />
             <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
@@ -70,9 +70,9 @@ export default function WishlistPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC]"
+      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
     >
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-10 md:py-14">
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-10 md:py-14">
         <div className="container">
           <Breadcrumbs items={[{ label: "Wishlist" }]} />
           <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">

@@ -12,7 +12,7 @@ export function TrendingProducts() {
   const trending = (products || []).slice(0, 8);
 
   return (
-    <section className="py-14 md:py-20 bg-[#FBF6EC] border-b border-[#E7DCC4]">
+    <section className="py-14 md:py-20 bg-[#FBF6EC] dark:bg-[#0D1F2C] border-b border-[#E7DCC4] dark:border-[#2a3d4d]">
       <div className="container">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -24,16 +24,14 @@ export function TrendingProducts() {
             <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#1F6F50] bg-[#1F6F50]/10 px-2.5 py-1 border border-[#1F6F50]/20 rounded-[2px] mb-2">
               <Tag className="w-3.5 h-3.5" /> TRENDING NOW
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A]">
-              Featured Products
+            <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">\n              Featured Products
             </h2>
-            <p className="text-xs sm:text-sm text-[#1C1A17]/70 mt-1 font-sans">
-              Handpicked products with fast shipping and great prices.
+            <p className="text-xs sm:text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] mt-1 font-sans">\n              Handpicked products with fast shipping and great prices.
             </p>
           </div>
           <Link
             href="/shop"
-            className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#132A3A] bg-white border border-[#E7DCC4] px-4 py-2 rounded-[3px] hover:border-[#F5A300] hover:bg-[#F5A300] transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] bg-white dark:bg-[#132A3A] border border-[#E7DCC4] dark:border-[#2a3d4d] px-4 py-2 rounded-[3px] hover:border-[#F5A300] hover:bg-[#F5A300] transition-colors shadow-sm"
           >
             EXPLORE ALL PRODUCTS <ArrowRight className="w-4 h-4" />
           </Link>

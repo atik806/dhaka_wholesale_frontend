@@ -41,7 +41,7 @@ export function PromoBanner() {
   if (!promo.enabled) return null;
 
   return (
-    <section className="py-12 md:py-16 bg-[#BE3D1F] border-y-2 border-[#E7DCC4] text-white relative overflow-hidden">
+    <section className="py-12 md:py-16 bg-[#BE3D1F] border-y-2 border-[#E7DCC4] dark:border-[#2a3d4d] text-white relative overflow-hidden">
       {/* Subtle stamped ledger watermark pattern */}
       <div
         className="absolute inset-0 opacity-10 pointer-events-none"
@@ -61,7 +61,7 @@ export function PromoBanner() {
         >
           {/* Text Content */}
           <div className="max-w-2xl text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 bg-[#132A3A] text-[#F5A300] font-mono text-xs px-3.5 py-1 font-bold -rotate-1 rounded-[2px] border border-[#F5A300]/40 shadow-sm uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-2 bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono text-xs px-3.5 py-1 font-bold -rotate-1 rounded-[2px] border border-[#F5A300]/40 shadow-sm uppercase tracking-wider mb-4">
               <Tag className="w-3.5 h-3.5" />
               {promo.badge}
             </div>
@@ -90,7 +90,7 @@ export function PromoBanner() {
             transition={{ type: "spring", stiffness: 200 }}
             className="shrink-0 relative"
           >
-            <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full border-4 border-dashed border-white/90 bg-[#132A3A]/40 backdrop-blur-sm p-3 flex flex-col items-center justify-center text-center shadow-2xl relative group">
+            <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full border-4 border-dashed border-white/90 dark:border-white/60 bg-[#132A3A]/40 dark:bg-[#0A1A28]/50 backdrop-blur-sm p-3 flex flex-col items-center justify-center text-center shadow-2xl relative group">
               <div className="absolute inset-1 rounded-full border border-white/40 pointer-events-none" />
               <span className="font-mono text-[9px] sm:text-[10px] font-bold tracking-widest text-[#F5A300] uppercase mb-0.5">
                 DHAKADROP

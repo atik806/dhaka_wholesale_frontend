@@ -15,7 +15,7 @@ export default function SearchPageWrapper() {
   return (
     <Suspense
       fallback={
-        <div className="container py-20 text-center font-mono text-xs text-[#132A3A]">LOADING SEARCH...</div>
+        <div className="container py-20 text-center font-mono text-xs text-[#132A3A] dark:text-[#E7DCC4]">LOADING SEARCH...</div>
       }
     >
       <SearchPage />
@@ -42,10 +42,10 @@ function SearchPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC]"
+      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
     >
       {/* Page Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-10 md:py-14">
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-10 md:py-14">
         <div className="container">
           <Breadcrumbs items={[{ label: "Search" }]} />
           <div className="max-w-2xl mt-4">
@@ -73,7 +73,7 @@ function SearchPage() {
 
         {query && (
           <div className="mb-6">
-            <p className="font-mono text-xs text-[#1C1A17]/70">
+            <p className="font-mono text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4]">
               {loading ? "SEARCHING..." : displayResults.length === 0
                 ? `No results found for "${query}"`
                 : `Showing ${displayResults.length} result${displayResults.length > 1 ? "s" : ""} for "${query}"`}
@@ -87,7 +87,7 @@ function SearchPage() {
           <ProductGrid products={displayResults} />
         ) : !loading && query ? (
           <EmptyState
-            icon={<Search className="w-10 h-10 text-[#132A3A]/40" />}
+            icon={<Search className="w-10 h-10 text-[#132A3A]/40 dark:text-[#a0b4c4]" />}
             title="No results found"
             description="Try adjusting your search terms or browse our categories."
             actionLabel="Browse Categories"
@@ -95,7 +95,7 @@ function SearchPage() {
           />
         ) : !query ? (
           <EmptyState
-            icon={<Search className="w-10 h-10 text-[#132A3A]/40" />}
+            icon={<Search className="w-10 h-10 text-[#132A3A]/40 dark:text-[#a0b4c4]" />}
             title="Search our store"
             description="Type above to find products across all categories."
             actionLabel="Shop All"
@@ -117,7 +117,7 @@ function SearchQueryInput({
   const [localQuery, setLocalQuery] = useState(initialQuery);
 
   return (
-    <div className="flex items-center gap-2 bg-white rounded-[3px] border-2 border-[#E7DCC4] px-4 focus-within:border-[#F5A300] transition-colors">
+    <div className="flex items-center gap-2 bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 focus-within:border-[#F5A300] transition-colors">
       <Search className="w-5 h-5 text-[#F5A300] shrink-0" />
       <input
         type="text"
@@ -127,14 +127,14 @@ function SearchQueryInput({
           if (e.key === "Enter") onSubmit(localQuery);
         }}
         placeholder="Search products..."
-        className="flex-1 bg-transparent py-3 text-sm outline-none text-[#132A3A] placeholder:text-[#1C1A17]/40 font-mono"
+        className="flex-1 bg-transparent py-3 text-sm outline-none text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4] font-mono"
         autoFocus
       />
       {localQuery && (
         <button
           type="button"
           onClick={() => setLocalQuery("")}
-          className="p-1 rounded-[2px] hover:bg-[#FBF6EC] transition-colors text-[#132A3A]"
+          className="p-1 rounded-[2px] hover:bg-[#FBF6EC] dark:bg-[#0D1F2C] transition-colors text-[#132A3A] dark:text-[#E7DCC4]"
         >
           <X className="w-4 h-4" />
         </button>

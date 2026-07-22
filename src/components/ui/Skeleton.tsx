@@ -8,7 +8,7 @@ export function Skeleton({ className }: SkeletonProps) {
   return (
     <div
       className={cn(
-        "rounded-[2px] bg-[#E7DCC4] animate-[shimmer_2s_ease-in-out_infinite] bg-[length:200%_100%] bg-gradient-to-r from-[#E7DCC4] via-[#FBF6EC] to-[#E7DCC4]",
+        "rounded-[2px] bg-[#E7DCC4] dark:bg-[#2a3d4d] animate-[shimmer_2s_ease-in-out_infinite] bg-[length:200%_100%] bg-gradient-to-r from-[#E7DCC4] dark:from-[#2a3d4d] via-[#FBF6EC] dark:via-[#0D1F2C] to-[#E7DCC4] dark:to-[#2a3d4d]",
         className
       )}
     />
@@ -28,7 +28,7 @@ export function ProductCardSkeleton() {
 
 export function ProductDetailSkeleton() {
   return (
-    <div className="container py-8 bg-[#FBF6EC]">
+    <div className="container py-8 bg-[#FBF6EC] dark:bg-[#0D1F2C]">
       <Skeleton className="h-4 w-48 mb-8" />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
         <Skeleton className="aspect-square w-full rounded-[3px]" />

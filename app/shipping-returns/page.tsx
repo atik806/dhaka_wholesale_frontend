@@ -60,10 +60,10 @@ export default function ShippingReturnsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC]"
+      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
     >
       {/* Page Hero Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] py-12 md:py-16">
+      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-16">
         <div className="container">
           <Breadcrumbs items={[{ label: "Shipping & Returns" }]} />
           <div className="max-w-2xl mt-4">
@@ -89,17 +89,17 @@ export default function ShippingReturnsPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white rounded-[3px] border-2 border-[#E7DCC4] p-6 sm:p-8 shadow-sm"
+                className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 sm:p-8 shadow-sm"
               >
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-10 h-10 rounded-[2px] bg-[#132A3A] flex items-center justify-center">
                     <Icon className="w-5 h-5 text-[#F5A300]" />
                   </div>
-                  <h2 className="font-serif font-bold text-lg text-[#132A3A]">{title}</h2>
+                  <h2 className="font-serif font-bold text-lg text-[#132A3A] dark:text-[#E7DCC4]">{title}</h2>
                 </div>
                 <ul className="space-y-2">
                   {content.map((line, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-[#1C1A17]/70 font-sans">
+                    <li key={j} className="flex items-start gap-2 text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">
                       <span className="text-[#F5A300] mt-1.5 shrink-0 font-bold">•</span>
                       {line}
                     </li>

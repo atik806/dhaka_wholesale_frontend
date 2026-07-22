@@ -15,10 +15,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants = {
-  primary: "bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] border border-[#D88900] shadow-sm font-extrabold",
+  primary: "bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] dark:text-[#E7DCC4] border border-[#D88900] shadow-sm font-extrabold",
   secondary: "bg-[#BE3D1F] hover:bg-[#9E3017] text-white border border-red-950 shadow-sm font-extrabold",
-  outline: "border-2 border-[#132A3A] text-[#132A3A] hover:bg-[#132A3A] hover:text-[#F5A300] font-bold",
-  ghost: "text-[#1C1A17] hover:bg-[#E7DCC4]/40 font-bold",
+  outline: "border-2 border-[#132A3A] dark:border-[#E7DCC4] text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#132A3A] dark:hover:bg-[#0A1A28] hover:text-[#F5A300] font-bold",
+  ghost: "text-[#1C1A17] dark:text-[#E7DCC4] hover:bg-[#E7DCC4]/40 dark:hover:bg-[#2a3d4d]/40 font-bold",
 };
 
 const sizes = {

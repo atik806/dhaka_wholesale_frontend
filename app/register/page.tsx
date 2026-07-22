@@ -68,15 +68,15 @@ export default function RegisterPage() {
   const strength = getPasswordStrength(password);
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FBF6EC]">
+    <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FBF6EC] dark:bg-[#0D1F2C]">
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md"
       >
-        <div className="bg-white rounded-[3px] border-2 border-[#E7DCC4] shadow-xl p-8 relative overflow-hidden">
+        <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-xl p-8 relative overflow-hidden">
           {/* Top Stamp Tag */}
-          <div className="absolute top-0 right-0 bg-[#132A3A] text-[#F5A300] font-mono text-[9px] font-bold px-3 py-1 uppercase tracking-widest border-b border-l border-[#E7DCC4]">
+          <div className="absolute top-0 right-0 bg-[#132A3A] text-[#F5A300] font-mono text-[9px] font-bold px-3 py-1 uppercase tracking-widest border-b border-l border-[#E7DCC4] dark:border-[#2a3d4d]">
             NEW ACCOUNT
           </div>
 
@@ -87,17 +87,17 @@ export default function RegisterPage() {
             <div className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase text-[#1F6F50] bg-[#1F6F50]/10 px-2 py-0.5 rounded-[2px] mb-2">
               <BookOpen className="w-3 h-3" /> NEW ACCOUNT
             </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#132A3A]">
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">
               Create Your Account
             </h1>
-            <p className="font-mono text-xs text-[#1C1A17]/70 mt-1">
+            <p className="font-mono text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] mt-1">
               Create your account today
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
             <div>
-              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">Full Name</label>
+              <label className="block font-bold text-[#132A3A] dark:text-[#E7DCC4] uppercase tracking-wider mb-1">Full Name</label>
               <input
                 type="text"
                 value={name}
@@ -105,22 +105,22 @@ export default function RegisterPage() {
                 placeholder="Full Name"
                 required
                 minLength={2}
-                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4]"
               />
             </div>
             <div>
-              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">Email</label>
+              <label className="block font-bold text-[#132A3A] dark:text-[#E7DCC4] uppercase tracking-wider mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 required
-                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4]"
               />
             </div>
             <div>
-              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">
+              <label className="block font-bold text-[#132A3A] dark:text-[#E7DCC4] uppercase tracking-wider mb-1">
                 Account Password
               </label>
               <input
@@ -130,7 +130,7 @@ export default function RegisterPage() {
                 placeholder="Min 8 characters"
                 required
                 minLength={8}
-                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4]"
               />
               {password.length > 0 && (
                 <div className="mt-2 flex items-center gap-2">
@@ -144,14 +144,14 @@ export default function RegisterPage() {
                       />
                     ))}
                   </div>
-                  <span className="font-mono text-[10px] font-bold text-[#132A3A]">
+                  <span className="font-mono text-[10px] font-bold text-[#132A3A] dark:text-[#E7DCC4]">
                     {strength.label.toUpperCase()}
                   </span>
                 </div>
               )}
             </div>
             <div>
-              <label className="block font-bold text-[#132A3A] uppercase tracking-wider mb-1">
+              <label className="block font-bold text-[#132A3A] dark:text-[#E7DCC4] uppercase tracking-wider mb-1">
                 Confirm Password
               </label>
               <input
@@ -161,7 +161,7 @@ export default function RegisterPage() {
                 placeholder="Repeat password"
                 required
                 minLength={8}
-                className="w-full rounded-[3px] border-2 border-[#E7DCC4] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] text-[#132A3A] placeholder:text-[#1C1A17]/40"
+                className="w-full rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 py-2.5 outline-none focus:border-[#F5A300] bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4]"
               />
             </div>
             <label className="flex items-start gap-2 cursor-pointer font-sans text-xs text-[#1C1A17]">
@@ -199,11 +199,11 @@ export default function RegisterPage() {
             </Button>
           </form>
 
-          <p className="font-mono text-xs text-[#1C1A17]/70 text-center mt-6">
+          <p className="font-mono text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] text-center mt-6">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-[#132A3A] font-bold underline hover:text-[#BE3D1F]"
+              className="text-[#132A3A] dark:text-[#E7DCC4] font-bold underline hover:text-[#BE3D1F]"
             >
               SIGN IN TO ACCOUNT
             </Link>

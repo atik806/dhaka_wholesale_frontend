@@ -23,7 +23,7 @@ export function HeroSection() {
   }, []);
 
   return (
-    <section className="relative overflow-hidden bg-[#132A3A] border-b-2 border-[#E7DCC4] py-12 md:py-20 lg:py-24 text-white">
+    <section className="relative overflow-hidden bg-[#132A3A] border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-20 lg:py-24 text-white">
       {/* Layer 1: Background images slideshow */}
       <div className="absolute inset-0 pointer-events-none">
         {SLIDE_IMAGES.map((src, i) => (
@@ -61,7 +61,7 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="inline-flex items-center gap-2 bg-[#0D1F2C] border border-[#F5A300] text-[#F5A300] font-mono text-xs px-3.5 py-1.5 font-bold -rotate-1 rounded-[3px] shadow-sm uppercase tracking-wider mb-6"
+              className="inline-flex items-center gap-2 bg-[#0D1F2C] dark:bg-[#071520] border border-[#F5A300] text-[#F5A300] font-mono text-xs px-3.5 py-1.5 font-bold -rotate-1 rounded-[3px] shadow-sm uppercase tracking-wider mb-6"
             >
               <span className="w-2 h-2 rounded-full bg-[#F5A300] animate-pulse" />
               SHOP DHAKA WHOLESALE #2026
@@ -76,7 +76,7 @@ export function HeroSection() {
               Direct Market Stock.
               <br />
               Authentic{" "}
-              <span className="text-[#F5A300] bg-[#0D1F2C] px-3 py-0.5 border border-[#F5A300]/50 inline-block -rotate-1 shadow-md">
+              <span className="text-[#F5A300] bg-[#0D1F2C] dark:bg-[#071520] px-3 py-0.5 border border-[#F5A300]/50 inline-block -rotate-1 shadow-md">
 STORE
               </span>{" "}
               Rates.
@@ -107,7 +107,7 @@ STORE
             </motion.div>
 
             {/* Quick stats row */}
-            <div className="mt-10 pt-6 border-t border-[#E7DCC4]/20 grid grid-cols-3 gap-4 font-mono text-xs">
+            <div className="mt-10 pt-6 border-t border-[#E7DCC4]/20 dark:border-[#2a3d4d]/20 grid grid-cols-3 gap-4 font-mono text-xs">
               <div>
                 <span className="block text-[#F5A300] font-bold text-lg">5,000+</span>
                 <span className="text-white/80 text-[11px]">ACTIVE CUSTOMERS</span>
@@ -126,7 +126,7 @@ STORE
           {/* Right Column: Stack of Rotated "Hanging Price Tags" on string with stitched hole detail */}
           <div className="lg:col-span-5 relative mt-6 lg:mt-0">
             {/* Horizontal String Line anchor at top */}
-            <div className="w-full h-1 bg-[#E7DCC4]/40 border-b border-[#E7DCC4] mb-8 relative flex justify-around">
+            <div className="w-full h-1 bg-[#E7DCC4]/40 dark:bg-[#2a3d4d]/40 border-b border-[#E7DCC4] dark:border-[#2a3d4d] mb-8 relative flex justify-around">
               <div className="w-2 h-2 rounded-full bg-[#F5A300] absolute -top-0.5 left-1/4" />
               <div className="w-2 h-2 rounded-full bg-[#F5A300] absolute -top-0.5 left-1/2" />
               <div className="w-2 h-2 rounded-full bg-[#F5A300] absolute -top-0.5 left-3/4" />
@@ -138,23 +138,23 @@ STORE
                 initial={{ opacity: 0, y: 20, rotate: -8 }}
                 animate={{ opacity: 1, y: 0, rotate: -5 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="relative bg-[#FBF6EC] text-[#1C1A17] p-5 rounded-[3px] border-2 border-[#E7DCC4] shadow-xl hover:rotate-0 transition-transform duration-300"
+                className="relative bg-[#FBF6EC] dark:bg-[#132A3A] text-[#1C1A17] dark:text-[#E7DCC4] p-5 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-xl hover:rotate-0 transition-transform duration-300"
               >
                 {/* String coming down from top line */}
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-0.5 h-8 border-l-2 border-dashed border-[#E7DCC4]" />
+                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-0.5 h-8 border-l-2 border-dashed border-[#E7DCC4] dark:border-[#2a3d4d]" />
                 {/* Stitched Hole detail */}
-                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] border-2 border-[#E7DCC4] mx-auto mb-3 shadow-inner flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] dark:bg-[#071520] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] mx-auto mb-3 shadow-inner flex items-center justify-center">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#F5A300]" />
                 </div>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-[3px] bg-[#132A3A] text-[#F5A300] flex items-center justify-center shrink-0">
+                    <div className="w-10 h-10 rounded-[3px] bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] flex items-center justify-center shrink-0">
                       <ShieldCheck className="w-5 h-5" />
                     </div>
                     <div>
                       <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#BE3D1F]">TRUST TAG #01</span>
-                      <h3 className="font-serif font-bold text-base text-[#132A3A]">Guaranteed Cash On Delivery</h3>
-                      <p className="text-xs text-[#1C1A17]/70 font-sans">Inspect goods at your door before payment.</p>
+                      <h3 className="font-serif font-bold text-base text-[#132A3A] dark:text-[#E7DCC4]">Guaranteed Cash On Delivery</h3>
+                      <p className="text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">Inspect goods at your door before payment.</p>
                     </div>
                   </div>
                   <span className="font-mono text-xs font-bold text-[#1F6F50] bg-[#1F6F50]/10 px-2 py-1 border border-[#1F6F50]/30 rounded-[2px] shrink-0">
@@ -168,10 +168,10 @@ STORE
                 initial={{ opacity: 0, y: 20, rotate: 6 }}
                 animate={{ opacity: 1, y: 0, rotate: 4 }}
                 transition={{ duration: 0.5, delay: 0.35 }}
-                className="relative bg-[#FBF6EC] text-[#1C1A17] p-5 rounded-[3px] border-2 border-[#E7DCC4] shadow-xl hover:rotate-0 transition-transform duration-300 ml-4 sm:ml-8"
+                className="relative bg-[#FBF6EC] dark:bg-[#132A3A] text-[#1C1A17] dark:text-[#E7DCC4] p-5 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-xl hover:rotate-0 transition-transform duration-300 ml-4 sm:ml-8"
               >
                 {/* Stitched Hole detail */}
-                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] border-2 border-[#E7DCC4] mx-auto mb-3 shadow-inner flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] dark:bg-[#071520] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] mx-auto mb-3 shadow-inner flex items-center justify-center">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#BE3D1F]" />
                 </div>
                 <div className="flex items-start justify-between gap-3">
@@ -181,8 +181,8 @@ STORE
                     </div>
                     <div>
                       <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1F6F50]">TRUST TAG #02</span>
-                      <h3 className="font-serif font-bold text-base text-[#132A3A]">24-48 Hour Shipping</h3>
-                      <p className="text-xs text-[#1C1A17]/70 font-sans">Fast dispatch across all 64 districts.</p>
+                      <h3 className="font-serif font-bold text-base text-[#132A3A] dark:text-[#E7DCC4]">24-48 Hour Shipping</h3>
+                      <p className="text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">Fast dispatch across all 64 districts.</p>
                     </div>
                   </div>
                   <span className="font-mono text-xs font-bold text-[#132A3A] bg-[#F5A300] px-2 py-1 border border-[#D88900] rounded-[2px] shrink-0">
@@ -196,10 +196,10 @@ STORE
                 initial={{ opacity: 0, y: 20, rotate: -4 }}
                 animate={{ opacity: 1, y: 0, rotate: -3 }}
                 transition={{ duration: 0.5, delay: 0.5 }}
-                className="relative bg-[#FBF6EC] text-[#1C1A17] p-5 rounded-[3px] border-2 border-[#E7DCC4] shadow-xl hover:rotate-0 transition-transform duration-300"
+                className="relative bg-[#FBF6EC] dark:bg-[#132A3A] text-[#1C1A17] dark:text-[#E7DCC4] p-5 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-xl hover:rotate-0 transition-transform duration-300"
               >
                 {/* Stitched Hole detail */}
-                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] border-2 border-[#E7DCC4] mx-auto mb-3 shadow-inner flex items-center justify-center">
+                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] dark:bg-[#071520] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] mx-auto mb-3 shadow-inner flex items-center justify-center">
                   <div className="w-1.5 h-1.5 rounded-full bg-[#F5A300]" />
                 </div>
                 <div className="flex items-start justify-between gap-3">
@@ -208,9 +208,9 @@ STORE
                       <RefreshCw className="w-5 h-5" />
                     </div>
                     <div>
-                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#132A3A]">TRUST TAG #03</span>
-                      <h3 className="font-serif font-bold text-base text-[#132A3A]">7-Day Easy Return Guarantee</h3>
-                      <p className="text-xs text-[#1C1A17]/70 font-sans">Direct exchange for defective items.</p>
+                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#132A3A] dark:text-[#E7DCC4]">TRUST TAG #03</span>
+                      <h3 className="font-serif font-bold text-base text-[#132A3A] dark:text-[#E7DCC4]">7-Day Easy Return Guarantee</h3>
+                      <p className="text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">Direct exchange for defective items.</p>
                     </div>
                   </div>
                   <span className="font-mono text-xs font-bold text-[#BE3D1F] bg-[#BE3D1F]/10 px-2 py-1 border border-[#BE3D1F]/30 rounded-[2px] shrink-0">
