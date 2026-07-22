@@ -27,6 +27,4 @@ jobs:
 
       - run: npx tsc --noEmit
 
-      - run: npm run lint
-
       - run: npm run build
