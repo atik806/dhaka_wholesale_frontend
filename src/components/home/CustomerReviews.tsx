@@ -44,7 +44,7 @@ export function CustomerReviews() {
           <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#132A3A] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-2 -rotate-1">
             <Award className="w-3.5 h-3.5" /> VERIFIED MARKET FEEDBACK
           </div>
-          <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">\n            Customer Reviews
+          <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">            Customer Reviews
           </h2>
           <p className="text-xs sm:text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] mt-1 font-sans">
             Real feedback from customers across Bangladesh.
@@ -82,7 +82,7 @@ export function CustomerReviews() {
                   {review.profiles?.name?.[0]?.toUpperCase() ?? "?"}
                 </div>
                 <div className="min-w-0">
-                  <p className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4] truncate">\n                    {review.profiles?.name ?? "Verified Merchant"}
+                  <p className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4] truncate">                    {review.profiles?.name ?? "Verified Merchant"}
                   </p>
                   {review.products && (
                     <Link

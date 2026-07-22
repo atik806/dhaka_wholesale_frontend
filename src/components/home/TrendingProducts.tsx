@@ -24,9 +24,9 @@ export function TrendingProducts() {
             <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#1F6F50] bg-[#1F6F50]/10 px-2.5 py-1 border border-[#1F6F50]/20 rounded-[2px] mb-2">
               <Tag className="w-3.5 h-3.5" /> TRENDING NOW
             </div>
-            <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">\n              Featured Products
+            <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">              Featured Products
             </h2>
-            <p className="text-xs sm:text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] mt-1 font-sans">\n              Handpicked products with fast shipping and great prices.
+            <p className="text-xs sm:text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] mt-1 font-sans">              Handpicked products with fast shipping and great prices.
             </p>
           </div>
           <Link
