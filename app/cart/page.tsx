@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck, ShieldCheck } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowRight, Truck, ShieldCheck, BookOpen } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
@@ -10,6 +10,7 @@ import { formatPrice as fp, safeImage } from "@/src/lib/utils";
 import { DELIVERY_CHARGES, type DeliveryZone } from "@/src/lib/constants";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
+import { Button } from "@/src/components/ui/Button";
 
 export default function CartPage() {
   const items = useCartStore((s) => s.items);
@@ -34,14 +35,14 @@ export default function CartPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="container"
+        className="container py-8 bg-[#FBF6EC] min-h-[70vh]"
       >
         <Breadcrumbs items={[{ label: "Cart" }]} />
         <EmptyState
-          icon={<ShoppingBag className="w-10 h-10 text-primary dark:text-primary-light" />}
-          title="Your cart is empty"
-          description="Looks like you haven't added anything yet. Browse our collection and find something you love."
-          actionLabel="Start Shopping"
+          icon={<ShoppingBag className="w-12 h-12 text-[#BE3D1F]" />}
+          title="Your Cart is Empty"
+          description="You currently have no items in your cart. Browse our catalog to find something you love."
+          actionLabel="Browse Products"
           actionHref="/shop"
         />
       </motion.div>
@@ -53,154 +54,161 @@ export default function CartPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="container py-8"
+      className="bg-[#FBF6EC] min-h-screen py-8"
     >
-      <Breadcrumbs items={[{ label: "Cart" }]} />
+      <div className="container">
+        <Breadcrumbs items={[{ label: "Cart" }]} />
 
-      <h1 className="font-serif text-2xl sm:text-3xl font-bold mb-6 sm:mb-8">
-        Shopping Cart ({totalItems()})
-      </h1>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-10">
-        <div className="lg:col-span-2 space-y-3">
-          {items.map((item) => (
-            <motion.div
-              key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
-              layout
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="flex gap-4 bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-4 shadow-sm"
-            >
-              <div className="relative w-20 sm:w-24 h-20 sm:h-24 rounded-lg overflow-hidden bg-zinc-50 dark:bg-zinc-800 shrink-0">
-                <Image
-                  src={safeImage(item.product.images)}
-                  alt={item.product.name}
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <Link
-                  href={`/product/${item.product.slug}`}
-                  className="font-medium text-sm hover:text-primary dark:hover:text-primary-light transition-colors line-clamp-1"
-                >
-                  {item.product.name}
-                </Link>
-                <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-                  {item.product.category}
-                  {item.selectedSize && ` · Size: ${item.selectedSize}`}
-                  {item.selectedColor && ` · ${item.selectedColor}`}
-                </p>
-                <p className="font-semibold text-sm mt-1.5">
-                  {fp(item.product.price)}
-                </p>
-              </div>
-              <div className="flex flex-col items-end justify-between">
-                <button
-                  onClick={() => removeItem(item.product.id, item.selectedSize, item.selectedColor)}
-                  className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 text-zinc-400 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <div className="flex items-center gap-1.5 bg-zinc-50 dark:bg-zinc-700/50 rounded-lg p-0.5">
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.product.id, item.quantity - 1, item.selectedSize, item.selectedColor)
-                    }
-                    className="w-8 h-8 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
-                  >
-                    <Minus className="w-3 h-3" />
-                  </button>
-                  <span className="text-sm font-medium w-6 text-center">
-                    {item.quantity}
-                  </span>
-                  <button
-                    onClick={() =>
-                      updateQuantity(item.product.id, item.quantity + 1, item.selectedSize, item.selectedColor)
-                    }
-                    className="w-8 h-8 rounded-md bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-600 flex items-center justify-center hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+        <div className="bg-white border-2 border-[#E7DCC4] p-5 sm:p-6 rounded-[3px] shadow-sm mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-[#F5A300] bg-[#132A3A] px-2.5 py-0.5 rounded-[2px] mb-1">
+              <BookOpen className="w-3.5 h-3.5" /> CART
+            </div>
+            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-[#132A3A]">
+              Order Summary ({totalItems()} Items)
+            </h1>
+          </div>
+          <Link href="/shop" className="font-mono text-xs font-bold text-[#132A3A] underline hover:text-[#BE3D1F]">
+            + Add More Items
+          </Link>
         </div>
 
-        <div className="lg:col-span-1">
-          <div className="sticky top-24 space-y-4">
-            <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-5 shadow-sm">
-              <h3 className="font-semibold mb-4">Order Summary</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          <div className="lg:col-span-2 space-y-3">
+            {items.map((item) => (
+              <motion.div
+                key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
+                layout
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="flex gap-4 bg-white rounded-[3px] border-2 border-[#E7DCC4] p-4 shadow-sm hover:border-[#F5A300] transition-colors"
+              >
+                <div className="relative w-20 sm:w-24 h-20 sm:h-24 rounded-[2px] overflow-hidden bg-[#FBF6EC] border border-[#E7DCC4] shrink-0">
+                  <Image
+                    src={safeImage(item.product.images)}
+                    alt={item.product.name}
+                    fill
+                    className="object-cover"
+                    sizes="96px"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Link
+                    href={`/product/${item.product.slug}`}
+                    className="font-serif font-bold text-sm text-[#132A3A] hover:text-[#F5A300] transition-colors line-clamp-1"
+                  >
+                    {item.product.name}
+                  </Link>
+                  <p className="font-mono text-[11px] text-[#132A3A]/70 mt-0.5">
+                    {item.product.category}
+                    {item.selectedSize && ` · Size: ${item.selectedSize}`}
+                    {item.selectedColor && ` · ${item.selectedColor}`}
+                  </p>
+                  <p className="font-mono font-bold text-sm text-[#1F6F50] mt-1.5">
+                    {fp(item.product.price)} / unit
+                  </p>
+                </div>
+                <div className="flex flex-col items-end justify-between">
+                  <button
+                    onClick={() => removeItem(item.product.id, item.selectedSize, item.selectedColor)}
+                    className="p-1.5 rounded-[2px] text-[#BE3D1F] hover:bg-[#BE3D1F]/10 transition-colors"
+                    aria-label="Remove item"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <div className="flex items-center border border-[#E7DCC4] rounded-[2px] bg-[#FBF6EC]">
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.product.id, item.quantity - 1, item.selectedSize, item.selectedColor)
+                      }
+                      className="w-7 h-7 flex items-center justify-center bg-white text-[#132A3A] hover:bg-[#F5A300]"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="font-mono text-xs font-bold w-7 text-center text-[#132A3A]">
+                      {item.quantity}
+                    </span>
+                    <button
+                      onClick={() =>
+                        updateQuantity(item.product.id, item.quantity + 1, item.selectedSize, item.selectedColor)
+                      }
+                      className="w-7 h-7 flex items-center justify-center bg-white text-[#132A3A] hover:bg-[#F5A300]"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
-              <div className="space-y-2 mb-4">
-                <label className="flex items-center gap-3 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors">
-                  <input
-                    type="radio"
-                    name="delivery_zone"
-                    value="inside_dhaka"
-                    checked={deliveryZone === "inside_dhaka"}
-                    onChange={() => setDeliveryZone("inside_dhaka")}
-                    className="accent-[#0b2c5f]"
-                  />
-                  <span className="text-sm">Inside Dhaka (৳{DELIVERY_CHARGES.inside_dhaka})</span>
-                </label>
-                <label className="flex items-center gap-3 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-600 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50 transition-colors">
-                  <input
-                    type="radio"
-                    name="delivery_zone"
-                    value="outside_dhaka"
-                    checked={deliveryZone === "outside_dhaka"}
-                    onChange={() => setDeliveryZone("outside_dhaka")}
-                    className="accent-[#0b2c5f]"
-                  />
-                  <span className="text-sm">Outside Dhaka (৳{DELIVERY_CHARGES.outside_dhaka})</span>
-                </label>
+          <div className="lg:col-span-1">
+            <div className="sticky top-24 space-y-4">
+              <div className="bg-white rounded-[3px] border-2 border-[#E7DCC4] p-5 shadow-sm">
+                <h2 className="font-serif font-bold text-base text-[#132A3A] mb-4 pb-2 border-b border-[#E7DCC4]">
+                  Market Order Total
+                </h2>
+
+                <div className="space-y-2 mb-4">
+                  <span className="font-mono text-xs font-bold text-[#132A3A] block">SELECT DELIVERY REGION:</span>
+                  <label className="flex items-center gap-3 p-2.5 rounded-[2px] border border-[#E7DCC4] cursor-pointer hover:bg-[#FBF6EC] transition-colors">
+                    <input
+                      type="radio"
+                      name="delivery_zone"
+                      value="inside_dhaka"
+                      checked={deliveryZone === "inside_dhaka"}
+                      onChange={() => setDeliveryZone("inside_dhaka")}
+                      className="accent-[#F5A300]"
+                    />
+                    <span className="font-mono text-xs text-[#132A3A] font-bold">Inside Dhaka (৳{DELIVERY_CHARGES.inside_dhaka})</span>
+                  </label>
+                  <label className="flex items-center gap-3 p-2.5 rounded-[2px] border border-[#E7DCC4] cursor-pointer hover:bg-[#FBF6EC] transition-colors">
+                    <input
+                      type="radio"
+                      name="delivery_zone"
+                      value="outside_dhaka"
+                      checked={deliveryZone === "outside_dhaka"}
+                      onChange={() => setDeliveryZone("outside_dhaka")}
+                      className="accent-[#F5A300]"
+                    />
+                    <span className="font-mono text-xs text-[#132A3A] font-bold">Outside Dhaka (৳{DELIVERY_CHARGES.outside_dhaka})</span>
+                  </label>
+                </div>
+
+                <div className="space-y-2.5 font-mono text-xs border-t border-[#E7DCC4] pt-3">
+                  <div className="flex justify-between text-[#1C1A17]/80">
+                    <span>Stock Subtotal</span>
+                    <span className="font-bold">{fp(computedTotal.subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between text-[#1C1A17]/80">
+                    <span className="flex items-center gap-1">
+                      <Truck className="w-3.5 h-3.5 text-[#F5A300]" /> Express Shipping
+                    </span>
+                    <span className="font-bold">{fp(computedTotal.shipping)}</span>
+                  </div>
+                  <div className="border-t border-[#E7DCC4] pt-3 flex justify-between font-extrabold text-base text-[#132A3A]">
+                    <span>Total</span>
+                    <span className="text-[#1F6F50]">{fp(computedTotal.total)}</span>
+                  </div>
+                </div>
+
+                <Link href="/checkout" className="block mt-5">
+                  <Button size="lg" className="w-full" rotate>
+                    PROCEED TO CHECKOUT &rarr;
+                  </Button>
+                </Link>
               </div>
 
-              <div className="space-y-2.5 text-sm">
-                <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
-                  <span>Subtotal</span>
-                  <span>{fp(computedTotal.subtotal)}</span>
+              {/* Trust Badges */}
+              <div className="bg-white rounded-[3px] border border-[#E7DCC4] p-4 shadow-sm font-mono text-xs space-y-2 text-[#132A3A]">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#F5A300] shrink-0" />
+                  <span>CASH ON DELIVERY GUARANTEED</span>
                 </div>
-                <div className="flex justify-between text-zinc-500 dark:text-zinc-400">
-                  <span className="flex items-center gap-1">
-                    <Truck className="w-3.5 h-3.5" /> Delivery
-                  </span>
-                  <span>{fp(computedTotal.shipping)}</span>
-                </div>
-                <div className="border-t border-zinc-100 dark:border-zinc-700 pt-2.5 flex justify-between font-semibold text-base">
-                  <span>Total</span>
-                  <span>{fp(computedTotal.total)}</span>
-                </div>
-              </div>
-
-              <Link
-                href="/checkout"
-                className="flex items-center justify-center gap-2 w-full bg-primary text-white rounded-lg py-3 text-sm font-medium hover:bg-primary-dark transition-colors mt-5"
-              >
-                Proceed to Checkout <ArrowRight className="w-4 h-4" />
-              </Link>
-              <Link
-                href="/shop"
-                className="block text-center text-sm text-zinc-500 dark:text-zinc-400 hover:text-primary dark:hover:text-primary-light transition-colors mt-3"
-              >
-                Continue Shopping
-              </Link>
-            </div>
-
-            {/* Trust Badges */}
-            <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-100 dark:border-zinc-700/50 p-4 shadow-sm">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2.5">
-                  <Truck className="w-4 h-4 text-primary dark:text-primary-light shrink-0" />
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">Delivery within 1-3 business days</span>
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <ShieldCheck className="w-4 h-4 text-primary dark:text-primary-light shrink-0" />
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">Secure payment with SSL encryption</span>
+                <div className="flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-[#1F6F50] shrink-0" />
+                  <span>24-48 HOUR EXPRESS DISPATCH</span>
                 </div>
               </div>
             </div>
