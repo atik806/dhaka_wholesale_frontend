@@ -146,7 +146,7 @@ export function ProductFilters({ filters, onChange, onClose }: ProductFiltersPro
       </div>
 
       <FilterSection
-        title="Department"
+        title="Category"
         expanded={expandedSections.category}
         onToggle={() => toggleSection("category")}
       >

@@ -59,24 +59,24 @@ export function DepartmentsPanel() {
 
   const panelInner = (
     <div className="flex h-full flex-col bg-white dark:bg-[#0D1F2C] text-[#1C1A17] dark:text-[#E7DCC4]">
-      {/* Header — matches Wholesale Club DEPARTMENTS bar */}
+      {/* Header — Wholesale Club–style Categories bar */}
       <div className="flex items-center gap-3 bg-[#132A3A] px-4 py-3.5 text-white shrink-0">
         <button
           type="button"
           onClick={toggleDepartments}
           className="p-1 rounded hover:bg-white/10 transition-colors"
-          aria-label={open ? "Collapse departments" : "Expand departments"}
+          aria-label={open ? "Collapse categories" : "Expand categories"}
         >
           <Menu className="w-5 h-5" />
         </button>
         <span className="font-bold uppercase tracking-wide text-sm sm:text-base">
-          Departments
+          Categories
         </span>
         <button
           type="button"
           onClick={closeDepartments}
           className="ml-auto p-1 rounded hover:bg-white/10 transition-colors lg:hidden"
-          aria-label="Close departments"
+          aria-label="Close categories"
         >
           <X className="w-5 h-5" />
         </button>
@@ -110,12 +110,12 @@ export function DepartmentsPanel() {
         </div>
 
         {/* Category list */}
-        <nav aria-label="Departments">
+        <nav aria-label="Categories">
           {isLoading && (
-            <p className="px-4 py-6 text-sm text-[#565959]">Loading departments…</p>
+            <p className="px-4 py-6 text-sm text-[#565959]">Loading categories…</p>
           )}
           {!isLoading && categories.length === 0 && (
-            <p className="px-4 py-6 text-sm text-[#565959]">No departments yet.</p>
+            <p className="px-4 py-6 text-sm text-[#565959]">No categories yet.</p>
           )}
           <ul>
             {categories.map((cat) => (
@@ -179,13 +179,13 @@ export function DepartmentsPanel() {
         className={`fixed left-0 top-1/2 -translate-y-1/2 z-[45] flex items-center rounded-r-md bg-[#132A3A] text-white shadow-lg px-2 py-4 transition-opacity lg:hidden ${
           open ? "opacity-0 pointer-events-none" : "opacity-100"
         }`}
-        aria-label="Open departments"
+        aria-label="Open categories"
       >
         <span
           className="text-[11px] font-bold uppercase tracking-wider"
           style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
         >
-          Departments
+          Categories
         </span>
       </button>
 
@@ -195,7 +195,7 @@ export function DepartmentsPanel() {
           <>
             <motion.button
               type="button"
-              aria-label="Close departments"
+              aria-label="Close categories"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -217,11 +217,11 @@ export function DepartmentsPanel() {
 
       {/* Desktop persistent sidebar — stays in view under the sticky header */}
       <aside
-        id="departments-panel"
+        id="categories-panel"
         className={`hidden lg:flex shrink-0 sticky top-[6.25rem] z-30 h-[calc(100dvh-6.25rem)] border-r border-[#E8E8E8] dark:border-[#2a3d4d] bg-white dark:bg-[#0D1F2C] transition-[width] duration-300 ease-out overflow-hidden ${
           open ? "w-[280px]" : "w-12"
         }`}
-        aria-label="Departments"
+        aria-label="Categories"
       >
         {open ? (
           <div className="w-[280px] h-full">{panelInner}</div>
@@ -230,14 +230,14 @@ export function DepartmentsPanel() {
             type="button"
             onClick={() => setOpen(true)}
             className="w-12 h-full flex flex-col items-center justify-center gap-3 bg-[#132A3A] text-white hover:bg-[#0D1F2C] transition-colors"
-            aria-label="Expand departments"
+            aria-label="Expand categories"
           >
             <Menu className="w-5 h-5" />
             <span
               className="text-[11px] font-bold uppercase tracking-wider"
               style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
             >
-              Departments
+              Categories
             </span>
           </button>
         )}

@@ -14,7 +14,6 @@ import {
   X,
   MapPin,
   Package,
-  LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -28,15 +27,12 @@ import { CartNavButton } from "./CartNavButton";
 import { FloatingCartButton } from "./FloatingCartButton";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { useTheme } from "@/src/providers/ThemeProvider";
-import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
 import type { Product } from "@/src/types/product";
 
 export const Header = memo(function Header() {
   const { data: categories = [] } = useCategories();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
-  const departmentsOpen = useDepartmentsStore((s) => s.open);
-  const toggleDepartments = useDepartmentsStore((s) => s.toggleDepartments);
   const lastScrollY = useRef(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
@@ -444,22 +440,8 @@ export const Header = memo(function Header() {
         {/* ── Secondary category bar ── */}
         <div className="relative bg-[#232F3E] text-white text-[13px]">
           <div className="px-2 sm:px-3 lg:px-4 flex items-stretch min-h-[39px]">
-            {/* Opens persistent Departments panel (Wholesale Club–style) */}
-            <button
-              type="button"
-              onClick={toggleDepartments}
-              aria-expanded={departmentsOpen}
-              aria-controls="departments-panel"
-              className={`inline-flex items-center gap-1.5 font-bold px-2.5 py-1.5 rounded-sm hover:outline hover:outline-1 hover:outline-white whitespace-nowrap shrink-0 self-center ${
-                departmentsOpen ? "outline outline-1 outline-[#F5A300]" : ""
-              }`}
-            >
-              <LayoutGrid className="w-4 h-4" />
-              Departments
-            </button>
-
-            {/* Scrollable quick links only */}
-            <div className="flex flex-1 items-center gap-1 min-w-0 overflow-x-auto scrollbar-none pl-1">
+            {/* Categories live in the persistent left sidebar — not duplicated here */}
+            <div className="flex flex-1 items-center gap-1 min-w-0 overflow-x-auto scrollbar-none">
               {secondaryLinks.map((link) => (
                 <Link
                   key={link.href + link.label}

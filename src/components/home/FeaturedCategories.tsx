@@ -25,7 +25,7 @@ export function FeaturedCategories() {
             </div>
             <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">              Browse Categories
             </h2>
-            <p className="text-xs sm:text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] mt-1 font-sans">              Shop from our curated collection across multiple departments.
+            <p className="text-xs sm:text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] mt-1 font-sans">              Shop from our curated collection across multiple categories.
             </p>
           </div>
           <Link

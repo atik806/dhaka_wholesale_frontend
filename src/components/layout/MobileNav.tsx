@@ -207,7 +207,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                   <Search className="w-4 h-4 text-[#F5A300]" /> Search Products...
                 </button>
 
-                {/* Departments panel */}
+                {/* Categories panel */}
                 <button
                   type="button"
                   onClick={() => {
@@ -216,7 +216,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                   }}
                   className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-white bg-[#132A3A] hover:bg-[#0D1F2C] transition-colors"
                 >
-                  <Grid3X3 className="w-4 h-4 text-[#F5A300]" /> Browse Departments
+                  <Grid3X3 className="w-4 h-4 text-[#F5A300]" /> Browse Categories
                 </button>
 
                 {/* Categories */}
