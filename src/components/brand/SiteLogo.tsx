@@ -23,15 +23,23 @@ export function SiteLogo({
 
   const mark = (
     <span
-      className={`relative inline-flex items-center justify-center shrink-0 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md -rotate-6 transition-transform duration-300 group-hover:rotate-0 ${
-        variant === "footer"
-          ? "w-14 h-14"
+      className={`relative inline-flex items-center justify-center shrink-0 overflow-hidden ${
+        variant === "header"
+          ? "w-10 h-10 md:w-11 md:h-11 rounded-sm border border-white/20 bg-[#232F3E]"
+          : variant === "footer"
+          ? "w-14 h-14 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md"
           : variant === "auth"
-          ? "w-16 h-16"
-          : "w-10 h-10 md:w-11 md:h-11"
+          ? "w-16 h-16 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md"
+          : "w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md -rotate-6 transition-transform duration-300 group-hover:rotate-0"
       } ${className}`}
     >
-      <span className="relative w-full h-full rounded-full bg-[#0D1F2C] border border-[#E7DCC4]/30 overflow-hidden">
+      <span
+        className={`relative w-full h-full overflow-hidden ${
+          variant === "header"
+            ? "rounded-sm"
+            : "rounded-full bg-[#0D1F2C] border border-[#E7DCC4]/30"
+        }`}
+      >
         <Image
           src="/logo.png"
           alt={SITE_NAME}
@@ -40,8 +48,9 @@ export function SiteLogo({
           className="object-cover"
         />
       </span>
-      {/* Decorative stamp dot */}
-      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#BE3D1F] border border-[#F5A300]" />
+      {variant !== "header" && (
+        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#BE3D1F] border border-[#F5A300]" />
+      )}
     </span>
   );
 

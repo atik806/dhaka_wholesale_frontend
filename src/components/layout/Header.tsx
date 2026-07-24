@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  ShoppingBag,
+  ShoppingCart,
   Heart,
   Menu,
   ChevronDown,
@@ -13,8 +13,7 @@ import {
   User,
   LogOut,
   X,
-  Phone,
-  ShieldCheck,
+  MapPin,
   Package,
 } from "lucide-react";
 import Link from "next/link";
@@ -31,15 +30,15 @@ import type { Product } from "@/src/types/product";
 
 export const Header = memo(function Header() {
   const { data: categories = [] } = useCategories();
-  const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [departmentsOpen, setDepartmentsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchCategory, setSearchCategory] = useState("all");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [searchTotal, setSearchTotal] = useState(0);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [categoryOpen, setCategoryOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const cartHydrated = useCartHydrated();
   const cartItems = useCartStore((s) => s.items);
@@ -48,6 +47,7 @@ export const Header = memo(function Header() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const departmentsRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const authHydrated = useAuthHydrated();
@@ -55,9 +55,13 @@ export const Header = memo(function Header() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
+  const deliverCity =
+    user?.shipping_address?.city?.trim() ||
+    user?.shipping_address?.address?.trim()?.split(",")[0] ||
+    "Bangladesh";
+
   useEffect(() => {
     if (!mobileSearchOpen) return;
-    // Tablet/desktop: slide-out "Search" should focus the inline bar, not the phone modal
     if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) {
       setMobileSearchOpen(false);
       setSearchOpen(true);
@@ -77,7 +81,14 @@ export const Header = memo(function Header() {
     const timer = setTimeout(async () => {
       setSearchLoading(true);
       try {
-        const result = await fetchProducts({ search: searchQuery.trim(), limit: 6 }, controller.signal);
+        const result = await fetchProducts(
+          {
+            search: searchQuery.trim(),
+            limit: 6,
+            ...(searchCategory !== "all" ? { category: searchCategory } : {}),
+          },
+          controller.signal,
+        );
         setSearchResults(result.products);
         setSearchTotal(result.total);
       } catch {
@@ -90,15 +101,24 @@ export const Header = memo(function Header() {
       clearTimeout(timer);
       controller.abort();
     };
-  }, [searchQuery]);
+  }, [searchQuery, searchCategory]);
 
   const handleSearchSubmit = useCallback(() => {
-    if (searchQuery.trim()) {
-      setSearchOpen(false);
-      setMobileSearchOpen(false);
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    const q = searchQuery.trim();
+    setSearchOpen(false);
+    setMobileSearchOpen(false);
+    if (searchCategory !== "all" && !q) {
+      router.push(`/shop/${searchCategory}`);
+      return;
     }
-  }, [searchQuery, router]);
+    if (!q) {
+      router.push("/shop");
+      return;
+    }
+    const params = new URLSearchParams({ q });
+    if (searchCategory !== "all") params.set("category", searchCategory);
+    router.push(`/search?${params.toString()}`);
+  }, [searchQuery, searchCategory, router]);
 
   const handleResultClick = useCallback(() => {
     setSearchOpen(false);
@@ -107,75 +127,74 @@ export const Header = memo(function Header() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setSearchOpen(false);
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setUserMenuOpen(false);
-      }
+      const t = e.target as Node;
+      if (searchRef.current && !searchRef.current.contains(t)) setSearchOpen(false);
+      if (userMenuRef.current && !userMenuRef.current.contains(t)) setUserMenuOpen(false);
+      if (departmentsRef.current && !departmentsRef.current.contains(t)) setDepartmentsOpen(false);
     };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  const navLinkClass =
-    "relative shrink-0 py-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left";
+  const secondaryLinks = [
+    { href: "/shop", label: "Shop All" },
+    { href: "/shop?sort=newest", label: "New Arrivals" },
+    { href: "/shop?sort=popular", label: "Best Sellers" },
+    { href: "/wishlist", label: "Wishlist" },
+    { href: "/shipping-returns", label: "Shipping" },
+    { href: "/faq", label: "Help" },
+    { href: "/contact", label: "Customer Service" },
+  ];
 
-  const renderSearchDropdown = () => (
+  const renderSearchDropdown = (wide = false) => (
     <AnimatePresence>
       {searchOpen && (
         <motion.div
-          initial={{ opacity: 0, y: 8, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 8, scale: 0.98 }}
-          className="absolute top-full left-0 right-0 mt-2 w-full min-w-[16rem] max-w-[calc(100vw-2rem)] sm:min-w-[22rem] bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] overflow-hidden z-50 text-[#1C1A17] dark:text-[#E7DCC4]"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 6 }}
+          className={`absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a2d3d] rounded-b-md shadow-2xl border border-[#D5D9D9] dark:border-[#2a3d4d] overflow-hidden z-50 text-[#0F1111] dark:text-[#E7DCC4] ${
+            wide ? "" : "min-w-[16rem]"
+          }`}
         >
           {searchLoading && (
-            <div className="px-4 py-3 text-xs font-mono text-[#132A3A]/70 dark:text-[#E7DCC4]/70">SEARCHING...</div>
+            <div className="px-4 py-3 text-sm text-[#565959]">Searching…</div>
           )}
           {!searchLoading && searchResults.length > 0 && (
             <div className="py-1">
-              <div className="px-3 py-1.5 bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider">
-                Matching Items ({searchResults.length})
-              </div>
               {searchResults.map((product) => (
                 <Link
                   key={product.id}
                   href={`/product/${product.slug}`}
                   onClick={handleResultClick}
-                  className="flex items-center gap-3 px-4 py-2.5 border-b border-[#E7DCC4]/50 dark:border-[#2a3d4d] hover:bg-[#F5A300]/10 transition-colors"
+                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C] transition-colors"
                 >
                   <img
                     src={safeImage(product.images)}
                     alt={product.name}
-                    className="w-10 h-10 rounded-[2px] object-cover bg-white dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d]"
+                    className="w-10 h-10 rounded object-cover bg-[#F7F8F8] border border-[#D5D9D9]"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] truncate">{product.name}</p>
-                    <p className="text-xs font-mono font-bold text-[#1F6F50]">{formatPrice(product.price)}</p>
+                    <p className="text-sm font-medium truncate">{product.name}</p>
+                    <p className="text-sm font-bold text-[#B12704]">{formatPrice(product.price)}</p>
                   </div>
                 </Link>
               ))}
               {searchTotal > 6 && (
                 <button
+                  type="button"
                   onClick={handleSearchSubmit}
-                  className="w-full px-4 py-2.5 text-xs font-mono font-bold text-[#132A3A] dark:text-[#E7DCC4] bg-[#E7DCC4]/40 dark:bg-[#0A1A28] hover:bg-[#F5A300] hover:text-[#132A3A] transition-colors border-t border-[#E7DCC4] dark:border-[#2a3d4d]"
+                  className="w-full px-4 py-2.5 text-sm text-left text-[#2162A1] hover:underline bg-[#F7F8F8] dark:bg-[#0A1A28] border-t border-[#D5D9D9] dark:border-[#2a3d4d]"
                 >
-                  VIEW ALL {searchTotal} RESULTS &rarr;
+                  See all {searchTotal} results
                 </button>
               )}
             </div>
           )}
           {!searchLoading && searchQuery.trim() && searchResults.length === 0 && (
-            <div className="px-4 py-6 text-center">
-              <p className="text-xs font-mono text-[#1C1A17]/60 dark:text-[#a0b4c4]">NO MATCHES FOUND FOR &quot;{searchQuery}&quot;</p>
+            <div className="px-4 py-6 text-center text-sm text-[#565959]">
+              No matches for &quot;{searchQuery}&quot;
             </div>
           )}
         </motion.div>
@@ -183,269 +202,297 @@ export const Header = memo(function Header() {
     </AnimatePresence>
   );
 
+  const accountFirstName = user?.name?.split(" ")[0] || "there";
+
   return (
     <>
-      {/* Top utility bar — compact on small screens, full on md+ */}
-      <div className="bg-[#0D1F2C] dark:bg-[#071520] text-[#E7DCC4] text-[10px] sm:text-[11px] font-mono py-1.5 sm:py-2 border-b border-[#E7DCC4]/20">
-        <div className="container flex items-center justify-between gap-2 min-w-0">
-          <div className="flex items-center gap-2 sm:gap-4 min-w-0 overflow-hidden">
-            <span className="flex items-center gap-1 sm:gap-1.5 text-[#F5A300] font-bold shrink-0">
-              <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-              <span className="sm:hidden">COD</span>
-              <span className="hidden sm:inline">COD AVAILABLE NATIONWIDE</span>
-            </span>
-            <span className="text-[#E7DCC4]/30 hidden sm:inline shrink-0">|</span>
-            <a
-              href="tel:01302228993"
-              className="flex items-center gap-1 sm:gap-1.5 hover:text-[#F5A300] transition-colors shrink-0"
-            >
-              <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#F5A300]" />
-              <span className="tabular-nums">01302228993</span>
-            </a>
-          </div>
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+      {/* ── Amazon-style primary nav ── */}
+      <header className="sticky top-0 z-50 bg-[#131921] text-white shadow-md">
+        <div className="px-2 sm:px-3 lg:px-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-h-[56px] sm:min-h-[60px] py-1.5">
+            {/* Logo */}
+            <div className="shrink-0 px-1 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white">
+              <SiteLogo variant="header" priority showWordmark />
+            </div>
+
+            {/* Deliver to */}
             <Link
-              href="/track-order"
-              className="hover:text-[#F5A300] transition-colors flex items-center gap-1"
+              href={isLoggedIn ? "/account" : "/shipping-returns"}
+              className="hidden sm:flex flex-col justify-center px-2 py-1.5 rounded-sm hover:outline hover:outline-1 hover:outline-white shrink-0 max-w-[9rem] lg:max-w-[11rem]"
             >
-              <Package className="w-3 h-3 text-[#F5A300]" />
-              <span className="hidden sm:inline">Track Order</span>
-              <span className="sm:hidden">Track</span>
+              <span className="flex items-center gap-1 text-[11px] text-[#CCC] leading-none pl-5">
+                Deliver to
+              </span>
+              <span className="flex items-center gap-1 text-[13px] font-bold leading-tight truncate">
+                <MapPin className="w-4 h-4 shrink-0 text-white -mt-0.5" />
+                <span className="truncate">{deliverCity}</span>
+              </span>
             </Link>
-            <span className="text-[#E7DCC4]/30 hidden md:inline">|</span>
-            <Link
-              href="/contact"
-              className="hidden md:inline hover:text-[#F5A300] transition-colors"
-            >
-              Help Center
-            </Link>
+
+            {/* Search — grows to fill center (Amazon pattern) */}
+            <div ref={searchRef} className="relative hidden md:flex flex-1 min-w-0 h-10 self-center">
+              <form
+                className="flex w-full h-full rounded-md overflow-hidden focus-within:outline focus-within:outline-2 focus-within:outline-[#F5A300]"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSearchSubmit();
+                }}
+              >
+                <label htmlFor="nav-search-category" className="sr-only">
+                  Search category
+                </label>
+                <select
+                  id="nav-search-category"
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  className="hidden lg:block max-w-[7.5rem] shrink-0 bg-[#E6E6E6] text-[#0F1111] text-xs font-medium border-0 border-r border-[#CDCDCD] px-2 outline-none cursor-pointer"
+                >
+                  <option value="all">All</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  ref={searchInputRef}
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setSearchOpen(true);
+                  }}
+                  onFocus={() => setSearchOpen(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setSearchOpen(false);
+                  }}
+                  placeholder="Search Dhaka Wholesale"
+                  className="flex-1 min-w-0 bg-white text-[#0F1111] text-sm px-3 outline-none placeholder:text-[#767676]"
+                  autoComplete="off"
+                />
+                <button
+                  type="submit"
+                  className="shrink-0 w-11 sm:w-12 bg-[#F5A300] hover:bg-[#D88900] text-[#131921] flex items-center justify-center transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5" strokeWidth={2.5} />
+                </button>
+              </form>
+              {renderSearchDropdown(true)}
+            </div>
+
+            {/* Right cluster */}
+            <div className="flex items-center gap-0.5 sm:gap-1 ml-auto shrink-0">
+              <button
+                type="button"
+                onClick={() => setMobileSearchOpen(true)}
+                className="md:hidden p-2 rounded-sm hover:outline hover:outline-1 hover:outline-white"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+
+              <button
+                type="button"
+                onClick={toggleTheme}
+                suppressHydrationWarning
+                className="p-2 rounded-sm hover:outline hover:outline-1 hover:outline-white text-[#CCC] hover:text-white"
+                aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
+              >
+                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+
+              {/* Account */}
+              <div ref={userMenuRef} className="relative">
+                {authHydrated && isLoggedIn ? (
+                  <button
+                    type="button"
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="flex flex-col justify-center px-1.5 sm:px-2 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white text-left min-w-0"
+                  >
+                    <span className="text-[11px] text-[#CCC] leading-none truncate max-w-[5.5rem] sm:max-w-[7rem]">
+                      Hello, {accountFirstName}
+                    </span>
+                    <span className="text-[12px] sm:text-[13px] font-bold leading-tight flex items-center gap-0.5">
+                      Account &amp; Lists
+                      <ChevronDown className="w-3 h-3 hidden sm:inline opacity-80" />
+                    </span>
+                  </button>
+                ) : authHydrated ? (
+                  <Link
+                    href="/login"
+                    className="flex flex-col justify-center px-1.5 sm:px-2 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white"
+                  >
+                    <span className="text-[11px] text-[#CCC] leading-none">Hello, sign in</span>
+                    <span className="text-[12px] sm:text-[13px] font-bold leading-tight flex items-center gap-0.5">
+                      Account &amp; Lists
+                      <ChevronDown className="w-3 h-3 hidden sm:inline opacity-80" />
+                    </span>
+                  </Link>
+                ) : (
+                  <div className="w-16 sm:w-24 h-9" aria-hidden />
+                )}
+
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      className="absolute top-full right-0 mt-1 w-64 bg-white dark:bg-[#1a2d3d] rounded-md shadow-2xl border border-[#D5D9D9] dark:border-[#2a3d4d] py-2 z-50 text-[#0F1111] dark:text-[#E7DCC4]"
+                    >
+                      <div className="px-4 py-2 border-b border-[#D5D9D9] dark:border-[#2a3d4d]">
+                        <p className="text-sm font-bold truncate">{user?.name}</p>
+                        <p className="text-xs text-[#565959] dark:text-[#a0b4c4] truncate">
+                          {user?.email}
+                        </p>
+                      </div>
+                      <Link
+                        href="/account"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C]"
+                      >
+                        <User className="w-4 h-4 text-[#F5A300]" />
+                        Your Account
+                      </Link>
+                      <Link
+                        href="/account"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C]"
+                      >
+                        <Package className="w-4 h-4 text-[#F5A300]" />
+                        Your Orders
+                      </Link>
+                      <Link
+                        href="/wishlist"
+                        onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C] border-b border-[#D5D9D9] dark:border-[#2a3d4d]"
+                      >
+                        <Heart className="w-4 h-4 text-[#F5A300]" />
+                        Wishlist
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          logout();
+                          router.push("/");
+                        }}
+                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-[#B12704] hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C]"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Returns & Orders */}
+              <Link
+                href={isLoggedIn ? "/account" : "/login?redirect=/account"}
+                className="hidden md:flex flex-col justify-center px-2 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white"
+              >
+                <span className="text-[11px] text-[#CCC] leading-none">Returns</span>
+                <span className="text-[13px] font-bold leading-tight">&amp; Orders</span>
+              </Link>
+
+              {/* Cart */}
+              <Link
+                href="/cart"
+                className="relative flex items-end gap-0.5 px-2 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white min-w-[52px]"
+                aria-label={`Cart, ${totalItems} items`}
+              >
+                <span className="relative inline-flex">
+                  <ShoppingCart className="w-8 h-8 sm:w-9 sm:h-9" strokeWidth={1.75} />
+                  <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 text-[#F5A300] text-sm font-bold tabular-nums leading-none">
+                    {cartHydrated ? (totalItems > 99 ? "99+" : totalItems) : 0}
+                  </span>
+                </span>
+                <span className="hidden sm:inline text-[13px] font-bold pb-0.5">Cart</span>
+              </Link>
+
+              {/* Mobile menu */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="lg:hidden p-2 rounded-sm hover:outline hover:outline-1 hover:outline-white"
+                aria-label="Open menu"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Main header */}
-      <header
-        className={`sticky top-0 z-50 bg-[#132A3A] dark:bg-[#0A1A28] transition-all duration-200 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d]/20 ${
-          scrolled ? "shadow-xl py-0.5" : ""
-        }`}
-      >
-        <div className="container flex items-center gap-2 sm:gap-3 md:gap-4 h-14 sm:h-16 md:h-20 min-w-0">
-          {/* Logo */}
-          <div className="relative z-10 shrink-0">
-            <SiteLogo variant="header" priority showWordmark />
-          </div>
-
-          {/* Desktop text nav — xl+ only so search never overlaps links */}
-          <nav className="hidden xl:flex items-center gap-5 2xl:gap-7 shrink-0">
-            <Link href="/shop" className={navLinkClass}>
-              Shop All
-            </Link>
-            <div
-              className="relative"
-              onMouseEnter={() => setCategoryOpen(true)}
-              onMouseLeave={() => setCategoryOpen(false)}
-            >
-              <button className={`${navLinkClass} flex items-center gap-1`}>
-                Categories <ChevronDown className="w-3.5 h-3.5 text-[#F5A300]" />
+        {/* ── Secondary category bar ── */}
+        <div className="relative bg-[#232F3E] text-white text-[13px]">
+          <div className="px-2 sm:px-3 lg:px-4 flex items-center gap-1 min-h-[39px] overflow-x-auto scrollbar-none">
+            <div ref={departmentsRef} className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) {
+                    setMobileMenuOpen(true);
+                    return;
+                  }
+                  setDepartmentsOpen((o) => !o);
+                }}
+                className={`inline-flex items-center gap-1.5 font-bold px-2 py-1.5 rounded-sm hover:outline hover:outline-1 hover:outline-white whitespace-nowrap ${
+                  departmentsOpen ? "outline outline-1 outline-[#F5A300]" : ""
+                }`}
+              >
+                <Menu className="w-4 h-4" />
+                All
               </button>
+
               <AnimatePresence>
-                {categoryOpen && (
+                {departmentsOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: 6 }}
+                    initial={{ opacity: 0, y: 4 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 6 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute top-full left-0 mt-2 w-60 bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] py-2 text-[#1C1A17] dark:text-[#E7DCC4]"
+                    exit={{ opacity: 0, y: 4 }}
+                    className="absolute left-0 top-full mt-1 w-72 max-h-[70vh] overflow-y-auto bg-white dark:bg-[#1a2d3d] text-[#0F1111] dark:text-[#E7DCC4] rounded-md shadow-2xl border border-[#D5D9D9] dark:border-[#2a3d4d] z-50"
                   >
-                    <div className="px-4 py-1.5 bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider mb-1">
-                      Market Categories
+                    <div className="px-4 py-3 bg-[#232F3E] text-white font-bold text-sm">
+                      Shop by Department
                     </div>
+                    <Link
+                      href="/shop"
+                      onClick={() => setDepartmentsOpen(false)}
+                      className="block px-4 py-2.5 text-sm font-semibold hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C] border-b border-[#E7DCC4]/40"
+                    >
+                      All products
+                    </Link>
                     {categories.map((cat) => (
                       <Link
                         key={cat.id}
                         href={`/shop/${cat.slug}`}
-                        className="flex items-center justify-between px-4 py-2.5 text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/15 hover:text-[#D88900] transition-colors border-b border-[#E7DCC4]/40 last:border-0"
-                        onClick={() => setCategoryOpen(false)}
+                        onClick={() => setDepartmentsOpen(false)}
+                        className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C] border-b border-[#E7DCC4]/30 last:border-0"
                       >
                         <span>{cat.name}</span>
-                        <span className="font-mono text-[10px] bg-[#132A3A] dark:bg-[#0A1A28] text-[#E7DCC4] px-1.5 py-0.5 rounded-[2px]">
-                          {cat.productCount}
-                        </span>
+                        <span className="text-xs text-[#565959]">{cat.productCount}</span>
                       </Link>
                     ))}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
-            <Link href="/shop?sort=newest" className={navLinkClass}>
-              New Arrivals
-            </Link>
-            <Link href="/shop?sort=popular" className={navLinkClass}>
-              Best Sellers
-            </Link>
-            <Link
-              href="/contact"
-              className="relative shrink-0 py-1 text-sm font-semibold text-[#F5A300] hover:text-white transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
-            >
-              Contact Us
-            </Link>
-          </nav>
 
-          {/* Flexible search — md+ inline; takes remaining space, never covers nav */}
-          <div ref={searchRef} className="relative hidden md:block flex-1 min-w-0 max-w-md xl:max-w-xs 2xl:max-w-sm ml-auto">
-            <div className="flex items-center gap-2 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-2.5 lg:px-3 py-1.5 w-full min-w-0 focus-within:border-[#F5A300] transition-colors">
-              <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setSearchOpen(true);
-                }}
-                onFocus={() => setSearchOpen(true)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearchSubmit();
-                  if (e.key === "Escape") setSearchOpen(false);
-                }}
-                placeholder="Search products..."
-                className="flex-1 min-w-0 bg-transparent text-xs font-mono outline-none text-white placeholder:text-[#E7DCC4]/50"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => {
-                    setSearchQuery("");
-                    setSearchResults([]);
-                    searchInputRef.current?.focus();
-                  }}
-                  className="shrink-0 p-0.5 hover:text-[#F5A300] text-[#E7DCC4]"
-                  aria-label="Clear search"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-            {renderSearchDropdown()}
-          </div>
+            {secondaryLinks.map((link) => (
+              <Link
+                key={link.href + link.label}
+                href={link.href}
+                className="shrink-0 px-2 py-1.5 rounded-sm hover:outline hover:outline-1 hover:outline-white whitespace-nowrap"
+              >
+                {link.label}
+              </Link>
+            ))}
 
-          {/* Right actions — icons never clip; labels collapse early */}
-          <div className="flex items-center gap-0.5 sm:gap-1 md:gap-1.5 shrink-0 md:ml-0 ml-auto">
-            <button
-              onClick={() => setMobileSearchOpen(true)}
-              className="md:hidden p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
-              aria-label="Search"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-
-            <button
-              onClick={toggleTheme}
-              suppressHydrationWarning
-              className="p-1.5 sm:p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {theme === "dark" ? (
-                <Sun className="w-5 h-5" />
-              ) : (
-                <Moon className="w-5 h-5" />
-              )}
-            </button>
-
-            <Link
-              href="/wishlist"
-              className="hidden md:inline-flex p-1.5 sm:p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative"
-              aria-label="Wishlist"
-            >
-              <Heart className="w-5 h-5" />
-            </Link>
-
-            <Link
-              href="/cart"
-              className="inline-flex items-center gap-1 p-1.5 sm:p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] sm:px-2 sm:py-1.5"
-              aria-label="Shopping Cart"
-            >
-              <ShoppingBag className="w-4 h-4 text-[#F5A300] shrink-0" />
-              <span className="font-mono text-xs font-bold text-white hidden 2xl:inline">Cart</span>
-              {cartHydrated && totalItems > 0 && (
-                <span className="w-4 h-4 flex items-center justify-center bg-[#BE3D1F] text-white font-mono text-[10px] font-bold rounded-full border border-white shrink-0">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-
-            <div ref={userMenuRef} className="relative">
-              {authHydrated && isLoggedIn ? (
-                <button
-                  onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="inline-flex items-center gap-1 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-bold text-xs p-2 sm:px-2.5 sm:py-1.5 xl:px-3.5 rounded-full border border-[#D88900] shadow-sm transition-transform active:scale-95"
-                  aria-label="Account menu"
-                >
-                  <User className="w-3.5 h-3.5 shrink-0" />
-                  <span className="hidden xl:inline max-w-[72px] truncate">
-                    {user?.name?.split(" ")[0] || "Account"}
-                  </span>
-                  <ChevronDown className="w-3 h-3 hidden xl:inline shrink-0" />
-                </button>
-              ) : authHydrated ? (
-                <Link
-                  href="/login"
-                  className="inline-flex items-center gap-1 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-bold text-xs p-2 sm:px-2.5 sm:py-1.5 xl:px-3.5 rounded-full border border-[#D88900] shadow-sm transition-transform active:scale-95"
-                  aria-label="Account"
-                >
-                  <User className="w-3.5 h-3.5 shrink-0" />
-                  <span className="hidden xl:inline">Account</span>
-                </Link>
-              ) : null}
-
-              <AnimatePresence>
-                {userMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 6, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute top-full right-0 mt-2 w-56 bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] py-2 z-50 text-[#1C1A17] dark:text-[#E7DCC4]"
-                  >
-                    <div className="px-4 py-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d] bg-[#132A3A] dark:bg-[#0A1A28] text-white">
-                      <p className="text-xs font-bold truncate text-[#F5A300]">
-                        {user?.name}
-                      </p>
-                      <p className="text-[10px] font-mono text-[#E7DCC4]/70 truncate">
-                        {user?.email}
-                      </p>
-                    </div>
-                    <Link
-                      href="/account"
-                      onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-2.5 text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/15 transition-colors border-b border-[#E7DCC4]/40 dark:border-[#2a3d4d]"
-                    >
-                      <User className="w-4 h-4 text-[#F5A300]" />
-                      My Account
-                    </Link>
-                    <button
-                      onClick={() => {
-                        setUserMenuOpen(false);
-                        logout();
-                        router.push("/");
-                      }}
-                      className="flex items-center gap-2 w-full px-4 py-2.5 text-xs font-bold text-[#BE3D1F] hover:bg-[#BE3D1F]/10 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sign Out
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Hamburger until xl — phones + tablets + mid laptops */}
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="xl:hidden p-1.5 sm:p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
-              aria-label="Open menu"
-            >
-              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
+            <span className="hidden xl:inline shrink-0 px-2 py-1.5 text-[#F5A300] font-semibold whitespace-nowrap">
+              COD nationwide · ৳80 Dhaka / ৳120 outside
+            </span>
           </div>
         </div>
       </header>
@@ -456,90 +503,78 @@ export const Header = memo(function Header() {
         onSearchOpen={() => setMobileSearchOpen(true)}
       />
 
-      {/* Mobile / tablet search overlay — below md uses modal; md+ uses inline search */}
+      {/* Mobile search overlay */}
       <AnimatePresence>
         {mobileSearchOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-[#132A3A] dark:bg-[#0A1A28] text-white md:hidden"
+            className="fixed inset-0 z-[60] bg-[#131921] text-white md:hidden"
           >
-            <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d]/20">
-              <div className="flex items-center gap-2 flex-1 min-w-0 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-2">
-                <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
+            <div className="flex items-center gap-2 px-3 pt-3 pb-3">
+              <form
+                className="flex flex-1 min-w-0 h-11 rounded-md overflow-hidden"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSearchSubmit();
+                }}
+              >
                 <input
                   ref={mobileSearchInputRef}
-                  type="text"
+                  type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSearchSubmit();
                     if (e.key === "Escape") setMobileSearchOpen(false);
                   }}
-                  placeholder="Search products..."
-                  className="flex-1 min-w-0 bg-transparent text-xs font-mono outline-none text-white placeholder:text-[#E7DCC4]/50"
+                  placeholder="Search Dhaka Wholesale"
+                  className="flex-1 min-w-0 bg-white text-[#0F1111] text-sm px-3 outline-none"
                 />
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSearchResults([]);
-                      mobileSearchInputRef.current?.focus();
-                    }}
-                    className="shrink-0 p-0.5 text-[#E7DCC4]"
-                    aria-label="Clear search"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
+                <button
+                  type="submit"
+                  className="w-12 bg-[#F5A300] text-[#131921] flex items-center justify-center"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+              </form>
               <button
+                type="button"
                 onClick={() => {
                   setMobileSearchOpen(false);
                   setSearchQuery("");
                   setSearchResults([]);
                 }}
-                className="text-xs font-mono font-bold text-[#F5A300] shrink-0 px-2"
+                className="text-sm font-bold text-[#F5A300] shrink-0 px-1"
               >
-                CLOSE
+                Cancel
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(100vh-70px)] bg-[#FBF6EC] dark:bg-[#0D1F2C] text-[#1C1A17] dark:text-[#E7DCC4]">
+            <div className="overflow-y-auto max-h-[calc(100vh-70px)] bg-white dark:bg-[#0D1F2C] text-[#0F1111] dark:text-[#E7DCC4]">
               {searchLoading && (
-                <div className="px-4 py-4 text-xs font-mono text-[#132A3A] dark:text-[#E7DCC4]">Searching...</div>
+                <div className="px-4 py-4 text-sm text-[#565959]">Searching…</div>
               )}
               {!searchLoading && searchResults.length > 0 && (
                 <div>
-                  <div className="px-4 py-2 bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono text-xs font-bold">
-                    Results ({searchResults.length})
-                  </div>
                   {searchResults.map((product) => (
                     <Link
                       key={product.id}
                       href={`/product/${product.slug}`}
                       onClick={handleResultClick}
-                      className="flex items-center gap-3 px-4 py-3 border-b border-[#E7DCC4] dark:border-[#2a3d4d] hover:bg-[#F5A300]/10"
+                      className="flex items-center gap-3 px-4 py-3 border-b border-[#E7E7E7] dark:border-[#2a3d4d]"
                     >
                       <img
                         src={safeImage(product.images)}
                         alt={product.name}
-                        className="w-12 h-12 rounded-[2px] object-cover bg-white dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d]"
+                        className="w-12 h-12 rounded object-cover border border-[#D5D9D9]"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-[#132A3A] dark:text-[#E7DCC4] truncate">{product.name}</p>
-                        <p className="text-xs font-mono font-bold text-[#1F6F50]">{formatPrice(product.price)}</p>
+                        <p className="text-sm font-medium truncate">{product.name}</p>
+                        <p className="text-sm font-bold text-[#B12704]">{formatPrice(product.price)}</p>
                       </div>
                     </Link>
                   ))}
-                  {searchTotal > 6 && (
-                    <button
-                      onClick={handleSearchSubmit}
-                      className="w-full px-4 py-3 text-xs font-mono font-bold text-[#132A3A] dark:text-[#E7DCC4] bg-[#E7DCC4]/50 dark:bg-[#0A1A28] border-t border-[#E7DCC4] dark:border-[#2a3d4d]"
-                    >
-                      VIEW ALL {searchTotal} RESULTS &rarr;
-                    </button>
-                  )}
                 </div>
               )}
             </div>
