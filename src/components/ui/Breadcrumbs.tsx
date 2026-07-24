@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, Home } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 interface BreadcrumbItem {
@@ -10,24 +10,27 @@ interface BreadcrumbItem {
 
 interface BreadcrumbsProps {
   items: BreadcrumbItem[];
+  className?: string;
 }
 
-export function Breadcrumbs({ items }: BreadcrumbsProps) {
+export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
   return (
-    <nav className="flex items-center gap-1.5 font-mono text-xs text-[#132A3A]/70 dark:text-[#a0b4c4] mb-6 flex-wrap bg-[#FBF6EC] dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d] px-3 py-1.5 rounded-[2px] w-fit">
-      <Link href="/" className="hover:text-[#F5A300] transition-colors flex items-center gap-1">
-        <Home className="w-3.5 h-3.5 text-[#F5A300]" />
-        <span>HOME</span>
+    <nav
+      aria-label="Breadcrumb"
+      className={`flex items-center gap-1 text-[13px] text-muted mb-5 flex-wrap ${className ?? ""}`}
+    >
+      <Link href="/" className="hover:text-accent-hover transition-colors">
+        Home
       </Link>
       {items.map((item, i) => (
-        <span key={i} className="flex items-center gap-1.5">
-          <ChevronRight className="w-3.5 h-3.5 text-[#BE3D1F]" />
+        <span key={i} className="flex items-center gap-1 min-w-0">
+          <ChevronRight className="w-3.5 h-3.5 text-subtle shrink-0" />
           {item.href ? (
-            <Link href={item.href} className="hover:text-[#F5A300] transition-colors">
+            <Link href={item.href} className="hover:text-accent-hover transition-colors truncate">
               {item.label}
             </Link>
           ) : (
-            <span className="text-[#132A3A] dark:text-[#E7DCC4] font-bold uppercase">{item.label}</span>
+            <span className="text-fg font-semibold truncate">{item.label}</span>
           )}
         </span>
       ))}

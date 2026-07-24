@@ -1,5 +1,7 @@
-export function cn(...inputs: (string | false | null | undefined)[]) {
-  return inputs.filter(Boolean).join(" ");
+type ClassValue = string | number | bigint | false | null | undefined;
+
+export function cn(...inputs: ClassValue[]) {
+  return inputs.filter((v): v is string => typeof v === "string" && v.length > 0).join(" ");
 }
 
 export function formatPrice(price: number | null | undefined): string {
