@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Star, Loader2, MessageSquare } from "lucide-react";
+import { Star, Loader2, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { useProductReviews } from "@/src/hooks/useApi";
 import { submitReview, type Review } from "@/src/lib/api";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useToast } from "@/src/providers/ToastProvider";
-import { formatDate } from "@/src/lib/utils";
+import { Button, buttonClasses } from "@/src/components/ui/Button";
+import { Card } from "@/src/components/ui/Card";
+import { Textarea } from "@/src/components/ui/Field";
+import { cn, formatDate } from "@/src/lib/utils";
 
 interface ReviewSectionProps {
   productId: string;
@@ -47,116 +51,124 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
   };
 
   return (
-    <section className="mt-12 pt-8 border-t border-[#E7DCC4] dark:border-[#2a3d4d]">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-serif text-2xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">Market Reviews</h2>
+    <section className="mt-10 border-t border-line pt-8">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-xl font-bold text-fg sm:text-2xl">Customer reviews</h2>
         {user && !formOpen && (
-          <button
-            onClick={() => setFormOpen(true)}
-            className="font-mono text-xs font-bold text-[#F5A300] hover:text-[#D88900] transition-colors uppercase tracking-wider"
-          >
-            Write a Review
-          </button>
+          <Button variant="outline" size="sm" onClick={() => setFormOpen(true)}>
+            Write a review
+          </Button>
         )}
         {!user && (
-          <a
-            href="/login"
-            className="font-mono text-xs font-bold text-[#F5A300] hover:text-[#D88900] transition-colors uppercase tracking-wider"
-          >
+          <Link href="/login" className={buttonClasses({ variant: "outline", size: "sm" })}>
             Sign in to review
-          </a>
+          </Link>
         )}
       </div>
 
       {formOpen && (
-        <form onSubmit={handleSubmit} className="mb-8 bg-[#FBF6EC] dark:bg-[#0D1F2C] rounded-[3px] p-5 border-2 border-[#E7DCC4] dark:border-[#2a3d4d] space-y-4">
-          <p className="font-mono text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] uppercase tracking-wider">Your Rating</p>
-          <div className="flex gap-1">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <button
-                key={star}
+        <Card padded className="mb-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <p className="mb-2 text-[13px] font-semibold text-fg">Your rating</p>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onMouseEnter={() => setHoveredStar(star)}
+                    onMouseLeave={() => setHoveredStar(0)}
+                    onClick={() => setRating(star)}
+                    aria-label={`Rate ${star} out of 5`}
+                    aria-pressed={rating === star}
+                    className="rounded-sm p-0.5"
+                  >
+                    <Star
+                      className={cn(
+                        "h-6 w-6 transition-colors",
+                        star <= (hoveredStar || rating)
+                          ? "fill-accent text-accent"
+                          : "fill-surface-3 text-surface-3",
+                      )}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Textarea
+              label="Your review"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              rows={3}
+              minLength={10}
+              maxLength={1000}
+              required
+              hint="Minimum 10 characters."
+              placeholder="Share your experience with this product…"
+            />
+
+            <div className="flex items-center gap-3">
+              <Button type="submit" disabled={submitting || text.length < 10} loading={submitting}>
+                {submitting ? "Submitting…" : "Submit review"}
+              </Button>
+              <Button
                 type="button"
-                onMouseEnter={() => setHoveredStar(star)}
-                onMouseLeave={() => setHoveredStar(0)}
-                onClick={() => setRating(star)}
-                className="p-0.5"
+                variant="ghost"
+                onClick={() => {
+                  setFormOpen(false);
+                  setText("");
+                  setRating(5);
+                }}
               >
-                <Star
-                  className={`w-6 h-6 transition-colors ${
-                    star <= (hoveredStar || rating)
-                      ? "fill-[#F5A300] text-[#F5A300]"
-                      : "fill-[#E7DCC4] text-[#E7DCC4]"
-                  }`}
-                />
-              </button>
-            ))}
-          </div>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            rows={3}
-            minLength={10}
-            maxLength={1000}
-            required
-            placeholder="Share your experience with this product (min 10 characters)..."
-            className="w-full px-4 py-3 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] font-mono text-xs text-[#132A3A] dark:text-[#E7DCC4] focus:outline-none focus:border-[#F5A300] focus:ring-2 focus:ring-[#F5A300]/20 resize-none placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4]"
-          />
-          <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={submitting || text.length < 10}
-              className="inline-flex items-center gap-2 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] px-5 py-2.5 rounded-[3px] font-mono text-xs font-extrabold uppercase tracking-wider border border-[#D88900] transition-colors disabled:opacity-50"
-            >
-              {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {submitting ? "Submitting..." : "Submit Review"}
-            </button>
-            <button
-              type="button"
-              onClick={() => { setFormOpen(false); setText(""); setRating(5); }}
-              className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4] hover:text-[#132A3A] dark:hover:text-[#E7DCC4] transition-colors"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Card>
       )}
 
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-6 h-6 animate-spin text-[#F5A300]" />
+          <Loader2 className="h-6 w-6 animate-spin text-accent" />
         </div>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-12">
-          <MessageSquare className="w-10 h-10 text-[#E7DCC4] mx-auto mb-3" />
-          <p className="text-[#1C1A17]/60 dark:text-[#a0b4c4] text-sm font-sans">
-            No reviews yet. Be the first to share your experience!
-          </p>
+        <div className="rounded-lg border border-line bg-surface px-6 py-12 text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-surface-2 border border-line">
+            <MessageSquare className="h-5 w-5 text-subtle" />
+          </div>
+          <p className="text-sm font-semibold text-fg">No reviews yet</p>
+          <p className="mt-1 text-sm text-muted">Be the first to share your experience.</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {reviews.map((review: Review) => (
             <ReviewCard key={review.id} review={review} />
           ))}
 
           {meta && meta.totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 pt-4 flex-wrap font-mono text-xs">
-              <button
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1.5 rounded-[2px] font-bold border border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] text-[#132A3A] dark:text-[#E7DCC4] disabled:opacity-40 hover:bg-[#F5A300] transition-colors"
               >
+                <ChevronLeft className="h-4 w-4" />
                 Previous
-              </button>
-              <span className="text-[#132A3A] dark:text-[#E7DCC4] font-bold">
+              </Button>
+              <span className="tabular text-[13px] text-muted">
                 Page {meta.page} of {meta.totalPages}
               </span>
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setPage((p) => Math.min(meta.totalPages, p + 1))}
                 disabled={page >= meta.totalPages}
-                className="px-3 py-1.5 rounded-[2px] font-bold border border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] text-[#132A3A] dark:text-[#E7DCC4] disabled:opacity-40 hover:bg-[#F5A300] transition-colors"
               >
                 Next
-              </button>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           )}
         </div>
@@ -170,35 +182,34 @@ function ReviewCard({ review }: { review: Review }) {
   const initial = name.charAt(0).toUpperCase();
 
   return (
-    <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-5">
+    <Card className="p-4 sm:p-5">
       <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-[2px] bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono font-bold flex items-center justify-center text-sm border border-[#E7DCC4] dark:border-[#2a3d4d] shrink-0">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand text-sm font-bold text-brand-fg">
           {initial}
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <p className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4] truncate">{name}</p>
-            <time className="font-mono text-[11px] text-[#1C1A17]/50 dark:text-[#a0b4c4] shrink-0">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center justify-between gap-3">
+            <p className="truncate text-sm font-semibold text-fg">{name}</p>
+            <time className="tabular shrink-0 text-xs text-subtle">
               {formatDate(review.created_at)}
             </time>
           </div>
-          <div className="flex mb-2">
+          <div className="mb-2 flex" role="img" aria-label={`Rated ${review.rating} out of 5`}>
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`w-3.5 h-3.5 ${
+                className={cn(
+                  "h-3.5 w-3.5",
                   star <= review.rating
-                    ? "fill-[#F5A300] text-[#F5A300]"
-                    : "fill-[#E7DCC4] text-[#E7DCC4]"
-                }`}
+                    ? "fill-accent text-accent"
+                    : "fill-surface-3 text-surface-3",
+                )}
               />
             ))}
           </div>
-          <p className="text-sm text-[#1C1A17]/80 dark:text-[#a0b4c4] leading-relaxed font-sans">
-            {review.text}
-          </p>
+          <p className="text-sm leading-relaxed text-muted">{review.text}</p>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

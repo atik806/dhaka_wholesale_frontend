@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
+import { ChevronLeft, ChevronRight, PackageSearch } from "lucide-react";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
+import { Button } from "@/src/components/ui/Button";
+import { EmptyState } from "@/src/components/ui/EmptyState";
 import { ShopSkeleton } from "@/src/components/ui/Skeleton";
 import { useCategory, useProducts } from "@/src/hooks/useApi";
-import { BookOpen } from "lucide-react";
-import Link from "next/link";
 
 export function CategoryPageClient() {
   const params = useParams();
@@ -31,24 +32,28 @@ function CategoryPageContent({ categorySlug }: { categorySlug: string }) {
 
   if (!category) {
     return (
-      <div className="container py-20 text-center bg-[#FBF6EC] dark:bg-[#0D1F2C]">
-        <h1 className="font-serif text-2xl font-bold text-[#132A3A] dark:text-[#E7DCC4]">Category Not Found</h1>
-        <p className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4] mt-2">The specified category could not be found.</p>
-        <Link href="/shop" className="mt-4 inline-block font-mono text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] bg-[#F5A300] px-4 py-2 rounded-[3px] border border-[#D88900]">
-          RETURN TO SHOP &rarr;
-        </Link>
+      <div className="container py-10">
+        <EmptyState
+          icon={<PackageSearch className="h-7 w-7 text-subtle" />}
+          title="Category not found"
+          description="The category you're looking for doesn't exist or is no longer available."
+          actionLabel="Back to shop"
+          actionHref="/shop"
+        />
       </div>
     );
   }
+
+  const total = result?.total ?? result?.products.length ?? 0;
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] dark:bg-[#0D1F2C] min-h-screen py-8"
+      className="min-h-screen bg-canvas"
     >
-      <div className="container">
+      <div className="container py-6 sm:py-8">
         <Breadcrumbs
           items={[
             { label: "Shop", href: "/shop" },
@@ -56,38 +61,49 @@ function CategoryPageContent({ categorySlug }: { categorySlug: string }) {
           ]}
         />
 
-        <div className="bg-white dark:bg-[#132A3A] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 rounded-[3px] shadow-sm mb-8">
-          <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#132A3A] px-2.5 py-1 rounded-[2px] mb-2 -rotate-1">
-            <BookOpen className="w-3.5 h-3.5" /> CATEGORY
-          </div>
-          <h1 className="font-serif text-3xl md:text-4xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4] mb-2">
-            {category.name}
-          </h1>
-          <p className="text-xs sm:text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">{category.description}</p>
-        </div>
+        <header className="mb-6 border-b border-line pb-5">
+          <p className="label-caps mb-1.5 text-accent-hover">Category</p>
+          <h1 className="text-2xl font-bold text-fg sm:text-3xl">{category.name}</h1>
+          {category.description && (
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+              {category.description}
+            </p>
+          )}
+          <p className="mt-2 text-[13px] text-muted">
+            <span className="tabular font-semibold text-fg">{total}</span>{" "}
+            {total === 1 ? "product" : "products"} available
+          </p>
+        </header>
 
         <ProductGrid products={result?.products || []} />
 
         {result && result.totalPages > 1 && (
-          <div className="flex justify-center items-center gap-3 mt-10 font-mono text-xs">
-            <button
+          <nav
+            aria-label="Pagination"
+            className="mt-10 flex flex-wrap items-center justify-center gap-3"
+          >
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-4 py-2 border border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] rounded-[3px] font-bold text-[#132A3A] dark:text-[#E7DCC4] disabled:opacity-40"
             >
-              PREVIOUS
-            </button>
-            <span className="font-bold text-[#132A3A] dark:text-[#E7DCC4]">
-              PAGE {page} OF {result.totalPages}
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <span className="tabular text-[13px] text-muted">
+              Page {page} of {result.totalPages}
             </span>
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setPage((p) => Math.min(result.totalPages, p + 1))}
               disabled={page === result.totalPages}
-              className="px-4 py-2 border border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] rounded-[3px] font-bold text-[#132A3A] dark:text-[#E7DCC4] disabled:opacity-40"
             >
-              NEXT
-            </button>
-          </div>
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </nav>
         )}
       </div>
     </motion.div>
