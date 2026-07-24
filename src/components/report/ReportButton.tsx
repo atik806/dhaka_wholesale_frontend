@@ -18,7 +18,7 @@ export const ReportButton = memo(function ReportButton() {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setOpen(true)}
-          className="fixed bottom-36 md:bottom-20 right-6 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-amber-500 text-white shadow-lg hover:bg-amber-600 transition-colors"
+          className="fixed bottom-[13.5rem] md:bottom-40 right-4 md:right-6 z-50 flex items-center justify-center w-11 h-11 rounded-full bg-amber-500 text-white shadow-lg hover:bg-amber-600 transition-colors"
           title="Report a bug"
         >
           <MessageSquareWarning className="w-5 h-5" />
