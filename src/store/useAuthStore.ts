@@ -31,9 +31,9 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          await getSupabase().auth.signOut();
-        } catch {
-          // sign out even if server call fails
+          await getSupabase().auth.signOut({ scope: "local" });
+        } catch (err) {
+          console.warn("[auth] Supabase signOut failed during logout:", err);
         }
         set({ user: null, session: null });
       },
@@ -48,13 +48,22 @@ export const useAuthStore = create<AuthState>()(
         if (!session?.refresh_token) return false;
         try {
           const data = await refreshSession(session.refresh_token);
+          if (!data?.session?.access_token) {
+            throw new Error("Refresh returned no access token");
+          }
           const existing = get().user;
           set({
             user: existing ? { ...existing, ...data.user } : data.user,
             session: data.session,
           });
           return true;
-        } catch {
+        } catch (err) {
+          console.warn("[auth] Session refresh failed; clearing local session:", err);
+          try {
+            await getSupabase().auth.signOut({ scope: "local" });
+          } catch {
+            // ignore secondary cleanup errors
+          }
           set({ user: null, session: null });
           return false;
         }
@@ -65,7 +74,13 @@ export const useAuthStore = create<AuthState>()(
         if (_initialized) return;
         set({ _initialized: true });
 
-        if (!session?.refresh_token) return;
+        if (!session?.refresh_token) {
+          // Stale user without a refresh token cannot restore a session
+          if (session || get().user) {
+            set({ user: null, session: null });
+          }
+          return;
+        }
 
         const isExpired =
           !session.expires_at || session.expires_at * 1000 <= Date.now() + 60_000;
@@ -84,8 +99,15 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         session: state.session,
       }),
-      onRehydrateStorage: () => (state) => {
+      onRehydrateStorage: () => (state, error) => {
+        if (error) {
+          console.warn("[auth] Failed to rehydrate persisted session:", error);
+        }
         if (state) state._hydrated = true;
+        else {
+          // Ensure UI can proceed even if storage is empty/corrupt
+          useAuthStore.setState({ _hydrated: true });
+        }
       },
     },
   ),

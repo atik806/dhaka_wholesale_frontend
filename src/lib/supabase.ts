@@ -14,7 +14,12 @@ export function getSupabase(): SupabaseClient {
     client = createClient(url, key, {
       auth: {
         flowType: "pkce",
-        storage: localStorage,
+        // Browser auth uses localStorage (not HTTP cookies). Keep this
+        // explicit so session restore matches Zustand's cholokini-auth key.
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: typeof window !== "undefined" ? localStorage : undefined,
       },
     });
   }
