@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, memo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  ShoppingCart,
   Heart,
   Menu,
   ChevronDown,
@@ -24,6 +23,8 @@ import { useCategories } from "@/src/hooks/useApi";
 import { fetchProducts } from "@/src/lib/api";
 import { formatPrice, safeImage } from "@/src/lib/utils";
 import { MobileNav } from "./MobileNav";
+import { CartNavButton } from "./CartNavButton";
+import { FloatingCartButton } from "./FloatingCartButton";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import type { Product } from "@/src/types/product";
@@ -31,7 +32,9 @@ import type { Product } from "@/src/types/product";
 export const Header = memo(function Header() {
   const { data: categories = [] } = useCategories();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [navHidden, setNavHidden] = useState(false);
   const [departmentsOpen, setDepartmentsOpen] = useState(false);
+  const lastScrollY = useRef(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
@@ -137,6 +140,28 @@ export const Header = memo(function Header() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  // Hide nav on scroll down; show on scroll up / near top
+  useEffect(() => {
+    lastScrollY.current = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastScrollY.current;
+      if (y < 48) {
+        setNavHidden(false);
+      } else if (delta > 6 && y > 100) {
+        setNavHidden(true);
+        setUserMenuOpen(false);
+        setDepartmentsOpen(false);
+        setSearchOpen(false);
+      } else if (delta < -6) {
+        setNavHidden(false);
+      }
+      lastScrollY.current = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   const secondaryLinks = [
     { href: "/shop", label: "Shop All" },
     { href: "/shop?sort=newest", label: "New Arrivals" },
@@ -206,8 +231,12 @@ export const Header = memo(function Header() {
 
   return (
     <>
-      {/* ── Amazon-style primary nav ── */}
-      <header className="sticky top-0 z-50 bg-[#131921] text-white shadow-md">
+      {/* ── Amazon-style primary nav (auto-hides on scroll down) ── */}
+      <header
+        className={`sticky top-0 z-50 bg-[#131921] text-white shadow-md transition-transform duration-300 ease-out will-change-transform ${
+          navHidden ? "-translate-y-full pointer-events-none" : "translate-y-0"
+        }`}
+      >
         <div className="px-2 sm:px-3 lg:px-4">
           <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-h-[56px] sm:min-h-[60px] py-1.5">
             {/* Logo */}
@@ -397,20 +426,8 @@ export const Header = memo(function Header() {
                 <span className="text-[13px] font-bold leading-tight">&amp; Orders</span>
               </Link>
 
-              {/* Cart */}
-              <Link
-                href="/cart"
-                className="relative flex items-end gap-0.5 px-2 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white min-w-[52px]"
-                aria-label={`Cart, ${totalItems} items`}
-              >
-                <span className="relative inline-flex">
-                  <ShoppingCart className="w-8 h-8 sm:w-9 sm:h-9" strokeWidth={1.75} />
-                  <span className="absolute -top-0.5 left-1/2 -translate-x-1/2 text-[#F5A300] text-sm font-bold tabular-nums leading-none">
-                    {cartHydrated ? (totalItems > 99 ? "99+" : totalItems) : 0}
-                  </span>
-                </span>
-                <span className="hidden sm:inline text-[13px] font-bold pb-0.5">Cart</span>
-              </Link>
+              {/* Cart — Amazon-style count in basket */}
+              <CartNavButton totalItems={totalItems} hydrated={cartHydrated} />
 
               {/* Mobile menu */}
               <button
@@ -496,6 +513,8 @@ export const Header = memo(function Header() {
           </div>
         </div>
       </header>
+
+      <FloatingCartButton visible={navHidden && !mobileMenuOpen && !mobileSearchOpen} />
 
       <MobileNav
         open={mobileMenuOpen}
