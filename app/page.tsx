@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { HeroSection } from "@/src/components/home/HeroSection";
-import { TrustBar } from "@/src/components/home/TrustBar";
 import { FeaturedCategories } from "@/src/components/home/FeaturedCategories";
 import { TrendingProducts } from "@/src/components/home/TrendingProducts";
 import { CustomerReviews } from "@/src/components/home/CustomerReviews";
@@ -16,7 +15,6 @@ export default function Home() {
       transition={{ duration: 0.3 }}
     >
       <HeroSection />
-      <TrustBar />
       <FeaturedCategories />
       <TrendingProducts />
       <PromoBanner />
