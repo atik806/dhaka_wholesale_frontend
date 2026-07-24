@@ -9,8 +9,9 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       wishlistIds: [],
+      serverSynced: false,
 
-      addItem: (item) =>
+      addItem: (item) => {
         set((state) => {
           const existing = state.items.find(
             (i) =>
@@ -30,9 +31,17 @@ export const useCartStore = create<CartStore>()(
             };
           }
           return { items: [...state.items, item] };
-        }),
+        });
+        void import("@/src/lib/cart-sync").then((m) => m.syncAddCartItem(item));
+      },
 
-      removeItem: (productId, selectedSize, selectedColor) =>
+      removeItem: (productId, selectedSize, selectedColor) => {
+        const match = get().items.find(
+          (i) =>
+            i.product.id === productId &&
+            (i.selectedSize ?? null) === (selectedSize ?? null) &&
+            (i.selectedColor ?? null) === (selectedColor ?? null),
+        );
         set((state) => ({
           items: state.items.filter(
             (i) =>
@@ -42,9 +51,24 @@ export const useCartStore = create<CartStore>()(
                 (i.selectedColor ?? null) === (selectedColor ?? null)
               ),
           ),
-        })),
+        }));
+        void import("@/src/lib/cart-sync").then((m) =>
+          m.syncRemoveCartItem(
+            productId,
+            selectedSize,
+            selectedColor,
+            match?.serverId,
+          ),
+        );
+      },
 
-      updateQuantity: (productId, quantity, selectedSize, selectedColor) =>
+      updateQuantity: (productId, quantity, selectedSize, selectedColor) => {
+        const match = get().items.find(
+          (i) =>
+            i.product.id === productId &&
+            (i.selectedSize ?? null) === (selectedSize ?? null) &&
+            (i.selectedColor ?? null) === (selectedColor ?? null),
+        );
         set((state) => ({
           items:
             quantity <= 0
@@ -63,18 +87,42 @@ export const useCartStore = create<CartStore>()(
                     ? { ...i, quantity }
                     : i,
                 ),
-        })),
+        }));
+        void import("@/src/lib/cart-sync").then((m) =>
+          m.syncUpdateCartQuantity(
+            productId,
+            quantity,
+            selectedSize,
+            selectedColor,
+            match?.serverId,
+          ),
+        );
+      },
 
-      clearCart: () => set({ items: [] }),
+      clearCart: () => {
+        set({ items: [] });
+        void import("@/src/lib/cart-sync").then((m) => m.syncClearCart());
+      },
 
-      toggleWishlist: (productId) =>
+      toggleWishlist: (productId) => {
+        const wasIn = get().wishlistIds.includes(productId);
         set((state) => ({
-          wishlistIds: state.wishlistIds.includes(productId)
+          wishlistIds: wasIn
             ? state.wishlistIds.filter((id) => id !== productId)
             : [...state.wishlistIds, productId],
-        })),
+        }));
+        void import("@/src/lib/cart-sync").then((m) =>
+          m.syncToggleWishlist(productId, !wasIn),
+        );
+      },
 
       isInWishlist: (productId) => get().wishlistIds.includes(productId),
+
+      replaceItems: (items) => set({ items }),
+
+      setWishlistIds: (ids) => set({ wishlistIds: ids }),
+
+      setServerSynced: (synced) => set({ serverSynced: synced }),
 
       totalItems: () => get().items.reduce((sum, i) => sum + i.quantity, 0),
 
