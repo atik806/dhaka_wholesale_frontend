@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useRef, useEffect } from "react";
 import { useCategories } from "@/src/hooks/useApi";
+import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
@@ -42,6 +43,7 @@ const navItems = [
 export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
   const pathname = usePathname();
   const { data: categories = [] } = useCategories();
+  const openDepartments = useDepartmentsStore((s) => s.openDepartments);
   const navRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
@@ -203,6 +205,18 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                   className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] bg-[#E7DCC4]/40 dark:bg-[#132A3A] hover:bg-[#F5A300]/20 transition-colors"
                 >
                   <Search className="w-4 h-4 text-[#F5A300]" /> Search Products...
+                </button>
+
+                {/* Departments panel */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    openDepartments();
+                  }}
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-white bg-[#132A3A] hover:bg-[#0D1F2C] transition-colors"
+                >
+                  <Grid3X3 className="w-4 h-4 text-[#F5A300]" /> Browse Departments
                 </button>
 
                 {/* Categories */}

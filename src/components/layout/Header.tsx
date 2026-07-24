@@ -28,13 +28,15 @@ import { CartNavButton } from "./CartNavButton";
 import { FloatingCartButton } from "./FloatingCartButton";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { useTheme } from "@/src/providers/ThemeProvider";
+import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
 import type { Product } from "@/src/types/product";
 
 export const Header = memo(function Header() {
   const { data: categories = [] } = useCategories();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
-  const [departmentsOpen, setDepartmentsOpen] = useState(false);
+  const departmentsOpen = useDepartmentsStore((s) => s.open);
+  const toggleDepartments = useDepartmentsStore((s) => s.toggleDepartments);
   const lastScrollY = useRef(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
@@ -51,7 +53,6 @@ export const Header = memo(function Header() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
-  const departmentsRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const authHydrated = useAuthHydrated();
@@ -135,7 +136,6 @@ export const Header = memo(function Header() {
       const t = e.target as Node;
       if (searchRef.current && !searchRef.current.contains(t)) setSearchOpen(false);
       if (userMenuRef.current && !userMenuRef.current.contains(t)) setUserMenuOpen(false);
-      if (departmentsRef.current && !departmentsRef.current.contains(t)) setDepartmentsOpen(false);
     };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
@@ -152,7 +152,6 @@ export const Header = memo(function Header() {
       } else if (delta > 6 && y > 100) {
         setNavHidden(true);
         setUserMenuOpen(false);
-        setDepartmentsOpen(false);
         setSearchOpen(false);
       } else if (delta < -6) {
         setNavHidden(false);
@@ -445,90 +444,19 @@ export const Header = memo(function Header() {
         {/* ── Secondary category bar ── */}
         <div className="relative bg-[#232F3E] text-white text-[13px]">
           <div className="px-2 sm:px-3 lg:px-4 flex items-stretch min-h-[39px]">
-            {/* Categories — outside overflow so dropdown is not clipped */}
-            <div ref={departmentsRef} className="relative shrink-0 self-center">
-              <button
-                type="button"
-                onClick={() => setDepartmentsOpen((o) => !o)}
-                aria-expanded={departmentsOpen}
-                aria-haspopup="true"
-                className={`inline-flex items-center gap-1.5 font-bold px-2.5 py-1.5 rounded-sm hover:outline hover:outline-1 hover:outline-white whitespace-nowrap ${
-                  departmentsOpen ? "outline outline-1 outline-[#F5A300]" : ""
-                }`}
-              >
-                <LayoutGrid className="w-4 h-4" />
-                Categories
-                <ChevronDown
-                  className={`w-3.5 h-3.5 opacity-80 transition-transform ${
-                    departmentsOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              <AnimatePresence>
-                {departmentsOpen && (
-                  <>
-                    {/* Mobile backdrop */}
-                    <motion.button
-                      type="button"
-                      aria-label="Close categories"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="fixed inset-0 z-[60] bg-black/40 md:hidden"
-                      onClick={() => setDepartmentsOpen(false)}
-                    />
-                    <motion.div
-                      role="menu"
-                      initial={{ opacity: 0, y: 4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 4 }}
-                      className="fixed left-3 right-3 top-[7.5rem] z-[70] max-h-[min(70vh,28rem)] overflow-y-auto bg-white dark:bg-[#1a2d3d] text-[#0F1111] dark:text-[#E7DCC4] rounded-md shadow-2xl border border-[#D5D9D9] dark:border-[#2a3d4d] md:absolute md:left-0 md:right-auto md:top-full md:mt-1 md:w-80 md:z-50"
-                    >
-                      <div className="sticky top-0 px-4 py-3 bg-[#232F3E] text-white font-bold text-sm flex items-center justify-between">
-                        <span>Shop by Category</span>
-                        <button
-                          type="button"
-                          className="md:hidden p-1 rounded hover:bg-white/10"
-                          onClick={() => setDepartmentsOpen(false)}
-                          aria-label="Close"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                      <Link
-                        href="/shop"
-                        role="menuitem"
-                        onClick={() => setDepartmentsOpen(false)}
-                        className="block px-4 py-2.5 text-sm font-semibold hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C] border-b border-[#E7DCC4]/40"
-                      >
-                        All products
-                      </Link>
-                      {categories.length === 0 ? (
-                        <p className="px-4 py-4 text-sm text-[#565959]">
-                          No categories yet.
-                        </p>
-                      ) : (
-                        categories.map((cat) => (
-                          <Link
-                            key={cat.id}
-                            href={`/shop/${cat.slug}`}
-                            role="menuitem"
-                            onClick={() => setDepartmentsOpen(false)}
-                            className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C] border-b border-[#E7DCC4]/30 last:border-0"
-                          >
-                            <span>{cat.name}</span>
-                            <span className="text-xs text-[#565959] tabular-nums">
-                              {cat.productCount ?? 0}
-                            </span>
-                          </Link>
-                        ))
-                      )}
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Opens persistent Departments panel (Wholesale Club–style) */}
+            <button
+              type="button"
+              onClick={toggleDepartments}
+              aria-expanded={departmentsOpen}
+              aria-controls="departments-panel"
+              className={`inline-flex items-center gap-1.5 font-bold px-2.5 py-1.5 rounded-sm hover:outline hover:outline-1 hover:outline-white whitespace-nowrap shrink-0 self-center ${
+                departmentsOpen ? "outline outline-1 outline-[#F5A300]" : ""
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" />
+              Departments
+            </button>
 
             {/* Scrollable quick links only */}
             <div className="flex flex-1 items-center gap-1 min-w-0 overflow-x-auto scrollbar-none pl-1">
