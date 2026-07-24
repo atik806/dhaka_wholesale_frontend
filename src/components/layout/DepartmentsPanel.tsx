@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -25,11 +25,15 @@ export function DepartmentsPanel() {
   const setOpen = useDepartmentsStore((s) => s.setOpen);
   const toggleDepartments = useDepartmentsStore((s) => s.toggleDepartments);
   const closeDepartments = useDepartmentsStore((s) => s.closeDepartments);
+  // The drawer and the rail render the same markup, so only mount one of them —
+  // otherwise every category link is duplicated in the accessibility tree.
+  const [isDesktop, setIsDesktop] = useState(false);
 
   // Desktop keeps the rail open by default; small screens use the drawer.
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     const sync = () => {
+      setIsDesktop(mq.matches);
       if (mq.matches) setOpen(true);
     };
     sync();
@@ -185,7 +189,7 @@ export function DepartmentsPanel() {
       </button>
 
       <AnimatePresence>
-        {open && (
+        {open && !isDesktop && (
           <>
             <motion.button
               type="button"
