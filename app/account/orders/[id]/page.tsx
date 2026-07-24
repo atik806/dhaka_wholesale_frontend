@@ -10,8 +10,9 @@ import {
   Loader2,
   Package,
   MapPin,
-  Truck,
+  Receipt,
   Ban,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuthStore, useAuthHydrated } from "@/src/store/useAuthStore";
 import {
@@ -21,19 +22,26 @@ import {
 } from "@/src/lib/auth-api";
 import { formatPrice, formatDate, safeImage } from "@/src/lib/utils";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
-import { Button } from "@/src/components/ui/Button";
+import { Button, buttonClasses } from "@/src/components/ui/Button";
+import { Card, CardHeader } from "@/src/components/ui/Card";
+import { Badge } from "@/src/components/ui/Badge";
+import { Skeleton } from "@/src/components/ui/Skeleton";
 
-function statusClass(status: string) {
-  if (status === "delivered") {
-    return "bg-[#1F6F50]/10 text-[#1F6F50] border border-[#1F6F50]/30";
-  }
-  if (status === "cancelled") {
-    return "bg-[#BE3D1F]/10 text-[#BE3D1F] border border-[#BE3D1F]/30";
-  }
-  if (status === "shipped") {
-    return "bg-[#132A3A]/10 text-[#132A3A] dark:text-[#E7DCC4] border border-[#132A3A]/30 dark:border-[#2a3d4d]";
-  }
-  return "bg-[#F5A300]/10 text-[#D88900] border border-[#F5A300]/30";
+function OrderStatusBadge({ status }: { status: string }) {
+  const s = (status || "").toLowerCase();
+  const variant =
+    s === "delivered"
+      ? "success"
+      : s === "cancelled"
+        ? "sale"
+        : s === "shipped"
+          ? "info"
+          : "low-stock";
+  return (
+    <Badge variant={variant} className="capitalize">
+      {status || "pending"}
+    </Badge>
+  );
 }
 
 export default function CustomerOrderDetailPage() {
@@ -96,8 +104,8 @@ export default function CustomerOrderDetailPage() {
 
   if (!hydrated || !user) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-[#FBF6EC] dark:bg-[#0D1F2C]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#F5A300]" />
+      <div className="flex items-center justify-center min-h-[60vh] bg-canvas">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" aria-label="Loading order" />
       </div>
     );
   }
@@ -106,102 +114,102 @@ export default function CustomerOrderDetailPage() {
   const canCancel = order?.status === "pending";
 
   return (
-    <div className="bg-[#FBF6EC] dark:bg-[#0D1F2C] min-h-screen overflow-x-hidden">
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-8 md:py-10">
-        <div className="container">
-          <Breadcrumbs
-            items={[
-              { label: "Account", href: "/account" },
-              { label: "Order" },
-            ]}
-          />
+    <div className="bg-canvas min-h-screen overflow-x-hidden">
+      <div className="container py-6 sm:py-8">
+        <Breadcrumbs
+          items={[
+            { label: "Account", href: "/account" },
+            { label: order ? `#${order.id.slice(0, 8).toUpperCase()}` : "Order" },
+          ]}
+        />
+
+        <div className="max-w-3xl mx-auto min-w-0">
           <Link
             href="/account"
-            className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-[#F5A300] hover:underline mb-3"
+            className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-muted hover:text-fg transition-colors mb-4"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to account
+            <ArrowLeft className="w-4 h-4" /> Back to account
           </Link>
-          <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
-            <Package className="w-3.5 h-3.5" /> ORDER DETAIL
-          </div>
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold break-all">
-            {order ? `#${order.id.slice(0, 8).toUpperCase()}` : "Order"}
-          </h1>
-          {order && (
-            <p className="font-mono text-xs text-[#E7DCC4]/80 mt-2 break-all">
-              {order.id}
-            </p>
-          )}
-        </div>
-      </div>
 
-      <div className="container py-8">
-        <div className="max-w-2xl mx-auto">
           {loading ? (
-            <div className="flex justify-center py-16">
-              <Loader2 className="w-8 h-8 animate-spin text-[#F5A300]" />
+            <div className="space-y-4">
+              <Card className="p-5 space-y-3">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-4 w-56" />
+                <Skeleton className="h-8 w-32" />
+              </Card>
+              <Card className="p-5 space-y-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-14 w-full" />
+                <Skeleton className="h-14 w-full" />
+              </Card>
             </div>
           ) : error ? (
-            <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#BE3D1F]/40 p-6 text-center">
-              <p className="font-mono text-xs font-bold text-[#BE3D1F] mb-4">{error}</p>
-              <Link href="/account">
-                <Button variant="outline">Back to Account</Button>
+            <Card className="p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-danger-soft border border-danger/25 flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-6 h-6 text-danger" />
+              </div>
+              <p className="text-base font-bold text-fg mb-1">
+                We couldn&apos;t load this order
+              </p>
+              <p className="text-[13px] text-muted mb-5 break-words">{error}</p>
+              <Link href="/account" className={buttonClasses({ variant: "outline" })}>
+                Back to account
               </Link>
-            </div>
+            </Card>
           ) : order ? (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               className="space-y-4"
             >
-              <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 shadow-sm">
-                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                  <span
-                    className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] uppercase tracking-wider ${statusClass(order.status)}`}
-                  >
-                    {order.status}
-                  </span>
-                  <span className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4]">
-                    {formatDate(order.created_at)}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
-                  <div>
-                    <p className="text-[#1C1A17]/50 dark:text-[#a0b4c4] uppercase tracking-wider font-bold mb-1">
-                      Payment
-                    </p>
-                    <p className="text-[#132A3A] dark:text-[#E7DCC4] font-bold capitalize">
-                      {order.payment_method?.replace(/_/g, " ") || "COD"}
-                    </p>
-                    <p className="text-[#1C1A17]/60 dark:text-[#a0b4c4] capitalize mt-0.5">
-                      {order.payment_status}
+              <Card className="p-5 sm:p-6">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="label-caps text-muted mb-1.5">Order number</p>
+                    <h1 className="font-mono text-xl sm:text-2xl font-bold text-fg tabular">
+                      #{order.id.slice(0, 8).toUpperCase()}
+                    </h1>
+                    <p className="font-mono text-[12px] text-subtle break-all mt-1">
+                      {order.id}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-[#1C1A17]/50 dark:text-[#a0b4c4] uppercase tracking-wider font-bold mb-1">
-                      Total
-                    </p>
-                    <p className="font-serif text-xl font-extrabold text-[#1F6F50]">
-                      {formatPrice(order.total)}
+                  <div className="shrink-0 text-right">
+                    <OrderStatusBadge status={order.status} />
+                    <p className="tabular text-[13px] text-muted mt-2">
+                      {formatDate(order.created_at)}
                     </p>
                   </div>
                 </div>
-              </div>
 
-              <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d]">
-                  <Package className="w-4 h-4 text-[#F5A300]" />
-                  <h2 className="font-serif font-bold text-[#132A3A] dark:text-[#E7DCC4]">
-                    Items
-                  </h2>
-                </div>
-                <div className="space-y-3">
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5 pt-5 border-t border-line">
+                  <div>
+                    <dt className="label-caps text-muted mb-1.5">Payment</dt>
+                    <dd className="text-sm font-semibold text-fg capitalize">
+                      {order.payment_method?.replace(/_/g, " ") || "COD"}
+                    </dd>
+                    <dd className="text-[13px] text-muted capitalize mt-0.5">
+                      {order.payment_status}
+                    </dd>
+                  </div>
+                  <div className="sm:text-right">
+                    <dt className="label-caps text-muted mb-1.5">Order total</dt>
+                    <dd className="tabular text-2xl font-bold text-price">
+                      {formatPrice(order.total)}
+                    </dd>
+                  </div>
+                </dl>
+              </Card>
+
+              <Card>
+                <CardHeader
+                  title={`Items (${(order.order_items || []).length})`}
+                  action={<Package className="w-5 h-5 text-subtle shrink-0" />}
+                />
+                <ul className="divide-y divide-line">
                   {(order.order_items || []).map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-3 min-w-0"
-                    >
-                      <div className="relative w-14 h-14 rounded-[2px] overflow-hidden border border-[#E7DCC4] dark:border-[#2a3d4d] bg-[#FBF6EC] dark:bg-[#0D1F2C] shrink-0">
+                    <li key={item.id} className="flex items-center gap-3 px-5 py-4 min-w-0">
+                      <div className="relative w-14 h-14 rounded-md overflow-hidden border border-line bg-surface-2 shrink-0">
                         <Image
                           src={safeImage(
                             item.product_image ? [item.product_image] : [],
@@ -213,105 +221,120 @@ export default function CustomerOrderDetailPage() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4] line-clamp-2">
+                        <p className="text-sm font-semibold text-fg line-clamp-2">
                           {item.product_name}
                         </p>
-                        <p className="font-mono text-[11px] text-[#1C1A17]/60 dark:text-[#a0b4c4]">
-                          Qty {item.quantity}
+                        <p className="text-[12px] text-muted mt-0.5">
+                          <span className="tabular">
+                            {item.quantity} × {formatPrice(item.price)}
+                          </span>
                           {item.selected_size ? ` · ${item.selected_size}` : ""}
                           {item.selected_color ? ` · ${item.selected_color}` : ""}
                         </p>
                       </div>
-                      <p className="font-mono text-sm font-bold text-[#1F6F50] shrink-0">
+                      <p className="tabular text-sm font-bold text-price shrink-0">
                         {formatPrice(item.price * item.quantity)}
                       </p>
-                    </div>
+                    </li>
                   ))}
-                </div>
-              </div>
+                </ul>
+              </Card>
 
-              <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d]">
-                  <MapPin className="w-4 h-4 text-[#F5A300]" />
-                  <h2 className="font-serif font-bold text-[#132A3A] dark:text-[#E7DCC4]">
-                    Shipping
-                  </h2>
-                </div>
-                {address ? (
-                  <div className="font-mono text-xs text-[#1C1A17]/80 dark:text-[#a0b4c4] space-y-1 break-words">
-                    <p className="font-bold text-[#132A3A] dark:text-[#E7DCC4]">
-                      {[address.firstName, address.lastName].filter(Boolean).join(" ")}
-                    </p>
-                    <p>{address.address}</p>
-                    <p>
-                      {[address.city, address.zipCode].filter(Boolean).join(", ")}
-                    </p>
-                    {address.phone && <p>{address.phone}</p>}
-                    {address.email && <p className="break-all">{address.email}</p>}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                <Card>
+                  <CardHeader
+                    title="Delivery address"
+                    action={<MapPin className="w-5 h-5 text-subtle shrink-0" />}
+                  />
+                  <div className="p-5">
+                    {address ? (
+                      <div className="text-[13px] text-muted space-y-0.5 break-words">
+                        <p className="font-semibold text-fg">
+                          {[address.firstName, address.lastName].filter(Boolean).join(" ")}
+                        </p>
+                        <p>{address.address}</p>
+                        <p>
+                          {[address.city, address.zipCode].filter(Boolean).join(", ")}
+                        </p>
+                        {address.phone && <p className="tabular">{address.phone}</p>}
+                        {address.email && <p className="break-all">{address.email}</p>}
+                      </div>
+                    ) : (
+                      <p className="text-[13px] text-subtle">
+                        No shipping address on file
+                      </p>
+                    )}
                   </div>
-                ) : (
-                  <p className="font-mono text-xs text-[#1C1A17]/50 dark:text-[#a0b4c4]">
-                    No shipping address on file
-                  </p>
-                )}
-              </div>
+                </Card>
 
-              <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-4 pb-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d]">
-                  <Truck className="w-4 h-4 text-[#F5A300]" />
-                  <h2 className="font-serif font-bold text-[#132A3A] dark:text-[#E7DCC4]">
-                    Totals
-                  </h2>
-                </div>
-                <div className="space-y-2 font-mono text-xs">
-                  <div className="flex justify-between gap-3 text-[#1C1A17]/80 dark:text-[#a0b4c4]">
-                    <span>Subtotal</span>
-                    <span className="shrink-0">{formatPrice(order.subtotal)}</span>
+                <Card>
+                  <CardHeader
+                    title="Payment summary"
+                    action={<Receipt className="w-5 h-5 text-subtle shrink-0" />}
+                  />
+                  <div className="p-5">
+                    <dl className="space-y-2.5 text-sm">
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-muted">Subtotal</dt>
+                        <dd className="tabular font-semibold text-fg shrink-0">
+                          {formatPrice(order.subtotal)}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-muted">Shipping</dt>
+                        <dd className="tabular font-semibold text-fg shrink-0">
+                          {formatPrice(order.shipping_cost)}
+                        </dd>
+                      </div>
+                      {order.tax > 0 && (
+                        <div className="flex justify-between gap-3">
+                          <dt className="text-muted">Tax</dt>
+                          <dd className="tabular font-semibold text-fg shrink-0">
+                            {formatPrice(order.tax)}
+                          </dd>
+                        </div>
+                      )}
+                      <div className="flex items-baseline justify-between gap-3 pt-3 border-t border-line">
+                        <dt className="text-[15px] font-bold text-fg">Total</dt>
+                        <dd className="tabular text-xl font-bold text-price shrink-0">
+                          {formatPrice(order.total)}
+                        </dd>
+                      </div>
+                    </dl>
                   </div>
-                  <div className="flex justify-between gap-3 text-[#1C1A17]/80 dark:text-[#a0b4c4]">
-                    <span>Shipping</span>
-                    <span className="shrink-0">{formatPrice(order.shipping_cost)}</span>
-                  </div>
-                  {order.tax > 0 && (
-                    <div className="flex justify-between gap-3 text-[#1C1A17]/80 dark:text-[#a0b4c4]">
-                      <span>Tax</span>
-                      <span className="shrink-0">{formatPrice(order.tax)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between gap-3 font-extrabold text-base text-[#132A3A] dark:text-[#E7DCC4] pt-2 border-t border-[#E7DCC4] dark:border-[#2a3d4d]">
-                    <span>Total</span>
-                    <span className="text-[#1F6F50] shrink-0">{formatPrice(order.total)}</span>
-                  </div>
-                </div>
+                </Card>
               </div>
 
               {canCancel && (
-                <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 shadow-sm">
+                <Card className="p-5">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-fg">Need to cancel?</p>
+                      <p className="text-[13px] text-muted mt-0.5">
+                        Only pending orders can be cancelled, and this cannot be
+                        undone.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="shrink-0 text-danger border-danger/35 hover:bg-danger-soft hover:border-danger/60"
+                      onClick={handleCancel}
+                      loading={cancelling}
+                      disabled={cancelling}
+                    >
+                      {!cancelling && <Ban className="w-4 h-4" />}
+                      {cancelling ? "Cancelling..." : "Cancel order"}
+                    </Button>
+                  </div>
                   {cancelError && (
-                    <p className="font-mono text-xs font-bold text-[#BE3D1F] mb-3 break-words">
+                    <p
+                      role="alert"
+                      className="mt-4 text-[13px] font-medium text-danger bg-danger-soft border border-danger/25 rounded-md px-3 py-2.5 break-words"
+                    >
                       {cancelError}
                     </p>
                   )}
-                  <Button
-                    variant="outline"
-                    className="w-full border-[#BE3D1F]/40 text-[#BE3D1F] hover:bg-[#BE3D1F]/10"
-                    onClick={handleCancel}
-                    disabled={cancelling}
-                  >
-                    {cancelling ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" /> Cancelling...
-                      </>
-                    ) : (
-                      <>
-                        <Ban className="w-4 h-4" /> Cancel Order
-                      </>
-                    )}
-                  </Button>
-                  <p className="font-mono text-[11px] text-[#1C1A17]/50 dark:text-[#a0b4c4] mt-2 text-center">
-                    Only pending orders can be cancelled.
-                  </p>
-                </div>
+                </Card>
               )}
             </motion.div>
           ) : null}

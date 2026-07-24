@@ -2,15 +2,17 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Lock, Loader2, Truck, ShieldCheck, CreditCard, BookOpen } from "lucide-react";
+import { Lock, Loader2, Truck, ShieldCheck, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useIsLoggedIn, useAuthHydrated, useAuthStore } from "@/src/store/useAuthStore";
 import { Button } from "@/src/components/ui/Button";
+import { Card, CardHeader } from "@/src/components/ui/Card";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
+import { CheckoutStepper } from "@/src/components/checkout/CheckoutStepper";
 import { ShippingForm } from "@/src/components/checkout/ShippingForm";
 import type { ShippingFormValues } from "@/src/components/checkout/ShippingForm";
 import { PaymentForm } from "@/src/components/checkout/PaymentForm";
@@ -23,7 +25,7 @@ import {
   fetchCheckoutQuote,
   type CheckoutQuote,
 } from "@/src/lib/auth-api";
-import { formatPrice } from "@/src/lib/utils";
+import { formatPrice, safeImage } from "@/src/lib/utils";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -106,6 +108,20 @@ export default function CheckoutPage() {
   const quoteBlocksCheckout =
     orderSummary.fromServer && orderSummary.can_checkout === false;
 
+  const shippingComplete = useMemo(
+    () =>
+      Boolean(
+        shipping.firstName.trim() &&
+          shipping.lastName.trim() &&
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shipping.email) &&
+          shipping.phone.trim() &&
+          shipping.address.trim() &&
+          shipping.city.trim() &&
+          shipping.zipCode.trim(),
+      ),
+    [shipping],
+  );
+
   const handlePlaceOrder = useCallback(async () => {
     const errs: Record<string, string> = {};
     if (!shipping.firstName.trim()) errs.firstName = "Required";
@@ -181,8 +197,8 @@ export default function CheckoutPage() {
 
   if (!authHydrated || !isLoggedIn) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] bg-[#FBF6EC] dark:bg-[#0D1F2C]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#F5A300]" />
+      <div className="flex items-center justify-center min-h-[60vh] bg-canvas">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" aria-label="Loading checkout" />
       </div>
     );
   }
@@ -193,15 +209,19 @@ export default function CheckoutPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="container py-8 bg-[#FBF6EC] dark:bg-[#0D1F2C]"
+        className="bg-canvas min-h-[70vh]"
       >
-        <Breadcrumbs items={[{ label: "Checkout" }]} />
-        <EmptyState
-          title="Your Cart is Empty"
-          description="Add some items before proceeding to checkout."
-          actionLabel="Browse Catalog"
-          actionHref="/shop"
-        />
+        <div className="container py-6 sm:py-8">
+          <Breadcrumbs items={[{ label: "Checkout" }]} />
+          <Card>
+            <EmptyState
+              title="Your cart is empty"
+              description="Add a few items to your cart before proceeding to checkout."
+              actionLabel="Browse catalog"
+              actionHref="/shop"
+            />
+          </Card>
+        </div>
       </motion.div>
     );
   }
@@ -210,181 +230,238 @@ export default function CheckoutPage() {
     return <OrderComplete orderId={orderId} />;
   }
 
+  const blocked = outOfStockInCart.length > 0 || quoteBlocksCheckout;
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] dark:bg-[#0D1F2C] min-h-screen py-8 overflow-x-hidden"
+      className="bg-canvas min-h-screen overflow-x-hidden"
     >
-      <div className="container">
+      <div className="container py-6 sm:py-8 pb-32 lg:pb-8">
         <Breadcrumbs items={[{ label: "Checkout" }]} />
 
-        <div className="bg-[#132A3A] text-white border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-5 sm:p-6 rounded-[3px] shadow-sm mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
           <div className="min-w-0">
-            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase text-[#F5A300] bg-[#0D1F2C] px-2.5 py-0.5 rounded-[2px] mb-1">
-              <BookOpen className="w-3.5 h-3.5" /> SECURE CHECKOUT
-            </div>
-            <h1 className="font-serif text-2xl sm:text-3xl font-extrabold text-white">
-              Complete Your Order
-            </h1>
+            <h1 className="text-2xl sm:text-3xl font-bold">Checkout</h1>
+            <p className="text-[13px] text-muted mt-1 flex items-center gap-1.5">
+              <Lock className="w-3.5 h-3.5 text-subtle" />
+              Secure checkout · cash on delivery nationwide
+            </p>
           </div>
-          <span className="font-mono text-xs font-bold text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] shrink-0">
-            COD GUARANTEED NATIONWIDE
-          </span>
+          <Link
+            href="/cart"
+            className="text-[13px] font-semibold text-brand hover:text-accent-hover underline underline-offset-4 shrink-0"
+          >
+            Edit cart
+          </Link>
         </div>
 
-        <div className="flex items-center justify-center gap-2 sm:gap-4 mb-10 font-mono text-xs overflow-x-auto">
-          {[
-            { label: "1. SHIPPING DETAILS", icon: Truck },
-            { label: "2. COD PAYMENT", icon: CreditCard },
-            { label: "3. CONFIRMATION", icon: ShieldCheck },
-          ].map(({ label, icon: Icon }, i) => (
-            <div key={label} className="flex items-center gap-2 shrink-0">
-              <div className="w-8 h-8 rounded-[2px] bg-[#132A3A] text-[#F5A300] border border-[#E7DCC4] dark:border-[#2a3d4d] flex items-center justify-center font-bold">
-                <Icon className="w-4 h-4" />
-              </div>
-              <span className="font-bold text-[#132A3A] dark:text-[#E7DCC4] hidden sm:block">{label}</span>
-              {i < 2 && <div className="w-8 h-0.5 bg-[#E7DCC4] mx-2 hidden sm:block" />}
-            </div>
-          ))}
-        </div>
+        <Card className="p-4 sm:p-5 mb-6">
+          <CheckoutStepper step={shippingComplete ? 2 : 0} />
+        </Card>
 
-        {(outOfStockInCart.length > 0 || quoteBlocksCheckout) && (
-          <p className="max-w-lg mx-auto mb-6 font-mono text-xs text-[#BE3D1F] bg-[#BE3D1F]/10 border border-[#BE3D1F]/30 rounded-[3px] p-3 text-center font-bold break-words">
-            {quoteBlocksCheckout
-              ? `Unavailable: ${
-                  orderSummary.unavailable_items.map((u) => u.name).join(", ") ||
-                  "some items"
-                }. Update `
-              : "Some items in your cart are out of stock. Please update "}
-            <Link href="/cart" className="underline">
-              your cart
-            </Link>{" "}
-            before placing order.
-          </p>
+        {blocked && (
+          <div
+            role="alert"
+            className="mb-6 flex items-start gap-3 rounded-lg border border-danger/30 bg-danger-soft p-4"
+          >
+            <AlertTriangle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
+            <p className="text-[13px] text-fg break-words">
+              {quoteBlocksCheckout
+                ? `Unavailable: ${
+                    orderSummary.unavailable_items.map((u) => u.name).join(", ") ||
+                    "some items"
+                  }. Update `
+                : "Some items in your cart are out of stock. Please update "}
+              <Link href="/cart" className="font-semibold text-danger underline underline-offset-2">
+                your cart
+              </Link>{" "}
+              before placing the order.
+            </p>
+          </div>
         )}
 
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          <div className="lg:col-span-2 space-y-6 min-w-0">
-            <section className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 shadow-sm">
-              <ShippingForm
-                values={shipping}
-                onChange={setShipping}
-                errors={errors}
-                deliveryZone={deliveryZone}
-                onDeliveryZoneChange={setDeliveryZone}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6 items-start">
+          <div className="lg:col-span-2 space-y-4 min-w-0">
+            <Card>
+              <CardHeader
+                title="Shipping details"
+                description="Where should we deliver this order?"
               />
-            </section>
+              <div className="p-5 sm:p-6">
+                <ShippingForm
+                  values={shipping}
+                  onChange={setShipping}
+                  errors={errors}
+                  deliveryZone={deliveryZone}
+                  onDeliveryZoneChange={setDeliveryZone}
+                />
+              </div>
+            </Card>
 
-            <section className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 shadow-sm">
-              <PaymentForm />
-            </section>
-
-            <section className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 shadow-sm">
-              <ReviewOrder
-                shipping={shipping}
-                deliveryZone={deliveryZone}
-                subtotal={orderSummary.subtotal}
-                shippingCost={orderSummary.shipping_cost}
-                tax={orderSummary.tax}
-                total={orderSummary.total}
+            <Card>
+              <CardHeader
+                title="Payment method"
+                description="Cash on delivery is the only method for this store"
               />
-            </section>
+              <div className="p-5 sm:p-6">
+                <PaymentForm />
+              </div>
+            </Card>
+
+            <Card>
+              <CardHeader
+                title="Review your order"
+                description="Check everything before you confirm"
+              />
+              <div className="p-5 sm:p-6">
+                <ReviewOrder
+                  shipping={shipping}
+                  deliveryZone={deliveryZone}
+                  subtotal={orderSummary.subtotal}
+                  shippingCost={orderSummary.shipping_cost}
+                  tax={orderSummary.tax}
+                  total={orderSummary.total}
+                />
+              </div>
+            </Card>
           </div>
 
           <div className="lg:col-span-1 min-w-0">
-            <div className="sticky top-24 bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-5 shadow-sm">
-              <h3 className="font-serif font-bold text-base text-[#132A3A] dark:text-[#E7DCC4] mb-4 pb-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d]">
-                Order Summary
-                {quoteLoading && (
-                  <Loader2 className="inline w-3.5 h-3.5 ml-2 animate-spin text-[#F5A300]" />
-                )}
-              </h3>
-              <div className="space-y-2 font-mono text-xs max-h-60 overflow-y-auto mb-4">
-                {items.map((item) => (
-                  <div
-                    key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
-                    className="flex items-center justify-between gap-2 border-b border-[#E7DCC4] dark:border-[#2a3d4d]/40 pb-2 min-w-0"
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="w-9 h-9 relative rounded-[2px] overflow-hidden bg-[#FBF6EC] dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d] shrink-0">
-                        {item.product.images?.[0] ? (
-                          <Image
-                            src={item.product.images[0]}
-                            alt={item.product.name}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[9px] text-[#1C1A17]/40 dark:text-[#a0b4c4]">
-                            N/A
-                          </div>
-                        )}
-                      </div>
-                      <span className="text-[#132A3A] dark:text-[#E7DCC4] font-bold truncate">
-                        {item.product.name} × {item.quantity}
-                      </span>
-                    </div>
-                    <span className="shrink-0 font-bold text-[#1F6F50]">
-                      {formatPrice(item.product.price * item.quantity)}
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <div className="border-t border-[#E7DCC4] dark:border-[#2a3d4d] pt-3 space-y-2 font-mono text-xs">
-                <div className="flex justify-between gap-2 text-[#1C1A17]/80 dark:text-[#a0b4c4]">
-                  <span>Subtotal</span>
-                  <span className="shrink-0">{formatPrice(orderSummary.subtotal)}</span>
-                </div>
-                <div className="flex justify-between gap-2 text-[#1C1A17]/80 dark:text-[#a0b4c4]">
-                  <span className="min-w-0 truncate">
-                    Shipping ({DELIVERY_ZONE_LABELS[deliveryZone]})
-                  </span>
-                  <span className="shrink-0">{formatPrice(orderSummary.shipping_cost)}</span>
-                </div>
-                {orderSummary.tax > 0 && (
-                  <div className="flex justify-between gap-2 text-[#1C1A17]/80 dark:text-[#a0b4c4]">
-                    <span>Tax</span>
-                    <span className="shrink-0">{formatPrice(orderSummary.tax)}</span>
-                  </div>
-                )}
-                <div className="border-t border-[#E7DCC4] dark:border-[#2a3d4d] pt-2 flex justify-between gap-2 font-extrabold text-base text-[#132A3A] dark:text-[#E7DCC4]">
-                  <span>Total</span>
-                  <span className="text-[#1F6F50] shrink-0">{formatPrice(orderSummary.total)}</span>
-                </div>
-              </div>
-
-              <div className="mt-5 space-y-3">
-                {placeError && (
-                  <p className="font-mono text-xs text-[#BE3D1F] text-center font-bold break-words">
-                    {placeError}
-                  </p>
-                )}
-                <Button
-                  className="w-full"
-                  size="lg"
-                  onClick={handlePlaceOrder}
-                  disabled={
-                    placing ||
-                    outOfStockInCart.length > 0 ||
-                    quoteBlocksCheckout
-                  }
-                  rotate
-                >
-                  {placing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> SUBMITTING ORDER...
-                    </>
-                  ) : (
-                    <>
-                      CONFIRM COD ORDER — {formatPrice(orderSummary.total)}{" "}
-                      <Lock className="w-4 h-4" />
-                    </>
+            <div className="lg:sticky lg:top-24 space-y-4">
+              <Card>
+                <div className="flex items-center gap-2 px-5 py-4 border-b border-line">
+                  <h2 className="text-base font-bold">Order summary</h2>
+                  {quoteLoading && (
+                    <Loader2
+                      className="w-3.5 h-3.5 animate-spin text-accent"
+                      aria-label="Updating totals"
+                    />
                   )}
-                </Button>
-              </div>
+                </div>
+
+                <ul className="max-h-64 overflow-y-auto divide-y divide-line">
+                  {items.map((item) => (
+                    <li
+                      key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
+                      className="flex items-center gap-3 px-5 py-3 min-w-0"
+                    >
+                      <div className="relative w-10 h-10 rounded-md overflow-hidden bg-surface-2 border border-line shrink-0">
+                        <Image
+                          src={safeImage(item.product.images)}
+                          alt={item.product.name}
+                          fill
+                          className="object-cover"
+                          sizes="40px"
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-semibold text-fg truncate">
+                          {item.product.name}
+                        </p>
+                        <p className="tabular text-[12px] text-muted">
+                          Qty {item.quantity}
+                        </p>
+                      </div>
+                      <span className="tabular text-[13px] font-semibold text-price shrink-0">
+                        {formatPrice(item.product.price * item.quantity)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="p-5 border-t border-line">
+                  <dl className="space-y-2.5 text-sm">
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted">Subtotal</dt>
+                      <dd className="tabular font-semibold text-fg shrink-0">
+                        {formatPrice(orderSummary.subtotal)}
+                      </dd>
+                    </div>
+                    <div className="flex justify-between gap-3">
+                      <dt className="text-muted flex items-center gap-1.5 min-w-0">
+                        <Truck className="w-4 h-4 text-subtle shrink-0" />
+                        <span className="truncate">
+                          Shipping · {DELIVERY_ZONE_LABELS[deliveryZone]}
+                        </span>
+                      </dt>
+                      <dd className="tabular font-semibold text-fg shrink-0">
+                        {formatPrice(orderSummary.shipping_cost)}
+                      </dd>
+                    </div>
+                    {orderSummary.tax > 0 && (
+                      <div className="flex justify-between gap-3">
+                        <dt className="text-muted">Tax</dt>
+                        <dd className="tabular font-semibold text-fg shrink-0">
+                          {formatPrice(orderSummary.tax)}
+                        </dd>
+                      </div>
+                    )}
+                    <div className="flex items-baseline justify-between gap-3 pt-3 border-t border-line">
+                      <dt className="text-[15px] font-bold text-fg">Total due</dt>
+                      <dd className="tabular text-2xl font-bold text-price shrink-0">
+                        {formatPrice(orderSummary.total)}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  {placeError && (
+                    <p
+                      role="alert"
+                      className="mt-4 text-[13px] font-medium text-danger bg-danger-soft border border-danger/25 rounded-md px-3 py-2.5 break-words"
+                    >
+                      {placeError}
+                    </p>
+                  )}
+
+                  <Button
+                    className="hidden lg:inline-flex mt-4"
+                    size="lg"
+                    fullWidth
+                    loading={placing}
+                    onClick={handlePlaceOrder}
+                    disabled={placing || blocked}
+                  >
+                    {placing ? "Placing order..." : "Place order"}
+                  </Button>
+
+                  <p className="hidden lg:flex items-center justify-center gap-1.5 text-[12px] text-muted mt-3">
+                    <ShieldCheck className="w-3.5 h-3.5 text-success" />
+                    No payment now — pay cash on delivery
+                  </p>
+                </div>
+              </Card>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile / tablet sticky action bar — sits above the bottom tab bar */}
+      <div className="lg:hidden fixed left-0 right-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] md:bottom-0 z-30 border-t border-line bg-surface shadow-lg md:safe-area-bottom">
+        <div className="container py-3">
+          {placeError && (
+            <p role="alert" className="text-[12px] font-medium text-danger mb-2 break-words">
+              {placeError}
+            </p>
+          )}
+          <div className="flex items-center gap-3">
+            <div className="min-w-0">
+              <p className="label-caps text-subtle">Total due</p>
+              <p className="tabular text-lg font-bold text-price leading-tight">
+                {formatPrice(orderSummary.total)}
+              </p>
+            </div>
+            <Button
+              className="flex-1 min-w-0"
+              size="lg"
+              loading={placing}
+              onClick={handlePlaceOrder}
+              disabled={placing || blocked}
+            >
+              {placing ? "Placing..." : "Place order"}
+            </Button>
           </div>
         </div>
       </div>
