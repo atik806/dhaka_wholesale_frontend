@@ -1,20 +1,39 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Package } from "lucide-react";
+import { Check, Package, Copy, CheckCheck } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { Button } from "@/src/components/ui/Button";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 
-export function OrderComplete() {
+interface OrderCompleteProps {
+  orderId?: string;
+}
+
+export function OrderComplete({ orderId }: OrderCompleteProps) {
+  const [copied, setCopied] = useState(false);
+  const shortId = orderId ? orderId.slice(0, 8).toUpperCase() : null;
+
+  const handleCopy = async () => {
+    if (!orderId) return;
+    try {
+      await navigator.clipboard.writeText(orderId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* ignore */
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="container py-20 bg-[#FBF6EC]"
+      className="container py-12 sm:py-20 bg-[#FBF6EC] dark:bg-[#0D1F2C] overflow-x-hidden"
     >
       <Breadcrumbs items={[{ label: "Order Complete" }]} />
-      <div className="max-w-md mx-auto text-center">
+      <div className="max-w-md mx-auto text-center px-1">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -29,50 +48,59 @@ export function OrderComplete() {
           transition={{ delay: 0.2 }}
         >
           <div className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#F5A300] bg-[#132A3A] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-4 -rotate-1">
-            <Package className="w-3.5 h-3.5" /> LEDGER ORDER CONFIRMED
+            <Package className="w-3.5 h-3.5" /> ORDER CONFIRMED
           </div>
-          <h1 className="font-serif text-3xl font-extrabold text-[#132A3A] mb-3">
+          <h1 className="font-serif text-3xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4] mb-3">
             Order Placed!
           </h1>
-          <p className="text-[#1C1A17]/70 text-sm mb-8 font-sans">
+
+          {orderId && (
+            <div className="mb-6 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] p-4 text-left">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1C1A17]/60 dark:text-[#a0b4c4] mb-1">
+                Order ID
+              </p>
+              <div className="flex items-start gap-2 min-w-0">
+                <div className="min-w-0 flex-1">
+                  <p className="font-mono text-lg font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">
+                    #{shortId}
+                  </p>
+                  <p className="font-mono text-[11px] text-[#1C1A17]/50 dark:text-[#a0b4c4] break-all mt-0.5">
+                    {orderId}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCopy}
+                  className="shrink-0 p-2 rounded-[2px] border border-[#E7DCC4] dark:border-[#2a3d4d] text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#FBF6EC] dark:hover:bg-[#0D1F2C] transition-colors"
+                  aria-label="Copy order ID"
+                >
+                  {copied ? (
+                    <CheckCheck className="w-4 h-4 text-[#1F6F50]" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+
+          <p className="text-[#1C1A17]/70 dark:text-[#a0b4c4] text-sm mb-8 font-sans">
             Thank you for your order. You&apos;ll receive a confirmation
             email shortly. Cash on delivery — pay at your door.
           </p>
-          <Link href="/shop">
-            <Button>CONTINUE BROWSING LEDGER</Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            {orderId && (
+              <Link href={`/account/orders/${orderId}`} className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full">
+                  VIEW ORDER
+                </Button>
+              </Link>
+            )}
+            <Link href="/shop" className="w-full sm:w-auto">
+              <Button className="w-full">CONTINUE SHOPPING</Button>
+            </Link>
+          </div>
         </motion.div>
-
-        <div className="mt-12 flex justify-center gap-2">
-          {[1.5, 2.3, 1.8, 3.0, 2.7, 1.2, 2.5, 3.5, 1.0, 2.1, 2.8, 1.6].map((dur, i) => (
-            <motion.div
-              key={i}
-              initial={{ y: -20, opacity: 0, rotate: 0 }}
-              animate={{
-                y: [0, 300],
-                opacity: [1, 0],
-                rotate: 360,
-              }}
-              transition={{
-                duration: dur,
-                delay: i * 0.15,
-                repeat: Infinity,
-                repeatDelay: 3,
-              }}
-              className="fixed w-2 h-2 rounded-full"
-              style={{
-                left: `${5 + i * 8}%`,
-                backgroundColor: [
-                  "#1F6F50",
-                  "#F5A300",
-                  "#BE3D1F",
-                  "#132A3A",
-                  "#F5A300",
-                ][i % 5],
-              }}
-            />
-          ))}
-        </div>
       </div>
     </motion.div>
   );

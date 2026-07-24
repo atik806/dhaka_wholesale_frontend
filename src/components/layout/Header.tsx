@@ -14,7 +14,6 @@ import {
   LogOut,
   X,
   Phone,
-  Truck,
   ShieldCheck,
   Package,
 } from "lucide-react";
@@ -57,9 +56,15 @@ export const Header = memo(function Header() {
   const logout = useAuthStore((s) => s.logout);
 
   useEffect(() => {
-    if (mobileSearchOpen && mobileSearchInputRef.current) {
-      mobileSearchInputRef.current.focus();
+    if (!mobileSearchOpen) return;
+    // Tablet/desktop: slide-out "Search" should focus the inline bar, not the phone modal
+    if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) {
+      setMobileSearchOpen(false);
+      setSearchOpen(true);
+      requestAnimationFrame(() => searchInputRef.current?.focus());
+      return;
     }
+    mobileSearchInputRef.current?.focus();
   }, [mobileSearchOpen]);
 
   useEffect(() => {
@@ -120,6 +125,9 @@ export const Header = memo(function Header() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
+  const navLinkClass =
+    "relative shrink-0 py-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left";
+
   const renderSearchDropdown = () => (
     <AnimatePresence>
       {searchOpen && (
@@ -127,7 +135,7 @@ export const Header = memo(function Header() {
           initial={{ opacity: 0, y: 8, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 8, scale: 0.98 }}
-          className="absolute top-full right-0 mt-2 w-72 sm:w-96 max-w-[calc(100vw-2rem)] bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] overflow-hidden z-50 text-[#1C1A17] dark:text-[#E7DCC4]"
+          className="absolute top-full left-0 right-0 mt-2 w-full min-w-[16rem] max-w-[calc(100vw-2rem)] sm:min-w-[22rem] bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] overflow-hidden z-50 text-[#1C1A17] dark:text-[#E7DCC4]"
         >
           {searchLoading && (
             <div className="px-4 py-3 text-xs font-mono text-[#132A3A]/70 dark:text-[#E7DCC4]/70">SEARCHING...</div>
@@ -150,7 +158,7 @@ export const Header = memo(function Header() {
                     className="w-10 h-10 rounded-[2px] object-cover bg-white dark:bg-[#0D1F2C] border border-[#E7DCC4] dark:border-[#2a3d4d]"
                   />
                   <div className="flex-1 min-w-0">
-                    <p                     className="text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] truncate">{product.name}</p>
+                    <p className="text-xs font-bold text-[#132A3A] dark:text-[#E7DCC4] truncate">{product.name}</p>
                     <p className="text-xs font-mono font-bold text-[#1F6F50]">{formatPrice(product.price)}</p>
                   </div>
                 </Link>
@@ -177,50 +185,59 @@ export const Header = memo(function Header() {
 
   return (
     <>
-      {/* 1. Dark mono-font announcement bar on top */}
-      <div className="bg-[#0D1F2C] dark:bg-[#071520] text-[#E7DCC4] text-[11px] font-mono py-2 border-b border-[#E7DCC4]/20 hidden md:block">
-        <div className="container flex items-center justify-between">
-          <div className="flex items-center gap-5">
-            <span className="flex items-center gap-1.5 text-[#F5A300] font-bold">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              COD AVAILABLE NATIONWIDE
+      {/* Top utility bar — compact on small screens, full on md+ */}
+      <div className="bg-[#0D1F2C] dark:bg-[#071520] text-[#E7DCC4] text-[10px] sm:text-[11px] font-mono py-1.5 sm:py-2 border-b border-[#E7DCC4]/20">
+        <div className="container flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0 overflow-hidden">
+            <span className="flex items-center gap-1 sm:gap-1.5 text-[#F5A300] font-bold shrink-0">
+              <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span className="sm:hidden">COD</span>
+              <span className="hidden sm:inline">COD AVAILABLE NATIONWIDE</span>
             </span>
-            <span className="text-[#E7DCC4]/30">|</span>
-            <span className="flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-[#F5A300]" />
-              01302228993
-            </span>
+            <span className="text-[#E7DCC4]/30 hidden sm:inline shrink-0">|</span>
+            <a
+              href="tel:01302228993"
+              className="flex items-center gap-1 sm:gap-1.5 hover:text-[#F5A300] transition-colors shrink-0"
+            >
+              <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#F5A300]" />
+              <span className="tabular-nums">01302228993</span>
+            </a>
           </div>
-          <div className="flex items-center gap-4 text-[11px]">
-            <Link href="/track-order" className="hover:text-[#F5A300] transition-colors flex items-center gap-1">
-              <Package className="w-3 h-3 text-[#F5A300]" /> Track Order
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <Link
+              href="/track-order"
+              className="hover:text-[#F5A300] transition-colors flex items-center gap-1"
+            >
+              <Package className="w-3 h-3 text-[#F5A300]" />
+              <span className="hidden sm:inline">Track Order</span>
+              <span className="sm:hidden">Track</span>
             </Link>
-            <span className="text-[#E7DCC4]/30">|</span>
-            <Link href="/contact" className="hover:text-[#F5A300] transition-colors">
+            <span className="text-[#E7DCC4]/30 hidden md:inline">|</span>
+            <Link
+              href="/contact"
+              className="hidden md:inline hover:text-[#F5A300] transition-colors"
+            >
               Help Center
             </Link>
           </div>
         </div>
       </div>
 
-      {/* 2. Navy header with circular rotated logo mark, marigold underline on nav hover, pill-shaped account button in marigold */}
+      {/* Main header */}
       <header
         className={`sticky top-0 z-50 bg-[#132A3A] dark:bg-[#0A1A28] transition-all duration-200 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d]/20 ${
           scrolled ? "shadow-xl py-0.5" : ""
         }`}
       >
-        <div className="container flex items-center justify-between h-16 md:h-20">
+        <div className="container flex items-center gap-2 sm:gap-3 md:gap-4 h-14 sm:h-16 md:h-20 min-w-0">
           {/* Logo */}
           <div className="relative z-10 shrink-0">
             <SiteLogo variant="header" priority showWordmark />
           </div>
 
-          {/* Nav links with marigold underline on hover */}
-          <nav className="hidden lg:flex items-center gap-7">
-            <Link
-              href="/shop"
-              className="relative py-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
-            >
+          {/* Desktop text nav — xl+ only so search never overlaps links */}
+          <nav className="hidden xl:flex items-center gap-5 2xl:gap-7 shrink-0">
+            <Link href="/shop" className={navLinkClass}>
               Shop All
             </Link>
             <div
@@ -228,7 +245,7 @@ export const Header = memo(function Header() {
               onMouseEnter={() => setCategoryOpen(true)}
               onMouseLeave={() => setCategoryOpen(false)}
             >
-              <button className="relative py-1 flex items-center gap-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left">
+              <button className={`${navLinkClass} flex items-center gap-1`}>
                 Categories <ChevronDown className="w-3.5 h-3.5 text-[#F5A300]" />
               </button>
               <AnimatePresence>
@@ -238,7 +255,7 @@ export const Header = memo(function Header() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 6 }}
                     transition={{ duration: 0.15 }}
-                     className="absolute top-full left-0 mt-2 w-60 bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] py-2 text-[#1C1A17] dark:text-[#E7DCC4]"
+                    className="absolute top-full left-0 mt-2 w-60 bg-[#FBF6EC] dark:bg-[#132A3A] rounded-[3px] shadow-2xl border border-[#E7DCC4] dark:border-[#2a3d4d] py-2 text-[#1C1A17] dark:text-[#E7DCC4]"
                   >
                     <div className="px-4 py-1.5 bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] font-mono text-[10px] uppercase font-bold tracking-wider mb-1">
                       Market Categories
@@ -251,7 +268,7 @@ export const Header = memo(function Header() {
                         onClick={() => setCategoryOpen(false)}
                       >
                         <span>{cat.name}</span>
-                          <span className="font-mono text-[10px] bg-[#132A3A] dark:bg-[#0A1A28] text-[#E7DCC4] px-1.5 py-0.5 rounded-[2px]">
+                        <span className="font-mono text-[10px] bg-[#132A3A] dark:bg-[#0A1A28] text-[#E7DCC4] px-1.5 py-0.5 rounded-[2px]">
                           {cat.productCount}
                         </span>
                       </Link>
@@ -260,64 +277,59 @@ export const Header = memo(function Header() {
                 )}
               </AnimatePresence>
             </div>
-            <Link
-              href="/shop?sort=newest"
-              className="relative py-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
-            >
+            <Link href="/shop?sort=newest" className={navLinkClass}>
               New Arrivals
             </Link>
-            <Link
-              href="/shop?sort=popular"
-              className="relative py-1 text-sm font-semibold text-[#E7DCC4] hover:text-[#F5A300] transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-[#F5A300] after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
-            >
+            <Link href="/shop?sort=popular" className={navLinkClass}>
               Best Sellers
             </Link>
             <Link
               href="/contact"
-              className="relative py-1 text-sm font-semibold text-[#F5A300] hover:text-white transition-colors group after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
+              className="relative shrink-0 py-1 text-sm font-semibold text-[#F5A300] hover:text-white transition-colors after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"
             >
               Contact Us
             </Link>
           </nav>
 
-          {/* Right Action Icons & Pill-shaped Account Button */}
-          <div className="flex items-center gap-2 md:gap-3">
-            {/* Search Box */}
-            <div ref={searchRef} className="relative hidden md:block">
-              <div className="flex items-center gap-2 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-1.5 w-48 lg:w-60 focus-within:border-[#F5A300] transition-colors">
-                <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setSearchOpen(true);
+          {/* Flexible search — md+ inline; takes remaining space, never covers nav */}
+          <div ref={searchRef} className="relative hidden md:block flex-1 min-w-0 max-w-md xl:max-w-xs 2xl:max-w-sm ml-auto">
+            <div className="flex items-center gap-2 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-2.5 lg:px-3 py-1.5 w-full min-w-0 focus-within:border-[#F5A300] transition-colors">
+              <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setSearchOpen(true);
+                }}
+                onFocus={() => setSearchOpen(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearchSubmit();
+                  if (e.key === "Escape") setSearchOpen(false);
+                }}
+                placeholder="Search products..."
+                className="flex-1 min-w-0 bg-transparent text-xs font-mono outline-none text-white placeholder:text-[#E7DCC4]/50"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => {
+                    setSearchQuery("");
+                    setSearchResults([]);
+                    searchInputRef.current?.focus();
                   }}
-                  onFocus={() => setSearchOpen(true)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSearchSubmit();
-                    if (e.key === "Escape") setSearchOpen(false);
-                  }}
-                  placeholder="Search products..."
-                  className="flex-1 bg-transparent text-xs font-mono outline-none text-white placeholder:text-[#E7DCC4]/50"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSearchResults([]);
-                      searchInputRef.current?.focus();
-                    }}
-                    className="shrink-0 p-0.5 hover:text-[#F5A300] text-[#E7DCC4]"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-              {renderSearchDropdown()}
+                  className="shrink-0 p-0.5 hover:text-[#F5A300] text-[#E7DCC4]"
+                  aria-label="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
+            {renderSearchDropdown()}
+          </div>
 
+          {/* Right actions — icons never clip; labels collapse early */}
+          <div className="flex items-center gap-0.5 sm:gap-1 md:gap-1.5 shrink-0 md:ml-0 ml-auto">
             <button
               onClick={() => setMobileSearchOpen(true)}
               className="md:hidden p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
@@ -329,7 +341,7 @@ export const Header = memo(function Header() {
             <button
               onClick={toggleTheme}
               suppressHydrationWarning
-              className="p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
+              className="p-1.5 sm:p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
               aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
               {theme === "dark" ? (
@@ -341,45 +353,47 @@ export const Header = memo(function Header() {
 
             <Link
               href="/wishlist"
-              className="hidden md:block p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative"
+              className="hidden md:inline-flex p-1.5 sm:p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative"
               aria-label="Wishlist"
             >
               <Heart className="w-5 h-5" />
             </Link>
 
-            {/* Cart Button */}
             <Link
               href="/cart"
-              className="p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative flex items-center gap-1 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-2.5 py-1.5"
+              className="inline-flex items-center gap-1 p-1.5 sm:p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors relative bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] sm:px-2 sm:py-1.5"
               aria-label="Shopping Cart"
             >
-              <ShoppingBag className="w-4 h-4 text-[#F5A300]" />
-              <span className="font-mono text-xs font-bold text-white hidden md:inline">Cart</span>
+              <ShoppingBag className="w-4 h-4 text-[#F5A300] shrink-0" />
+              <span className="font-mono text-xs font-bold text-white hidden 2xl:inline">Cart</span>
               {cartHydrated && totalItems > 0 && (
-                <span className="w-4 h-4 flex items-center justify-center bg-[#BE3D1F] text-white font-mono text-[10px] font-bold rounded-full border border-white">
+                <span className="w-4 h-4 flex items-center justify-center bg-[#BE3D1F] text-white font-mono text-[10px] font-bold rounded-full border border-white shrink-0">
                   {totalItems}
                 </span>
               )}
             </Link>
 
-            {/* Pill-shaped Account Button in Marigold */}
             <div ref={userMenuRef} className="relative">
               {authHydrated && isLoggedIn ? (
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="inline-flex items-center gap-1.5 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#D88900] shadow-sm transition-transform active:scale-95"
+                  className="inline-flex items-center gap-1 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-bold text-xs p-2 sm:px-2.5 sm:py-1.5 xl:px-3.5 rounded-full border border-[#D88900] shadow-sm transition-transform active:scale-95"
+                  aria-label="Account menu"
                 >
-                  <User className="w-3.5 h-3.5" />
-                  <span className="max-w-[80px] truncate">{user?.name?.split(" ")[0] || "Account"}</span>
-                  <ChevronDown className="w-3 h-3" />
+                  <User className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden xl:inline max-w-[72px] truncate">
+                    {user?.name?.split(" ")[0] || "Account"}
+                  </span>
+                  <ChevronDown className="w-3 h-3 hidden xl:inline shrink-0" />
                 </button>
               ) : authHydrated ? (
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1.5 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#D88900] shadow-sm transition-transform active:scale-95"
+                  className="inline-flex items-center gap-1 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-bold text-xs p-2 sm:px-2.5 sm:py-1.5 xl:px-3.5 rounded-full border border-[#D88900] shadow-sm transition-transform active:scale-95"
+                  aria-label="Account"
                 >
-                  <User className="w-3.5 h-3.5" />
-                  <span>Account</span>
+                  <User className="w-3.5 h-3.5 shrink-0" />
+                  <span className="hidden xl:inline">Account</span>
                 </Link>
               ) : null}
 
@@ -424,21 +438,25 @@ export const Header = memo(function Header() {
               </AnimatePresence>
             </div>
 
-            {/* Mobile Menu Toggle — tablets only (768px–1024px), phones use bottom nav */}
+            {/* Hamburger until xl — phones + tablets + mid laptops */}
             <button
               onClick={() => setMobileMenuOpen(true)}
-              className="hidden md:flex lg:hidden p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
-              aria-label="Open mobile menu"
+              className="xl:hidden p-1.5 sm:p-2 text-[#E7DCC4] hover:text-[#F5A300] transition-colors"
+              aria-label="Open menu"
             >
-              <Menu className="w-6 h-6" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
         </div>
       </header>
 
-      <MobileNav open={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} onSearchOpen={() => setMobileSearchOpen(true)} />
+      <MobileNav
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        onSearchOpen={() => setMobileSearchOpen(true)}
+      />
 
-      {/* Mobile Search Modal */}
+      {/* Mobile / tablet search overlay — below md uses modal; md+ uses inline search */}
       <AnimatePresence>
         {mobileSearchOpen && (
           <motion.div
@@ -448,7 +466,7 @@ export const Header = memo(function Header() {
             className="fixed inset-0 z-[60] bg-[#132A3A] dark:bg-[#0A1A28] text-white md:hidden"
           >
             <div className="flex items-center gap-2 px-4 pt-4 pb-3 border-b border-[#E7DCC4]/20 dark:border-[#2a3d4d]/20">
-              <div className="flex items-center gap-2 flex-1 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-2">
+              <div className="flex items-center gap-2 flex-1 min-w-0 bg-[#0D1F2C] dark:bg-[#071520] border border-[#E7DCC4]/30 rounded-[3px] px-3 py-2">
                 <Search className="w-4 h-4 text-[#F5A300] shrink-0" />
                 <input
                   ref={mobileSearchInputRef}
@@ -460,7 +478,7 @@ export const Header = memo(function Header() {
                     if (e.key === "Escape") setMobileSearchOpen(false);
                   }}
                   placeholder="Search products..."
-                  className="flex-1 bg-transparent text-xs font-mono outline-none text-white placeholder:text-[#E7DCC4]/50"
+                  className="flex-1 min-w-0 bg-transparent text-xs font-mono outline-none text-white placeholder:text-[#E7DCC4]/50"
                 />
                 {searchQuery && (
                   <button
@@ -470,6 +488,7 @@ export const Header = memo(function Header() {
                       mobileSearchInputRef.current?.focus();
                     }}
                     className="shrink-0 p-0.5 text-[#E7DCC4]"
+                    aria-label="Clear search"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>

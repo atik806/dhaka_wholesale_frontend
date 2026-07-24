@@ -94,22 +94,23 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         aria-label="Mobile navigation"
       >
-        <div className="flex items-center justify-around h-14">
+        <div className="flex items-center justify-around h-14 px-1">
           {navItems.map((item) => {
             const active = item.isAccount
               ? (item.href === "/account" && (pathname === "/account" || pathname.startsWith("/account/"))) ||
                 (item.href === "/login" && pathname === "/login")
               : isActive(item.href);
             const href = item.isAccount && isLoggedIn ? "/account" : item.isAccount ? "/login" : item.href;
+            const baseClass = `flex flex-col items-center justify-center gap-0.5 transition-colors flex-1 min-w-0 max-w-[72px] py-1 ${
+              active ? "text-[#F5A300]" : "text-[#E7DCC4]/60 hover:text-[#F5A300]"
+            }`;
 
             if (item.isCart) {
               return (
                 <Link
                   key={item.label}
                   href={href}
-                  className={`flex flex-col items-center gap-0.5 transition-colors min-w-[48px] relative ${
-                    active ? "text-[#F5A300]" : "text-[#E7DCC4]/60 hover:text-[#F5A300]"
-                  }`}
+                  className={`${baseClass} relative`}
                   aria-current={active ? "page" : undefined}
                 >
                   <motion.div whileTap={{ scale: 0.85 }} className="relative">
@@ -120,7 +121,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                       </span>
                     )}
                   </motion.div>
-                  <span className="text-[10px] font-medium font-mono">{item.label}</span>
+                  <span className="text-[10px] font-medium font-mono truncate w-full text-center">{item.label}</span>
                 </Link>
               );
             }
@@ -130,9 +131,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                 <Link
                   key={item.label}
                   href={href}
-                  className={`flex flex-col items-center gap-0.5 transition-colors min-w-[48px] relative ${
-                    active ? "text-[#F5A300]" : "text-[#E7DCC4]/60 hover:text-[#F5A300]"
-                  }`}
+                  className={`${baseClass} relative`}
                   aria-current={active ? "page" : undefined}
                 >
                   <motion.div whileTap={{ scale: 0.85 }} className="relative">
@@ -143,7 +142,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                       </span>
                     )}
                   </motion.div>
-                  <span className="text-[10px] font-medium font-mono">{item.label}</span>
+                  <span className="text-[10px] font-medium font-mono truncate w-full text-center">{item.label}</span>
                 </Link>
               );
             }
@@ -152,22 +151,20 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
               <Link
                 key={item.label}
                 href={href}
-                className={`flex flex-col items-center gap-0.5 transition-colors min-w-[48px] ${
-                  active ? "text-[#F5A300]" : "text-[#E7DCC4]/60 hover:text-[#F5A300]"
-                }`}
+                className={baseClass}
                 aria-current={active ? "page" : undefined}
               >
                 <motion.div whileTap={{ scale: 0.85 }}>
                   <item.icon className="w-5 h-5" />
                 </motion.div>
-                <span className="text-[10px] font-medium font-mono">{item.label}</span>
+                <span className="text-[10px] font-medium font-mono truncate w-full text-center">{item.label}</span>
               </Link>
             );
           })}
         </div>
       </nav>
 
-      {/* Slide-out Menu — triggered by hamburger on tablets (768px–1024px) and also accessible on phones */}
+      {/* Slide-out Menu — hamburger on all viewports below xl */}
       <AnimatePresence>
         {open && (
           <>

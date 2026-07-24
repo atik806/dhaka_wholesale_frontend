@@ -4,6 +4,10 @@ import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "@/src/lib/supabase";
 import { getProfile, syncProfile } from "@/src/lib/auth-api";
+import {
+  mergeGuestCartOnLogin,
+  snapshotGuestCart,
+} from "@/src/lib/cart-sync";
 import { useAuthStore } from "@/src/store/useAuthStore";
 
 function safeRedirect(path: string | null): string {
@@ -17,6 +21,9 @@ function CallbackHandler() {
 
   useEffect(() => {
     const handleCallback = async () => {
+      // Capture guest cart before auth state flips (RootClient may load server cart).
+      const guest = snapshotGuestCart();
+
       const getParam = (key: string) =>
         new URLSearchParams(window.location.search).get(key);
 
@@ -92,6 +99,7 @@ function CallbackHandler() {
       try {
         const user = await getProfile(access_token);
         setAuth(user, { access_token, refresh_token, expires_at });
+        await mergeGuestCartOnLogin(guest);
         router.push(redirect);
       } catch {
         const oauthName =
@@ -113,6 +121,7 @@ function CallbackHandler() {
           );
           const user = await Promise.race([syncPromise, timeout]);
           setAuth(user, { access_token, refresh_token, expires_at });
+          await mergeGuestCartOnLogin(guest);
           router.push(redirect);
         } catch (syncErr: unknown) {
           const syncMsg = syncErr instanceof Error ? syncErr.message : "unknown";
@@ -135,10 +144,10 @@ function CallbackHandler() {
   }, [router, setAuth]);
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
+    <div className="min-h-dvh bg-black flex items-center justify-center">
       <div className="text-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-sm text-zinc-500">Completing sign-in...</p>
+        <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+        <p className="text-sm text-[#71767b]">Completing sign-in...</p>
       </div>
     </div>
   );
@@ -148,8 +157,8 @@ export default function AuthCallbackPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[80vh] flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="min-h-dvh bg-black flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
         </div>
       }
     >

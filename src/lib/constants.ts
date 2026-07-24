@@ -24,6 +24,11 @@ export const DELIVERY_CHARGES = {
 
 export type DeliveryZone = keyof typeof DELIVERY_CHARGES;
 
+export const DELIVERY_ZONE_LABELS: Record<DeliveryZone, string> = {
+  inside_dhaka: "Inside Dhaka",
+  outside_dhaka: "Outside Dhaka",
+};
+
 export const priceRanges = [
   { value: "all", label: "All Prices" },
   { value: "0-25", label: "Under ৳25" },

@@ -45,11 +45,14 @@ export function SiteLogo({
     </span>
   );
 
+  // Header: hide wordmark below sm so icons/search never clip on narrow phones
+  const wordmarkHidden = variant === "header" ? "hidden sm:block" : "";
+
   const content = showWordmark ? (
-    <span className="inline-flex items-center gap-2.5 group">
+    <span className="inline-flex items-center gap-2 sm:gap-2.5 group">
       {mark}
-      <span className="leading-none tracking-tight">
-        <span className="block font-serif font-extrabold text-base md:text-lg text-white tracking-tight">
+      <span className={`leading-none tracking-tight ${wordmarkHidden}`}>
+        <span className="block font-serif font-extrabold text-sm md:text-base lg:text-lg text-white tracking-tight">
           DHAKA
         </span>
         <span className="block font-mono text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-[#F5A300] mt-0.5">
