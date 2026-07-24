@@ -1,8 +1,8 @@
 "use client";
 
-import { useRef, useState, memo } from "react";
+import { useRef, useState, memo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Eye } from "lucide-react";
+import { Heart, ShoppingBag, Eye, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/src/types/product";
@@ -21,18 +21,30 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
   const toggleWishlist = useCartStore((s) => s.toggleWishlist);
   const { addToast } = useToast();
   const wishlisted = useCartStore((s) => s.wishlistIds.includes(product.id));
+  const inCart = useCartStore((s) => s.items.some((i) => i.product.id === product.id));
   const cardRef = useRef<HTMLDivElement>(null);
   const [imgSrc, setImgSrc] = useState(safeImage(product.images));
+  const [justAdded, setJustAdded] = useState(false);
+
+  useEffect(() => {
+    if (!justAdded) return;
+    const t = window.setTimeout(() => setJustAdded(false), 2200);
+    return () => window.clearTimeout(t);
+  }, [justAdded]);
+
+  const showAdded = justAdded || inCart;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.stock === "out-of-stock") return;
     addItem({
       product,
       quantity: 1,
       selectedSize: product.variants?.sizes?.[0],
       selectedColor: product.variants?.colors?.[0]?.name,
     });
+    setJustAdded(true);
     addToast(`${product.name} added to cart`, "success");
   };
 
@@ -152,10 +164,28 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
           <button
             onClick={handleAddToCart}
             disabled={product.stock === "out-of-stock"}
-            className="w-full flex items-center justify-center gap-1.5 bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] font-extrabold text-xs py-2 rounded-[3px] border border-[#D88900] shadow-sm transition-transform active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+            aria-live="polite"
+            className={`w-full flex items-center justify-center gap-1.5 font-extrabold text-xs py-2 rounded-[3px] border shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${
+              product.stock === "out-of-stock"
+                ? "bg-[#E7DCC4] text-[#1C1A17]/50 border-[#E7DCC4]"
+                : showAdded
+                ? "bg-[#1F6F50] hover:bg-[#185a41] text-white border-[#185a41]"
+                : "bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] border-[#D88900]"
+            }`}
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            {product.stock === "out-of-stock" ? "SOLD OUT" : "ADD TO CART"}
+            {product.stock === "out-of-stock" ? (
+              "SOLD OUT"
+            ) : showAdded ? (
+              <>
+                <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                ADDED TO CART
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-3.5 h-3.5" />
+                ADD TO CART
+              </>
+            )}
           </button>
         </div>
       </div>

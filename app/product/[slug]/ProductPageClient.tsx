@@ -1,17 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Heart, ShoppingBag, Minus, Plus, Share2, ShieldCheck, Truck, RefreshCw } from "lucide-react";
+import { Heart, ShoppingBag, Minus, Plus, Share2, ShieldCheck, Truck, RefreshCw, Check } from "lucide-react";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { ReviewSection } from "@/src/components/product/ReviewSection";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { Badge } from "@/src/components/ui/Badge";
 import { Rating } from "@/src/components/ui/Rating";
-import { Button } from "@/src/components/ui/Button";
 import { ProductDetailSkeleton } from "@/src/components/ui/Skeleton";
 import { formatPrice, slugify } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
@@ -21,11 +20,18 @@ import { useProduct, useRelatedProducts, useCategories } from "@/src/hooks/useAp
 export function ProductPageClient() {
   const params = useParams();
   const slug = params.slug as string;
-  const { addItem, toggleWishlist, isInWishlist } = useCartStore();
+  const { addItem, toggleWishlist, isInWishlist, items } = useCartStore();
   const { addToast } = useToast();
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string>();
   const [selectedColor, setSelectedColor] = useState<string>();
+  const [justAdded, setJustAdded] = useState(false);
+
+  useEffect(() => {
+    if (!justAdded) return;
+    const t = window.setTimeout(() => setJustAdded(false), 2200);
+    return () => window.clearTimeout(t);
+  }, [justAdded]);
 
   const { data: product, isLoading } = useProduct(slug);
   const { data: related } = useRelatedProducts(slug);
@@ -49,14 +55,18 @@ export function ProductPageClient() {
 
   const wishlisted = isInWishlist(product.id);
   const isOutOfStock = product.stock === "out-of-stock";
+  const inCart = items.some((i) => i.product.id === product.id);
+  const showAdded = justAdded || inCart;
 
   const handleAdd = () => {
+    if (isOutOfStock) return;
     addItem({
       product,
       quantity,
       selectedSize,
       selectedColor,
     });
+    setJustAdded(true);
     addToast(`${product.name} added to cart`, "success");
   };
 
@@ -205,9 +215,33 @@ export function ProductPageClient() {
 
           {/* Action Buttons */}
           <div className="flex items-center gap-3 mt-7">
-            <Button size="lg" className="flex-1 min-h-[48px]" onClick={handleAdd} disabled={isOutOfStock} rotate>
-              <ShoppingBag className="w-4 h-4" /> {isOutOfStock ? "SOLD OUT" : "ADD TO MARKET CART"}
-            </Button>
+            <button
+              type="button"
+              onClick={handleAdd}
+              disabled={isOutOfStock}
+              aria-live="polite"
+              className={`flex-1 min-h-[48px] inline-flex items-center justify-center gap-2 px-5 rounded-xl font-extrabold text-sm uppercase tracking-wide border shadow-sm transition-all duration-300 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${
+                isOutOfStock
+                  ? "bg-[#E7DCC4] text-[#1C1A17]/50 border-[#E7DCC4]"
+                  : showAdded
+                  ? "bg-[#1F6F50] hover:bg-[#185a41] text-white border-[#185a41]"
+                  : "bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] border-[#D88900]"
+              }`}
+            >
+              {isOutOfStock ? (
+                "SOLD OUT"
+              ) : showAdded ? (
+                <>
+                  <Check className="w-4 h-4" strokeWidth={2.5} />
+                  ADDED TO CART
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="w-4 h-4" />
+                  ADD TO CART
+                </>
+              )}
+            </button>
             <button
               onClick={() => toggleWishlist(product.id)}
               className="w-12 h-12 shrink-0 rounded-[2px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] flex items-center justify-center hover:border-[#F5A300] hover:bg-[#FBF6EC] dark:bg-[#0D1F2C] transition-colors"
