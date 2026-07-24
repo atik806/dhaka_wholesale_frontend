@@ -1,4 +1,4 @@
-import { API_BASE } from "./constants";
+import { API_BASE, DELIVERY_CHARGES, type DeliveryZone } from "./constants";
 
 interface AuthStoreState {
   session: AuthSession | null;
@@ -129,6 +129,17 @@ export async function syncProfile(
   return json.data;
 }
 
+export interface UserOrderItem {
+  id: string;
+  product_id?: string;
+  product_name: string;
+  product_image: string | null;
+  price: number;
+  quantity: number;
+  selected_size: string | null;
+  selected_color: string | null;
+}
+
 export interface UserOrder {
   id: string;
   status: string;
@@ -140,15 +151,106 @@ export interface UserOrder {
   payment_status: string;
   shipping_address: ShippingAddress;
   created_at: string;
-  order_items: {
-    id: string;
-    product_name: string;
-    product_image: string | null;
-    price: number;
-    quantity: number;
-    selected_size: string | null;
-    selected_color: string | null;
-  }[];
+  order_items: UserOrderItem[];
+}
+
+export interface CheckoutQuoteItem {
+  product_id: string;
+  quantity: number;
+}
+
+export interface CheckoutQuoteUnavailableItem {
+  product_id: string;
+  name: string;
+  requested: number;
+  stock_quantity: number;
+}
+
+export interface CheckoutQuote {
+  subtotal: number;
+  shipping_cost: number;
+  tax: number;
+  total: number;
+  delivery_zone: DeliveryZone;
+  currency: string;
+  can_checkout: boolean;
+  unavailable_items: CheckoutQuoteUnavailableItem[];
+  /** true when response came from POST /checkout/quote */
+  fromServer: boolean;
+}
+
+/**
+ * Local estimate matching shipping zones (৳80 / ৳120).
+ * Tax is always 0 — never invent the old 8% tax on the client.
+ * Used for guests / offline fallback only; checkout prefers server quote.
+ */
+export function computeLocalCheckoutQuote(
+  subtotal: number,
+  deliveryZone: DeliveryZone,
+): CheckoutQuote {
+  const shipping_cost = DELIVERY_CHARGES[deliveryZone];
+  const tax = 0;
+  return {
+    subtotal: Math.round(subtotal * 100) / 100,
+    shipping_cost,
+    tax,
+    total: Math.round((subtotal + shipping_cost + tax) * 100) / 100,
+    delivery_zone: deliveryZone,
+    currency: "BDT",
+    can_checkout: true,
+    unavailable_items: [],
+    fromServer: false,
+  };
+}
+
+/**
+ * Authoritative totals from POST /api/checkout/quote (auth required).
+ * Pass `items` for client cart; omit to quote the server cart.
+ * Returns null on failure — caller should use computeLocalCheckoutQuote.
+ */
+export async function fetchCheckoutQuote(
+  deliveryZone: DeliveryZone,
+  items?: CheckoutQuoteItem[],
+): Promise<CheckoutQuote | null> {
+  try {
+    const body: {
+      delivery_zone: DeliveryZone;
+      items?: CheckoutQuoteItem[];
+    } = { delivery_zone: deliveryZone };
+
+    if (items && items.length > 0) {
+      body.items = items.map((i) => ({
+        product_id: i.product_id,
+        quantity: i.quantity,
+      }));
+    }
+
+    const res = await authFetch(`${API_BASE}/checkout/quote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) return null;
+
+    const data = json.data ?? json;
+    return {
+      subtotal: Number(data.subtotal) || 0,
+      shipping_cost: Number(data.shipping_cost) || DELIVERY_CHARGES[deliveryZone],
+      tax: data.tax == null ? 0 : Number(data.tax) || 0,
+      total: Number(data.total) || 0,
+      delivery_zone: (data.delivery_zone as DeliveryZone) || deliveryZone,
+      currency: typeof data.currency === "string" ? data.currency : "BDT",
+      can_checkout: data.can_checkout !== false,
+      unavailable_items: Array.isArray(data.unavailable_items)
+        ? data.unavailable_items
+        : [],
+      fromServer: true,
+    };
+  } catch {
+    return null;
+  }
 }
 
 export async function fetchUserOrders(): Promise<UserOrder[]> {
@@ -156,6 +258,22 @@ export async function fetchUserOrders(): Promise<UserOrder[]> {
   const json = await res.json();
   if (!res.ok) throw new Error(parseError(res, json));
   return json.data || [];
+}
+
+export async function fetchUserOrder(orderId: string): Promise<UserOrder> {
+  const res = await authFetch(`${API_BASE}/orders/${orderId}`);
+  const json = await res.json();
+  if (!res.ok) throw new Error(parseError(res, json));
+  return json.data;
+}
+
+export async function cancelUserOrder(orderId: string): Promise<UserOrder> {
+  const res = await authFetch(`${API_BASE}/orders/${orderId}/cancel`, {
+    method: "PATCH",
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(parseError(res, json));
+  return json.data;
 }
 
 export async function updateProfile(

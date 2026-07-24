@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { User, Mail, Phone, Save, LogOut, Loader2, MapPin, ChevronDown, ChevronUp, Package, BookOpen } from "lucide-react";
+import { User, Mail, Phone, Save, LogOut, Loader2, MapPin, ChevronDown, ChevronUp, Package, BookOpen, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { useAuthStore, useAuthHydrated } from "@/src/store/useAuthStore";
 import { updateProfile, fetchUserOrders, type ShippingAddress, type UserOrder } from "@/src/lib/auth-api";
 import { formatPrice, formatDate } from "@/src/lib/utils";
@@ -99,7 +100,7 @@ export default function AccountPage() {
   const hasAddress = user.shipping_address?.address;
 
   return (
-    <div className="bg-[#FBF6EC] dark:bg-[#0D1F2C] min-h-screen">
+    <div className="bg-[#FBF6EC] dark:bg-[#0D1F2C] min-h-screen overflow-x-hidden">
       <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-10 md:py-14">
         <div className="container">
           <Breadcrumbs items={[{ label: "Account" }]} />
@@ -116,18 +117,18 @@ export default function AccountPage() {
       </div>
 
       <div className="container py-8">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg mx-auto min-w-0">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 mb-6 shadow-sm">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-16 h-16 rounded-[2px] bg-[#132A3A] flex items-center justify-center border border-[#E7DCC4] dark:border-[#2a3d4d]">
-                  <User className="w-8 h-8 text-[#F5A300]" />
+            <div className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-4 sm:p-6 mb-6 shadow-sm">
+              <div className="flex items-center gap-3 sm:gap-4 mb-6 min-w-0">
+                <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-[2px] bg-[#132A3A] flex items-center justify-center border border-[#E7DCC4] dark:border-[#2a3d4d]">
+                  <User className="w-7 h-7 sm:w-8 sm:h-8 text-[#F5A300]" />
                 </div>
-                <div>
-                  <p className="font-serif font-bold text-[#132A3A] dark:text-[#E7DCC4]">
+                <div className="min-w-0">
+                  <p className="font-serif font-bold text-[#132A3A] dark:text-[#E7DCC4] truncate">
                     {user.name}
                   </p>
-                  <p className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4]">
+                  <p className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4] break-all">
                     {user.email}
                   </p>
                 </div>
@@ -353,26 +354,38 @@ export default function AccountPage() {
               ) : orders.length === 0 ? (
                 <p className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4] text-center py-6">No orders yet</p>
               ) : (
-                <div className="divide-y divide-[#E7DCC4]">
+                <div className="divide-y divide-[#E7DCC4] dark:divide-[#2a3d4d]">
                   {orders.map((order) => (
-                    <div key={order.id} className="py-3 first:pt-0 last:pb-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] uppercase tracking-wider ${
-                          order.status === "delivered" ? "bg-[#1F6F50]/10 text-[#1F6F50] border border-[#1F6F50]/30" :
-                          order.status === "cancelled" ? "bg-[#BE3D1F]/10 text-[#BE3D1F] border border-[#BE3D1F]/30" :
-                          order.status === "shipped" ? "bg-[#132A3A]/10 text-[#132A3A] dark:text-[#E7DCC4] border border-[#132A3A]/30" :
-                          "bg-[#F5A300]/10 text-[#D88900] border border-[#F5A300]/30"
-                        }`}>{order.status}</span>
-                        <span className="font-mono text-sm font-bold text-[#1F6F50]">{formatPrice(order.total)}</span>
+                    <Link
+                      key={order.id}
+                      href={`/account/orders/${order.id}`}
+                      className="block py-3 first:pt-0 last:pb-0 group hover:bg-[#FBF6EC]/60 dark:hover:bg-[#0D1F2C]/40 -mx-2 px-2 rounded-[2px] transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-2 mb-1 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] uppercase tracking-wider shrink-0 ${
+                            order.status === "delivered" ? "bg-[#1F6F50]/10 text-[#1F6F50] border border-[#1F6F50]/30" :
+                            order.status === "cancelled" ? "bg-[#BE3D1F]/10 text-[#BE3D1F] border border-[#BE3D1F]/30" :
+                            order.status === "shipped" ? "bg-[#132A3A]/10 text-[#132A3A] dark:text-[#E7DCC4] border border-[#132A3A]/30" :
+                            "bg-[#F5A300]/10 text-[#D88900] border border-[#F5A300]/30"
+                          }`}>{order.status}</span>
+                          <span className="font-mono text-[10px] font-bold text-[#132A3A]/50 dark:text-[#a0b4c4] truncate">
+                            #{order.id.slice(0, 8).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <span className="font-mono text-sm font-bold text-[#1F6F50]">{formatPrice(order.total)}</span>
+                          <ChevronRight className="w-4 h-4 text-[#F5A300] opacity-60 group-hover:opacity-100" />
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <p className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4]">{formatDate(order.created_at)}</p>
-                        <p className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4] capitalize">{order.payment_method.replace(/_/g, " ")}</p>
+                        <p className="font-mono text-xs text-[#1C1A17]/60 dark:text-[#a0b4c4] capitalize shrink-0">{order.payment_method?.replace(/_/g, " ")}</p>
                       </div>
-                      <div className="mt-1.5 font-mono text-[11px] text-[#1C1A17]/50 dark:text-[#a0b4c4]">
+                      <div className="mt-1.5 font-mono text-[11px] text-[#1C1A17]/50 dark:text-[#a0b4c4] line-clamp-2">
                         {order.order_items?.map((item) => item.product_name).join(", ")}
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}

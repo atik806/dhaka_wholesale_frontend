@@ -1,7 +1,7 @@
 "use client";
 
 import type { DeliveryZone } from "@/src/lib/constants";
-import { DELIVERY_CHARGES } from "@/src/lib/constants";
+import { DELIVERY_CHARGES, DELIVERY_ZONE_LABELS } from "@/src/lib/constants";
 import { Input } from "@/src/components/ui/Input";
 import { Truck } from "lucide-react";
 
@@ -53,8 +53,8 @@ export function ShippingForm({
             >
               <div className="flex items-center gap-2 mb-1">
                 <Truck className={`w-4 h-4 ${deliveryZone === zone ? "text-[#F5A300]" : "text-[#132A3A]/40"}`} />
-                <p className="font-serif font-bold text-sm text-[#132A3A]">
-                  {zone === 'inside_dhaka' ? 'Inside Dhaka' : 'Outside Dhaka'}
+                <p className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4]">
+                  {DELIVERY_ZONE_LABELS[zone]}
                 </p>
               </div>
               <p className="font-mono text-xs text-[#1F6F50] font-bold">
