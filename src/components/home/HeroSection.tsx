@@ -1,225 +1,148 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Truck, ShieldCheck, RefreshCw } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
-const SLIDE_IMAGES = [
-  "/hero-slides/slide-01.png",
-  "/hero-slides/slide-02.png",
-  "/hero-slides/slide-03.png",
-  "/hero-slides/slide-04.png",
+const SLIDES = [
+  {
+    image: "/hero-slides/slide-01.png",
+    eyebrow: "Dhaka Wholesale",
+    title: "Direct market stock at store rates",
+    subtitle: "Quality products, cash on delivery, and fast shipping nationwide.",
+    cta: "Shop now",
+    href: "/shop",
+  },
+  {
+    image: "/hero-slides/slide-02.png",
+    eyebrow: "New arrivals",
+    title: "Fresh stock, ready to ship",
+    subtitle: "Browse the latest additions across every category.",
+    cta: "See what's new",
+    href: "/shop?sort=newest",
+  },
+  {
+    image: "/hero-slides/slide-03.png",
+    eyebrow: "Best sellers",
+    title: "Customer favorites this week",
+    subtitle: "Top-rated picks trusted by shops and homes across Bangladesh.",
+    cta: "Shop bestsellers",
+    href: "/shop?sort=popular",
+  },
+  {
+    image: "/hero-slides/slide-04.png",
+    eyebrow: "COD nationwide",
+    title: "Pay when it arrives",
+    subtitle: "Inside Dhaka ৳80 · Outside Dhaka ৳120 · Inspect before you pay.",
+    cta: "Start shopping",
+    href: "/shop",
+  },
 ];
 
 export function HeroSection() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [index, setIndex] = useState(0);
+  const slide = SLIDES[index];
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % SLIDE_IMAGES.length);
-    }, 7000);
-    return () => clearInterval(interval);
+  const go = useCallback((next: number) => {
+    setIndex((next + SLIDES.length) % SLIDES.length);
   }, []);
 
+  useEffect(() => {
+    const id = window.setInterval(() => go(index + 1), 6000);
+    return () => window.clearInterval(id);
+  }, [index, go]);
+
   return (
-    <section className="relative overflow-hidden bg-[#132A3A] border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-20 lg:py-24 text-white">
-      {/* Layer 1: Background images slideshow */}
-      <div className="absolute inset-0 pointer-events-none">
-        {SLIDE_IMAGES.map((src, i) => (
+    <section
+      className="relative overflow-hidden bg-[#131921] text-white"
+      aria-roledescription="carousel"
+      aria-label="Promotions"
+    >
+      {/* Compact banner height — ~half viewport, Amazon / Wholesale Club style */}
+      <div className="relative h-[min(42vh,340px)] min-h-[200px] max-h-[380px] sm:min-h-[240px] md:h-[min(38vh,320px)]">
+        {/* Slides */}
+        {SLIDES.map((s, i) => (
           <div
-            key={src}
-            className="absolute inset-0 bg-cover bg-center ken-burns"
+            key={s.image}
+            className="absolute inset-0 bg-cover bg-center transition-opacity duration-700 ease-out"
             style={{
-              backgroundImage: `url(${src})`,
-              opacity: i === currentIndex ? 1 : 0,
-              transition: "opacity 1.2s ease-in-out",
-              zIndex: i === currentIndex ? 1 : 0,
+              backgroundImage: `url(${s.image})`,
+              opacity: i === index ? 1 : 0,
+              zIndex: i === index ? 1 : 0,
             }}
+            aria-hidden={i !== index}
           />
         ))}
-      </div>
 
-      {/* Layer 2: Dark navy overlay */}
-      <div className="absolute inset-0 bg-[#0A1A28]/85 pointer-events-none" />
+        {/* Gradient for text readability (left-weighted like Amazon) */}
+        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-[#0A1A28]/92 via-[#0A1A28]/55 to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 z-[2] h-16 bg-gradient-to-t from-[#0A1A28]/50 to-transparent pointer-events-none" />
 
-      {/* Layer 3: Blueprint grid lines pattern */}
-      <div
-        className="absolute inset-0 opacity-20 pointer-events-none"
-        style={{
-          backgroundImage:
-            "linear-gradient(to right, #E7DCC4 1px, transparent 1px), linear-gradient(to bottom, #E7DCC4 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-        }}
-      />
-
-      <div className="container relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-          {/* Left Column: Headline + Highlighted Word + 2 Rotated CTA Buttons */}
-          <div className="lg:col-span-7 max-w-2xl">
+        {/* Content */}
+        <div className="container relative z-10 h-full flex items-center py-5 sm:py-6">
+          <AnimatePresence mode="wait">
             <motion.div
+              key={slide.title}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="inline-flex items-center gap-2 bg-[#0D1F2C] dark:bg-[#071520] border border-[#F5A300] text-[#F5A300] font-mono text-xs px-3.5 py-1.5 font-bold -rotate-1 rounded-[3px] shadow-sm uppercase tracking-wider mb-6"
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.35 }}
+              className="max-w-xl"
             >
-              <span className="w-2 h-2 rounded-full bg-[#F5A300] animate-pulse" />
-              SHOP DHAKA WHOLESALE #2026
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="font-serif text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight text-white mb-6"
-            >
-              Direct Market Stock.
-              <br />
-              Authentic{" "}
-              <span className="text-[#F5A300] bg-[#0D1F2C] dark:bg-[#071520] px-3 py-0.5 border border-[#F5A300]/50 inline-block -rotate-1 shadow-md">
-STORE
-              </span>{" "}
-              Rates.
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-base sm:text-lg text-white max-w-xl mb-8 leading-relaxed font-sans"
-            >
-              Bangladesh&apos;s trusted online store. Shop quality products with cash on delivery nationwide and fast shipping.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex flex-wrap items-center gap-4"
-            >
-              {/* Secondary CTA Button: Brick Red, 2deg rotation */}
+              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] text-[#F5A300] mb-2">
+                {slide.eyebrow}
+              </p>
+              <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-white mb-2 sm:mb-3">
+                {slide.title}
+              </h1>
+              <p className="text-sm sm:text-base text-white/85 max-w-md mb-4 sm:mb-5 leading-relaxed">
+                {slide.subtitle}
+              </p>
               <Link
-                href="/shop"
-                className="inline-flex items-center gap-2 bg-[#BE3D1F] hover:bg-[#9E3017] text-white font-extrabold text-sm px-6 py-3.5 rounded-[3px] shadow-lg border border-red-950 transition-all hover:scale-[1.02] active:scale-95 rotate-2 hover:rotate-0"
+                href={slide.href}
+                className="inline-flex items-center gap-2 bg-[#F5A300] hover:bg-[#D88900] text-[#131921] font-bold text-sm px-5 py-2.5 rounded-md shadow-md transition-colors"
               >
-                SHOP NOW
+                {slide.cta}
               </Link>
             </motion.div>
+          </AnimatePresence>
+        </div>
 
-            {/* Quick stats row */}
-            <div className="mt-10 pt-6 border-t border-[#E7DCC4]/20 dark:border-[#2a3d4d]/20 grid grid-cols-3 gap-4 font-mono text-xs">
-              <div>
-                <span className="block text-[#F5A300] font-bold text-lg">5,000+</span>
-                <span className="text-white/80 text-[11px]">ACTIVE CUSTOMERS</span>
-              </div>
-              <div>
-                <span className="block text-[#F5A300] font-bold text-lg">100%</span>
-                <span className="text-white/80 text-[11px]">COD VERIFIED</span>
-              </div>
-              <div>
-                <span className="block text-[#F5A300] font-bold text-lg">24-48H</span>
-                <span className="text-white/80 text-[11px]">EXPRESS DELIVERY</span>
-              </div>
-            </div>
-          </div>
+        {/* Controls */}
+        <button
+          type="button"
+          onClick={() => go(index - 1)}
+          className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/35 hover:bg-black/55 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+          aria-label="Previous slide"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+        <button
+          type="button"
+          onClick={() => go(index + 1)}
+          className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/35 hover:bg-black/55 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+          aria-label="Next slide"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
 
-          {/* Right Column: Stack of Rotated "Hanging Price Tags" on string with stitched hole detail */}
-          <div className="lg:col-span-5 relative mt-6 lg:mt-0">
-            {/* Horizontal String Line anchor at top */}
-            <div className="w-full h-1 bg-[#E7DCC4]/40 dark:bg-[#2a3d4d]/40 border-b border-[#E7DCC4] dark:border-[#2a3d4d] mb-8 relative flex justify-around">
-              <div className="w-2 h-2 rounded-full bg-[#F5A300] absolute -top-0.5 left-1/4" />
-              <div className="w-2 h-2 rounded-full bg-[#F5A300] absolute -top-0.5 left-1/2" />
-              <div className="w-2 h-2 rounded-full bg-[#F5A300] absolute -top-0.5 left-3/4" />
-            </div>
-
-            <div className="space-y-6 relative">
-              {/* Tag 1: Rotated -5deg */}
-              <motion.div
-                initial={{ opacity: 0, y: 20, rotate: -8 }}
-                animate={{ opacity: 1, y: 0, rotate: -5 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="relative bg-[#FBF6EC] dark:bg-[#132A3A] text-[#1C1A17] dark:text-[#E7DCC4] p-5 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-xl hover:rotate-0 transition-transform duration-300"
-              >
-                {/* String coming down from top line */}
-                <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-0.5 h-8 border-l-2 border-dashed border-[#E7DCC4] dark:border-[#2a3d4d]" />
-                {/* Stitched Hole detail */}
-                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] dark:bg-[#071520] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] mx-auto mb-3 shadow-inner flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A300]" />
-                </div>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-[3px] bg-[#132A3A] dark:bg-[#0A1A28] text-[#F5A300] flex items-center justify-center shrink-0">
-                      <ShieldCheck className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#BE3D1F]">TRUST TAG #01</span>
-                      <h3 className="font-serif font-bold text-base text-[#132A3A] dark:text-[#E7DCC4]">Guaranteed Cash On Delivery</h3>
-                      <p className="text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">Inspect goods at your door before payment.</p>
-                    </div>
-                  </div>
-                  <span className="font-mono text-xs font-bold text-[#1F6F50] bg-[#1F6F50]/10 px-2 py-1 border border-[#1F6F50]/30 rounded-[2px] shrink-0">
-                    VERIFIED
-                  </span>
-                </div>
-              </motion.div>
-
-              {/* Tag 2: Rotated 4deg */}
-              <motion.div
-                initial={{ opacity: 0, y: 20, rotate: 6 }}
-                animate={{ opacity: 1, y: 0, rotate: 4 }}
-                transition={{ duration: 0.5, delay: 0.35 }}
-                className="relative bg-[#FBF6EC] dark:bg-[#132A3A] text-[#1C1A17] dark:text-[#E7DCC4] p-5 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-xl hover:rotate-0 transition-transform duration-300 ml-4 sm:ml-8"
-              >
-                {/* Stitched Hole detail */}
-                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] dark:bg-[#071520] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] mx-auto mb-3 shadow-inner flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#BE3D1F]" />
-                </div>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-[3px] bg-[#BE3D1F] text-white flex items-center justify-center shrink-0">
-                      <Truck className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1F6F50]">TRUST TAG #02</span>
-                      <h3 className="font-serif font-bold text-base text-[#132A3A] dark:text-[#E7DCC4]">24-48 Hour Shipping</h3>
-                      <p className="text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">Fast dispatch across all 64 districts.</p>
-                    </div>
-                  </div>
-                  <span className="font-mono text-xs font-bold text-[#132A3A] bg-[#F5A300] px-2 py-1 border border-[#D88900] rounded-[2px] shrink-0">
-                    EXPRESS
-                  </span>
-                </div>
-              </motion.div>
-
-              {/* Tag 3: Rotated -3deg */}
-              <motion.div
-                initial={{ opacity: 0, y: 20, rotate: -4 }}
-                animate={{ opacity: 1, y: 0, rotate: -3 }}
-                transition={{ duration: 0.5, delay: 0.5 }}
-                className="relative bg-[#FBF6EC] dark:bg-[#132A3A] text-[#1C1A17] dark:text-[#E7DCC4] p-5 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] shadow-xl hover:rotate-0 transition-transform duration-300"
-              >
-                {/* Stitched Hole detail */}
-                <div className="w-5 h-5 rounded-full bg-[#0D1F2C] dark:bg-[#071520] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] mx-auto mb-3 shadow-inner flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#F5A300]" />
-                </div>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-[3px] bg-[#1F6F50] text-white flex items-center justify-center shrink-0">
-                      <RefreshCw className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#132A3A] dark:text-[#E7DCC4]">TRUST TAG #03</span>
-                      <h3 className="font-serif font-bold text-base text-[#132A3A] dark:text-[#E7DCC4]">7-Day Easy Return Guarantee</h3>
-                      <p className="text-xs text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">Direct exchange for defective items.</p>
-                    </div>
-                  </div>
-                  <span className="font-mono text-xs font-bold text-[#BE3D1F] bg-[#BE3D1F]/10 px-2 py-1 border border-[#BE3D1F]/30 rounded-[2px] shrink-0">
-                    GUARANTEED
-                  </span>
-                </div>
-              </motion.div>
-            </div>
-          </div>
+        {/* Dots */}
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
+          {SLIDES.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setIndex(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              aria-current={i === index}
+              className={`h-1.5 rounded-full transition-all ${
+                i === index
+                  ? "w-6 bg-[#F5A300]"
+                  : "w-1.5 bg-white/50 hover:bg-white/80"
+              }`}
+            />
+          ))}
         </div>
       </div>
     </section>
