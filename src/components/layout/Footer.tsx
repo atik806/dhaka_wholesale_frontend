@@ -166,7 +166,7 @@ export const Footer = memo(function Footer() {
             </h5>
             {/* Small bordered mono labels for payment methods */}
             <div className="flex flex-wrap items-center gap-2">
-              {["bKash", "Nagad", "COD", "Visa"].map((method) => (
+              {["COD"].map((method) => (
                 <span
                   key={method}
                   className="font-mono text-[11px] font-bold px-2.5 py-1 bg-[#0D1F2C] dark:bg-[#071520] text-[#E7DCC4] border border-[#E7DCC4]/40 dark:border-[#2a3d4d] rounded-[2px] shadow-sm uppercase tracking-wider"

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Truck, RotateCcw, Shield, Clock, BookOpen } from "lucide-react";
+import { Truck, RotateCcw, Shield, Clock } from "lucide-react";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 
 const policies = [
@@ -9,36 +9,34 @@ const policies = [
     icon: Truck,
     title: "Shipping Policy",
     content: [
-      "Standard shipping (5-8 business days): ৳60",
-      "Express shipping (2-3 business days): ৳120",
-      "Inside Dhaka delivery: ৳60",
-      "Outside Dhaka delivery: ৳120",
-      "Free delivery on orders over ৳1,000",
-      "Orders are processed within 1-2 business days.",
-      "We ship to all 64 districts in Bangladesh.",
-      "Tracking information will be sent to your email once your order ships.",
+      "Payment method: Cash on Delivery (COD) only — no cards, PayPal, bKash, or Nagad online yet.",
+      "Inside Dhaka delivery: ৳80.",
+      "Outside Dhaka delivery: ৳120.",
+      "Typical delivery: 24–48 hours inside Dhaka, 48–72 hours outside Dhaka.",
+      "Orders are processed within 1–2 business days.",
+      "We ship across Bangladesh (all districts).",
+      "Track status anytime in My Account → Order History after you sign in.",
     ],
   },
   {
     icon: RotateCcw,
     title: "Returns & Exchanges",
     content: [
-      "We accept returns within 7 days of delivery for defective items.",
-      "Items must be unused, unwashed, and in original packaging.",
-      "Sale items are final sale and cannot be returned.",
-      "To start a return, visit your order history or contact our support team.",
-      "Return shipping is free for defective items.",
-      "Refunds are processed within 3-5 business days after we receive your item.",
-      "Original shipping charges are non-refundable for non-defective returns.",
+      "We accept returns within 7 days of delivery for defective or incorrect items.",
+      "Items should be unused and in original packaging when possible.",
+      "To start a return, open My Account order history or contact support with your order number.",
+      "Return shipping is free for defective items we shipped incorrectly.",
+      "For COD orders, approved refunds or replacements are arranged after we verify the return (usually 3–5 business days).",
+      "Delivery charges are non-refundable for non-defective returns.",
     ],
   },
   {
     icon: Shield,
     title: "Damage & Defects",
     content: [
-      "If your item arrives damaged or defective, please contact us within 48 hours.",
+      "If your item arrives damaged or defective, contact us within 48 hours.",
       "Include your order number and photos of the damage.",
-      "We will provide a free replacement or full refund including shipping.",
+      "We will provide a free replacement or a full refund of the item price (including shipping when the fault is ours).",
       "Bulk orders: defective units will be replaced at no extra cost.",
     ],
   },
@@ -47,9 +45,8 @@ const policies = [
     title: "Processing Times",
     content: [
       "Orders are processed Monday through Friday, excluding holidays.",
-      "Peak season (November-December) may experience longer processing times.",
-      "Custom or personalized items may require additional processing time.",
-      "COD orders are confirmed via phone call before dispatch.",
+      "Peak season may take a little longer — check My Account for the latest status.",
+      "COD orders may be confirmed by phone before dispatch.",
     ],
   },
 ];

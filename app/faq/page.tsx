@@ -9,41 +9,41 @@ const faqs = [
   {
     category: "Orders",
     questions: [
-      { q: "How do I place an order?", a: "Simply browse our catalog, add items to your cart, and proceed to checkout. You'll need to create an account or sign in to complete your purchase." },
-      { q: "Can I modify or cancel my order?", a: "You can cancel pending orders from your order history. Once an order is confirmed or shipped, modifications are no longer possible." },
-      { q: "How will I know my order is confirmed?", a: "You'll receive a confirmation email with your order details and tracking information once your order is placed." },
+      { q: "How do I place an order?", a: "Browse the shop, add items to your cart, and checkout. Sign in or create an account so you can track the order from My Account." },
+      { q: "Can I modify or cancel my order?", a: "Pending orders can be cancelled from your account order history. Once an order is confirmed or shipped, changes are no longer possible — contact support if you need help." },
+      { q: "How will I know my order is confirmed?", a: "After you place a COD order, you'll see it in My Account → Order History. We may also call to confirm delivery details before dispatch." },
     ],
   },
   {
     category: "Payment",
     questions: [
-      { q: "What payment methods do you accept?", a: "We accept bKash, Nagad, Cash on Delivery (COD), and Visa. All transactions are securely processed." },
-      { q: "Is Cash on Delivery safe?", a: "Yes, COD is our primary payment method. You inspect goods at your door before paying. No advance payment required." },
-      { q: "Do you offer installment payments?", a: "Currently we do not offer installment payments, but we're working on adding this option in the future." },
+      { q: "What payment methods do you accept?", a: "Right now we accept Cash on Delivery (COD) only. You pay when your order arrives. Online payments (cards, bKash, Nagad, PayPal) are not available yet." },
+      { q: "Is Cash on Delivery safe?", a: "Yes. COD is our only payment method today — inspect goods at your door before paying. No advance payment is required." },
+      { q: "Do you offer installment payments?", a: "No. We do not offer installments at this time." },
     ],
   },
   {
     category: "Shipping",
     questions: [
-      { q: "How long does shipping take?", a: "Inside Dhaka: 24-48 hours. Outside Dhaka: 48-72 hours. We dispatch all orders within 1-2 business days." },
-      { q: "Do you ship internationally?", a: "Currently we ship within Bangladesh only. We deliver to all 64 districts nationwide." },
-      { q: "How can I track my order?", a: "Once your order ships, you'll receive a tracking number via email. You can also check your order status in your account dashboard." },
+      { q: "How much is delivery?", a: "Inside Dhaka: ৳80. Outside Dhaka: ৳120. Rates are calculated at checkout based on your delivery zone." },
+      { q: "How long does shipping take?", a: "Inside Dhaka: usually 24–48 hours. Outside Dhaka: usually 48–72 hours. Orders are typically dispatched within 1–2 business days." },
+      { q: "How can I track my order?", a: "Sign in and open My Account to see live order status (pending, confirmed, shipped, delivered). You can also contact support with your order details." },
     ],
   },
   {
     category: "Returns",
     questions: [
-      { q: "What is your return policy?", a: "We accept returns within 7 days of delivery for defective items. Contact our support team to initiate a return." },
-      { q: "How long do refunds take?", a: "Refunds are processed within 3-5 business days after we receive your return. The amount will be credited to your original payment method." },
-      { q: "Can I exchange an item?", a: "Yes, exchanges are free for defective items. Contact our support team to start an exchange." },
+      { q: "What is your return policy?", a: "We accept returns within 7 days of delivery for defective or incorrect items. Contact support with your order number to start a return." },
+      { q: "How do refunds work for COD?", a: "For approved returns on COD orders, we arrange a refund or replacement after we receive and verify the item — usually within 3–5 business days." },
+      { q: "Can I exchange an item?", a: "Yes — exchanges are available for defective or wrong items. Contact support to arrange a free exchange." },
     ],
   },
   {
     category: "Account",
     questions: [
-      { q: "How do I create an account?", a: "Click the Account button in the header and select 'Register'. Enter your name, email, and a secure password to get started." },
-      { q: "I forgot my password, what should I do?", a: "On the login page, click 'Forgot Password' and enter your email. We'll send you a link to reset your password." },
-      { q: "How do I update my profile?", a: "Sign in to your account and go to your profile settings. You can update your name, phone, and shipping address there." },
+      { q: "How do I create an account?", a: "Tap Account (or go to Register), then continue with Google or email. Your account lets you save an address and track every COD order." },
+      { q: "I forgot my password, what should I do?", a: "On the login screen, open the email form and tap Forgot password. We'll email a secure reset link." },
+      { q: "How do I update my profile?", a: "Sign in → My Account to update your name, phone, shipping address, and view order history." },
     ],
   },
 ];
@@ -116,14 +116,14 @@ export default function FAQPage() {
                 >
                   <button
                     onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                    className="flex items-center justify-between w-full px-6 py-4 text-left hover:bg-[#FBF6EC] dark:bg-[#0D1F2C] transition-colors"
+                    className="flex items-start sm:items-center justify-between gap-3 w-full px-4 sm:px-6 py-4 text-left hover:bg-[#FBF6EC] dark:hover:bg-[#0D1F2C] transition-colors"
                   >
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <p className="font-mono text-[10px] text-[#F5A300] font-bold uppercase tracking-wider mb-0.5">{item.category}</p>
-                      <span className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4]">{item.q}</span>
+                      <span className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4] break-words">{item.q}</span>
                     </div>
                     <ChevronDown
-                      className={`w-4 h-4 text-[#F5A300] shrink-0 transition-transform duration-200 ${
+                      className={`w-4 h-4 text-[#F5A300] shrink-0 mt-1 sm:mt-0 transition-transform duration-200 ${
                         openIndex === i ? "rotate-180" : ""
                       }`}
                     />
@@ -137,7 +137,7 @@ export default function FAQPage() {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                       >
-                        <p className="px-6 pb-4 text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] leading-relaxed font-sans border-t border-[#E7DCC4] dark:border-[#2a3d4d] pt-3">
+                        <p className="px-4 sm:px-6 pb-4 text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] leading-relaxed font-sans border-t border-[#E7DCC4] dark:border-[#2a3d4d] pt-3">
                           {item.a}
                         </p>
                       </motion.div>
