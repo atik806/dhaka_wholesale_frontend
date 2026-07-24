@@ -101,7 +101,11 @@ function CallbackHandler() {
         setAuth(user, { access_token, refresh_token, expires_at });
         await mergeGuestCartOnLogin(guest);
         router.push(redirect);
-      } catch {
+      } catch (profileErr: unknown) {
+        console.warn(
+          "[OAuth Callback] getProfile failed, trying sync-profile:",
+          profileErr instanceof Error ? profileErr.message : profileErr,
+        );
         const oauthName =
           session.user.user_metadata?.full_name ??
           session.user.user_metadata?.name ??
