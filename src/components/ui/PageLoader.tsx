@@ -24,11 +24,11 @@ export const PageLoader = memo(function PageLoader() {
     <AnimatePresence>
       {loading && (
         <motion.div
-          initial={{ scaleX: 0, opacity: 1 }}
-          animate={{ scaleX: 1, opacity: 1 }}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-primary-light to-accent z-[100] origin-left"
+          className="fixed top-0 left-0 right-0 h-[3px] bg-accent z-[100]"
           style={{ transformOrigin: "left" }}
         />
       )}

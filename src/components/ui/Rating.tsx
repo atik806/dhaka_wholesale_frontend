@@ -4,27 +4,34 @@ import { cn } from "@/src/lib/utils";
 interface RatingProps {
   value: number;
   count?: number;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
-export function Rating({ value, count, size = "sm" }: RatingProps) {
+const sizes = {
+  sm: "w-3.5 h-3.5",
+  md: "w-4 h-4",
+  lg: "w-5 h-5",
+};
+
+export function Rating({ value, count, size = "sm", className }: RatingProps) {
   return (
-    <div className="flex items-center gap-1.5">
-      <div className="flex">
+    <div className={cn("flex items-center gap-1.5", className)}>
+      <div className="flex" role="img" aria-label={`Rated ${value} out of 5`}>
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
             className={cn(
-              size === "sm" ? "w-3.5 h-3.5" : "w-4 h-4",
+              sizes[size],
               star <= Math.round(value)
-                ? "fill-amber-400 dark:fill-amber-300 text-amber-400 dark:text-amber-300"
-                : "fill-zinc-200 dark:fill-zinc-600 text-zinc-200 dark:text-zinc-600"
+                ? "fill-accent text-accent"
+                : "fill-surface-3 text-surface-3",
             )}
           />
         ))}
       </div>
       {count !== undefined && (
-        <span className="text-xs text-zinc-500 dark:text-zinc-400">({count.toLocaleString()})</span>
+        <span className="text-xs text-muted tabular">({count.toLocaleString()})</span>
       )}
     </div>
   );

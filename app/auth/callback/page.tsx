@@ -9,6 +9,7 @@ import {
   snapshotGuestCart,
 } from "@/src/lib/cart-sync";
 import { useAuthStore } from "@/src/store/useAuthStore";
+import { AuthSpinner } from "@/src/components/auth/AuthLanding";
 
 function safeRedirect(path: string | null): string {
   if (!path || !path.startsWith("/") || path.startsWith("//")) return "/";
@@ -147,25 +148,12 @@ function CallbackHandler() {
     handleCallback();
   }, [router, setAuth]);
 
-  return (
-    <div className="min-h-dvh bg-black flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-sm text-[#71767b]">Completing sign-in...</p>
-      </div>
-    </div>
-  );
+  return <AuthSpinner message="Completing sign-in…" />;
 }
 
 export default function AuthCallbackPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-dvh bg-black flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<AuthSpinner />}>
       <CallbackHandler />
     </Suspense>
   );

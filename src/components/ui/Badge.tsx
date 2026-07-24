@@ -1,16 +1,31 @@
 import { cn } from "@/src/lib/utils";
+import type { ReactNode } from "react";
+
+type BadgeVariant =
+  | "sale"
+  | "new"
+  | "out-of-stock"
+  | "low-stock"
+  | "neutral"
+  | "success"
+  | "info"
+  | "accent";
 
 interface BadgeProps {
-  variant?: "sale" | "new" | "out-of-stock" | "low-stock";
-  children?: string;
+  variant?: BadgeVariant;
+  children?: ReactNode;
   className?: string;
 }
 
-const styles: Record<string, string> = {
-  sale: "bg-[#BE3D1F] text-white border border-red-950 -rotate-3",
-  new: "bg-[#132A3A] text-[#F5A300] border border-[#F5A300]/40 -rotate-2",
-  "out-of-stock": "bg-[#1C1A17] text-[#E7DCC4] border border-zinc-700",
-  "low-stock": "bg-[#F5A300] text-[#132A3A] border border-[#D88900] -rotate-1",
+const styles: Record<BadgeVariant, string> = {
+  sale: "bg-sale text-sale-fg",
+  new: "bg-brand text-brand-fg",
+  "out-of-stock": "bg-surface-3 text-muted",
+  "low-stock": "bg-accent-soft text-accent-fg border border-accent/40",
+  neutral: "bg-surface-2 text-muted border border-line",
+  success: "bg-success-soft text-success border border-success/30",
+  info: "bg-info-soft text-info border border-info/30",
+  accent: "bg-accent text-accent-fg",
 };
 
 export function Badge({ variant = "new", children, className }: BadgeProps) {
@@ -18,9 +33,9 @@ export function Badge({ variant = "new", children, className }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-[2px] text-[10px] sm:text-[11px] font-mono font-bold uppercase tracking-wider shadow-sm",
+        "inline-flex items-center gap-1 px-2 py-0.5 rounded-sm text-[11px] font-bold tracking-wide leading-5",
         styles[variant],
-        className
+        className,
       )}
     >
       {children}

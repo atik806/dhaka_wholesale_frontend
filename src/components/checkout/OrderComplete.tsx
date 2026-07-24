@@ -1,15 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Package, Copy, CheckCheck } from "lucide-react";
+import { Check, Copy, CheckCheck, Phone, PackageCheck, Banknote } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { Button } from "@/src/components/ui/Button";
+import { buttonClasses } from "@/src/components/ui/Button";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
+import { Card } from "@/src/components/ui/Card";
 
 interface OrderCompleteProps {
   orderId?: string;
 }
+
+const nextSteps = [
+  {
+    icon: Phone,
+    title: "We confirm by phone",
+    description:
+      "Our team calls the number you provided to verify the order and delivery address.",
+  },
+  {
+    icon: PackageCheck,
+    title: "Your parcel ships out",
+    description:
+      "Inside Dhaka usually arrives in 1–2 days; outside Dhaka takes 2–4 days.",
+  },
+  {
+    icon: Banknote,
+    title: "You pay on delivery",
+    description:
+      "Inspect the parcel, then hand the cash to the delivery agent. Nothing to pay now.",
+  },
+];
 
 export function OrderComplete({ orderId }: OrderCompleteProps) {
   const [copied, setCopied] = useState(false);
@@ -30,77 +52,120 @@ export function OrderComplete({ orderId }: OrderCompleteProps) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="container py-12 sm:py-20 bg-[#FBF6EC] dark:bg-[#0D1F2C] overflow-x-hidden"
+      className="bg-canvas min-h-screen overflow-x-hidden"
     >
-      <Breadcrumbs items={[{ label: "Order Complete" }]} />
-      <div className="max-w-md mx-auto text-center px-1">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 400, damping: 20 }}
-          className="w-20 h-20 rounded-full bg-[#1F6F50] flex items-center justify-center mx-auto mb-6"
-        >
-          <Check className="w-10 h-10 text-white" />
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="inline-flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#F5A300] bg-[#132A3A] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-4 -rotate-1">
-            <Package className="w-3.5 h-3.5" /> ORDER CONFIRMED
+      <div className="container py-8 sm:py-12">
+        <Breadcrumbs items={[{ label: "Order confirmed" }]} />
+
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-success-soft border border-success/30 flex items-center justify-center mx-auto mb-5"
+            >
+              <Check className="w-8 h-8 sm:w-10 sm:h-10 text-success" strokeWidth={2.5} />
+            </motion.div>
+            <p className="label-caps text-success mb-2">Order confirmed</p>
+            <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+              Thank you — your order is placed
+            </h1>
+            <p className="text-muted text-sm sm:text-[15px] max-w-md mx-auto leading-relaxed">
+              We&apos;ve received your order and will contact you shortly to
+              confirm delivery. This is a cash-on-delivery order, so there is
+              nothing to pay right now.
+            </p>
           </div>
-          <h1 className="font-serif text-3xl font-extrabold text-[#132A3A] dark:text-[#E7DCC4] mb-3">
-            Order Placed!
-          </h1>
 
           {orderId && (
-            <div className="mb-6 rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] bg-white dark:bg-[#132A3A] p-4 text-left">
-              <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-[#1C1A17]/60 dark:text-[#a0b4c4] mb-1">
-                Order ID
-              </p>
-              <div className="flex items-start gap-2 min-w-0">
+            <Card className="mt-7 p-4 sm:p-5">
+              <div className="flex items-start gap-3 min-w-0">
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-lg font-extrabold text-[#132A3A] dark:text-[#E7DCC4]">
+                  <p className="label-caps text-muted mb-1.5">Order number</p>
+                  <p className="font-mono text-lg sm:text-xl font-bold text-fg tabular">
                     #{shortId}
                   </p>
-                  <p className="font-mono text-[11px] text-[#1C1A17]/50 dark:text-[#a0b4c4] break-all mt-0.5">
+                  <p className="font-mono text-[12px] text-subtle break-all mt-1">
                     {orderId}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="shrink-0 p-2 rounded-[2px] border border-[#E7DCC4] dark:border-[#2a3d4d] text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#FBF6EC] dark:hover:bg-[#0D1F2C] transition-colors"
-                  aria-label="Copy order ID"
+                  aria-label="Copy order number"
+                  className="shrink-0 inline-flex items-center gap-1.5 h-11 px-3 rounded-md border border-line-strong bg-surface text-[13px] font-semibold text-fg hover:bg-surface-2 transition-colors"
                 >
                   {copied ? (
-                    <CheckCheck className="w-4 h-4 text-[#1F6F50]" />
+                    <>
+                      <CheckCheck className="w-4 h-4 text-success" />
+                      <span className="hidden sm:inline">Copied</span>
+                    </>
                   ) : (
-                    <Copy className="w-4 h-4" />
+                    <>
+                      <Copy className="w-4 h-4" />
+                      <span className="hidden sm:inline">Copy</span>
+                    </>
                   )}
                 </button>
               </div>
-            </div>
+              <p className="text-[12px] text-muted mt-3 pt-3 border-t border-line">
+                Keep this number handy — you&apos;ll need it for any question
+                about the order.
+              </p>
+            </Card>
           )}
 
-          <p className="text-[#1C1A17]/70 dark:text-[#a0b4c4] text-sm mb-8 font-sans">
-            Thank you for your order. You&apos;ll receive a confirmation
-            email shortly. Cash on delivery — pay at your door.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <div className="mt-4">
+            <Card>
+              <div className="px-5 py-4 border-b border-line">
+                <h2 className="text-base font-bold">What happens next</h2>
+              </div>
+              <ol className="divide-y divide-line">
+                {nextSteps.map(({ icon: Icon, title, description }, i) => (
+                  <li key={title} className="flex gap-3.5 px-5 py-4">
+                    <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface-2 border border-line text-fg">
+                      <Icon className="h-4 w-4 text-muted" />
+                      <span className="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand text-brand-fg text-[10px] font-bold tabular">
+                        {i + 1}
+                      </span>
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-fg">{title}</p>
+                      <p className="text-[13px] text-muted mt-0.5 leading-relaxed">
+                        {description}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </Card>
+          </div>
+
+          <div className="mt-6 flex flex-col sm:flex-row gap-3">
             {orderId && (
-              <Link href={`/account/orders/${orderId}`} className="w-full sm:w-auto">
-                <Button variant="outline" className="w-full">
-                  VIEW ORDER
-                </Button>
+              <Link
+                href={`/account/orders/${orderId}`}
+                className={buttonClasses({
+                  size: "lg",
+                  className: "w-full sm:flex-1",
+                })}
+              >
+                View order details
               </Link>
             )}
-            <Link href="/shop" className="w-full sm:w-auto">
-              <Button className="w-full">CONTINUE SHOPPING</Button>
+            <Link
+              href="/shop"
+              className={buttonClasses({
+                variant: "outline",
+                size: "lg",
+                className: "w-full sm:flex-1",
+              })}
+            >
+              Continue shopping
             </Link>
           </div>
-        </motion.div>
+        </div>
       </div>
     </motion.div>
   );

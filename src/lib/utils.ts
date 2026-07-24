@@ -1,15 +1,17 @@
-export function cn(...inputs: (string | false | null | undefined)[]) {
-  return inputs.filter(Boolean).join(" ");
+type ClassValue = string | number | bigint | false | null | undefined;
+
+export function cn(...inputs: ClassValue[]) {
+  return inputs.filter((v): v is string => typeof v === "string" && v.length > 0).join(" ");
 }
 
+// Intl renders BDT as the "BDT" code rather than the taka sign, so group the
+// digits with Intl and prefix the symbol ourselves.
 export function formatPrice(price: number | null | undefined): string {
   if (price == null || isNaN(price)) return "৳0";
-  return new Intl.NumberFormat("en-BD", {
-    style: "currency",
-    currency: "BDT",
+  return `৳${new Intl.NumberFormat("en-BD", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(price);
+  }).format(price)}`;
 }
 
 export function formatDate(date: string | null | undefined): string {

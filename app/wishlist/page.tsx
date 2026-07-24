@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, BookOpen } from "lucide-react";
+import { Heart } from "lucide-react";
+import Link from "next/link";
 import type { Product } from "@/src/types/product";
 import { useCartStore } from "@/src/store/useCartStore";
 import { ProductCard } from "@/src/components/product/ProductCard";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { EmptyState } from "@/src/components/ui/EmptyState";
+import { Card } from "@/src/components/ui/Card";
 import { ProductCardSkeleton } from "@/src/components/ui/Skeleton";
 import { fetchProducts } from "@/src/lib/api";
 
@@ -39,27 +41,20 @@ export default function WishlistPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
+        className="bg-canvas min-h-[70vh]"
       >
-        <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-10 md:py-14">
-          <div className="container">
-            <Breadcrumbs items={[{ label: "Wishlist" }]} />
-            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
-              <BookOpen className="w-3.5 h-3.5" /> WISHLIST
-            </div>
-            <h1 className="font-serif text-3xl md:text-5xl font-extrabold">
-              My Wishlist
-            </h1>
-          </div>
-        </div>
-        <div className="container">
-          <EmptyState
-            icon={<Heart className="w-10 h-10 text-[#BE3D1F]" />}
-            title="Your wishlist is empty"
-            description="Save items you love by tapping the heart icon on any product."
-            actionLabel="Explore Products"
-            actionHref="/shop"
-          />
+        <div className="container py-6 sm:py-8">
+          <Breadcrumbs items={[{ label: "Wishlist" }]} />
+          <h1 className="text-2xl sm:text-3xl font-bold mb-5">My wishlist</h1>
+          <Card>
+            <EmptyState
+              icon={<Heart className="w-7 h-7 text-subtle" />}
+              title="Your wishlist is empty"
+              description="Tap the heart icon on any product to save it here and come back to it later."
+              actionLabel="Explore products"
+              actionHref="/shop"
+            />
+          </Card>
         </div>
       </motion.div>
     );
@@ -70,22 +65,34 @@ export default function WishlistPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
+      className="bg-canvas min-h-screen"
     >
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-10 md:py-14">
-        <div className="container">
-          <Breadcrumbs items={[{ label: "Wishlist" }]} />
-          <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
-            <BookOpen className="w-3.5 h-3.5" /> WISHLIST
-          </div>
-          <h1 className="font-serif text-3xl md:text-5xl font-extrabold">
-            My Wishlist ({loading ? "..." : wishlistProducts.length})
-          </h1>
-        </div>
-      </div>
+      <div className="container py-6 sm:py-8">
+        <Breadcrumbs items={[{ label: "Wishlist" }]} />
 
-      <div className="container py-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-5 sm:mb-6">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold">My wishlist</h1>
+            <p className="text-[13px] text-muted mt-1">
+              {loading ? (
+                "Loading your saved items…"
+              ) : (
+                <>
+                  <span className="tabular">{wishlistProducts.length}</span>{" "}
+                  {wishlistProducts.length === 1 ? "item" : "items"} saved
+                </>
+              )}
+            </p>
+          </div>
+          <Link
+            href="/shop"
+            className="text-[13px] font-semibold text-link hover:text-link-hover underline underline-offset-4 shrink-0"
+          >
+            Continue shopping
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
           {loading
             ? Array.from({ length: Math.min(wishlistIds.length, 8) }).map((_, i) => (
                 <ProductCardSkeleton key={i} />
@@ -94,6 +101,18 @@ export default function WishlistPage() {
                 <ProductCard key={product.id} product={product} index={i} />
               ))}
         </div>
+
+        {!loading && wishlistProducts.length === 0 && (
+          <Card className="mt-2">
+            <EmptyState
+              icon={<Heart className="w-7 h-7 text-subtle" />}
+              title="Saved items are unavailable"
+              description="The products on your wishlist could not be loaded right now. They may have been removed from the catalog."
+              actionLabel="Explore products"
+              actionHref="/shop"
+            />
+          </Card>
+        )}
       </div>
     </motion.div>
   );

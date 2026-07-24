@@ -31,11 +31,11 @@ export const FloatingCartButton = memo(function FloatingCartButton({
         >
           <Link
             href="/cart"
-            className="relative flex h-14 w-14 items-center justify-center rounded-full bg-[#131921] text-white shadow-2xl ring-2 ring-[#F5A300] hover:bg-[#232F3E] hover:scale-105 active:scale-95 transition-transform"
+            className="relative flex h-14 w-14 items-center justify-center rounded-full bg-brand text-brand-fg shadow-lg ring-1 ring-brand-fg/15 hover:bg-brand-hover hover:shadow-xl active:scale-95 transition-all duration-150"
             aria-label={`Open cart, ${count} items`}
           >
             <ShoppingCart className="w-6 h-6" strokeWidth={1.75} />
-            <span className="absolute -top-1 -right-1 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-[#F5A300] px-1 text-[11px] font-extrabold tabular-nums text-[#131921] shadow-md ring-2 ring-white">
+            <span className="absolute -top-1 -right-1 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold tabular text-accent-fg shadow-sm ring-2 ring-canvas">
               {label}
             </span>
           </Link>

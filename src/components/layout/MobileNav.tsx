@@ -22,6 +22,7 @@ import { useRef, useEffect } from "react";
 import { useCategories } from "@/src/hooks/useApi";
 import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
+import { Button } from "@/src/components/ui/Button";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
 import { useCartStore, useCartHydrated } from "@/src/store/useCartStore";
@@ -39,6 +40,10 @@ const navItems = [
   { href: "/wishlist", icon: Heart, label: "Wishlist", isWishlist: true },
   { href: "/account", icon: User, label: "Account", isAccount: true },
 ];
+
+/** Shared row styling for the slide-out drawer links */
+const drawerRow =
+  "flex items-center gap-3 w-full px-3 min-h-[44px] py-2.5 rounded-md text-sm font-medium text-fg hover:bg-surface-2 transition-colors";
 
 export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
   const pathname = usePathname();
@@ -92,74 +97,50 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
     <>
       {/* Bottom Navigation Bar — phones only (< 768px) */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#132A3A] dark:bg-[#0A1A28] border-t border-[#E7DCC4]/20"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-brand border-t border-brand-fg/10 shadow-lg safe-area-bottom"
         aria-label="Mobile navigation"
       >
-        <div className="flex items-center justify-around h-14 px-1">
+        <div className="flex items-stretch h-16">
           {navItems.map((item) => {
             const active = item.isAccount
               ? (item.href === "/account" && (pathname === "/account" || pathname.startsWith("/account/"))) ||
                 (item.href === "/login" && pathname === "/login")
               : isActive(item.href);
             const href = item.isAccount && isLoggedIn ? "/account" : item.isAccount ? "/login" : item.href;
-            const baseClass = `flex flex-col items-center justify-center gap-0.5 transition-colors flex-1 min-w-0 max-w-[72px] py-1 ${
-              active ? "text-[#F5A300]" : "text-[#E7DCC4]/60 hover:text-[#F5A300]"
-            }`;
-
-            if (item.isCart) {
-              return (
-                <Link
-                  key={item.label}
-                  href={href}
-                  className={`${baseClass} relative`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <motion.div whileTap={{ scale: 0.85 }} className="relative">
-                    <item.icon className="w-5 h-5" />
-                    {cartHydrated && totalItems > 0 && (
-                      <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 flex items-center justify-center bg-[#BE3D1F] text-white text-[9px] font-mono font-bold rounded-full px-0.5">
-                        {totalItems}
-                      </span>
-                    )}
-                  </motion.div>
-                  <span className="text-[10px] font-medium font-mono truncate w-full text-center">{item.label}</span>
-                </Link>
-              );
-            }
-
-            if (item.isWishlist) {
-              return (
-                <Link
-                  key={item.label}
-                  href={href}
-                  className={`${baseClass} relative`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <motion.div whileTap={{ scale: 0.85 }} className="relative">
-                    <item.icon className="w-5 h-5" />
-                    {wishlistIds.length > 0 && (
-                      <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 flex items-center justify-center bg-[#BE3D1F] text-white text-[9px] font-mono font-bold rounded-full px-0.5">
-                        {wishlistIds.length}
-                      </span>
-                    )}
-                  </motion.div>
-                  <span className="text-[10px] font-medium font-mono truncate w-full text-center">{item.label}</span>
-                </Link>
-              );
-            }
+            const badgeCount = item.isCart
+              ? cartHydrated
+                ? totalItems
+                : 0
+              : item.isWishlist
+              ? wishlistIds.length
+              : 0;
 
             return (
               <Link
                 key={item.label}
                 href={href}
-                className={baseClass}
+                className={`relative flex flex-1 min-w-0 flex-col items-center justify-center gap-1 transition-colors ${
+                  active ? "text-accent" : "text-brand-fg/60 hover:text-brand-fg"
+                }`}
                 aria-current={active ? "page" : undefined}
               >
-                <motion.div whileTap={{ scale: 0.85 }}>
-                  <item.icon className="w-5 h-5" />
-                </motion.div>
-                <span className="text-[10px] font-medium font-mono truncate w-full text-center">{item.label}</span>
+                {active && (
+                  <span
+                    className="absolute top-0 h-0.5 w-9 rounded-b-sm bg-accent"
+                    aria-hidden
+                  />
+                )}
+                <motion.span whileTap={{ scale: 0.85 }} className="relative block">
+                  <item.icon className="w-[22px] h-[22px]" strokeWidth={active ? 2.25 : 1.75} />
+                  {badgeCount > 0 && (
+                    <span className="absolute -top-1.5 -right-2.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold tabular text-accent-fg ring-2 ring-brand">
+                      {badgeCount > 99 ? "99+" : badgeCount}
+                    </span>
+                  )}
+                </motion.span>
+                <span className="text-[10px] font-semibold tracking-tight truncate w-full text-center px-0.5">
+                  {item.label}
+                </span>
               </Link>
             );
           })}
@@ -175,7 +156,7 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
+              className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-[60]"
             />
             <motion.nav
               ref={navRef}
@@ -186,138 +167,126 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-[#FBF6EC] dark:bg-[#0D1F2C] z-[70] shadow-2xl"
+              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-surface z-[70] shadow-xl flex flex-col"
             >
-              <div className="flex items-center justify-between p-4 border-b border-[#E7DCC4] dark:border-[#2a3d4d] bg-[#132A3A] dark:bg-[#0A1A28]">
+              <div className="flex items-center justify-between gap-3 px-4 py-3 bg-brand shrink-0">
                 <SiteLogo variant="mobile" href={null} showWordmark />
                 <button
                   onClick={onClose}
-                  className="p-2 rounded-[2px] hover:bg-[#0D1F2C] dark:hover:bg-[#071520] transition-colors text-[#E7DCC4] hover:text-[#F5A300]"
+                  className="shrink-0 p-2 rounded-md text-brand-fg/70 hover:text-brand-fg hover:bg-brand-fg/10 transition-colors"
                   aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <div className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-70px)]">
-                {/* Quick Search */}
-                <button
-                  onClick={() => { onClose(); onSearchOpen(); }}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] bg-[#E7DCC4]/40 dark:bg-[#132A3A] hover:bg-[#F5A300]/20 transition-colors"
-                >
-                  <Search className="w-4 h-4 text-[#F5A300]" /> Search Products...
-                </button>
 
-                {/* Categories panel */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    openDepartments();
-                  }}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-white bg-[#132A3A] hover:bg-[#0D1F2C] transition-colors"
-                >
-                  <Grid3X3 className="w-4 h-4 text-[#F5A300]" /> Browse Categories
-                </button>
-
-                {/* Categories */}
-                <div className="pt-3 pb-1">
-                  <p className="px-4 text-[11px] font-mono font-bold uppercase tracking-wider text-[#BE3D1F] mb-1">
-                    Categories
-                  </p>
-                  {categories.map((cat) => (
-                    <Link
-                      key={cat.id}
-                      href={`/shop/${cat.slug}`}
-                      onClick={onClose}
-                      className={`block px-4 py-2.5 rounded-[2px] text-sm font-sans transition-colors ${
-                        pathname === `/shop/${cat.slug}`
-                          ? "text-[#D88900] bg-[#F5A300]/15 font-bold"
-                          : "text-[#1C1A17]/80 dark:text-[#a0b4c4] hover:text-[#D88900] hover:bg-[#F5A300]/10"
-                      }`}
-                    >
-                      {cat.name}
-                    </Link>
-                  ))}
+              <div className="flex-1 overflow-y-auto p-4 pb-10">
+                {/* Primary actions */}
+                <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    size="md"
+                    fullWidth
+                    onClick={() => { onClose(); onSearchOpen(); }}
+                  >
+                    <Search className="w-4 h-4 text-subtle" />
+                    Search products
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    fullWidth
+                    onClick={() => { onClose(); openDepartments(); }}
+                  >
+                    <Grid3X3 className="w-4 h-4 text-accent" />
+                    Browse all categories
+                  </Button>
                 </div>
 
-                <hr className="my-3 border-[#E7DCC4] dark:border-[#2a3d4d]" />
+                {/* Categories */}
+                {categories.length > 0 && (
+                  <div className="mt-6">
+                    <p className="label-caps text-subtle px-3 mb-2">Categories</p>
+                    <ul>
+                      {categories.map((cat) => {
+                        const active = pathname === `/shop/${cat.slug}`;
+                        return (
+                          <li key={cat.id}>
+                            <Link
+                              href={`/shop/${cat.slug}`}
+                              onClick={onClose}
+                              aria-current={active ? "page" : undefined}
+                              className={`block px-3 min-h-[44px] py-2.5 rounded-md text-sm transition-colors ${
+                                active
+                                  ? "bg-accent-soft text-fg font-semibold"
+                                  : "text-muted hover:bg-surface-2 hover:text-fg"
+                              }`}
+                            >
+                              {cat.name}
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
+
+                <hr className="my-4 border-line" />
 
                 {/* Quick Links — secondary nav not in bottom bar */}
-                <Link
-                  href="/shop?sort=newest"
-                  onClick={onClose}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans transition-colors ${
-                    pathname === "/shop" && pathname.includes("newest")
-                      ? "text-[#D88900] bg-[#F5A300]/15"
-                      : "text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 hover:text-[#D88900]"
-                  }`}
-                >
-                  <Sparkles className="w-4 h-4 text-[#F5A300]" /> New Arrivals
+                <p className="label-caps text-subtle px-3 mb-2">Discover</p>
+                <Link href="/shop?sort=newest" onClick={onClose} className={drawerRow}>
+                  <Sparkles className="w-4 h-4 text-subtle shrink-0" />
+                  New Arrivals
                 </Link>
-                <Link
-                  href="/shop?sort=popular"
-                  onClick={onClose}
-                  className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors"
-                >
-                  <TrendingUp className="w-4 h-4 text-[#F5A300]" /> Best Sellers
+                <Link href="/shop?sort=popular" onClick={onClose} className={drawerRow}>
+                  <TrendingUp className="w-4 h-4 text-subtle shrink-0" />
+                  Best Sellers
                 </Link>
-                <Link
-                  href="/contact"
-                  onClick={onClose}
-                  className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#F5A300] hover:bg-[#F5A300]/10 transition-colors"
-                >
-                  <Phone className="w-4 h-4" /> Contact Us
+                <Link href="/contact" onClick={onClose} className={drawerRow}>
+                  <Phone className="w-4 h-4 text-subtle shrink-0" />
+                  Contact Us
                 </Link>
 
-                <hr className="my-3 border-[#E7DCC4] dark:border-[#2a3d4d]" />
+                <hr className="my-4 border-line" />
 
                 {/* Account Section */}
                 {authHydrated && (
                   isLoggedIn ? (
-                    <div className="pt-2 pb-1">
-                      <p className="px-4 text-[11px] font-mono font-bold uppercase tracking-wider text-[#132A3A]/60 dark:text-[#a0b4c4] mb-1">
-                        Account
-                      </p>
-                      <div className="px-4 py-2 mb-1 bg-[#132A3A] dark:bg-[#0A1A28] rounded-[2px]">
-                        <p className="text-sm font-bold text-[#F5A300] font-sans">{user?.name}</p>
-                        <p className="text-xs text-[#E7DCC4]/70 font-mono">{user?.email}</p>
+                    <div>
+                      <p className="label-caps text-subtle px-3 mb-2">Account</p>
+                      <div className="px-3.5 py-3 mb-2 rounded-lg bg-surface-2 border border-line">
+                        <p className="text-sm font-semibold text-fg truncate">{user?.name}</p>
+                        <p className="text-[13px] text-muted truncate">{user?.email}</p>
                       </div>
-                      <Link
-                        href="/account"
-                        onClick={onClose}
-                        className="flex items-center gap-3 px-4 py-2.5 rounded-[2px] text-sm font-sans text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 transition-colors"
-                      >
-                        <User className="w-4 h-4 text-[#F5A300]" /> My Account
+                      <Link href="/account" onClick={onClose} className={drawerRow}>
+                        <User className="w-4 h-4 text-subtle shrink-0" />
+                        My Account
                       </Link>
                       <button
                         onClick={() => { logout(); onClose(); router.push("/"); }}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 rounded-[2px] text-sm font-sans text-[#BE3D1F] hover:bg-[#BE3D1F]/10 transition-colors"
+                        className="flex items-center gap-3 w-full px-3 min-h-[44px] py-2.5 rounded-md text-sm font-medium text-danger hover:bg-danger-soft transition-colors"
                       >
-                        <LogOut className="w-4 h-4" /> Sign Out
+                        <LogOut className="w-4 h-4 shrink-0" />
+                        Sign Out
                       </button>
                     </div>
                   ) : (
-                    <Link
-                      href="/login"
-                      onClick={onClose}
-                      className="flex items-center gap-3 px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors"
-                    >
-                      <User className="w-4 h-4 text-[#F5A300]" /> Sign In / Register
+                    <Link href="/login" onClick={onClose} className={drawerRow}>
+                      <User className="w-4 h-4 text-subtle shrink-0" />
+                      Sign In / Register
                     </Link>
                   )
                 )}
 
-                <hr className="my-3 border-[#E7DCC4] dark:border-[#2a3d4d]" />
+                <hr className="my-4 border-line" />
 
                 {/* Theme Toggle */}
-                <button
-                  onClick={toggleTheme}
-                  className="flex items-center gap-3 w-full px-4 py-3 rounded-[2px] text-sm font-bold font-sans text-[#132A3A] dark:text-[#E7DCC4] hover:bg-[#F5A300]/10 hover:text-[#D88900] transition-colors min-h-[44px]"
-                >
+                <button onClick={toggleTheme} className={drawerRow}>
                   {theme === "dark" ? (
-                    <Sun className="w-4 h-4 text-[#F5A300]" />
+                    <Sun className="w-4 h-4 text-subtle shrink-0" />
                   ) : (
-                    <Moon className="w-4 h-4 text-[#F5A300]" />
+                    <Moon className="w-4 h-4 text-subtle shrink-0" />
                   )}
                   {theme === "dark" ? "Light Mode" : "Dark Mode"}
                 </button>

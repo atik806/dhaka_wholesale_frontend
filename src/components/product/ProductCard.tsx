@@ -2,12 +2,14 @@
 
 import { useRef, useState, memo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Eye, Check } from "lucide-react";
+import { Heart, ShoppingBag, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/src/types/product";
+import { Badge } from "@/src/components/ui/Badge";
+import { Button } from "@/src/components/ui/Button";
 import { Rating } from "@/src/components/ui/Rating";
-import { formatPrice, safeImage } from "@/src/lib/utils";
+import { cn, formatPrice, safeImage } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 
@@ -33,6 +35,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
   }, [justAdded]);
 
   const showAdded = justAdded || inCart;
+  const isOutOfStock = product.stock === "out-of-stock";
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -58,7 +61,6 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
     );
   };
 
-  // Determine discount stamp percentage
   const discountPercent = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
@@ -70,123 +72,106 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, delay: index * 0.04 }}
+      className="h-full"
     >
-      <div className="group block bg-white dark:bg-[#132A3A] rounded-[3px] border border-[#E7DCC4] dark:border-[#2a3d4d] p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:border-[#F5A300] relative">
-        <Link href={`/product/${product.slug}`} className="block">
-          {/* Colored Image Block Container */}
-          <div className="relative aspect-square rounded-[2px] overflow-hidden bg-[#FBF6EC] dark:bg-[#0D1F2C] border border-[#E7DCC4]/80 dark:border-[#2a3d4d]/80 mb-3 group-hover:border-[#E7DCC4] dark:group-hover:border-[#2a3d4d] transition-colors">
+      <div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface transition-all duration-200 hover:border-line-strong hover:shadow-md">
+        <div className="relative aspect-square overflow-hidden bg-surface-2">
+          <Link
+            href={`/product/${product.slug}`}
+            className="block h-full w-full"
+            tabIndex={-1}
+            aria-hidden="true"
+          >
             <Image
               src={imgSrc}
               alt={product.name}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className={cn(
+                "object-cover transition-transform duration-500 group-hover:scale-105",
+                isOutOfStock && "opacity-60",
+              )}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
               onError={() => setImgSrc("/placeholder.svg")}
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300" />
+          </Link>
 
-            {/* Rotated Brick-Red Discount Stamp Badge Top-Left */}
+          <div className="pointer-events-none absolute left-2 top-2 z-10 flex flex-col items-start gap-1">
             {discountPercent ? (
-              <div className="absolute top-2 left-2 z-10">
-                <span className="inline-block bg-[#BE3D1F] text-white font-mono text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-[2px] border border-red-950 shadow-sm -rotate-6 tracking-wider uppercase">
-                  -{discountPercent}% OFF
-                </span>
-              </div>
+              <Badge variant="sale">-{discountPercent}%</Badge>
             ) : product.isNew ? (
-              <div className="absolute top-2 left-2 z-10">
-                <span className="inline-block bg-[#132A3A] text-[#F5A300] font-mono text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-[2px] border border-[#F5A300]/40 shadow-sm -rotate-3 uppercase">
-                  NEW ARRIVAL
-                </span>
-              </div>
-            ) : product.stock === "out-of-stock" ? (
-              <div className="absolute top-2 left-2 z-10">
-                <span className="inline-block bg-[#1C1A17] text-[#E7DCC4] font-mono text-[10px] font-bold px-2 py-0.5 rounded-[2px] border border-zinc-700 shadow-sm uppercase">
-                  OUT OF STOCK
-                </span>
-              </div>
+              <Badge variant="new">New</Badge>
             ) : null}
-
-            {/* Circular Wishlist Heart Top-Right */}
-            <div className="absolute top-2 right-2 z-10 flex flex-col gap-1.5">
-              <button
-                onClick={handleWishlist}
-                className="w-8 h-8 rounded-full bg-white/90 dark:bg-[#132A3A]/90 border border-[#E7DCC4] dark:border-[#2a3d4d] flex items-center justify-center shadow-sm hover:bg-[#F5A300] hover:border-[#D88900] transition-colors"
-                aria-label="Add to wishlist"
-              >
-                <Heart
-                  className={`w-3.5 h-3.5 transition-colors ${
-                    wishlisted
-                      ? "fill-[#BE3D1F] text-[#BE3D1F]"
-                      : "text-[#132A3A] dark:text-[#E7DCC4]"
-                  }`}
-                />
-              </button>
-              <Link
-                href={`/product/${product.slug}`}
-                className="w-8 h-8 rounded-full bg-white/90 dark:bg-[#132A3A]/90 border border-[#E7DCC4] dark:border-[#2a3d4d] flex items-center justify-center shadow-sm hover:bg-[#132A3A] hover:text-white transition-colors"
-                onClick={(e) => e.stopPropagation()}
-                aria-label="Quick view"
-              >
-                <Eye className="w-3.5 h-3.5 text-[#132A3A] dark:text-[#E7DCC4] hover:text-white" />
-              </Link>
-            </div>
+            {isOutOfStock && <Badge variant="out-of-stock">Out of stock</Badge>}
           </div>
 
-          <div className="px-0.5">
-            <div className="flex items-center justify-between gap-1 mb-1">
-              <span className="font-mono text-[10px] text-[#132A3A]/70 dark:text-[#a0b4c4] uppercase tracking-widest font-bold truncate">
-                {product.category}
-              </span>
-              <Rating value={product.rating} count={product.reviewCount} size="sm" />
-            </div>
+          <button
+            type="button"
+            onClick={handleWishlist}
+            aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+            aria-pressed={wishlisted}
+            className="absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/90 text-muted shadow-xs backdrop-blur-sm transition-colors hover:border-line-strong hover:text-fg"
+          >
+            <Heart
+              className={cn("h-4 w-4 transition-colors", wishlisted && "fill-sale text-sale")}
+            />
+          </button>
+        </div>
 
-            <h3 className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4] leading-snug line-clamp-1 group-hover:text-[#F5A300] transition-colors">
+        <div className="flex flex-1 flex-col p-2.5 sm:p-3">
+          <p className="label-caps mb-1 truncate text-subtle">{product.category}</p>
+
+          <h3 className="text-[13px] font-semibold leading-snug sm:text-sm">
+            <Link
+              href={`/product/${product.slug}`}
+              className="line-clamp-2 text-fg transition-colors hover:text-accent-hover"
+            >
               {product.name}
-            </h3>
+            </Link>
+          </h3>
 
-            {/* Price in Market Green with Strikethrough Original Price */}
-            <div className="flex items-baseline gap-2 mt-1.5">
-              <span className="font-mono font-bold text-base text-[#1F6F50]">
+          <div className="mt-1.5">
+            <Rating value={product.rating} count={product.reviewCount} size="sm" />
+          </div>
+
+          <div className="mt-auto pt-2">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+              <span className="tabular text-[15px] font-bold text-price sm:text-base">
                 {formatPrice(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="font-mono text-xs text-[#1C1A17]/50 dark:text-[#a0b4c4] line-through">
+                <span className="tabular text-xs text-muted line-through">
                   {formatPrice(product.originalPrice)}
                 </span>
               )}
             </div>
-
+            {product.stock === "low-stock" && (
+              <p className="mt-1 text-[11px] font-semibold text-danger">Only a few left</p>
+            )}
           </div>
-        </Link>
 
-        {/* Add to Cart Button */}
-        <div className="mt-3">
-          <button
+          <Button
+            variant={isOutOfStock ? "outline" : showAdded ? "secondary" : "primary"}
+            size="md"
+            fullWidth
             onClick={handleAddToCart}
-            disabled={product.stock === "out-of-stock"}
+            disabled={isOutOfStock}
             aria-live="polite"
-            className={`w-full flex items-center justify-center gap-1.5 font-extrabold text-xs py-2 rounded-[3px] border shadow-sm transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:pointer-events-none ${
-              product.stock === "out-of-stock"
-                ? "bg-[#E7DCC4] text-[#1C1A17]/50 border-[#E7DCC4]"
-                : showAdded
-                ? "bg-[#1F6F50] hover:bg-[#185a41] text-white border-[#185a41]"
-                : "bg-[#F5A300] hover:bg-[#D88900] text-[#132A3A] border-[#D88900]"
-            }`}
+            className="mt-2.5"
           >
-            {product.stock === "out-of-stock" ? (
-              "SOLD OUT"
+            {isOutOfStock ? (
+              "Sold out"
             ) : showAdded ? (
               <>
-                <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
-                ADDED TO CART
+                <Check className="h-4 w-4" strokeWidth={2.5} />
+                Added to cart
               </>
             ) : (
               <>
-                <ShoppingBag className="w-3.5 h-3.5" />
-                ADD TO CART
+                <ShoppingBag className="h-4 w-4" />
+                Add to cart
               </>
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </motion.div>

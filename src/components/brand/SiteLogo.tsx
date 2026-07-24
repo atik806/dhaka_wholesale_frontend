@@ -12,6 +12,22 @@ interface SiteLogoProps {
   showWordmark?: boolean;
 }
 
+const markSize: Record<LogoVariant, string> = {
+  header: "w-10 h-10 md:w-11 md:h-11 rounded-md",
+  mobile: "w-10 h-10 md:w-11 md:h-11 rounded-md",
+  footer: "w-12 h-12 rounded-lg",
+  auth: "w-16 h-16 rounded-xl",
+  mark: "w-10 h-10 md:w-11 md:h-11 rounded-md",
+};
+
+const markSizes: Record<LogoVariant, string> = {
+  header: "44px",
+  mobile: "44px",
+  footer: "48px",
+  auth: "64px",
+  mark: "44px",
+};
+
 export function SiteLogo({
   variant = "header",
   href = "/",
@@ -19,38 +35,27 @@ export function SiteLogo({
   className = "",
   showWordmark = true,
 }: SiteLogoProps) {
-  const isFooter = variant === "footer";
+  // Header, mobile drawer header and footer all sit on the navy brand bar.
+  const onDark = variant !== "auth";
 
   const mark = (
     <span
       className={`relative inline-flex items-center justify-center shrink-0 overflow-hidden ${
-        variant === "header"
-          ? "w-10 h-10 md:w-11 md:h-11 rounded-sm border border-white/20 bg-[#232F3E]"
-          : variant === "footer"
-          ? "w-14 h-14 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md"
-          : variant === "auth"
-          ? "w-16 h-16 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md"
-          : "w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#132A3A] border-2 border-[#F5A300] shadow-md -rotate-6 transition-transform duration-300 group-hover:rotate-0"
+        markSize[variant]
+      } ${
+        onDark
+          ? "bg-brand-deep ring-1 ring-brand-fg/20"
+          : "bg-surface-2 ring-1 ring-line-strong shadow-xs"
       } ${className}`}
     >
-      <span
-        className={`relative w-full h-full overflow-hidden ${
-          variant === "header"
-            ? "rounded-sm"
-            : "rounded-full bg-[#0D1F2C] border border-[#E7DCC4]/30"
-        }`}
-      >
-        <Image
-          src="/logo.png"
-          alt={SITE_NAME}
-          fill
-          priority={priority}
-          className="object-cover"
-        />
-      </span>
-      {variant !== "header" && (
-        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#BE3D1F] border border-[#F5A300]" />
-      )}
+      <Image
+        src="/logo.png"
+        alt={SITE_NAME}
+        fill
+        sizes={markSizes[variant]}
+        priority={priority}
+        className="object-cover"
+      />
     </span>
   );
 
@@ -58,15 +63,17 @@ export function SiteLogo({
   const wordmarkHidden = variant === "header" ? "hidden sm:block" : "";
 
   const content = showWordmark ? (
-    <span className="inline-flex items-center gap-2 sm:gap-2.5 group">
+    <span className="inline-flex items-center gap-2 sm:gap-2.5">
       {mark}
-      <span className={`leading-none tracking-tight ${wordmarkHidden}`}>
-        <span className="block font-serif font-extrabold text-sm md:text-base lg:text-lg text-white tracking-tight">
+      <span className={`leading-none ${wordmarkHidden}`}>
+        <span
+          className={`block text-sm md:text-base lg:text-lg font-extrabold tracking-tight ${
+            onDark ? "text-brand-fg" : "text-fg"
+          }`}
+        >
           DHAKA
         </span>
-        <span className="block font-mono text-[9px] md:text-[10px] font-bold uppercase tracking-[0.15em] text-[#F5A300] mt-0.5">
-          WHOLESALE
-        </span>
+        <span className="block label-caps text-accent mt-1">WHOLESALE</span>
       </span>
     </span>
   ) : (
@@ -78,7 +85,7 @@ export function SiteLogo({
   return (
     <Link
       href={href}
-      className="inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5A300] focus-visible:ring-offset-2 rounded-[3px]"
+      className="inline-flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
       aria-label={SITE_NAME}
     >
       {content}
