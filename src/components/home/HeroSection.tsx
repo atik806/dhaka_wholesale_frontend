@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, BadgeCheck, Truck, Wallet } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { buttonClasses } from "@/src/components/ui/Button";
 
 const SLIDES = [
   {
@@ -40,6 +42,12 @@ const SLIDES = [
   },
 ];
 
+const HIGHLIGHTS = [
+  { icon: Wallet, label: "Cash on delivery", detail: "Pay when the parcel arrives" },
+  { icon: Truck, label: "Flat shipping", detail: "৳80 in Dhaka · ৳120 outside" },
+  { icon: BadgeCheck, label: "Inspect first", detail: "Check your order before paying" },
+];
+
 export function HeroSection() {
   const [index, setIndex] = useState(0);
   const slide = SLIDES[index];
@@ -55,32 +63,37 @@ export function HeroSection() {
 
   return (
     <section
-      className="relative overflow-hidden bg-[#131921] text-white"
+      className="bg-brand-deep"
       aria-roledescription="carousel"
       aria-label="Promotions"
     >
       {/* Compact banner height — ~half viewport, Amazon / Wholesale Club style */}
-      <div className="relative h-[min(42vh,340px)] min-h-[200px] max-h-[380px] sm:min-h-[240px] md:h-[min(38vh,320px)]">
+      <div className="relative overflow-hidden h-[min(42vh,340px)] min-h-[200px] max-h-[380px] sm:min-h-[240px] md:h-[min(38vh,320px)]">
         {/* Slides */}
         {SLIDES.map((s, i) => (
           <div
             key={s.image}
-            className="absolute inset-0 bg-cover bg-center transition-opacity duration-700 ease-out"
-            style={{
-              backgroundImage: `url(${s.image})`,
-              opacity: i === index ? 1 : 0,
-              zIndex: i === index ? 1 : 0,
-            }}
+            className="absolute inset-0 transition-opacity duration-700 ease-out"
+            style={{ opacity: i === index ? 1 : 0, zIndex: i === index ? 1 : 0 }}
             aria-hidden={i !== index}
-          />
+          >
+            <Image
+              src={s.image}
+              alt={s.title}
+              fill
+              priority={i === 0}
+              sizes="100vw"
+              className={`object-cover object-center ${i === index ? "ken-burns" : ""}`}
+            />
+          </div>
         ))}
 
-        {/* Gradient for text readability (left-weighted like Amazon) */}
-        <div className="absolute inset-0 z-[2] bg-gradient-to-r from-[#0A1A28]/92 via-[#0A1A28]/55 to-transparent pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 z-[2] h-16 bg-gradient-to-t from-[#0A1A28]/50 to-transparent pointer-events-none" />
+        {/* Scrim for text readability (left-weighted like Amazon) */}
+        <div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-r from-brand-deep/95 via-brand-deep/70 to-brand-deep/20" />
+        <div className="absolute inset-x-0 bottom-0 z-[2] h-20 pointer-events-none bg-gradient-to-t from-brand-deep/70 to-transparent" />
 
         {/* Content */}
-        <div className="container relative z-10 h-full flex items-center py-5 sm:py-6">
+        <div className="container relative z-10 h-full flex items-center py-6">
           <AnimatePresence mode="wait">
             <motion.div
               key={slide.title}
@@ -88,20 +101,18 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.35 }}
-              className="max-w-xl"
+              className="max-w-xl pr-10 sm:pr-14"
             >
-              <p className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.14em] text-[#F5A300] mb-2">
-                {slide.eyebrow}
-              </p>
-              <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-extrabold leading-tight tracking-tight text-white mb-2 sm:mb-3">
+              <p className="label-caps text-accent mb-2">{slide.eyebrow}</p>
+              <h1 className="text-brand-fg text-[26px] leading-[1.15] sm:text-4xl md:text-[2.75rem] font-bold mb-2.5">
                 {slide.title}
               </h1>
-              <p className="text-sm sm:text-base text-white/85 max-w-md mb-4 sm:mb-5 leading-relaxed">
+              <p className="text-sm sm:text-base text-brand-fg/80 max-w-md leading-relaxed mb-5">
                 {slide.subtitle}
               </p>
               <Link
                 href={slide.href}
-                className="inline-flex items-center gap-2 bg-[#F5A300] hover:bg-[#D88900] text-[#131921] font-bold text-sm px-5 py-2.5 rounded-md shadow-md transition-colors"
+                className={buttonClasses({ size: "md", className: "shadow-md" })}
               >
                 {slide.cta}
               </Link>
@@ -113,7 +124,7 @@ export function HeroSection() {
         <button
           type="button"
           onClick={() => go(index - 1)}
-          className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/35 hover:bg-black/55 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+          className="absolute left-1 sm:left-3 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-brand-deep/45 hover:bg-brand-deep/75 text-brand-fg flex items-center justify-center backdrop-blur-sm transition-colors"
           aria-label="Previous slide"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -121,29 +132,54 @@ export function HeroSection() {
         <button
           type="button"
           onClick={() => go(index + 1)}
-          className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/35 hover:bg-black/55 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+          className="absolute right-1 sm:right-3 top-1/2 -translate-y-1/2 z-20 h-11 w-11 rounded-full bg-brand-deep/45 hover:bg-brand-deep/75 text-brand-fg flex items-center justify-center backdrop-blur-sm transition-colors"
           aria-label="Next slide"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
 
-        {/* Dots */}
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
-          {SLIDES.map((_, i) => (
+        {/* Slide indicators */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1">
+          {SLIDES.map((s, i) => (
             <button
-              key={i}
+              key={s.image}
               type="button"
               onClick={() => setIndex(i)}
               aria-label={`Go to slide ${i + 1}`}
               aria-current={i === index}
-              className={`h-1.5 rounded-full transition-all ${
-                i === index
-                  ? "w-6 bg-[#F5A300]"
-                  : "w-1.5 bg-white/50 hover:bg-white/80"
-              }`}
-            />
+              className="h-10 px-1.5 flex items-center justify-center group"
+            >
+              <span
+                className={`h-1.5 rounded-full transition-all ${
+                  i === index
+                    ? "w-7 bg-accent"
+                    : "w-4 bg-brand-fg/40 group-hover:bg-brand-fg/70"
+                }`}
+              />
+            </button>
           ))}
         </div>
+      </div>
+
+      {/* Honest service facts, directly under the banner */}
+      <div className="bg-surface border-b border-line">
+        <ul className="container flex gap-x-6 gap-y-3 overflow-x-auto scrollbar-none py-3 sm:justify-between">
+          {HIGHLIGHTS.map(({ icon: Icon, label, detail }) => (
+            <li key={label} className="flex items-center gap-2.5 shrink-0">
+              <span className="h-8 w-8 rounded-md bg-accent-soft text-accent-hover flex items-center justify-center shrink-0">
+                <Icon className="w-4 h-4" />
+              </span>
+              <span className="min-w-0">
+                <span className="block text-[13px] font-semibold text-fg leading-tight">
+                  {label}
+                </span>
+                <span className="block text-xs text-muted leading-tight tabular">
+                  {detail}
+                </span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );
