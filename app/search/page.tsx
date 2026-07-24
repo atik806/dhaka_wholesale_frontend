@@ -27,10 +27,19 @@ function SearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const query = searchParams.get("q") || "";
+  const category = searchParams.get("category") || "";
 
   const { data, isLoading } = useSWR(
-    query ? `/search?q=${encodeURIComponent(query)}` : null,
-    () => fetchProducts({ search: query, limit: 48, sort: "popular" }),
+    query
+      ? `/search?q=${encodeURIComponent(query)}&category=${encodeURIComponent(category)}`
+      : null,
+    () =>
+      fetchProducts({
+        search: query,
+        limit: 48,
+        sort: "popular",
+        ...(category ? { category } : {}),
+      }),
     { revalidateOnFocus: false },
   );
 
