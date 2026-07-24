@@ -45,12 +45,9 @@ export function RootClient({ children }: { children: React.ReactNode }) {
       <PageLoader />
       {!isAdmin && !isAuthPage && <Header />}
       {!isAdmin && !isAuthPage ? (
-        <div className="flex items-start">
+        <div className="flex-1 flex items-stretch">
           <DepartmentsPanel />
-          <main
-            id="main-content"
-            className="flex-1 min-w-0 pb-14 md:pb-0"
-          >
+          <main id="main-content" className="flex-1 min-w-0 pb-14 md:pb-0">
             {children}
           </main>
         </div>

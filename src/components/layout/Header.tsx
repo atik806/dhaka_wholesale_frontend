@@ -11,7 +11,6 @@ import {
   Moon,
   User,
   LogOut,
-  X,
   MapPin,
   Package,
 } from "lucide-react";
@@ -28,6 +27,10 @@ import { FloatingCartButton } from "./FloatingCartButton";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import type { Product } from "@/src/types/product";
+
+/** The header bar stays dark in both themes, so its own hover/label styles are local. */
+const navItem =
+  "rounded-md transition-colors hover:bg-white/10 focus-visible:ring-offset-0";
 
 export const Header = memo(function Header() {
   const { data: categories = [] } = useCategories();
@@ -167,96 +170,57 @@ export const Header = memo(function Header() {
     { href: "/contact", label: "Customer Service" },
   ];
 
-  const renderSearchDropdown = (wide = false) => (
-    <AnimatePresence>
-      {searchOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 6 }}
-          className={`absolute top-full left-0 right-0 mt-1 bg-white dark:bg-[#1a2d3d] rounded-b-md shadow-2xl border border-[#D5D9D9] dark:border-[#2a3d4d] overflow-hidden z-50 text-[#0F1111] dark:text-[#E7DCC4] ${
-            wide ? "" : "min-w-[16rem]"
-          }`}
-        >
-          {searchLoading && (
-            <div className="px-4 py-3 text-sm text-[#565959]">Searching…</div>
-          )}
-          {!searchLoading && searchResults.length > 0 && (
-            <div className="py-1">
-              {searchResults.map((product) => (
-                <Link
-                  key={product.id}
-                  href={`/product/${product.slug}`}
-                  onClick={handleResultClick}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C] transition-colors"
-                >
-                  <img
-                    src={safeImage(product.images)}
-                    alt={product.name}
-                    className="w-10 h-10 rounded object-cover bg-[#F7F8F8] border border-[#D5D9D9]"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{product.name}</p>
-                    <p className="text-sm font-bold text-[#B12704]">{formatPrice(product.price)}</p>
-                  </div>
-                </Link>
-              ))}
-              {searchTotal > 6 && (
-                <button
-                  type="button"
-                  onClick={handleSearchSubmit}
-                  className="w-full px-4 py-2.5 text-sm text-left text-[#2162A1] hover:underline bg-[#F7F8F8] dark:bg-[#0A1A28] border-t border-[#D5D9D9] dark:border-[#2a3d4d]"
-                >
-                  See all {searchTotal} results
-                </button>
-              )}
-            </div>
-          )}
-          {!searchLoading && searchQuery.trim() && searchResults.length === 0 && (
-            <div className="px-4 py-6 text-center text-sm text-[#565959]">
-              No matches for &quot;{searchQuery}&quot;
-            </div>
-          )}
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+  const searchResultRows = searchResults.map((product) => (
+    <Link
+      key={product.id}
+      href={`/product/${product.slug}`}
+      onClick={handleResultClick}
+      className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-2 transition-colors"
+    >
+      <img
+        src={safeImage(product.images)}
+        alt=""
+        className="w-11 h-11 rounded-md object-cover bg-surface-2 border border-line shrink-0"
+      />
+      <div className="flex-1 min-w-0">
+        <p className="text-sm text-fg truncate">{product.name}</p>
+        <p className="text-sm font-bold text-price tabular">{formatPrice(product.price)}</p>
+      </div>
+    </Link>
+  ));
 
   const accountFirstName = user?.name?.split(" ")[0] || "there";
 
   return (
     <>
-      {/* ── Amazon-style primary nav (auto-hides on scroll down) ── */}
       <header
-        className={`sticky top-0 z-50 bg-[#131921] text-white shadow-md transition-transform duration-300 ease-out will-change-transform ${
+        className={`sticky top-0 z-50 bg-brand-deep text-white shadow-md transition-transform duration-300 ease-out will-change-transform ${
           navHidden ? "-translate-y-full pointer-events-none" : "translate-y-0"
         }`}
       >
-        <div className="px-2 sm:px-3 lg:px-4">
-          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-h-[56px] sm:min-h-[60px] py-1.5">
-            {/* Logo */}
-            <div className="shrink-0 px-1 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white">
+        <div className="px-3 lg:px-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 lg:gap-3 min-h-[58px] sm:min-h-[62px] py-2">
+            <div className={`shrink-0 px-1.5 py-1 ${navItem}`}>
               <SiteLogo variant="header" priority showWordmark />
             </div>
 
-            {/* Deliver to */}
             <Link
               href={isLoggedIn ? "/account" : "/shipping-returns"}
-              className="hidden sm:flex flex-col justify-center px-2 py-1.5 rounded-sm hover:outline hover:outline-1 hover:outline-white shrink-0 max-w-[9rem] lg:max-w-[11rem]"
+              className={`hidden lg:flex items-center gap-1.5 px-2.5 py-2 shrink-0 max-w-[12rem] ${navItem}`}
             >
-              <span className="flex items-center gap-1 text-[11px] text-[#CCC] leading-none pl-5">
-                Deliver to
-              </span>
-              <span className="flex items-center gap-1 text-[13px] font-bold leading-tight truncate">
-                <MapPin className="w-4 h-4 shrink-0 text-white -mt-0.5" />
-                <span className="truncate">{deliverCity}</span>
+              <MapPin className="w-[18px] h-[18px] shrink-0 text-accent" />
+              <span className="min-w-0">
+                <span className="block text-[11px] text-white/60 leading-none">Deliver to</span>
+                <span className="block text-[13px] font-semibold leading-tight truncate">
+                  {deliverCity}
+                </span>
               </span>
             </Link>
 
-            {/* Search — grows to fill center (Amazon pattern) */}
-            <div ref={searchRef} className="relative hidden md:flex flex-1 min-w-0 h-10 self-center">
+            {/* Search — the dominant element, Amazon-style */}
+            <div ref={searchRef} className="relative hidden md:flex flex-1 min-w-0 self-center">
               <form
-                className="flex w-full h-full rounded-md overflow-hidden focus-within:outline focus-within:outline-2 focus-within:outline-[#F5A300]"
+                className="flex w-full h-11 rounded-lg overflow-hidden bg-surface border border-transparent focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/40"
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSearchSubmit();
@@ -269,9 +233,9 @@ export const Header = memo(function Header() {
                   id="nav-search-category"
                   value={searchCategory}
                   onChange={(e) => setSearchCategory(e.target.value)}
-                  className="hidden lg:block max-w-[7.5rem] shrink-0 bg-[#E6E6E6] text-[#0F1111] text-xs font-medium border-0 border-r border-[#CDCDCD] px-2 outline-none cursor-pointer"
+                  className="hidden lg:block max-w-[8.5rem] shrink-0 bg-surface-2 text-fg text-[13px] font-medium border-0 border-r border-line px-2.5 outline-none cursor-pointer"
                 >
-                  <option value="all">All</option>
+                  <option value="all">All categories</option>
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.slug}>
                       {cat.name}
@@ -290,19 +254,52 @@ export const Header = memo(function Header() {
                   onKeyDown={(e) => {
                     if (e.key === "Escape") setSearchOpen(false);
                   }}
-                  placeholder="Search Dhaka Wholesale"
-                  className="flex-1 min-w-0 bg-white text-[#0F1111] text-sm px-3 outline-none placeholder:text-[#767676]"
+                  placeholder="Search products, brands and categories"
+                  className="flex-1 min-w-0 bg-surface text-fg text-sm px-3.5 outline-none placeholder:text-subtle"
                   autoComplete="off"
                 />
                 <button
                   type="submit"
-                  className="shrink-0 w-11 sm:w-12 bg-[#F5A300] hover:bg-[#D88900] text-[#131921] flex items-center justify-center transition-colors"
+                  className="shrink-0 w-12 bg-accent hover:bg-accent-hover text-accent-fg flex items-center justify-center transition-colors"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5" strokeWidth={2.5} />
                 </button>
               </form>
-              {renderSearchDropdown(true)}
+
+              <AnimatePresence>
+                {searchOpen && (searchLoading || searchQuery.trim()) && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 6 }}
+                    className="absolute top-full left-0 right-0 mt-1.5 bg-surface rounded-lg shadow-xl border border-line overflow-hidden z-50"
+                  >
+                    {searchLoading && (
+                      <div className="px-4 py-3 text-sm text-muted">Searching…</div>
+                    )}
+                    {!searchLoading && searchResults.length > 0 && (
+                      <div className="py-1">
+                        {searchResultRows}
+                        {searchTotal > 6 && (
+                          <button
+                            type="button"
+                            onClick={handleSearchSubmit}
+                            className="w-full px-4 py-2.5 text-sm text-left font-semibold text-brand hover:text-accent-hover bg-surface-2 border-t border-line transition-colors"
+                          >
+                            See all {searchTotal} results
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    {!searchLoading && searchQuery.trim() && searchResults.length === 0 && (
+                      <div className="px-4 py-6 text-center text-sm text-muted">
+                        No matches for &quot;{searchQuery}&quot;
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Right cluster */}
@@ -310,7 +307,7 @@ export const Header = memo(function Header() {
               <button
                 type="button"
                 onClick={() => setMobileSearchOpen(true)}
-                className="md:hidden p-2 rounded-sm hover:outline hover:outline-1 hover:outline-white"
+                className={`md:hidden p-2.5 ${navItem}`}
                 aria-label="Search"
               >
                 <Search className="w-5 h-5" />
@@ -320,41 +317,38 @@ export const Header = memo(function Header() {
                 type="button"
                 onClick={toggleTheme}
                 suppressHydrationWarning
-                className="p-2 rounded-sm hover:outline hover:outline-1 hover:outline-white text-[#CCC] hover:text-white"
-                aria-label={theme === "dark" ? "Light mode" : "Dark mode"}
+                className={`p-2.5 text-white/70 hover:text-white ${navItem}`}
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               >
-                {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                {theme === "dark" ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
               </button>
 
-              {/* Account */}
               <div ref={userMenuRef} className="relative">
                 {authHydrated && isLoggedIn ? (
                   <button
                     type="button"
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex flex-col justify-center px-1.5 sm:px-2 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white text-left min-w-0"
+                    aria-expanded={userMenuOpen}
+                    className={`flex flex-col justify-center px-2 py-1.5 text-left min-w-0 ${navItem}`}
                   >
-                    <span className="text-[11px] text-[#CCC] leading-none truncate max-w-[5.5rem] sm:max-w-[7rem]">
+                    <span className="text-[11px] text-white/60 leading-none truncate max-w-[6rem] sm:max-w-[7rem]">
                       Hello, {accountFirstName}
                     </span>
-                    <span className="text-[12px] sm:text-[13px] font-bold leading-tight flex items-center gap-0.5">
-                      Account &amp; Lists
-                      <ChevronDown className="w-3 h-3 hidden sm:inline opacity-80" />
+                    <span className="text-[13px] font-semibold leading-tight flex items-center gap-0.5">
+                      Account
+                      <ChevronDown className="w-3.5 h-3.5 opacity-70" />
                     </span>
                   </button>
                 ) : authHydrated ? (
                   <Link
                     href="/login"
-                    className="flex flex-col justify-center px-1.5 sm:px-2 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white"
+                    className={`flex flex-col justify-center px-2 py-1.5 ${navItem}`}
                   >
-                    <span className="text-[11px] text-[#CCC] leading-none">Hello, sign in</span>
-                    <span className="text-[12px] sm:text-[13px] font-bold leading-tight flex items-center gap-0.5">
-                      Account &amp; Lists
-                      <ChevronDown className="w-3 h-3 hidden sm:inline opacity-80" />
-                    </span>
+                    <span className="text-[11px] text-white/60 leading-none">Hello, sign in</span>
+                    <span className="text-[13px] font-semibold leading-tight">Account</span>
                   </Link>
                 ) : (
-                  <div className="w-16 sm:w-24 h-9" aria-hidden />
+                  <div className="w-16 sm:w-20 h-9" aria-hidden />
                 )}
 
                 <AnimatePresence>
@@ -363,36 +357,34 @@ export const Header = memo(function Header() {
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 6 }}
-                      className="absolute top-full right-0 mt-1 w-64 bg-white dark:bg-[#1a2d3d] rounded-md shadow-2xl border border-[#D5D9D9] dark:border-[#2a3d4d] py-2 z-50 text-[#0F1111] dark:text-[#E7DCC4]"
+                      className="absolute top-full right-0 mt-1.5 w-64 bg-surface rounded-lg shadow-xl border border-line py-1.5 z-50"
                     >
-                      <div className="px-4 py-2 border-b border-[#D5D9D9] dark:border-[#2a3d4d]">
-                        <p className="text-sm font-bold truncate">{user?.name}</p>
-                        <p className="text-xs text-[#565959] dark:text-[#a0b4c4] truncate">
-                          {user?.email}
-                        </p>
+                      <div className="px-4 py-2.5 border-b border-line">
+                        <p className="text-sm font-semibold text-fg truncate">{user?.name}</p>
+                        <p className="text-xs text-muted truncate">{user?.email}</p>
                       </div>
                       <Link
                         href="/account"
                         onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C]"
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-fg hover:bg-surface-2 transition-colors"
                       >
-                        <User className="w-4 h-4 text-[#F5A300]" />
-                        Your Account
+                        <User className="w-4 h-4 text-muted" />
+                        Your account
                       </Link>
                       <Link
                         href="/account"
                         onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C]"
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-fg hover:bg-surface-2 transition-colors"
                       >
-                        <Package className="w-4 h-4 text-[#F5A300]" />
-                        Your Orders
+                        <Package className="w-4 h-4 text-muted" />
+                        Your orders
                       </Link>
                       <Link
                         href="/wishlist"
                         onClick={() => setUserMenuOpen(false)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C] border-b border-[#D5D9D9] dark:border-[#2a3d4d]"
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-fg hover:bg-surface-2 border-b border-line transition-colors"
                       >
-                        <Heart className="w-4 h-4 text-[#F5A300]" />
+                        <Heart className="w-4 h-4 text-muted" />
                         Wishlist
                       </Link>
                       <button
@@ -402,33 +394,30 @@ export const Header = memo(function Header() {
                           logout();
                           router.push("/");
                         }}
-                        className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-[#B12704] hover:bg-[#F7F8F8] dark:hover:bg-[#0D1F2C]"
+                        className="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-danger hover:bg-surface-2 transition-colors"
                       >
                         <LogOut className="w-4 h-4" />
-                        Sign Out
+                        Sign out
                       </button>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
 
-              {/* Returns & Orders */}
               <Link
                 href={isLoggedIn ? "/account" : "/login?redirect=/account"}
-                className="hidden md:flex flex-col justify-center px-2 py-1 rounded-sm hover:outline hover:outline-1 hover:outline-white"
+                className={`hidden lg:flex flex-col justify-center px-2 py-1.5 ${navItem}`}
               >
-                <span className="text-[11px] text-[#CCC] leading-none">Returns</span>
-                <span className="text-[13px] font-bold leading-tight">&amp; Orders</span>
+                <span className="text-[11px] text-white/60 leading-none">Returns</span>
+                <span className="text-[13px] font-semibold leading-tight">&amp; Orders</span>
               </Link>
 
-              {/* Cart — Amazon-style count in basket */}
               <CartNavButton totalItems={totalItems} hydrated={cartHydrated} />
 
-              {/* Mobile menu */}
               <button
                 type="button"
                 onClick={() => setMobileMenuOpen(true)}
-                className="lg:hidden p-2 rounded-sm hover:outline hover:outline-1 hover:outline-white"
+                className={`lg:hidden p-2.5 ${navItem}`}
                 aria-label="Open menu"
               >
                 <Menu className="w-6 h-6" />
@@ -437,25 +426,21 @@ export const Header = memo(function Header() {
           </div>
         </div>
 
-        {/* ── Secondary category bar ── */}
-        <div className="relative bg-[#232F3E] text-white text-[13px]">
-          <div className="px-2 sm:px-3 lg:px-4 flex items-stretch min-h-[39px]">
-            {/* Categories live in the persistent left sidebar — not duplicated here */}
-            <div className="flex flex-1 items-center gap-1 min-w-0 overflow-x-auto scrollbar-none">
-              {secondaryLinks.map((link) => (
-                <Link
-                  key={link.href + link.label}
-                  href={link.href}
-                  className="shrink-0 px-2 py-1.5 rounded-sm hover:outline hover:outline-1 hover:outline-white whitespace-nowrap"
-                >
-                  {link.label}
-                </Link>
-              ))}
-
-              <span className="hidden xl:inline shrink-0 px-2 py-1.5 text-[#F5A300] font-semibold whitespace-nowrap ml-auto">
-                COD nationwide · ৳80 Dhaka / ৳120 outside
-              </span>
-            </div>
+        {/* Secondary bar — categories live in the persistent left sidebar */}
+        <div className="bg-brand border-t border-white/5">
+          <div className="px-3 lg:px-4 flex items-center min-h-[38px] gap-1 overflow-x-auto scrollbar-none">
+            {secondaryLinks.map((link) => (
+              <Link
+                key={link.href + link.label}
+                href={link.href}
+                className={`shrink-0 px-2.5 py-1.5 text-[13px] text-white/85 hover:text-white whitespace-nowrap ${navItem}`}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <span className="hidden xl:inline shrink-0 ml-auto px-2.5 py-1.5 text-[13px] font-semibold text-accent whitespace-nowrap">
+              Cash on delivery nationwide · ৳80 Dhaka / ৳120 outside
+            </span>
           </div>
         </div>
       </header>
@@ -475,11 +460,11 @@ export const Header = memo(function Header() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-[#131921] text-white md:hidden"
+            className="fixed inset-0 z-[60] bg-canvas md:hidden flex flex-col"
           >
-            <div className="flex items-center gap-2 px-3 pt-3 pb-3">
+            <div className="flex items-center gap-2 px-3 py-3 bg-brand-deep shrink-0">
               <form
-                className="flex flex-1 min-w-0 h-11 rounded-md overflow-hidden"
+                className="flex flex-1 min-w-0 h-11 rounded-lg overflow-hidden bg-surface"
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSearchSubmit();
@@ -493,12 +478,12 @@ export const Header = memo(function Header() {
                   onKeyDown={(e) => {
                     if (e.key === "Escape") setMobileSearchOpen(false);
                   }}
-                  placeholder="Search Dhaka Wholesale"
-                  className="flex-1 min-w-0 bg-white text-[#0F1111] text-sm px-3 outline-none"
+                  placeholder="Search products"
+                  className="flex-1 min-w-0 bg-surface text-fg text-sm px-3.5 outline-none placeholder:text-subtle"
                 />
                 <button
                   type="submit"
-                  className="w-12 bg-[#F5A300] text-[#131921] flex items-center justify-center"
+                  className="w-12 bg-accent text-accent-fg flex items-center justify-center shrink-0"
                   aria-label="Search"
                 >
                   <Search className="w-5 h-5" />
@@ -511,35 +496,17 @@ export const Header = memo(function Header() {
                   setSearchQuery("");
                   setSearchResults([]);
                 }}
-                className="text-sm font-bold text-[#F5A300] shrink-0 px-1"
+                className="text-sm font-semibold text-accent shrink-0 px-2 py-2"
               >
                 Cancel
               </button>
             </div>
-            <div className="overflow-y-auto max-h-[calc(100vh-70px)] bg-white dark:bg-[#0D1F2C] text-[#0F1111] dark:text-[#E7DCC4]">
-              {searchLoading && (
-                <div className="px-4 py-4 text-sm text-[#565959]">Searching…</div>
-              )}
-              {!searchLoading && searchResults.length > 0 && (
-                <div>
-                  {searchResults.map((product) => (
-                    <Link
-                      key={product.id}
-                      href={`/product/${product.slug}`}
-                      onClick={handleResultClick}
-                      className="flex items-center gap-3 px-4 py-3 border-b border-[#E7E7E7] dark:border-[#2a3d4d]"
-                    >
-                      <img
-                        src={safeImage(product.images)}
-                        alt={product.name}
-                        className="w-12 h-12 rounded object-cover border border-[#D5D9D9]"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{product.name}</p>
-                        <p className="text-sm font-bold text-[#B12704]">{formatPrice(product.price)}</p>
-                      </div>
-                    </Link>
-                  ))}
+            <div className="flex-1 overflow-y-auto bg-surface divide-y divide-line">
+              {searchLoading && <div className="px-4 py-4 text-sm text-muted">Searching…</div>}
+              {!searchLoading && searchResults.length > 0 && searchResultRows}
+              {!searchLoading && searchQuery.trim() && searchResults.length === 0 && (
+                <div className="px-4 py-8 text-center text-sm text-muted">
+                  No matches for &quot;{searchQuery}&quot;
                 </div>
               )}
             </div>
