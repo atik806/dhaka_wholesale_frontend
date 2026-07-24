@@ -252,7 +252,7 @@ export default function CheckoutPage() {
           </div>
           <Link
             href="/cart"
-            className="text-[13px] font-semibold text-brand hover:text-accent-hover underline underline-offset-4 shrink-0"
+            className="text-[13px] font-semibold text-link hover:text-link-hover underline underline-offset-4 shrink-0"
           >
             Edit cart
           </Link>

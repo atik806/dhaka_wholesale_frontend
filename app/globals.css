@@ -17,7 +17,7 @@
 
   --fg: #16202a;
   --fg-muted: #5b6875;
-  --fg-subtle: #8a96a3;
+  --fg-subtle: #626e7a;
   --fg-inverted: #ffffff;
 
   --line: #e2e6eb;
@@ -28,10 +28,18 @@
   --brand-deep: #0b1620;
   --brand-fg: #ffffff;
 
+  /* Interactive text. Kept separate from --brand because a navy that works as a
+     panel background has no contrast as text on a dark surface. */
+  --link: #17435f;
+  --link-hover: #d88900;
+
   --accent: #f5a300;
   --accent-hover: #d88900;
   --accent-soft: #fff4dc;
   --accent-fg: #16202a;
+  /* Marigold is a fill colour; as small text on a light surface it fails AA,
+     so accent-toned labels use this darker amber instead. */
+  --accent-text: #8a5a00;
 
   --danger: #c4321a;
   --danger-soft: #fdeceb;
@@ -42,6 +50,7 @@
 
   --price: #16202a;
   --sale: #c4321a;
+  --sale-fg: #ffffff;
 
   --shadow-color: 210 30% 20%;
 }
@@ -54,21 +63,25 @@
 
   --fg: #e8edf2;
   --fg-muted: #9fb0bf;
-  --fg-subtle: #74889a;
+  --fg-subtle: #90a2b2;
   --fg-inverted: #0b1620;
 
   --line: #22384a;
   --line-strong: #2f4d64;
 
-  --brand: #12212e;
-  --brand-hover: #1c3d54;
+  --brand: #1b3247;
+  --brand-hover: #24425c;
   --brand-deep: #070f16;
   --brand-fg: #e8edf2;
+
+  --link: #cfe0ee;
+  --link-hover: #ffb524;
 
   --accent: #f5a300;
   --accent-hover: #ffb524;
   --accent-soft: #2a2313;
   --accent-fg: #0b1620;
+  --accent-text: #f5a300;
 
   --danger: #f06a52;
   --danger-soft: #2d1712;
@@ -79,6 +92,8 @@
 
   --price: #e8edf2;
   --sale: #f06a52;
+  /* The dark-mode sale red is a light coral, so it needs dark text on it. */
+  --sale-fg: #2b0b05;
 
   --shadow-color: 210 60% 3%;
 }
@@ -101,11 +116,14 @@
   --color-brand-hover: var(--brand-hover);
   --color-brand-deep: var(--brand-deep);
   --color-brand-fg: var(--brand-fg);
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
 
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
   --color-accent-fg: var(--accent-fg);
+  --color-accent-text: var(--accent-text);
 
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
@@ -116,6 +134,7 @@
 
   --color-price: var(--price);
   --color-sale: var(--sale);
+  --color-sale-fg: var(--sale-fg);
 
   /* Legacy aliases — keep admin and not-yet-migrated screens on the new palette.
      Prefer the token names above for new work. */

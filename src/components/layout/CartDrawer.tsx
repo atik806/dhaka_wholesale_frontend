@@ -81,7 +81,7 @@ export const CartDrawer = memo(function CartDrawer() {
             >
               <div className="flex items-center justify-between gap-3 px-4 sm:px-5 py-3.5 bg-surface border-b border-line shrink-0">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <ShoppingBag className="w-5 h-5 text-brand shrink-0" strokeWidth={1.75} />
+                  <ShoppingBag className="w-5 h-5 text-link shrink-0" strokeWidth={1.75} />
                   <h2 className="text-base font-bold text-fg truncate">
                     Your Cart
                   </h2>
@@ -143,7 +143,7 @@ export const CartDrawer = memo(function CartDrawer() {
                             <Link
                               href={`/product/${item.product.slug}`}
                               onClick={() => setOpen(false)}
-                              className="text-[13px] font-semibold text-fg line-clamp-2 hover:text-brand transition-colors"
+                              className="text-[13px] font-semibold text-fg line-clamp-2 hover:text-link transition-colors"
                             >
                               {item.product.name}
                             </Link>

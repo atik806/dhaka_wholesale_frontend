@@ -206,7 +206,7 @@ export const Footer = memo(function Footer() {
               ))}
             </ul>
 
-            <p className="label-caps text-brand-fg/50 mt-8 mb-2.5">
+            <p className="label-caps text-brand-fg/70 mt-8 mb-2.5">
               Accepted Payments
             </p>
             <div className="flex flex-wrap items-center gap-2">

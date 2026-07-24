@@ -24,7 +24,7 @@ export function Newsletter() {
         <Card padded className="max-w-4xl mx-auto shadow-sm">
           <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
             <div className="md:w-1/2">
-              <p className="label-caps text-accent-hover mb-2 flex items-center gap-1.5">
+              <p className="label-caps text-accent-text mb-2 flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5" aria-hidden="true" /> Stock alerts
               </p>
 

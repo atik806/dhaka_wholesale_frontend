@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Shield, BookOpen } from "lucide-react";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 
 const sections = [
@@ -47,50 +46,63 @@ const sections = [
   },
 ];
 
+const slugify = (title: string) =>
+  title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
 export default function PrivacyPolicyPage() {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
+      className="bg-canvas"
     >
-      {/* Page Hero Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-16">
-        <div className="container">
+      <header className="bg-surface border-b border-line">
+        <div className="container py-10 md:py-14">
           <Breadcrumbs items={[{ label: "Privacy Policy" }]} />
-          <div className="max-w-2xl mt-4">
-            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
-              <Shield className="w-3.5 h-3.5" /> PRIVACY POLICY
-            </div>
-            <h1 className="font-serif text-3xl md:text-5xl font-extrabold mb-3">
-              Privacy Policy
-            </h1>
-            <p className="font-mono text-xs text-[#E7DCC4]/80">
-              Last updated: July 2026
-            </p>
-          </div>
+          <p className="label-caps text-accent-text mb-2">Legal</p>
+          <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold mb-3">
+            Privacy Policy
+          </h1>
+          <p className="text-sm text-muted">Last updated: July 2026</p>
         </div>
-      </div>
+      </header>
 
       <div className="container py-12">
-        <div className="max-w-3xl mx-auto">
-          <div className="space-y-6">
-            {sections.map(({ title, content }, i) => (
-              <motion.div
+        <div className="max-w-5xl mx-auto lg:grid lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-10 lg:items-start">
+          <div className="bg-surface border border-line rounded-lg divide-y divide-line">
+            {sections.map(({ title, content }) => (
+              <section
                 key={title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 sm:p-8 shadow-sm"
+                id={slugify(title)}
+                className="p-6 sm:p-8 scroll-mt-24"
               >
-                <h2 className="font-serif font-bold text-lg text-[#132A3A] dark:text-[#E7DCC4] mb-3">{title}</h2>
-                <p className="text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] leading-relaxed font-sans">
+                <h2 className="text-lg font-bold mb-3">{title}</h2>
+                <p className="text-[15px] text-muted leading-[1.75] max-w-[68ch]">
                   {content}
                 </p>
-              </motion.div>
+              </section>
             ))}
           </div>
+
+          <nav
+            aria-label="On this page"
+            className="hidden lg:block sticky top-24"
+          >
+            <p className="label-caps text-subtle mb-3">On this page</p>
+            <ul className="space-y-1.5 border-l border-line">
+              {sections.map(({ title }) => (
+                <li key={title}>
+                  <a
+                    href={`#${slugify(title)}`}
+                    className="block -ml-px border-l-2 border-transparent pl-3 py-1 text-[13px] text-muted hover:text-fg hover:border-accent transition-colors"
+                  >
+                    {title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </div>
     </motion.div>

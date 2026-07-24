@@ -23,8 +23,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   motionProps?: MotionProps;
   loading?: boolean;
   fullWidth?: boolean;
-  /** @deprecated visual tilt from the old theme; ignored */
-  rotate?: boolean;
 }
 
 const variants: Record<Variant, string> = {
@@ -37,7 +35,7 @@ const variants: Record<Variant, string> = {
   ghost: "bg-transparent text-fg border border-transparent hover:bg-surface-2",
   danger:
     "bg-danger text-white hover:brightness-110 border border-transparent shadow-xs",
-  link: "bg-transparent text-brand hover:text-accent-hover underline underline-offset-4 border border-transparent",
+  link: "bg-transparent text-link hover:text-link-hover underline underline-offset-4 border border-transparent",
 };
 
 const sizes: Record<Size, string> = {
@@ -81,7 +79,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       loading = false,
       fullWidth = false,
       disabled,
-      rotate: _rotate,
       ...props
     },
     ref,

@@ -88,7 +88,7 @@ export function DepartmentsPanel() {
               onClick={closeIfCompact}
               className="flex flex-col items-center gap-1.5 rounded-lg border border-line bg-surface px-2 py-3 text-center hover:border-accent hover:bg-surface-2 transition-colors"
             >
-              <Icon className="w-[18px] h-[18px] text-brand" />
+              <Icon className="w-[18px] h-[18px] text-link" />
               <span className="text-[11px] font-semibold leading-tight text-fg">{label}</span>
             </Link>
           ))}

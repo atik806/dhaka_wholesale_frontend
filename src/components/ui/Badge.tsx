@@ -18,7 +18,7 @@ interface BadgeProps {
 }
 
 const styles: Record<BadgeVariant, string> = {
-  sale: "bg-sale text-white",
+  sale: "bg-sale text-sale-fg",
   new: "bg-brand text-brand-fg",
   "out-of-stock": "bg-surface-3 text-muted",
   "low-stock": "bg-accent-soft text-accent-fg border border-accent/40",

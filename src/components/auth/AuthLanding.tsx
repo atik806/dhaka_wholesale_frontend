@@ -4,22 +4,23 @@ import { useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, ChevronRight, ArrowLeft } from "lucide-react";
+import { Button } from "@/src/components/ui/Button";
 import { SITE_NAME } from "@/src/lib/constants";
 
-export type AuthView = "landing" | "email-login" | "email-register";
+export type AuthView = "email-login" | "email-register";
 
 interface AuthLandingProps {
   mode: "login" | "register";
+  /** Optional override for the card heading */
   headline?: string;
   googleLoading?: boolean;
   onGoogle: () => void;
   children: (view: AuthView, setView: (v: AuthView) => void) => ReactNode;
-  /** Optional banner (OAuth errors, etc.) shown on all views */
+  /** Optional banner (OAuth errors, etc.) shown above the form */
   banner?: ReactNode;
 }
 
-function GoogleIcon({ className = "w-5 h-5" }: { className?: string }) {
+export function GoogleIcon({ className = "w-5 h-5" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden>
       <path
@@ -42,8 +43,150 @@ function GoogleIcon({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
-const circleBtn =
-  "w-14 h-14 rounded-full border border-[#2f3336] bg-black flex items-center justify-center hover:bg-[#16181c] transition-colors disabled:opacity-50";
+/**
+ * Inline link styling shared by every auth screen. Resting colour is `fg` rather
+ * than `brand` because the brand navy collapses into the surface in dark mode.
+ */
+export const authLinkClass =
+  "font-semibold text-fg underline underline-offset-4 decoration-line-strong hover:text-accent-hover hover:decoration-accent transition-colors";
+
+/** Small muted print (terms, helper copy) shared by every auth screen. */
+export const authFinePrintClass = "text-[12px] leading-relaxed text-muted";
+
+/** Status message shown above or inside an auth form. */
+export function AuthBanner({
+  tone = "error",
+  children,
+}: {
+  tone?: "error" | "success" | "info";
+  children: ReactNode;
+}) {
+  if (!children) return null;
+  const tones = {
+    error: "bg-danger-soft text-danger border-danger/30",
+    success: "bg-success-soft text-success border-success/30",
+    info: "bg-info-soft text-info border-info/30",
+  } as const;
+  return (
+    <p
+      role={tone === "error" ? "alert" : "status"}
+      className={`text-[13px] font-medium border rounded-md px-4 py-3 ${tones[tone]}`}
+    >
+      {children}
+    </p>
+  );
+}
+
+/** Full-width Google OAuth button used on every auth screen. */
+export function GoogleButton({
+  onClick,
+  loading,
+  label = "Continue with Google",
+}: {
+  onClick: () => void;
+  loading?: boolean;
+  label?: string;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      size="lg"
+      fullWidth
+      onClick={onClick}
+      disabled={loading}
+    >
+      <GoogleIcon className="w-[18px] h-[18px]" />
+      {loading ? "Redirecting…" : label}
+    </Button>
+  );
+}
+
+/** Horizontal "or" rule between OAuth and the email form. */
+export function AuthDivider({ label = "or" }: { label?: string }) {
+  return (
+    <div className="flex items-center gap-3" aria-hidden>
+      <span className="flex-1 border-t border-line" />
+      <span className="label-caps text-subtle">{label}</span>
+      <span className="flex-1 border-t border-line" />
+    </div>
+  );
+}
+
+/**
+ * Branded, self-contained page frame for auth screens. These routes render
+ * without the site header/footer, so the shell carries the logo and wordmark.
+ */
+export function AuthShell({
+  title,
+  subtitle,
+  children,
+  footer,
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+}) {
+  return (
+    <div className="min-h-dvh bg-canvas flex flex-col">
+      <div className="h-1 bg-accent shrink-0" aria-hidden />
+      <div className="flex-1 flex items-center justify-center px-4 py-10 sm:py-14">
+        <div className="w-full max-w-[26rem]">
+          <div className="flex flex-col items-center text-center mb-6">
+            <Link
+              href="/"
+              aria-label={`${SITE_NAME} — back to home`}
+              className="inline-flex rounded-full"
+            >
+              <span className="relative block w-16 h-16 rounded-full overflow-hidden border border-line bg-surface shadow-sm">
+                <Image
+                  src="/logo.png"
+                  alt=""
+                  fill
+                  priority
+                  className="object-cover"
+                  sizes="64px"
+                />
+              </span>
+            </Link>
+            <p className="label-caps text-accent-text mt-3">{SITE_NAME}</p>
+          </div>
+
+          <div className="bg-surface border border-line rounded-xl shadow-md p-6 sm:p-8">
+            <div className="text-center mb-6">
+              <h1 className="text-2xl sm:text-[1.75rem] font-bold">{title}</h1>
+              {subtitle && (
+                <p className="text-sm text-muted mt-2 leading-relaxed">{subtitle}</p>
+              )}
+            </div>
+            {children}
+          </div>
+
+          {footer && (
+            <div className="mt-5 text-center text-sm text-muted">{footer}</div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Centered spinner used by auth Suspense fallbacks. */
+export function AuthSpinner({ message }: { message?: string }) {
+  return (
+    <div className="min-h-dvh bg-canvas flex items-center justify-center px-4">
+      <div className="text-center">
+        <div
+          className="w-8 h-8 border-2 border-line-strong border-t-accent rounded-full animate-spin mx-auto"
+          role="status"
+          aria-label={message ?? "Loading"}
+        />
+        {message && <p className="text-sm text-muted mt-4">{message}</p>}
+      </div>
+    </div>
+  );
+}
 
 export function AuthLanding({
   mode,
@@ -53,177 +196,94 @@ export function AuthLanding({
   children,
   banner,
 }: AuthLandingProps) {
-  const defaultHeadline =
-    mode === "register" ? "Shop what's\ntrending" : "Welcome\nback";
-  const [view, setView] = useState<AuthView>("landing");
+  const [view, setView] = useState<AuthView>(
+    mode === "register" ? "email-register" : "email-login",
+  );
+  const isRegister = view === "email-register";
 
-  const openEmail = () =>
-    setView(mode === "register" ? "email-register" : "email-login");
+  const title =
+    headline ?? (isRegister ? "Create your account" : "Welcome back");
+  const subtitle = isRegister
+    ? "Track your orders and check out faster with cash on delivery."
+    : "Sign in to track your orders and check out faster.";
+
+  const footer = isRegister ? (
+    <>
+      Already have an account?{" "}
+      {mode === "register" ? (
+        <button
+          type="button"
+          onClick={() => setView("email-login")}
+          className={authLinkClass}
+        >
+          Log in
+        </button>
+      ) : (
+        <Link href="/login" className={authLinkClass}>
+          Log in
+        </Link>
+      )}
+    </>
+  ) : (
+    <>
+      New to {SITE_NAME}?{" "}
+      {mode === "login" ? (
+        <Link href="/register" className={authLinkClass}>
+          Create an account
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setView("email-register")}
+          className={authLinkClass}
+        >
+          Create an account
+        </button>
+      )}
+    </>
+  );
 
   return (
-    <div className="min-h-dvh bg-black text-white flex flex-col">
-      <div className="flex-1 flex flex-col justify-center px-6 py-10 mx-auto w-full max-w-[440px]">
-        <AnimatePresence mode="wait">
-          {view === "landing" ? (
-            <motion.div
-              key="landing"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22 }}
-              className="flex flex-col"
-            >
-              <Link
-                href="/"
-                className="mb-10 self-start inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-full"
-                aria-label={SITE_NAME}
-              >
-                <span className="relative w-[72px] h-[72px] rounded-full overflow-hidden border border-[#2f3336] bg-[#0a0a0a]">
-                  <Image
-                    src="/logo.png"
-                    alt={SITE_NAME}
-                    fill
-                    priority
-                    className="object-cover"
-                    sizes="72px"
-                  />
-                </span>
-              </Link>
+    <AuthShell title={title} subtitle={subtitle} footer={footer}>
+      <div className="space-y-5">
+        <GoogleButton
+          onClick={onGoogle}
+          loading={googleLoading}
+          label={isRegister ? "Sign up with Google" : "Continue with Google"}
+        />
 
-              <h1 className="text-[2.35rem] sm:text-[2.75rem] font-extrabold leading-[1.05] tracking-tight whitespace-pre-line mb-10">
-                {headline ?? defaultHeadline}
-              </h1>
+        <AuthDivider label="or use email" />
 
-              {banner}
+        {banner}
 
-              <div className="flex items-center gap-4 mb-7">
-                <button
-                  type="button"
-                  onClick={onGoogle}
-                  disabled={googleLoading}
-                  className={circleBtn}
-                  aria-label="Continue with Google"
-                >
-                  <GoogleIcon />
-                </button>
-                <button
-                  type="button"
-                  onClick={openEmail}
-                  className={circleBtn}
-                  aria-label="Continue with Email"
-                >
-                  <Mail className="w-5 h-5 text-white" strokeWidth={1.75} />
-                </button>
-              </div>
-
-              <div className="relative flex items-center mb-7">
-                <div className="flex-1 border-t border-[#2f3336]" />
-                <span className="px-4 text-[15px] text-[#71767b]">or</span>
-                <div className="flex-1 border-t border-[#2f3336]" />
-              </div>
-
-              <button
-                type="button"
-                onClick={openEmail}
-                className="w-full h-14 rounded-full bg-white text-black font-bold text-[15px] hover:bg-[#e7e9ea] transition-colors disabled:opacity-50"
-              >
-                Continue with Email
-              </button>
-
-              <p className="mt-4 text-[11px] leading-relaxed text-[#71767b]">
-                By continuing, you agree to our{" "}
-                <Link href="/privacy-policy" className="text-white font-semibold hover:underline">
-                  Terms
-                </Link>
-                ,{" "}
-                <Link href="/privacy-policy" className="text-white font-semibold hover:underline">
-                  Privacy Policy
-                </Link>
-                {" "}and{" "}
-                <Link href="/faq" className="text-white font-semibold hover:underline">
-                  Cookie Use
-                </Link>
-                .
-              </p>
-
-              <div className="mt-12">
-                {mode === "register" ? (
-                  <button
-                    type="button"
-                    onClick={() => setView("email-login")}
-                    className="inline-flex items-center gap-1.5 text-[15px] text-[#71767b] hover:text-white transition-colors"
-                  >
-                    Already have an account?{" "}
-                    <span className="text-white font-semibold">Log in</span>
-                    <ChevronRight className="w-4 h-4 text-[#71767b]" />
-                  </button>
-                ) : (
-                  <Link
-                    href="/register"
-                    className="inline-flex items-center gap-1.5 text-[15px] text-[#71767b] hover:text-white transition-colors"
-                  >
-                    Don&apos;t have an account?{" "}
-                    <span className="text-white font-semibold">Sign up</span>
-                    <ChevronRight className="w-4 h-4 text-[#71767b]" />
-                  </Link>
-                )}
-              </div>
-            </motion.div>
-          ) : (
-            <motion.div
-              key={view}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22 }}
-            >
-              <button
-                type="button"
-                onClick={() => setView("landing")}
-                className="mb-8 inline-flex items-center gap-2 text-sm text-[#71767b] hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back
-              </button>
-
-              <Link
-                href="/"
-                className="mb-6 inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-full"
-                aria-label={SITE_NAME}
-              >
-                <span className="relative w-12 h-12 rounded-full overflow-hidden border border-[#2f3336] bg-[#0a0a0a]">
-                  <Image
-                    src="/logo.png"
-                    alt={SITE_NAME}
-                    fill
-                    className="object-cover"
-                    sizes="48px"
-                  />
-                </span>
-              </Link>
-
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-6">
-                {view === "email-register" ? "Create your account" : "Log in"}
-              </h2>
-
-              {banner}
-              {children(view, setView)}
-            </motion.div>
-          )}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={view}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.18 }}
+          >
+            {children(view, setView)}
+          </motion.div>
         </AnimatePresence>
+
+        <p className={authFinePrintClass}>
+          By continuing, you agree to our{" "}
+          <Link href="/privacy-policy" className={authLinkClass}>
+            Terms
+          </Link>
+          ,{" "}
+          <Link href="/privacy-policy" className={authLinkClass}>
+            Privacy Policy
+          </Link>{" "}
+          and{" "}
+          <Link href="/faq" className={authLinkClass}>
+            Cookie Use
+          </Link>
+          .
+        </p>
       </div>
-    </div>
+    </AuthShell>
   );
 }
-
-export const authInputClass =
-  "w-full rounded-xl border border-[#2f3336] bg-black px-4 py-3.5 text-[15px] text-white outline-none placeholder:text-[#71767b] focus:border-[#1d9bf0] focus:ring-1 focus:ring-[#1d9bf0]";
-
-export const authLabelClass =
-  "block text-[13px] font-semibold text-[#e7e9ea] mb-1.5";
-
-export const authPrimaryBtnClass =
-  "w-full h-12 rounded-full bg-white text-black font-bold text-[15px] hover:bg-[#e7e9ea] transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
-
-export const authSecondaryBtnClass =
-  "w-full h-12 rounded-full border border-[#536471] bg-transparent text-white font-bold text-[15px] hover:bg-[#16181c] transition-colors disabled:opacity-50 flex items-center justify-center gap-3";

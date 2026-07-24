@@ -20,6 +20,14 @@ const markSize: Record<LogoVariant, string> = {
   mark: "w-10 h-10 md:w-11 md:h-11 rounded-md",
 };
 
+const markSizes: Record<LogoVariant, string> = {
+  header: "44px",
+  mobile: "44px",
+  footer: "48px",
+  auth: "64px",
+  mark: "44px",
+};
+
 export function SiteLogo({
   variant = "header",
   href = "/",
@@ -44,6 +52,7 @@ export function SiteLogo({
         src="/logo.png"
         alt={SITE_NAME}
         fill
+        sizes={markSizes[variant]}
         priority={priority}
         className="object-cover"
       />

@@ -3,6 +3,15 @@
 import { motion } from "framer-motion";
 import { Truck, RotateCcw, Shield, Clock } from "lucide-react";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
+import { Card } from "@/src/components/ui/Card";
+
+const deliveryRates = {
+  headers: ["Delivery zone", "Delivery charge", "Typical delivery time"],
+  rows: [
+    ["Inside Dhaka", "৳80", "24–48 hours"],
+    ["Outside Dhaka", "৳120", "48–72 hours"],
+  ],
+};
 
 const policies = [
   {
@@ -10,9 +19,6 @@ const policies = [
     title: "Shipping Policy",
     content: [
       "Payment method: Cash on Delivery (COD) only — no cards, PayPal, bKash, or Nagad online yet.",
-      "Inside Dhaka delivery: ৳80.",
-      "Outside Dhaka delivery: ৳120.",
-      "Typical delivery: 24–48 hours inside Dhaka, 48–72 hours outside Dhaka.",
       "Orders are processed within 1–2 business days.",
       "We ship across Bangladesh (all districts).",
       "Track status anytime in My Account → Order History after you sign in.",
@@ -57,54 +63,99 @@ export default function ShippingReturnsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
+      className="bg-canvas"
     >
-      {/* Page Hero Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-16">
-        <div className="container">
+      <header className="bg-surface border-b border-line">
+        <div className="container py-10 md:py-14">
           <Breadcrumbs items={[{ label: "Shipping & Returns" }]} />
-          <div className="max-w-2xl mt-4">
-            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
-              <Truck className="w-3.5 h-3.5" /> LOGISTICS & RETURNS
-            </div>
-            <h1 className="font-serif text-3xl md:text-5xl font-extrabold mb-3">
-              Shipping & Returns
-            </h1>
-            <p className="text-[#E7DCC4]/90 text-sm sm:text-base font-sans">
-              Everything you need to know about our shipping policies and return process.
-            </p>
-          </div>
+          <p className="label-caps text-accent-text mb-2">Logistics &amp; returns</p>
+          <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold mb-3">
+            Shipping &amp; Returns
+          </h1>
+          <p className="text-muted text-base leading-relaxed max-w-[65ch]">
+            Everything you need to know about our shipping policies and return process.
+          </p>
         </div>
-      </div>
+      </header>
 
       <div className="container py-12">
-        <div className="max-w-3xl mx-auto">
-          <div className="space-y-8">
-            {policies.map(({ icon: Icon, title, content }, i) => (
-              <motion.div
-                key={title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 sm:p-8 shadow-sm"
-              >
+        <div className="max-w-3xl mx-auto space-y-8">
+          <section>
+            <h2 className="text-xl font-bold mb-1.5">Delivery rates</h2>
+            <p className="text-sm text-muted mb-4 max-w-[65ch]">
+              Charges are added at checkout based on your delivery zone. We deliver
+              nationwide across Bangladesh.
+            </p>
+            <div className="overflow-x-auto border border-line rounded-lg">
+              <table className="w-full text-sm border-collapse">
+                <caption className="sr-only">
+                  Delivery charge and typical delivery time by zone
+                </caption>
+                <thead>
+                  <tr className="bg-surface-2">
+                    {deliveryRates.headers.map((header) => (
+                      <th
+                        key={header}
+                        scope="col"
+                        className="text-left px-4 py-3 label-caps text-muted whitespace-nowrap border-b border-line"
+                      >
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {deliveryRates.rows.map(([zone, charge, time]) => (
+                    <tr key={zone} className="bg-surface even:bg-surface-2">
+                      <th
+                        scope="row"
+                        className="text-left px-4 py-3 font-semibold text-fg whitespace-nowrap border-b border-line"
+                      >
+                        {zone}
+                      </th>
+                      <td className="px-4 py-3 tabular font-semibold text-fg whitespace-nowrap border-b border-line">
+                        {charge}
+                      </td>
+                      <td className="px-4 py-3 tabular text-muted whitespace-nowrap border-b border-line">
+                        {time}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {policies.map(({ icon: Icon, title, content }, i) => (
+            <motion.section
+              key={title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+            >
+              <Card padded>
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-[2px] bg-[#132A3A] flex items-center justify-center">
-                    <Icon className="w-5 h-5 text-[#F5A300]" />
-                  </div>
-                  <h2 className="font-serif font-bold text-lg text-[#132A3A] dark:text-[#E7DCC4]">{title}</h2>
+                  <span className="w-10 h-10 rounded-md bg-accent-soft flex items-center justify-center shrink-0">
+                    <Icon className="w-5 h-5 text-accent-hover" />
+                  </span>
+                  <h2 className="text-lg font-bold">{title}</h2>
                 </div>
-                <ul className="space-y-2">
-                  {content.map((line, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">
-                      <span className="text-[#F5A300] mt-1.5 shrink-0 font-bold">•</span>
+                <ul className="space-y-2.5 max-w-[68ch]">
+                  {content.map((line) => (
+                    <li
+                      key={line}
+                      className="flex items-start gap-2.5 text-[15px] text-muted leading-[1.7]"
+                    >
+                      <span aria-hidden className="text-accent-hover mt-2 shrink-0 leading-none">
+                        •
+                      </span>
                       {line}
                     </li>
                   ))}
                 </ul>
-              </motion.div>
-            ))}
-          </div>
+              </Card>
+            </motion.section>
+          ))}
         </div>
       </div>
     </motion.div>

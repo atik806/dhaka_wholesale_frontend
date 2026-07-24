@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Search, BookOpen } from "lucide-react";
+import { ChevronDown, Search, HelpCircle } from "lucide-react";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
+import { Input } from "@/src/components/ui/Input";
+import { EmptyState } from "@/src/components/ui/EmptyState";
 
 const faqs = [
   {
@@ -69,84 +71,97 @@ export default function FAQPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
+      className="bg-canvas"
     >
-      {/* Page Hero Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-16">
-        <div className="container">
+      <header className="bg-surface border-b border-line">
+        <div className="container py-10 md:py-14">
           <Breadcrumbs items={[{ label: "FAQ" }]} />
-          <div className="max-w-2xl mt-4">
-            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
-              <BookOpen className="w-3.5 h-3.5" /> FAQ
-            </div>
-            <h1 className="font-serif text-3xl md:text-5xl font-extrabold mb-3">
-              Frequently Asked Questions
-            </h1>
-            <p className="text-[#E7DCC4]/90 text-sm sm:text-base font-sans">
-              Find answers to common questions about ordering, shipping, returns, and more.
-            </p>
-          </div>
+          <p className="label-caps text-accent-text mb-2">Help centre</p>
+          <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold mb-3">
+            Frequently Asked Questions
+          </h1>
+          <p className="text-muted text-base leading-relaxed max-w-[65ch]">
+            Find answers to common questions about ordering, shipping, returns, and more.
+          </p>
         </div>
-      </div>
+      </header>
 
       <div className="container py-12">
         <div className="max-w-3xl mx-auto">
-          <div className="flex items-center gap-2 bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] px-4 mb-8 max-w-md mx-auto focus-within:border-[#F5A300] transition-colors">
-            <Search className="w-5 h-5 text-[#F5A300] shrink-0" />
-            <input
-              type="text"
+          <div className="max-w-md mx-auto mb-8">
+            <Input
+              type="search"
+              label="Search FAQs"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search FAQs..."
-              className="flex-1 bg-transparent py-3 text-sm outline-none text-[#132A3A] dark:text-[#E7DCC4] placeholder:text-[#1C1A17]/40 dark:placeholder:text-[#a0b4c4] font-mono"
+              placeholder="Search by keyword…"
+              leadingIcon={<Search className="w-4 h-4" />}
             />
           </div>
 
-          <div className="space-y-3">
-            {filtered.length === 0 ? (
-              <p className="text-center text-[#1C1A17]/60 dark:text-[#a0b4c4] py-10 font-mono text-xs">No results found for &quot;{search}&quot;</p>
-            ) : (
-              filtered.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] overflow-hidden"
-                >
-                  <button
-                    onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                    className="flex items-start sm:items-center justify-between gap-3 w-full px-4 sm:px-6 py-4 text-left hover:bg-[#FBF6EC] dark:hover:bg-[#0D1F2C] transition-colors"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="font-mono text-[10px] text-[#F5A300] font-bold uppercase tracking-wider mb-0.5">{item.category}</p>
-                      <span className="font-serif font-bold text-sm text-[#132A3A] dark:text-[#E7DCC4] break-words">{item.q}</span>
-                    </div>
-                    <ChevronDown
-                      className={`w-4 h-4 text-[#F5A300] shrink-0 mt-1 sm:mt-0 transition-transform duration-200 ${
-                        openIndex === i ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-                  <AnimatePresence>
-                    {openIndex === i && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="overflow-hidden"
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={<HelpCircle className="w-7 h-7 text-subtle" />}
+              title="No matching questions"
+              description={`We couldn't find anything for "${search}". Try a different keyword, or contact us and we'll help directly.`}
+              actionLabel="Contact support"
+              actionHref="/contact"
+            />
+          ) : (
+            <div className="bg-surface border border-line rounded-lg overflow-hidden divide-y divide-line">
+              {filtered.map((item, i) => {
+                const isOpen = openIndex === i;
+                return (
+                  <div key={`${item.category}-${item.q}`}>
+                    <h2>
+                      <button
+                        type="button"
+                        onClick={() => setOpenIndex(isOpen ? null : i)}
+                        aria-expanded={isOpen}
+                        aria-controls={`faq-panel-${i}`}
+                        id={`faq-trigger-${i}`}
+                        className="flex items-start justify-between gap-4 w-full px-4 sm:px-6 py-4 text-left hover:bg-surface-2 transition-colors"
                       >
-                        <p className="px-4 sm:px-6 pb-4 text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] leading-relaxed font-sans border-t border-[#E7DCC4] dark:border-[#2a3d4d] pt-3">
-                          {item.a}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))
-            )}
-          </div>
+                        <span className="min-w-0 flex-1">
+                          <span className="label-caps text-accent-text block mb-1">
+                            {item.category}
+                          </span>
+                          <span className="block text-[15px] font-semibold text-fg break-words">
+                            {item.q}
+                          </span>
+                        </span>
+                        <ChevronDown
+                          aria-hidden
+                          className={`w-5 h-5 text-subtle shrink-0 mt-1 transition-transform duration-200 ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    </h2>
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          key="panel"
+                          id={`faq-panel-${i}`}
+                          role="region"
+                          aria-labelledby={`faq-trigger-${i}`}
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <p className="px-4 sm:px-6 pb-5 text-[15px] text-muted leading-[1.7] max-w-[68ch]">
+                            {item.a}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </motion.div>

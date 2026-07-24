@@ -73,7 +73,7 @@ export function CustomerReviews() {
                 {review.products && (
                   <Link
                     href={`/product/${review.products.slug}`}
-                    className="text-xs text-brand hover:text-accent-hover transition-colors truncate block"
+                    className="text-xs text-link hover:text-link-hover transition-colors truncate block"
                   >
                     {review.products.name}
                   </Link>

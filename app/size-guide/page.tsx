@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Ruler, BookOpen } from "lucide-react";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
+import { Card } from "@/src/components/ui/Card";
 
 const sizeTables = [
   {
@@ -39,89 +39,103 @@ const sizeTables = [
   },
 ];
 
+const measuringTips = [
+  { term: "Chest", tip: "Measure around the fullest part of your chest, keeping the tape parallel to the floor." },
+  { term: "Waist", tip: "Measure around your natural waistline, keeping the tape snug but not tight." },
+  { term: "Hip", tip: "Measure around the fullest part of your hips, about 8 inches below your waist." },
+  { term: "Inseam", tip: "Measure from the top of your inner thigh to the bottom of your ankle." },
+];
+
 export default function SizeGuidePage() {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-[#FBF6EC] dark:bg-[#0D1F2C]"
+      className="bg-canvas"
     >
-      {/* Page Hero Header */}
-      <div className="bg-[#132A3A] text-white border-b-2 border-[#E7DCC4] dark:border-[#2a3d4d] py-12 md:py-16">
-        <div className="container">
+      <header className="bg-surface border-b border-line">
+        <div className="container py-10 md:py-14">
           <Breadcrumbs items={[{ label: "Size Guide" }]} />
-          <div className="max-w-2xl mt-4">
-            <div className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-wider text-[#F5A300] bg-[#0D1F2C] px-3 py-1 border border-[#F5A300]/40 rounded-[2px] mb-3">
-              <Ruler className="w-3.5 h-3.5" /> SIZE GUIDE
-            </div>
-            <h1 className="font-serif text-3xl md:text-5xl font-extrabold mb-3">
-              Size Guide
-            </h1>
-            <p className="text-[#E7DCC4]/90 text-sm sm:text-base font-sans">
-              Find your perfect fit with our detailed size charts. Measurements are in inches unless noted.
-            </p>
-          </div>
+          <p className="label-caps text-accent-text mb-2">Fit &amp; sizing</p>
+          <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold mb-3">
+            Size Guide
+          </h1>
+          <p className="text-muted text-base leading-relaxed max-w-[65ch]">
+            Find your perfect fit with our detailed size charts. Measurements are in
+            inches unless noted.
+          </p>
         </div>
-      </div>
+      </header>
 
       <div className="container py-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="space-y-10">
-            {sizeTables.map((table, i) => (
-              <motion.div
-                key={table.category}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.15 }}
-              >
-                <h2 className="font-serif font-bold text-lg text-[#132A3A] dark:text-[#E7DCC4] mb-4">{table.category}</h2>
-                <div className="overflow-x-auto rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d]">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="bg-[#132A3A]">
-                        {table.headers.map((header) => (
-                          <th
-                            key={header}
-                            className="text-left px-4 py-3 font-mono text-[11px] font-bold text-[#F5A300] uppercase tracking-wider whitespace-nowrap"
-                          >
-                            {header}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {table.rows.map((row, j) => (
-                        <tr
-                          key={j}
-                          className={`border-t border-[#E7DCC4] dark:border-[#2a3d4d] ${j % 2 === 0 ? "bg-white dark:bg-[#132A3A]" : "bg-[#FBF6EC] dark:bg-[#0D1F2C]"}`}
+        <div className="max-w-4xl mx-auto space-y-10">
+          {sizeTables.map((table, i) => (
+            <motion.section
+              key={table.category}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.1 }}
+            >
+              <h2 className="text-xl font-bold mb-4">{table.category}</h2>
+              <div className="overflow-x-auto border border-line rounded-lg">
+                <table className="w-full text-sm border-collapse">
+                  <caption className="sr-only">
+                    {table.category} size chart
+                  </caption>
+                  <thead>
+                    <tr className="bg-surface-2">
+                      {table.headers.map((header) => (
+                        <th
+                          key={header}
+                          scope="col"
+                          className="text-left px-4 py-3 label-caps text-muted whitespace-nowrap border-b border-line"
                         >
-                          {row.map((val, k) => (
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {table.rows.map((row) => (
+                      <tr key={row[0]} className="bg-surface even:bg-surface-2">
+                        {row.map((val, k) =>
+                          k === 0 ? (
+                            <th
+                              key={k}
+                              scope="row"
+                              className="text-left px-4 py-3 font-semibold text-fg whitespace-nowrap border-b border-line"
+                            >
+                              {val || "-"}
+                            </th>
+                          ) : (
                             <td
                               key={k}
-                              className="px-4 py-3 whitespace-nowrap text-[#132A3A] dark:text-[#E7DCC4] font-mono text-xs"
+                              className="px-4 py-3 tabular text-muted whitespace-nowrap border-b border-line"
                             >
                               {val || "-"}
                             </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </motion.section>
+          ))}
 
-          <div className="mt-12 bg-white dark:bg-[#132A3A] rounded-[3px] border-2 border-[#E7DCC4] dark:border-[#2a3d4d] p-6 sm:p-8 shadow-sm">
-            <h2 className="font-serif font-bold text-lg text-[#132A3A] dark:text-[#E7DCC4] mb-3">How to Measure</h2>
-            <ul className="space-y-2 text-sm text-[#1C1A17]/70 dark:text-[#a0b4c4] font-sans">
-              <li><strong className="text-[#132A3A] dark:text-[#E7DCC4]">Chest:</strong> Measure around the fullest part of your chest, keeping the tape parallel to the floor.</li>
-              <li><strong className="text-[#132A3A] dark:text-[#E7DCC4]">Waist:</strong> Measure around your natural waistline, keeping the tape snug but not tight.</li>
-              <li><strong className="text-[#132A3A] dark:text-[#E7DCC4]">Hip:</strong> Measure around the fullest part of your hips, about 8 inches below your waist.</li>
-              <li><strong className="text-[#132A3A] dark:text-[#E7DCC4]">Inseam:</strong> Measure from the top of your inner thigh to the bottom of your ankle.</li>
-            </ul>
-          </div>
+          <Card padded>
+            <h2 className="text-xl font-bold mb-4">How to Measure</h2>
+            <dl className="space-y-3 max-w-[68ch]">
+              {measuringTips.map(({ term, tip }) => (
+                <div key={term} className="text-[15px] leading-[1.7]">
+                  <dt className="inline font-semibold text-fg">{term}: </dt>
+                  <dd className="inline text-muted">{tip}</dd>
+                </div>
+              ))}
+            </dl>
+          </Card>
         </div>
       </div>
     </motion.div>

@@ -216,7 +216,7 @@ export function ReportModal({ open, onClose }: ReportModalProps) {
                 <ImageIcon className="w-7 h-7 mx-auto text-subtle mb-2" strokeWidth={1.75} />
                 <p className="text-[13px] text-muted">
                   Drop an image or{" "}
-                  <span className="font-semibold text-brand">browse</span>
+                  <span className="font-semibold text-link">browse</span>
                 </p>
                 <p className="text-[12px] text-subtle mt-1">
                   PNG, JPG, WebP — max 2MB

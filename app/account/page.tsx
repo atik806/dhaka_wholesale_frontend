@@ -378,7 +378,7 @@ export default function AccountPage() {
                   </p>
                   <Link
                     href="/shop"
-                    className="text-[13px] font-semibold text-brand hover:text-accent-hover underline underline-offset-4"
+                    className="text-[13px] font-semibold text-link hover:text-link-hover underline underline-offset-4"
                   >
                     Start shopping
                   </Link>

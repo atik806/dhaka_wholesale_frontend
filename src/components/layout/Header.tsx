@@ -285,7 +285,7 @@ export const Header = memo(function Header() {
                           <button
                             type="button"
                             onClick={handleSearchSubmit}
-                            className="w-full px-4 py-2.5 text-sm text-left font-semibold text-brand hover:text-accent-hover bg-surface-2 border-t border-line transition-colors"
+                            className="w-full px-4 py-2.5 text-sm text-left font-semibold text-link hover:text-link-hover bg-surface-2 border-t border-line transition-colors"
                           >
                             See all {searchTotal} results
                           </button>
