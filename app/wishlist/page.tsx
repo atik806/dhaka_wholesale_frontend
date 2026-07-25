@@ -45,7 +45,7 @@ export default function WishlistPage() {
       >
         <div className="container py-6 sm:py-8">
           <Breadcrumbs items={[{ label: "Wishlist" }]} />
-          <h1 className="text-2xl sm:text-3xl font-bold mb-5">My wishlist</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold font-serif mb-5">My wishlist</h1>
           <Card>
             <EmptyState
               icon={<Heart className="w-7 h-7 text-subtle" />}
@@ -72,7 +72,7 @@ export default function WishlistPage() {
 
         <div className="flex flex-wrap items-end justify-between gap-3 mb-5 sm:mb-6">
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold">My wishlist</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold font-serif">My wishlist</h1>
             <p className="text-[13px] text-muted mt-1">
               {loading ? (
                 "Loading your saved items…"

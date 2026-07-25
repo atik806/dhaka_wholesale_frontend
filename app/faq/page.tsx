@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Search, HelpCircle } from "lucide-react";
+import { ChevronDown, Search, HelpCircle, MessageCircle } from "lucide-react";
+import Link from "next/link";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { Input } from "@/src/components/ui/Input";
 import { EmptyState } from "@/src/components/ui/EmptyState";
+import { Card } from "@/src/components/ui/Card";
 
-const faqs = [
+const faqData = [
   {
     category: "Orders",
     questions: [
@@ -52,19 +54,28 @@ const faqs = [
 
 export default function FAQPage() {
   const [search, setSearch] = useState("");
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<Record<string, boolean>>({});
 
-  const flatFaqs = faqs.flatMap((cat) =>
-    cat.questions.map((q) => ({ ...q, category: cat.category }))
-  );
+  const toggleQuestion = (key: string) => {
+    setOpenIndex((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
-  const filtered = search.trim()
-    ? flatFaqs.filter(
-        (item) =>
-          item.q.toLowerCase().includes(search.toLowerCase()) ||
-          item.a.toLowerCase().includes(search.toLowerCase())
-      )
-    : flatFaqs;
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return faqData;
+    return faqData
+      .map((cat) => ({
+        ...cat,
+        questions: cat.questions.filter(
+          (item) =>
+            item.q.toLowerCase().includes(q) ||
+            item.a.toLowerCase().includes(q)
+        ),
+      }))
+      .filter((cat) => cat.questions.length > 0);
+  }, [search]);
+
+  const totalDisplayed = filtered.reduce((sum, cat) => sum + cat.questions.length, 0);
 
   return (
     <motion.div
@@ -77,7 +88,7 @@ export default function FAQPage() {
         <div className="container py-10 md:py-14">
           <Breadcrumbs items={[{ label: "FAQ" }]} />
           <p className="label-caps text-accent-text mb-2">Help centre</p>
-          <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold mb-3">
+          <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold font-serif mb-3">
             Frequently Asked Questions
           </h1>
           <p className="text-muted text-base leading-relaxed max-w-[65ch]">
@@ -88,6 +99,7 @@ export default function FAQPage() {
 
       <div className="container py-12">
         <div className="max-w-3xl mx-auto">
+          {/* Search — narrow for focus */}
           <div className="max-w-md mx-auto mb-8">
             <Input
               type="search"
@@ -99,67 +111,104 @@ export default function FAQPage() {
             />
           </div>
 
-          {filtered.length === 0 ? (
-            <EmptyState
-              icon={<HelpCircle className="w-7 h-7 text-subtle" />}
-              title="No matching questions"
-              description={`We couldn't find anything for "${search}". Try a different keyword, or contact us and we'll help directly.`}
-              actionLabel="Contact support"
-              actionHref="/contact"
-            />
+          {totalDisplayed === 0 ? (
+            <Card padded className="text-center">
+              <div className="w-16 h-16 rounded-full bg-surface-2 border border-line flex items-center justify-center mx-auto mb-5">
+                <HelpCircle className="w-7 h-7 text-subtle" />
+              </div>
+              <h3 className="text-xl font-bold text-fg mb-2">No matching questions</h3>
+              <p className="text-muted text-sm max-w-sm mx-auto mb-6 leading-relaxed">
+                We couldn&apos;t find anything for &quot;{search.trim()}&quot;. Try a
+                different keyword, or reach out and we&apos;ll help directly.
+              </p>
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center rounded-md font-semibold h-11 px-5 text-sm gap-2 bg-accent text-accent-fg hover:bg-accent-hover transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Contact support
+              </Link>
+            </Card>
           ) : (
-            <div className="bg-surface border border-line rounded-lg overflow-hidden divide-y divide-line">
-              {filtered.map((item, i) => {
-                const isOpen = openIndex === i;
-                return (
-                  <div key={`${item.category}-${item.q}`}>
-                    <h2>
-                      <button
-                        type="button"
-                        onClick={() => setOpenIndex(isOpen ? null : i)}
-                        aria-expanded={isOpen}
-                        aria-controls={`faq-panel-${i}`}
-                        id={`faq-trigger-${i}`}
-                        className="flex items-start justify-between gap-4 w-full px-4 sm:px-6 py-4 text-left hover:bg-surface-2 transition-colors"
-                      >
-                        <span className="min-w-0 flex-1">
-                          <span className="label-caps text-accent-text block mb-1">
-                            {item.category}
-                          </span>
-                          <span className="block text-[15px] font-semibold text-fg break-words">
-                            {item.q}
-                          </span>
-                        </span>
-                        <ChevronDown
-                          aria-hidden
-                          className={`w-5 h-5 text-subtle shrink-0 mt-1 transition-transform duration-200 ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-                    </h2>
-                    <AnimatePresence initial={false}>
-                      {isOpen && (
-                        <motion.div
-                          key="panel"
-                          id={`faq-panel-${i}`}
-                          role="region"
-                          aria-labelledby={`faq-trigger-${i}`}
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <p className="px-4 sm:px-6 pb-5 text-[15px] text-muted leading-[1.7] max-w-[68ch]">
-                            {item.a}
-                          </p>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+            <div className="space-y-6">
+              {filtered.map((category) => (
+                <div key={category.category}>
+                  <h2 className="label-caps text-accent-text mb-3 px-1">
+                    {category.category}
+                  </h2>
+                  <div className="bg-surface border border-line rounded-xl overflow-hidden divide-y divide-line premium-shadow-sm">
+                    {category.questions.map((item) => {
+                      const key = `${category.category}-${item.q}`;
+                      const isOpen = openIndex[key] ?? false;
+                      return (
+                        <div key={key}>
+                          <h3>
+                            <button
+                              type="button"
+                              onClick={() => toggleQuestion(key)}
+                              aria-expanded={isOpen}
+                              aria-controls={`faq-panel-${key}`}
+                              id={`faq-trigger-${key}`}
+                              className={`flex items-start justify-between gap-4 w-full px-4 sm:px-6 py-4 text-left transition-all duration-200 ${
+                                isOpen
+                                  ? "bg-accent-soft/50"
+                                  : "hover:bg-surface-2"
+                              }`}
+                            >
+                              <span className="text-[15px] font-semibold text-fg break-words pr-2">
+                                {item.q}
+                              </span>
+                              <ChevronDown
+                                aria-hidden
+                                className={`w-5 h-5 text-subtle shrink-0 mt-0.5 transition-transform duration-200 ${
+                                  isOpen ? "rotate-180 text-accent-hover" : ""
+                                }`}
+                              />
+                            </button>
+                          </h3>
+                          <AnimatePresence initial={false}>
+                            {isOpen && (
+                              <motion.div
+                                key="panel"
+                                id={`faq-panel-${key}`}
+                                role="region"
+                                aria-labelledby={`faq-trigger-${key}`}
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2, ease: "easeInOut" }}
+                                className="overflow-hidden"
+                              >
+                                <div className="px-4 sm:px-6 pb-5 pt-1">
+                                  <p className="text-[15px] text-muted leading-[1.7] max-w-[68ch]">
+                                    {item.a}
+                                  </p>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Still need help? */}
+          {totalDisplayed > 0 && !search.trim() && (
+            <div className="mt-10 text-center">
+              <p className="text-sm text-muted mb-3">
+                Still have questions? We&apos;re here to help.
+              </p>
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center rounded-md font-semibold h-11 px-5 text-sm gap-2 bg-surface text-fg border border-line-strong hover:bg-surface-2 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Contact us
+              </Link>
             </div>
           )}
         </div>

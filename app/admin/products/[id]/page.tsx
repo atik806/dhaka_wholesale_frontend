@@ -121,7 +121,7 @@ export default function EditProductPage() {
           </Link>
         </div>
         <div className="flex flex-col items-center justify-center min-h-[60vh]">
-          <p className="text-zinc-500 dark:text-zinc-400">Product not found</p>
+          <p className="text-muted">Product not found</p>
         </div>
       </div>
     );
@@ -141,13 +141,13 @@ export default function EditProductPage() {
           </Link>
         </div>
         <h1 className="font-serif text-2xl font-bold">Edit Product</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{product.name}</p>
+        <p className="text-sm text-muted mt-1">{product.name}</p>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6"
+        className="bg-surface rounded-2xl border border-line p-6"
       >
         <ProductForm
           key={product.id}

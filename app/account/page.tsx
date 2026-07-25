@@ -136,9 +136,11 @@ export default function AccountPage() {
       <div className="container py-6 sm:py-8">
         <Breadcrumbs items={[{ label: "Account" }]} />
 
-        <div className="mb-6">
-          <h1 className="text-2xl sm:text-3xl font-bold">My account</h1>
-          <p className="text-[13px] text-muted mt-1">
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif tracking-tight">
+            My account
+          </h1>
+          <p className="text-sm text-muted mt-1.5">
             Manage your profile, delivery address and order history
           </p>
         </div>

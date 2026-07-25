@@ -88,8 +88,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (authed === null) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-zinc-50 dark:bg-zinc-900">
-        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+      <div className="flex items-center justify-center min-h-screen bg-canvas">
+        <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -101,7 +101,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-50 dark:bg-zinc-900">
+    <div className="flex min-h-screen bg-canvas">
       <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex-1 lg:ml-64">
         <main className="p-4 sm:p-6 pt-14 lg:pt-6">{children}</main>
@@ -109,7 +109,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {!sidebarOpen && (
         <button
           onClick={() => setSidebarOpen(true)}
-          className="fixed top-4 left-4 z-40 lg:hidden p-2.5 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+          className="fixed top-4 left-4 z-40 lg:hidden p-2.5 rounded-xl bg-surface border border-line shadow-sm hover:bg-surface-2 transition-colors"
           aria-label="Open menu"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

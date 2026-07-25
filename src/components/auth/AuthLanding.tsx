@@ -153,9 +153,9 @@ export function AuthShell({
             <p className="label-caps text-accent-text mt-3">{SITE_NAME}</p>
           </div>
 
-          <div className="bg-surface border border-line rounded-xl shadow-md p-6 sm:p-8">
+          <div className="bg-surface border border-line rounded-xl premium-shadow p-6 sm:p-8">
             <div className="text-center mb-6">
-              <h1 className="text-2xl sm:text-[1.75rem] font-bold">{title}</h1>
+              <h1 className="text-2xl sm:text-[1.75rem] font-bold font-serif">{title}</h1>
               {subtitle && (
                 <p className="text-sm text-muted mt-2 leading-relaxed">{subtitle}</p>
               )}

@@ -16,7 +16,7 @@ export function TrendingProducts() {
       <SectionHeader
         eyebrow="Trending now"
         title="Featured products"
-        description="Handpicked products with fast shipping and great prices."
+        description="Handpicked products with fast shipping and great prices — updated weekly."
         href="/shop"
         linkLabel="Explore all products"
       />

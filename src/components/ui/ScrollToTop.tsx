@@ -23,7 +23,7 @@ export const ScrollToTop = memo(function ScrollToTop() {
           whileTap={{ scale: 0.92 }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label="Back to top"
-          className="fixed bottom-[9.5rem] md:bottom-24 right-4 md:right-6 z-50 flex items-center justify-center w-11 h-11 rounded-full bg-surface text-fg border border-line-strong shadow-lg hover:bg-surface-2 transition-colors"
+          className="fixed bottom-[9.5rem] md:bottom-24 right-4 md:right-6 z-50 flex items-center justify-center w-11 h-11 rounded-full bg-surface text-fg border border-line-strong shadow-lg hover:bg-surface-2 hover:border-accent/40 hover:shadow-accent/10 hover:-translate-y-0.5 transition-all duration-200"
         >
           <ArrowUp className="w-5 h-5" />
         </motion.button>

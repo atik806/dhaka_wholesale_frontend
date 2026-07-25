@@ -96,7 +96,7 @@ export default function OrdersPage() {
     {
       key: "created_at",
       label: "Date",
-      render: (order) => <span className="text-zinc-500 dark:text-zinc-400 text-xs">{formatDate(order.created_at)}</span>,
+      render: (order) => <span className="text-muted text-xs">{formatDate(order.created_at)}</span>,
     },
     {
       key: "actions",
@@ -104,7 +104,7 @@ export default function OrdersPage() {
       render: (order) => (
         <button
           onClick={(e) => handleDelete(e, order.id)}
-          className="p-1.5 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+          className="p-1.5 rounded-lg text-muted hover:text-red-500 hover:bg-danger-soft transition-colors"
           title="Delete order"
         >
           <Trash2 className="w-4 h-4" />
@@ -118,7 +118,7 @@ export default function OrdersPage() {
       {dialog}
       <div className="mb-6">
         <h1 className="font-serif text-2xl font-bold">Orders</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage customer orders &mdash; <span className="text-primary font-medium">{filtered.length}</span> shown</p>
+        <p className="text-sm text-muted mt-1">Manage customer orders &mdash; <span className="text-link font-medium">{filtered.length}</span> shown</p>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-4">
@@ -128,8 +128,8 @@ export default function OrdersPage() {
             onClick={() => setStatusFilter(s)}
             className={`px-4 py-1.5 rounded-xl text-sm font-medium transition-colors ${
               statusFilter === s
-                ? "bg-primary text-white"
-                : "bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-700"
+                ? "bg-accent text-accent-fg"
+                : "bg-surface border border-line text-muted hover:bg-zinc-50 dark:hover:bg-zinc-700"
             }`}
           >
             {s}
@@ -150,7 +150,7 @@ export default function OrdersPage() {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="font-mono text-xs text-zinc-500 dark:text-zinc-400">#{order.id.slice(0, 8)}</span>
+                <span className="font-mono text-xs text-muted">#{order.id.slice(0, 8)}</span>
                 <StatusBadge status={order.status} />
               </div>
               <p className="text-sm font-medium truncate">
@@ -164,11 +164,11 @@ export default function OrdersPage() {
                 <span className="text-sm font-medium">{formatPrice(order.total)}</span>
                 <StatusBadge status={order.payment_status} />
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{formatDate(order.created_at)}</p>
+              <p className="text-xs text-muted mt-1">{formatDate(order.created_at)}</p>
             </div>
             <button
               onClick={(e) => handleDelete(e, order.id)}
-              className="p-2 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors shrink-0"
+              className="p-2 rounded-lg text-muted hover:text-red-500 hover:bg-danger-soft transition-colors shrink-0"
             >
               <Trash2 className="w-4 h-4" />
             </button>

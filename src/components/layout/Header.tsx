@@ -194,7 +194,7 @@ export const Header = memo(function Header() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 bg-brand-deep text-white shadow-md transition-transform duration-300 ease-out will-change-transform ${
+        className={`sticky top-0 z-50 bg-brand-deep text-white shadow-lg shadow-black/10 transition-transform duration-300 ease-out will-change-transform ${
           navHidden ? "-translate-y-full pointer-events-none" : "translate-y-0"
         }`}
       >
@@ -427,13 +427,13 @@ export const Header = memo(function Header() {
         </div>
 
         {/* Secondary bar — categories live in the persistent left sidebar */}
-        <div className="bg-brand border-t border-white/5">
+        <div className="bg-brand border-t border-white/5 shadow-inner shadow-black/5">
           <div className="px-3 lg:px-4 flex items-center min-h-[38px] gap-1 overflow-x-auto scrollbar-none">
             {secondaryLinks.map((link) => (
               <Link
                 key={link.href + link.label}
                 href={link.href}
-                className={`shrink-0 px-2.5 py-1.5 text-[13px] text-white/85 hover:text-white whitespace-nowrap ${navItem}`}
+                className={`shrink-0 px-2.5 py-1.5 text-[13px] text-white/85 hover:text-white whitespace-nowrap rounded-sm transition-all duration-150 hover:bg-white/10 ${navItem}`}
               >
                 {link.label}
               </Link>

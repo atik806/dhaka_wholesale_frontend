@@ -77,10 +77,10 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
   };
 
   const inputClass = (field: string) =>
-    `w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-all bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 ${
+    `w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-all bg-surface text-fg placeholder:text-muted dark:placeholder:text-zinc-500 ${
       errors[field]
         ? "border-red-400 dark:border-red-500"
-        : "border-zinc-200 dark:border-zinc-700 focus:ring-2 focus:ring-primary/20 focus:border-primary"
+        : "border-line focus:ring-2 focus:ring-accent/30 focus:border-accent"
     }`;
 
   const labelClass = "block text-sm font-medium mb-1.5";
@@ -217,7 +217,7 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
             type="checkbox"
             checked={form.is_new}
             onChange={(e) => update("is_new", e.target.checked)}
-            className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-primary focus:ring-primary/30"
+            className="w-4 h-4 rounded border-line-strong text-link focus:ring-accent/30"
           />
           New Arrival
         </label>
@@ -226,13 +226,13 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
             type="checkbox"
             checked={form.is_featured}
             onChange={(e) => update("is_featured", e.target.checked)}
-            className="w-4 h-4 rounded border-zinc-300 dark:border-zinc-600 text-primary focus:ring-primary/30"
+            className="w-4 h-4 rounded border-line-strong text-link focus:ring-accent/30"
           />
           Featured
         </label>
       </div>
 
-      <div className="flex justify-end pt-4 border-t border-zinc-200 dark:border-zinc-700">
+      <div className="flex justify-end pt-4 border-t border-line">
         <Button type="submit" disabled={loading}>
           {loading ? (
             <>

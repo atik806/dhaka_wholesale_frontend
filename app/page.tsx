@@ -4,8 +4,10 @@ import { motion } from "framer-motion";
 import { HeroSection } from "@/src/components/home/HeroSection";
 import { FeaturedCategories } from "@/src/components/home/FeaturedCategories";
 import { TrendingProducts } from "@/src/components/home/TrendingProducts";
-import { CustomerReviews } from "@/src/components/home/CustomerReviews";
+import { BrandStrip } from "@/src/components/home/BrandStrip";
 import { PromoBanner } from "@/src/components/home/PromoBanner";
+import { CustomerReviews } from "@/src/components/home/CustomerReviews";
+import { Newsletter } from "@/src/components/home/Newsletter";
 
 export default function Home() {
   return (
@@ -18,8 +20,10 @@ export default function Home() {
       <HeroSection />
       <FeaturedCategories />
       <TrendingProducts />
+      <BrandStrip />
       <PromoBanner />
       <CustomerReviews />
+      <Newsletter />
     </motion.div>
   );
 }

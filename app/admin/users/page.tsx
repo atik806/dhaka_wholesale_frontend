@@ -88,11 +88,11 @@ export default function AdminUsersPage() {
               onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
-              <User className="w-4 h-4 text-primary dark:text-primary-light" />
+            <div className="w-8 h-8 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center">
+              <User className="w-4 h-4 text-link dark:text-link-light" />
             </div>
           )}
-          <span className="font-medium text-zinc-900 dark:text-zinc-100">{user.name}</span>
+          <span className="font-medium text-fg">{user.name}</span>
         </div>
       ),
     },
@@ -106,7 +106,7 @@ export default function AdminUsersPage() {
       key: "created_at",
       label: "Joined",
       render: (user) => (
-        <span className="text-zinc-500 dark:text-zinc-400">{formatDate(user.created_at)}</span>
+        <span className="text-muted">{formatDate(user.created_at)}</span>
       ),
     },
     {
@@ -117,7 +117,7 @@ export default function AdminUsersPage() {
           <button
             onClick={(e) => { e.stopPropagation(); handleRoleToggle(user); }}
             disabled={actionLoading === user.id}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-line hover:bg-surface-2 disabled:opacity-50 transition-colors"
             title={`Change role to ${user.role === "admin" ? "customer" : "admin"}`}
           >
             {actionLoading === user.id ? (
@@ -130,7 +130,7 @@ export default function AdminUsersPage() {
           <button
             onClick={(e) => { e.stopPropagation(); handleDelete(user); }}
             disabled={actionLoading === user.id}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-danger-soft disabled:opacity-50 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
             Delete
@@ -143,7 +143,7 @@ export default function AdminUsersPage() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-2xl px-6 py-4 text-red-700 dark:text-red-400">
+        <div className="bg-danger-soft border border-red-200 dark:border-red-900/50 rounded-2xl px-6 py-4 text-red-700 dark:text-red-400">
           {error}
         </div>
       </div>
@@ -156,13 +156,13 @@ export default function AdminUsersPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="font-serif text-2xl font-bold">Users</h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Manage customer and admin accounts &mdash; <span className="text-primary font-medium">{users.length}</span> total
+            <p className="text-sm text-muted mt-1">
+              Manage customer and admin accounts &mdash; <span className="text-link font-medium">{users.length}</span> total
             </p>
           </div>
           <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary-dark transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 bg-accent text-accent-fg rounded-xl text-sm font-medium hover:bg-primary-dark transition-colors"
         >
           <Plus className="w-4 h-4" /> Add Admin
         </button>
@@ -184,10 +184,10 @@ export default function AdminUsersPage() {
               exit={{ opacity: 0, scale: 0.95 }}
               className="fixed inset-0 z-[70] flex items-center justify-center p-4"
             >
-              <div className="w-full max-w-md bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl p-6">
+              <div className="w-full max-w-md bg-surface rounded-2xl border border-line shadow-xl p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="font-semibold text-lg">Add New Admin</h2>
-                  <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+                  <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
@@ -214,7 +214,7 @@ export default function AdminUsersPage() {
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="Full name"
                       required
-                      className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                      className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                     />
                   </div>
                   <div>
@@ -225,7 +225,7 @@ export default function AdminUsersPage() {
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
                       placeholder="admin@example.com"
                       required
-                      className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                      className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                     />
                   </div>
                   <div>
@@ -237,24 +237,24 @@ export default function AdminUsersPage() {
                       placeholder="Min 6 characters"
                       required
                       minLength={6}
-                      className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                      className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                     />
                   </div>
                   {formError && (
-                    <p className="text-sm text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-xl px-4 py-2">{formError}</p>
+                    <p className="text-sm text-danger bg-danger-soft rounded-xl px-4 py-2">{formError}</p>
                   )}
                   <div className="flex items-center gap-3 justify-end pt-2">
                     <button
                       type="button"
                       onClick={() => setShowModal(false)}
-                      className="px-4 py-2.5 rounded-xl text-sm font-medium border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                      className="px-4 py-2.5 rounded-xl text-sm font-medium border border-line hover:bg-surface-2 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={formLoading}
-                      className="px-4 py-2.5 bg-primary text-white rounded-xl text-sm font-medium hover:bg-primary-dark disabled:opacity-50 transition-colors"
+                      className="px-4 py-2.5 bg-accent text-accent-fg rounded-xl text-sm font-medium hover:bg-primary-dark disabled:opacity-50 transition-colors"
                     >
                       {formLoading ? "Creating..." : "Create Admin"}
                     </button>
@@ -281,15 +281,15 @@ export default function AdminUsersPage() {
                 <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                  <User className="w-5 h-5 text-primary" />
+                  <User className="w-5 h-5 text-link" />
                 </div>
               )}
               <div className="min-w-0">
                 <p className="font-medium truncate">{user.name}</p>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{user.email}</p>
+                <p className="text-xs text-muted truncate">{user.email}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <StatusBadge status={user.role} />
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(user.created_at)}</span>
+                  <span className="text-xs text-muted">{formatDate(user.created_at)}</span>
                 </div>
               </div>
             </div>
@@ -297,14 +297,14 @@ export default function AdminUsersPage() {
               <button
                 onClick={(e) => { e.stopPropagation(); handleRoleToggle(user); }}
                 disabled={actionLoading === user.id}
-                className="p-2 rounded-lg text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 disabled:opacity-50 transition-colors"
+                className="p-2 rounded-lg text-muted hover:bg-surface-2 disabled:opacity-50 transition-colors"
               >
                 <Shield className="w-4 h-4" />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); handleDelete(user); }}
                 disabled={actionLoading === user.id}
-                className="p-2 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
+                className="p-2 rounded-lg text-red-400 hover:bg-danger-soft disabled:opacity-50 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

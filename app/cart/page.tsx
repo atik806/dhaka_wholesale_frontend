@@ -116,19 +116,22 @@ export default function CartPage() {
       <div className="container py-6 sm:py-8 pb-28 lg:pb-8">
         <Breadcrumbs items={[{ label: "Cart" }]} />
 
-        <div className="flex flex-wrap items-end justify-between gap-3 mb-5 sm:mb-6">
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-6 sm:mb-8">
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold">Shopping cart</h1>
-            <p className="text-[13px] text-muted mt-1">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif tracking-tight">
+              Shopping cart
+            </h1>
+            <p className="text-sm text-muted mt-1.5">
               <span className="tabular">{totalItems()}</span>{" "}
               {totalItems() === 1 ? "item" : "items"} ready for checkout
             </p>
           </div>
           <Link
             href="/shop"
-            className="text-[13px] font-semibold text-link hover:text-link-hover underline underline-offset-4 shrink-0"
+            className="group text-[13px] font-semibold text-link hover:text-link-hover transition-colors shrink-0 flex items-center gap-1"
           >
             Continue shopping
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
 

@@ -172,7 +172,7 @@ function ShopPage() {
         <Breadcrumbs items={[{ label: "Shop" }]} />
 
         <header className="mb-5">
-          <h1 className="text-2xl font-bold text-fg sm:text-3xl">
+          <h1 className="text-2xl font-bold font-serif text-fg sm:text-3xl">
             {selectedCategoryNames.length === 1
               ? selectedCategoryNames[0]
               : "All products"}

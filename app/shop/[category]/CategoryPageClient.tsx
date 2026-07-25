@@ -63,7 +63,7 @@ function CategoryPageContent({ categorySlug }: { categorySlug: string }) {
 
         <header className="mb-6 border-b border-line pb-5">
           <p className="label-caps mb-1.5 text-accent-hover">Category</p>
-          <h1 className="text-2xl font-bold text-fg sm:text-3xl">{category.name}</h1>
+          <h1 className="text-2xl font-bold font-serif text-fg sm:text-3xl">{category.name}</h1>
           {category.description && (
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
               {category.description}

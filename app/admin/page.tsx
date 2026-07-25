@@ -56,7 +56,7 @@ export default function AdminDashboard() {
   if (loading && !data) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -75,17 +75,17 @@ export default function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="font-serif text-2xl font-bold">Dashboard</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Overview of your store</p>
+          <p className="text-sm text-muted mt-1">Overview of your store</p>
         </div>
-        <div className="flex items-center flex-wrap gap-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-1">
+        <div className="flex items-center flex-wrap gap-1 bg-surface border border-line rounded-xl p-1">
           {dateRanges.map((r) => (
             <button
               key={r.value}
               onClick={() => setDateRange(r.value)}
               className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${
                 dateRange === r.value
-                  ? "bg-primary text-white"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
+                  ? "bg-brand text-brand-fg"
+                  : "text-muted hover:text-fg"
               }`}
             >
               {r.label}
@@ -105,11 +105,11 @@ export default function AdminDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-4 sm:p-6 mb-8"
+        className="bg-surface rounded-2xl border border-line p-4 sm:p-6 mb-8"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-semibold">Revenue Trend</h2>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
+          <span className="text-xs text-muted flex items-center gap-1">
             <Calendar className="w-3 h-3" />
             Last {dateRange === "all" ? "30" : dateRange === "7d" ? "7" : "30"} days
           </span>
@@ -122,23 +122,23 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6"
+          className="bg-surface rounded-2xl border border-line p-6"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold">Recent Orders</h2>
-            <Link href="/admin/orders" className="text-sm text-primary hover:text-primary-dark flex items-center gap-1">
+            <Link href="/admin/orders" className="text-sm text-link hover:text-link-hover flex items-center gap-1">
               View All <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="space-y-3">
             {(data?.recentOrders ?? []).length === 0 ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">No orders yet</p>
+              <p className="text-sm text-muted">No orders yet</p>
             ) : (
               (data?.recentOrders ?? []).map((order) => { const o = order as Record<string, unknown>; return (
-                <div key={String(o.id ?? "")} className="flex items-center justify-between py-2 border-b border-zinc-100 dark:border-zinc-700/50 last:border-0">
+                <div key={String(o.id ?? "")} className="flex items-center justify-between py-2 border-b border-line/50 last:border-0">
                   <div>
                     <p className="text-sm font-medium">#{String(o.id ?? "").slice(0, 8)}</p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(o.created_at as string)}</p>
+                    <p className="text-xs text-muted">{formatDate(o.created_at as string)}</p>
                   </div>
                   <div className="text-right">
                     <StatusBadge status={o.status as string} />
@@ -154,25 +154,25 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6"
+          className="bg-surface rounded-2xl border border-line p-6"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold">Low Stock Products</h2>
-            <Link href="/admin/products" className="text-sm text-primary hover:text-primary-dark flex items-center gap-1">
+            <Link href="/admin/products" className="text-sm text-link hover:text-link-hover flex items-center gap-1">
               Manage <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
           <div className="space-y-3">
             {(data?.lowStockProducts ?? []).length === 0 ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">All products are well stocked</p>
+              <p className="text-sm text-muted">All products are well stocked</p>
             ) : (
               (data?.lowStockProducts ?? []).map((product) => { const p = product as Record<string, unknown>; return (
-                <div key={String(p.id ?? "")} className="flex items-center justify-between py-2 border-b border-zinc-100 dark:border-zinc-700/50 last:border-0">
+                <div key={String(p.id ?? "")} className="flex items-center justify-between py-2 border-b border-line/50 last:border-0">
                   <div className="flex items-center gap-3">
                     <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                     <div>
                       <p className="text-sm font-medium">{String(p.name ?? "")}</p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{String(p.stock ?? "")}</p>
+                      <p className="text-xs text-muted capitalize">{String(p.stock ?? "")}</p>
                     </div>
                   </div>
                   <p className="text-sm font-medium">{formatPrice(p.price as number)}</p>

@@ -13,6 +13,14 @@ import { ReportButton } from "../report/ReportButton";
 import { loadServerCartAndWishlist } from "@/src/lib/cart-sync";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useCartHydrated } from "@/src/store/useCartStore";
+import { motion, AnimatePresence } from "framer-motion";
+
+const pageTransition = {
+  initial: { opacity: 0, y: 6 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -6 },
+  transition: { duration: 0.2, ease: "easeOut" },
+};
 
 export function RootClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -48,12 +56,20 @@ export function RootClient({ children }: { children: React.ReactNode }) {
         <div className="flex-1 flex items-stretch">
           <DepartmentsPanel />
           <main id="main-content" className="flex-1 min-w-0 pb-14 md:pb-0">
-            {children}
+            <AnimatePresence mode="wait">
+              <motion.div key={pathname} {...pageTransition}>
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </main>
         </div>
       ) : (
         <main id="main-content" className={`flex-1 ${isAuthPage ? "" : "pb-14 md:pb-0"}`}>
-          {children}
+          <AnimatePresence mode="wait">
+            <motion.div key={pathname} {...pageTransition}>
+              {children}
+            </motion.div>
+          </AnimatePresence>
         </main>
       )}
       {!isAdmin && !isAuthPage && (

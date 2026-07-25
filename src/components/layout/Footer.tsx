@@ -217,6 +217,40 @@ export const Footer = memo(function Footer() {
             </div>
           </nav>
         </div>
+
+        {/* Newsletter signup */}
+        <div className="mt-10 pt-8 border-t border-brand-fg/10">
+          <div className="max-w-2xl mx-auto text-center">
+            <p className="label-caps text-accent mb-2">Stay updated</p>
+            <p className="text-brand-fg text-sm mb-4">
+              Get stock alerts, new arrivals and exclusive offers by email.
+            </p>
+            <form
+              onSubmit={(e) => e.preventDefault()}
+              className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
+            >
+              <label htmlFor="footer-email" className="sr-only">
+                Email address
+              </label>
+              <input
+                id="footer-email"
+                type="email"
+                required
+                placeholder="you@example.com"
+                className="flex-1 min-w-0 h-11 rounded-md px-3.5 text-sm bg-brand-fg/10 border border-brand-fg/20 text-brand-fg placeholder:text-brand-fg/40 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+              />
+              <button
+                type="submit"
+                className="h-11 shrink-0 rounded-md px-5 text-sm font-semibold bg-accent text-accent-fg hover:bg-accent-hover transition-colors"
+              >
+                Subscribe
+              </button>
+            </form>
+            <p className="text-[11px] text-brand-fg/50 mt-2">
+              No spam. Unsubscribe anytime.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Bottom bar */}

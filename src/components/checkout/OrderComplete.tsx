@@ -68,7 +68,7 @@ export function OrderComplete({ orderId }: OrderCompleteProps) {
               <Check className="w-8 h-8 sm:w-10 sm:h-10 text-success" strokeWidth={2.5} />
             </motion.div>
             <p className="label-caps text-success mb-2">Order confirmed</p>
-            <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+            <h1 className="text-3xl sm:text-4xl font-bold font-serif mb-3">
               Thank you — your order is placed
             </h1>
             <p className="text-muted text-sm sm:text-[15px] max-w-md mx-auto leading-relaxed">

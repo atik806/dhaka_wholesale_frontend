@@ -14,8 +14,8 @@ export function FeaturedCategories() {
     <Section>
       <SectionHeader
         eyebrow="Shop by category"
-        title="Browse categories"
-        description="Shop from our curated collection across multiple categories."
+        title="Explore categories"
+        description="Browse our curated collection — find exactly what you need across every department."
         href="/shop"
         linkLabel="View all categories"
       />
@@ -23,7 +23,7 @@ export function FeaturedCategories() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
         {isLoading
           ? Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} className="h-52 w-full rounded-lg" />
+              <Skeleton key={i} className="aspect-[4/5] w-full rounded-xl" />
             ))
           : categories
               .slice(0, 6)

@@ -75,8 +75,8 @@ export default function AdminContactMessagesPage() {
           onClick={(e) => { e.stopPropagation(); handleMarkRead(msg); }}
           className={`p-1.5 rounded-lg transition-colors ${
             msg.is_read
-              ? "text-zinc-300 dark:text-zinc-600"
-              : "text-primary hover:bg-primary/10"
+              ? "text-muted dark:text-zinc-600"
+              : "text-link hover:bg-primary/10"
           }`}
           title={msg.is_read ? "Read" : "Mark as read"}
         >
@@ -89,10 +89,10 @@ export default function AdminContactMessagesPage() {
       label: "Name",
       render: (msg) => (
         <div>
-          <p className={`font-medium ${!msg.is_read ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500 dark:text-zinc-400"}`}>
+          <p className={`font-medium ${!msg.is_read ? "text-fg" : "text-muted"}`}>
             {msg.first_name} {msg.last_name}
           </p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{msg.email}</p>
+          <p className="text-xs text-muted">{msg.email}</p>
         </div>
       ),
     },
@@ -100,7 +100,7 @@ export default function AdminContactMessagesPage() {
       key: "subject",
       label: "Subject",
       render: (msg) => (
-        <span className={`max-w-xs block truncate ${!msg.is_read ? "font-medium text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-300"}`}>
+        <span className={`max-w-xs block truncate ${!msg.is_read ? "font-medium text-fg" : "text-zinc-600 dark:text-muted"}`}>
           {msg.subject}
         </span>
       ),
@@ -111,7 +111,7 @@ export default function AdminContactMessagesPage() {
       render: (msg) => {
         const truncated = msg.message.length > 80 ? msg.message.slice(0, 80) + "..." : msg.message;
         return (
-          <span className="text-zinc-500 dark:text-zinc-400 max-w-sm block truncate" title={msg.message}>
+          <span className="text-muted max-w-sm block truncate" title={msg.message}>
             {truncated}
           </span>
         );
@@ -121,7 +121,7 @@ export default function AdminContactMessagesPage() {
       key: "created_at",
       label: "Date",
       render: (msg) => (
-        <span className="text-zinc-500 dark:text-zinc-400 text-sm">{formatDate(msg.created_at)}</span>
+        <span className="text-muted text-sm">{formatDate(msg.created_at)}</span>
       ),
     },
   ], [handleMarkRead]);
@@ -131,9 +131,9 @@ export default function AdminContactMessagesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-2xl font-bold">Contact Messages</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-sm text-muted mt-1">
             {messages.length} total{", "}
-            <span className="text-primary font-medium">{messages.filter((m) => !m.is_read).length}</span> unread
+            <span className="text-link font-medium">{messages.filter((m) => !m.is_read).length}</span> unread
           </p>
         </div>
       </div>
@@ -154,9 +154,9 @@ export default function AdminContactMessagesPage() {
                 {!msg.is_read && <span className="w-2 h-2 rounded-full bg-primary shrink-0" />}
                 <p className="text-sm font-medium truncate">{msg.first_name} {msg.last_name}</p>
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">{msg.subject}</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-1">{msg.message}</p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">{formatDate(msg.created_at)}</p>
+              <p className="text-xs text-muted truncate">{msg.subject}</p>
+              <p className="text-xs text-muted mt-1 line-clamp-1">{msg.message}</p>
+              <p className="text-xs text-muted dark:text-zinc-500 mt-1">{formatDate(msg.created_at)}</p>
             </div>
           </div>
         )}
@@ -172,19 +172,19 @@ export default function AdminContactMessagesPage() {
           >
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelected(null)} />
             <motion.div
-              className="relative bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto border border-zinc-200 dark:border-zinc-700"
+              className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto border border-line"
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
             >
-              <div className="flex items-center justify-between p-5 border-b border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center justify-between p-5 border-b border-line">
                 <div className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-primary" />
+                  <Mail className="w-5 h-5 text-link" />
                   <h2 className="font-serif text-lg font-bold">Message Details</h2>
                 </div>
                 <button
                   onClick={() => setSelected(null)}
-                  className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -193,46 +193,46 @@ export default function AdminContactMessagesPage() {
               <div className="p-5 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">First Name</p>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">{selected.first_name}</p>
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">First Name</p>
+                    <p className="text-sm font-medium text-fg mt-1">{selected.first_name}</p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Last Name</p>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">{selected.last_name}</p>
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Last Name</p>
+                    <p className="text-sm font-medium text-fg mt-1">{selected.last_name}</p>
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Email</p>
+                  <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Email</p>
                   <a
                     href={`mailto:${selected.email}`}
-                    className="text-sm font-medium text-primary hover:underline mt-1 block"
+                    className="text-sm font-medium text-link hover:underline mt-1 block"
                   >
                     {selected.email}
                   </a>
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Subject</p>
-                  <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">{selected.subject}</p>
+                  <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Subject</p>
+                  <p className="text-sm font-medium text-fg mt-1">{selected.subject}</p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Message</p>
-                  <p className="text-sm text-zinc-700 dark:text-zinc-300 mt-1 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Message</p>
+                  <p className="text-sm text-zinc-700 dark:text-muted mt-1 whitespace-pre-wrap leading-relaxed">
                     {selected.message}
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-line">
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Date</p>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Date</p>
+                    <p className="text-sm font-medium text-fg mt-1">
                       {formatDate(selected.created_at)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Status</p>
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Status</p>
                     <span
                       className={`inline-flex items-center gap-1 text-sm font-medium mt-1 ${
                         selected.is_read ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"
@@ -245,11 +245,11 @@ export default function AdminContactMessagesPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-3 p-5 border-t border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center justify-between gap-3 p-5 border-t border-line">
                 {!selected.is_read && (
                   <button
                     onClick={() => handleMarkRead(selected)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-primary/10 text-link hover:bg-accent/20 transition-colors"
                   >
                     <Eye className="w-4 h-4" />
                     Mark as Read
@@ -258,7 +258,7 @@ export default function AdminContactMessagesPage() {
                 <button
                   onClick={() => handleDelete(selected!)}
                   disabled={deleting}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors disabled:opacity-50 ml-auto"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-danger-soft text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/50 transition-colors disabled:opacity-50 ml-auto"
                 >
                   {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                   {deleting ? "Deleting..." : "Delete"}

@@ -131,7 +131,7 @@ export function ProductPageClient() {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="label-caps mb-1.5 text-subtle">{product.category}</p>
-                  <h1 className="text-xl font-bold leading-tight text-fg sm:text-2xl">
+                  <h1 className="text-xl font-bold font-serif leading-tight text-fg sm:text-2xl">
                     {product.name}
                   </h1>
                 </div>

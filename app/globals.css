@@ -308,6 +308,110 @@
   animation: ken-burns 12s ease-in-out infinite alternate;
 }
 
+/* ----------- Premium utilities ----------- */
+
+@utility glass {
+  background-color: color-mix(in srgb, var(--surface) 70%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@utility premium-shadow {
+  box-shadow:
+    0 1px 2px hsl(var(--shadow-color) / 0.04),
+    0 4px 12px hsl(var(--shadow-color) / 0.06),
+    0 12px 32px hsl(var(--shadow-color) / 0.08);
+}
+
+@utility premium-shadow-lg {
+  box-shadow:
+    0 2px 4px hsl(var(--shadow-color) / 0.04),
+    0 8px 24px hsl(var(--shadow-color) / 0.08),
+    0 24px 56px hsl(var(--shadow-color) / 0.12);
+}
+
+@utility text-gradient {
+  background: linear-gradient(135deg, var(--fg), var(--link));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility text-gradient-accent {
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scroll-triggered reveal animations */
+@utility animate-in {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+@utility animate-in-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subtle scale on interaction */
+@utility press {
+  transition: transform 0.15s ease-out;
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Enhanced card border that adapts to theme */
+@utility card-premium {
+  background-color: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card-premium:hover {
+  border-color: var(--line-strong);
+  box-shadow:
+    0 1px 3px hsl(var(--shadow-color) / 0.06),
+    0 4px 12px hsl(var(--shadow-color) / 0.08);
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

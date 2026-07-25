@@ -64,7 +64,7 @@ export default function ContactPage() {
         <div className="container py-10 md:py-14">
           <Breadcrumbs items={[{ label: "Contact" }]} />
           <p className="label-caps text-accent-text mb-2">Get in touch</p>
-          <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold mb-3">
+          <h1 className="text-3xl md:text-4xl lg:text-[2.75rem] font-bold font-serif mb-3">
             Contact Us
           </h1>
           <p className="text-muted text-base leading-relaxed max-w-[65ch]">

@@ -45,17 +45,17 @@ export function DataTable<T>({
   const pageNumbers = pagination ? getPageNumbers(pagination.page, pagination.totalPages) : [];
 
   return (
-    <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+    <div className="bg-surface rounded-2xl border border-line overflow-hidden">
       {searchable && (
-        <div className="p-3 sm:p-4 border-b border-zinc-200 dark:border-zinc-700">
-          <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 rounded-xl px-3 border border-zinc-200 dark:border-zinc-700 w-full max-w-sm">
-            <Search className="w-4 h-4 text-zinc-500 dark:text-zinc-400 shrink-0" />
+        <div className="p-3 sm:p-4 border-b border-line">
+          <div className="flex items-center gap-2 bg-surface-2 rounded-xl px-3 border border-line w-full max-w-sm">
+            <Search className="w-4 h-4 text-muted shrink-0" />
             <input
               type="text"
               value={searchValue || ""}
               onChange={(e) => onSearchChange?.(e.target.value)}
               placeholder="Search..."
-              className="flex-1 bg-transparent py-2.5 text-sm outline-none text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500"
+              className="flex-1 bg-transparent py-2.5 text-sm outline-none text-fg placeholder:text-muted dark:placeholder:text-zinc-500"
             />
           </div>
         </div>
@@ -65,16 +65,16 @@ export function DataTable<T>({
       {mobileCard && (
         <div className="md:hidden">
           {loading ? (
-            <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">Loading...</div>
+            <div className="p-8 text-center text-muted">Loading...</div>
           ) : data.length === 0 ? (
-            <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">No data found</div>
+            <div className="p-8 text-center text-muted">No data found</div>
           ) : (
-            <div className="divide-y divide-zinc-100 dark:divide-zinc-700/50">
+            <div className="divide-y divide-line/50">
               {data.map((item) => (
                 <div
                   key={keyExtractor(item)}
                   onClick={() => onRowClick?.(item)}
-                  className={`p-4 ${onRowClick ? "cursor-pointer active:bg-zinc-50 dark:active:bg-zinc-800/50" : ""}`}
+                  className={`p-4 ${onRowClick ? "cursor-pointer active:bg-zinc-50 dark:active:bg-surface-2/50" : ""}`}
                 >
                   {mobileCard(item)}
                 </div>
@@ -88,9 +88,9 @@ export function DataTable<T>({
       <div className="overflow-x-auto hidden md:block">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
+            <tr className="border-b border-line bg-surface-2/50">
               {columns.map((col) => (
-                <th key={col.key} className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                <th key={col.key} className="text-left px-4 py-3 font-medium text-muted whitespace-nowrap">
                   {col.label}
                 </th>
               ))}
@@ -99,13 +99,13 @@ export function DataTable<T>({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={columns.length} className="text-center py-12 text-zinc-500 dark:text-zinc-400">
+                <td colSpan={columns.length} className="text-center py-12 text-muted">
                   Loading...
                 </td>
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="text-center py-12 text-zinc-500 dark:text-zinc-400">
+                <td colSpan={columns.length} className="text-center py-12 text-muted">
                   No data found
                 </td>
               </tr>
@@ -114,7 +114,7 @@ export function DataTable<T>({
                 <tr
                   key={keyExtractor(item)}
                   onClick={() => onRowClick?.(item)}
-                  className={`border-b border-zinc-100 dark:border-zinc-700/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors ${onRowClick ? "cursor-pointer" : ""}`}
+                  className={`border-b border-line/50 hover:bg-surface-2/50 transition-colors ${onRowClick ? "cursor-pointer" : ""}`}
                 >
                   {columns.map((col) => (
                     <td key={col.key} className="px-4 py-3">
@@ -132,16 +132,16 @@ export function DataTable<T>({
       {!mobileCard && (
         <div className="md:hidden">
           {loading ? (
-            <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">Loading...</div>
+            <div className="p-8 text-center text-muted">Loading...</div>
           ) : data.length === 0 ? (
-            <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">No data found</div>
+            <div className="p-8 text-center text-muted">No data found</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[600px]">
                 <thead>
-                  <tr className="border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
+                  <tr className="border-b border-line bg-surface-2/50">
                     {columns.map((col) => (
-                      <th key={col.key} className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                      <th key={col.key} className="text-left px-4 py-3 font-medium text-muted whitespace-nowrap">
                         {col.label}
                       </th>
                     ))}
@@ -152,7 +152,7 @@ export function DataTable<T>({
                     <tr
                       key={keyExtractor(item)}
                       onClick={() => onRowClick?.(item)}
-                      className={`border-b border-zinc-100 dark:border-zinc-700/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors ${onRowClick ? "cursor-pointer" : ""}`}
+                      className={`border-b border-line/50 hover:bg-surface-2/50 transition-colors ${onRowClick ? "cursor-pointer" : ""}`}
                     >
                       {columns.map((col) => (
                         <td key={col.key} className="px-4 py-3">
@@ -169,21 +169,21 @@ export function DataTable<T>({
       )}
 
       {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between px-3 sm:px-4 py-3 border-t border-zinc-200 dark:border-zinc-700">
-          <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400">
+        <div className="flex items-center justify-between px-3 sm:px-4 py-3 border-t border-line">
+          <p className="text-xs sm:text-sm text-muted">
             Page {pagination.page} of {pagination.totalPages}
           </p>
           <div className="flex items-center gap-0.5 sm:gap-1">
             <button
               onClick={() => pagination.onPageChange(pagination.page - 1)}
               disabled={pagination.page <= 1}
-              className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-2 rounded-lg border border-line hover:bg-surface-2 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             {pageNumbers.map((p, i) =>
               p === "..." ? (
-                <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-sm text-zinc-400">
+                <span key={`ellipsis-${i}`} className="w-8 h-8 flex items-center justify-center text-sm text-muted">
                   ...
                 </span>
               ) : (
@@ -192,8 +192,8 @@ export function DataTable<T>({
                   onClick={() => pagination.onPageChange(p)}
                   className={`w-8 h-8 rounded-lg text-sm font-medium ${
                     pagination.page === p
-                      ? "bg-primary text-white"
-                      : "border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                      ? "bg-accent text-accent-fg"
+                      : "border border-line hover:bg-surface-2"
                   }`}
                 >
                   {p}
@@ -203,7 +203,7 @@ export function DataTable<T>({
             <button
               onClick={() => pagination.onPageChange(pagination.page + 1)}
               disabled={pagination.page >= pagination.totalPages}
-              className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="p-2 rounded-lg border border-line hover:bg-surface-2 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

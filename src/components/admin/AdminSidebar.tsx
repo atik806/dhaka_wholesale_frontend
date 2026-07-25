@@ -83,8 +83,8 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
   const linkClass = (href: string) =>
     `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
       isActive(href)
-        ? "bg-primary text-white shadow-sm"
-        : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+        ? "bg-brand text-brand-fg shadow-sm"
+        : "text-muted hover:text-fg hover:bg-surface-2"
     }`;
 
   const totalBadges = badges.pendingOrders + badges.unreadMessages + badges.pendingBugs;
@@ -98,13 +98,13 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
         />
       )}
 
-      <aside className={`fixed top-0 left-0 h-full bg-white dark:bg-zinc-800 border-r border-zinc-200 dark:border-zinc-700 z-50 transition-all duration-300 flex flex-col ${collapsed ? "w-16" : "w-64"} ${onClose ? (open ? "translate-x-0" : "-translate-x-full lg:translate-x-0") : ""}`}>
-        <div className={`border-b border-zinc-200 dark:border-zinc-700 ${collapsed ? "p-2 flex flex-col items-center gap-2" : "p-4 flex items-center justify-between gap-2"}`}>
+      <aside className={`fixed top-0 left-0 h-full bg-surface border-r border-line z-50 transition-all duration-300 flex flex-col ${collapsed ? "w-16" : "w-64"} ${onClose ? (open ? "translate-x-0" : "-translate-x-full lg:translate-x-0") : ""}`}>
+        <div className={`border-b border-line ${collapsed ? "p-2 flex flex-col items-center gap-2" : "p-4 flex items-center justify-between gap-2"}`}>
           <Link href="/admin" onClick={handleNavClick} className={`flex items-center min-w-0 ${collapsed ? "" : "gap-2.5"}`} title="Admin">
             <SiteLogo variant="mark" href={null} />
             {!collapsed && (
               <span className="leading-tight">
-                <span className="block text-sm font-bold text-zinc-900 dark:text-zinc-100">Dhaka Wholesale</span>
+                <span className="block text-sm font-bold text-fg">Dhaka Wholesale</span>
                 <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#E31C23]">Admin</span>
               </span>
             )}
@@ -116,11 +116,11 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
               </span>
             )}
             {onClose && open && (
-              <button onClick={onClose} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors lg:hidden">
+              <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-2 transition-colors lg:hidden">
                 <X className="w-4 h-4" />
               </button>
             )}
-            <button onClick={() => setCollapsed(!collapsed)} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors hidden lg:block">
+            <button onClick={() => setCollapsed(!collapsed)} className="p-2 rounded-lg hover:bg-surface-2 transition-colors hidden lg:block">
               {collapsed ? <PanelRightOpen className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
             </button>
           </div>
@@ -148,12 +148,12 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
             );
           })}
         </nav>
-        <div className="p-3 border-t border-zinc-200 dark:border-zinc-700 space-y-1">
-          <button onClick={toggleTheme} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 w-full transition-colors">
+        <div className="p-3 border-t border-line space-y-1">
+          <button onClick={toggleTheme} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-muted hover:text-fg hover:bg-surface-2 w-full transition-colors">
             {theme === "dark" ? <Sun className="w-5 h-5 shrink-0" /> : <Moon className="w-5 h-5 shrink-0" />}
             {!collapsed && <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>}
           </button>
-          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 w-full transition-colors">
+          <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-danger hover:bg-danger-soft w-full transition-colors">
             <LogOut className="w-5 h-5 shrink-0" />
             {!collapsed && <span>Logout</span>}
           </button>

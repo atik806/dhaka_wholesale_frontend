@@ -125,8 +125,8 @@ export default function AdminProductsPage() {
       label: "Name",
       render: (p) => (
         <div>
-          <p className="font-medium text-zinc-900 dark:text-zinc-100">{p.name}</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{p.slug}</p>
+          <p className="font-medium text-fg">{p.name}</p>
+          <p className="text-xs text-muted">{p.slug}</p>
         </div>
       ),
     },
@@ -137,7 +137,7 @@ export default function AdminProductsPage() {
         <div>
           <p className="font-medium">{formatPrice(p.price)}</p>
           {p.originalPrice && (
-            <p className="text-xs text-zinc-400 line-through">{formatPrice(p.originalPrice)}</p>
+            <p className="text-xs text-muted line-through">{formatPrice(p.originalPrice)}</p>
           )}
         </div>
       ),
@@ -157,7 +157,7 @@ export default function AdminProductsPage() {
     {
       key: "category",
       label: "Category",
-      render: (p) => <span className="text-sm text-zinc-600 dark:text-zinc-400">{p.category}</span>,
+      render: (p) => <span className="text-sm text-muted">{p.category}</span>,
     },
     {
       key: "rating",
@@ -171,16 +171,16 @@ export default function AdminProductsPage() {
         <div className="flex items-center gap-2">
           <Link
             href={`/admin/products/${p.slug}`}
-            className="p-2 rounded-lg border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            className="p-2 rounded-lg border border-line hover:bg-surface-2 transition-colors"
           >
-            <Edit className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+            <Edit className="w-4 h-4 text-muted" />
           </Link>
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleDelete(p);
             }}
-            className="p-2 rounded-lg border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+            className="p-2 rounded-lg border border-red-200 dark:border-red-800 hover:bg-danger-soft transition-colors"
           >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>
@@ -204,7 +204,7 @@ export default function AdminProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div>
           <h1 className="font-serif text-2xl font-bold">Products</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{totalProducts} products total</p>
+          <p className="text-sm text-muted mt-1">{totalProducts} products total</p>
         </div>
         <Link href="/admin/products/new">
           <Button>
@@ -226,8 +226,8 @@ export default function AdminProductsPage() {
             onClick={() => handleFilterChange("")}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               !categoryFilter
-                ? "bg-primary text-white"
-                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                ? "bg-accent text-accent-fg"
+                : "bg-zinc-100 dark:bg-zinc-800 text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700"
             }`}
           >
             All
@@ -238,8 +238,8 @@ export default function AdminProductsPage() {
               onClick={() => handleFilterChange(cat.name)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 categoryFilter === cat.name
-                  ? "bg-primary text-white"
-                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+                  ? "bg-accent text-accent-fg"
+                  : "bg-zinc-100 dark:bg-zinc-800 text-muted hover:bg-zinc-200 dark:hover:bg-zinc-700"
               }`}
             >
               {cat.name}
@@ -266,15 +266,15 @@ export default function AdminProductsPage() {
                 <span className="text-sm font-medium">{formatPrice(p.price)}</span>
                 <StatusBadge status={{ "in-stock": "In Stock", "low-stock": "Low Stock", "out-of-stock": "Out of Stock" }[p.stock] || p.stock} />
               </div>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{p.category}</p>
+              <p className="text-xs text-muted mt-0.5">{p.category}</p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <Link href={`/admin/products/${p.slug}`} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
-                <Edit className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />
+              <Link href={`/admin/products/${p.slug}`} className="p-2 rounded-lg hover:bg-surface-2 transition-colors">
+                <Edit className="w-4 h-4 text-muted" />
               </Link>
               <button
                 onClick={(e) => { e.stopPropagation(); handleDelete(p); }}
-                className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                className="p-2 rounded-lg hover:bg-danger-soft transition-colors"
               >
                 <Trash2 className="w-4 h-4 text-red-500" />
               </button>

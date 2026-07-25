@@ -102,7 +102,7 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
       {value.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {value.map((url, i) => (
-            <div key={url} className="relative group aspect-square rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700">
+            <div key={url} className="relative group aspect-square rounded-xl overflow-hidden border border-line">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={url} alt={`Upload ${i + 1}`} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
               <button
@@ -131,7 +131,7 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
             type="button"
             onClick={() => fileRef.current?.click()}
             disabled={uploading}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-600 text-sm text-zinc-500 dark:text-zinc-400 hover:border-primary hover:text-primary transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-line-strong text-sm text-muted hover:border-accent hover:text-accent-hover transition-colors disabled:opacity-50"
           >
             {uploading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -143,7 +143,7 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
           {error && (
             <p className="text-xs text-red-500 dark:text-red-400 mt-1">{error}</p>
           )}
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-1">
+          <p className="text-xs text-muted mt-1">
             {value.length}/{maxImages} images (JPEG, PNG, WebP, max 5MB each)
           </p>
         </div>

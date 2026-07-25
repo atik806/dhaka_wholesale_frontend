@@ -31,7 +31,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
 
   if (!data.length) {
     return (
-      <div className="flex items-center justify-center h-64 text-sm text-zinc-500 dark:text-zinc-400">
+      <div className="flex items-center justify-center h-64 text-sm text-muted">
         No data available
       </div>
     );

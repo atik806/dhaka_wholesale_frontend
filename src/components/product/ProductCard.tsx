@@ -74,7 +74,8 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
       transition={{ duration: 0.35, delay: index * 0.04 }}
       className="h-full"
     >
-      <div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface transition-all duration-200 hover:border-line-strong hover:shadow-md">
+      <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface transition-all duration-300 hover:border-line-strong hover:shadow-lg hover:-translate-y-0.5">
+        {/* Image container */}
         <div className="relative aspect-square overflow-hidden bg-surface-2">
           <Link
             href={`/product/${product.slug}`}
@@ -87,7 +88,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
               alt={product.name}
               fill
               className={cn(
-                "object-cover transition-transform duration-500 group-hover:scale-105",
+                "object-cover transition-all duration-500 group-hover:scale-110",
                 isOutOfStock && "opacity-60",
               )}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
@@ -95,7 +96,11 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
             />
           </Link>
 
-          <div className="pointer-events-none absolute left-2 top-2 z-10 flex flex-col items-start gap-1">
+          {/* Hover overlay — subtle dark gradient on hover */}
+          <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/0 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+          {/* Badges */}
+          <div className="pointer-events-none absolute left-2.5 top-2.5 z-10 flex flex-col items-start gap-1.5">
             {discountPercent ? (
               <Badge variant="sale">-{discountPercent}%</Badge>
             ) : product.isNew ? (
@@ -104,22 +109,28 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
             {isOutOfStock && <Badge variant="out-of-stock">Out of stock</Badge>}
           </div>
 
+          {/* Wishlist button */}
           <button
             type="button"
             onClick={handleWishlist}
             aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
             aria-pressed={wishlisted}
-            className="absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/90 text-muted shadow-xs backdrop-blur-sm transition-colors hover:border-line-strong hover:text-fg"
+            className="absolute right-2.5 top-2.5 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-line bg-surface/80 text-muted shadow-sm backdrop-blur-sm transition-all duration-200 hover:border-line-strong hover:bg-surface hover:text-fg hover:shadow-md active:scale-90"
           >
             <Heart
-              className={cn("h-4 w-4 transition-colors", wishlisted && "fill-sale text-sale")}
+              className={cn("h-[18px] w-[18px] transition-all duration-200", wishlisted && "fill-sale text-sale scale-110")}
             />
           </button>
         </div>
 
-        <div className="flex flex-1 flex-col p-2.5 sm:p-3">
-          <p className="label-caps mb-1 truncate text-subtle">{product.category}</p>
+        {/* Content */}
+        <div className="flex flex-1 flex-col p-3 sm:p-3.5">
+          {/* Category label */}
+          <p className="label-caps mb-1.5 truncate text-subtle tracking-wider">
+            {product.category}
+          </p>
 
+          {/* Product name */}
           <h3 className="text-[13px] font-semibold leading-snug sm:text-sm">
             <Link
               href={`/product/${product.slug}`}
@@ -129,49 +140,57 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
             </Link>
           </h3>
 
+          {/* Rating */}
           <div className="mt-1.5">
             <Rating value={product.rating} count={product.reviewCount} size="sm" />
           </div>
 
-          <div className="mt-auto pt-2">
+          {/* Price section */}
+          <div className="mt-auto pt-2.5">
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="tabular text-[15px] font-bold text-price sm:text-base">
+              <span className="tabular text-[16px] font-bold text-price sm:text-[17px] tracking-tight">
                 {formatPrice(product.price)}
               </span>
               {product.originalPrice && (
-                <span className="tabular text-xs text-muted line-through">
+                <span className="tabular text-xs text-muted line-through decoration-2">
                   {formatPrice(product.originalPrice)}
                 </span>
               )}
             </div>
             {product.stock === "low-stock" && (
-              <p className="mt-1 text-[11px] font-semibold text-danger">Only a few left</p>
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                <p className="text-[11px] font-semibold text-accent-hover">Only a few left</p>
+              </div>
             )}
           </div>
 
-          <Button
-            variant={isOutOfStock ? "outline" : showAdded ? "secondary" : "primary"}
-            size="md"
-            fullWidth
-            onClick={handleAddToCart}
-            disabled={isOutOfStock}
-            aria-live="polite"
-            className="mt-2.5"
-          >
-            {isOutOfStock ? (
-              "Sold out"
-            ) : showAdded ? (
-              <>
-                <Check className="h-4 w-4" strokeWidth={2.5} />
-                Added to cart
-              </>
-            ) : (
-              <>
-                <ShoppingBag className="h-4 w-4" />
-                Add to cart
-              </>
-            )}
-          </Button>
+          {/* Add to cart button */}
+          <div className="mt-3">
+            <Button
+              variant={isOutOfStock ? "outline" : showAdded ? "secondary" : "primary"}
+              size="sm"
+              fullWidth
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              aria-live="polite"
+              className="transition-all duration-200"
+            >
+              {isOutOfStock ? (
+                "Sold out"
+              ) : showAdded ? (
+                <>
+                  <Check className="h-4 w-4" strokeWidth={2.5} />
+                  <span>Added</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingBag className="h-4 w-4" />
+                  <span>Add to cart</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </motion.div>

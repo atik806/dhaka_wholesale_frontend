@@ -246,14 +246,14 @@ export default function OrderDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-link" />
       </div>
     );
   }
 
   if (error || !order) {
     return (
-      <div className="text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 text-center">{error || "Order not found"}</div>
+      <div className="text-danger bg-danger-soft rounded-2xl p-6 text-center">{error || "Order not found"}</div>
     );
   }
 
@@ -264,7 +264,7 @@ export default function OrderDetailPage() {
       {dialog}
       <button
         onClick={() => router.push("/admin/orders")}
-        className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 mb-6 transition-colors"
+        className="flex items-center gap-2 text-sm text-muted hover:text-fg mb-6 transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Orders
@@ -273,7 +273,7 @@ export default function OrderDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-xl sm:text-2xl font-bold">Order #{order.id.slice(0, 8)}</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{formatDate(order.created_at)}</p>
+          <p className="text-sm text-muted mt-1">{formatDate(order.created_at)}</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button
@@ -290,7 +290,7 @@ export default function OrderDetailPage() {
 
       {/* Status Progression */}
       {order.status !== "cancelled" ? (
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 mb-6">
+        <div className="bg-surface rounded-2xl border border-line p-6 mb-6">
           <h2 className="text-sm font-semibold mb-4">Order Progress</h2>
           <div className="flex items-center overflow-x-auto -mx-2 px-2">
             {statusSteps.map((step, i) => {
@@ -301,14 +301,14 @@ export default function OrderDetailPage() {
                   <div className="flex items-center gap-1.5">
                     <div className={cn(
                       "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors shrink-0",
-                      isCompleted ? "bg-primary text-white" : "bg-zinc-100 dark:bg-zinc-700 text-zinc-400 dark:text-zinc-500",
+                      isCompleted ? "bg-accent text-accent-fg" : "bg-zinc-100 dark:bg-zinc-700 text-muted dark:text-zinc-500",
                       isCurrent && "ring-2 ring-primary/30"
                     )}>
                       {isCompleted && i < currentStepIndex ? <Check className="w-3.5 h-3.5" /> : i + 1}
                     </div>
                     <span className={cn(
                       "text-xs font-medium capitalize hidden sm:inline",
-                      isCompleted ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-400 dark:text-zinc-500"
+                      isCompleted ? "text-fg" : "text-muted dark:text-zinc-500"
                     )}>
                       {step}
                     </span>
@@ -325,7 +325,7 @@ export default function OrderDetailPage() {
           </div>
         </div>
       ) : (
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-red-200 dark:border-red-900/50 p-6 mb-6">
+        <div className="bg-surface rounded-2xl border border-red-200 dark:border-red-900/50 p-6 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
               <span className="text-sm font-bold text-red-600 dark:text-red-400">!</span>
@@ -337,11 +337,11 @@ export default function OrderDetailPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Customer Info */}
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6">
+        <div className="bg-surface rounded-2xl border border-line p-6">
           <h2 className="text-sm font-semibold mb-4">Customer</h2>
           <div className="space-y-2 text-sm">
             <p>
-              <span className="text-zinc-500 dark:text-zinc-400">Name:</span>{' '}
+              <span className="text-muted">Name:</span>{' '}
               {(() => {
                 const a = order.shipping_address as Record<string, string> | undefined;
                 if (a?.firstName && a?.lastName) return `${a.firstName} ${a.lastName}`;
@@ -349,7 +349,7 @@ export default function OrderDetailPage() {
               })()}
             </p>
             <p>
-              <span className="text-zinc-500 dark:text-zinc-400">Email:</span>{' '}
+              <span className="text-muted">Email:</span>{' '}
               {(() => {
                 const a = order.shipping_address as Record<string, string> | undefined;
                 return a?.email || order.profiles?.email || "—";
@@ -359,32 +359,32 @@ export default function OrderDetailPage() {
         </div>
 
         {/* Shipping Address */}
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6">
+        <div className="bg-surface rounded-2xl border border-line p-6">
           <h2 className="text-sm font-semibold mb-4">Shipping Address</h2>
           <div className="space-y-1 text-sm">
             {Object.keys(address).length > 0 ? (
               Object.entries(address).map(([key, val]) => (
                 <p key={key}>
-                  <span className="text-zinc-500 dark:text-zinc-400 capitalize">{key.replace(/_/g, " ")}:</span> {val}
+                  <span className="text-muted capitalize">{key.replace(/_/g, " ")}:</span> {val}
                 </p>
               ))
             ) : (
-              <p className="text-zinc-400">No address details</p>
+              <p className="text-muted">No address details</p>
             )}
           </div>
         </div>
 
         {/* Actions */}
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6">
+        <div className="bg-surface rounded-2xl border border-line p-6">
           <h2 className="text-sm font-semibold mb-4">Actions</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1.5">Order Status</label>
+              <label className="block text-xs font-medium text-muted mb-1.5">Order Status</label>
               <select
                 value={order.status}
                 onChange={(e) => handleStatusChange(e.target.value)}
                 disabled={updating || nextStatuses[order.status]?.length === 0}
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 disabled:opacity-50"
+                className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg disabled:opacity-50"
               >
                 <option value={order.status} disabled>{order.status}</option>
                 {nextStatuses[order.status]?.map((s) => (
@@ -393,12 +393,12 @@ export default function OrderDetailPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1.5">Payment Status</label>
+              <label className="block text-xs font-medium text-muted mb-1.5">Payment Status</label>
               <select
                 value={order.payment_status}
                 onChange={(e) => handlePaymentStatusChange(e.target.value)}
                 disabled={updating}
-                className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
+                className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg"
               >
                 {paymentStatuses.map((s) => (
                   <option key={s} value={s}>{s}</option>
@@ -406,7 +406,7 @@ export default function OrderDetailPage() {
               </select>
             </div>
             {updating && (
-              <div className="flex items-center gap-2 text-sm text-primary">
+              <div className="flex items-center gap-2 text-sm text-link">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Updating...
               </div>
@@ -414,7 +414,7 @@ export default function OrderDetailPage() {
             <button
               onClick={handleDelete}
               disabled={updating}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-danger-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-4 h-4" />
               Delete Order
@@ -424,23 +424,23 @@ export default function OrderDetailPage() {
       </div>
 
       {/* Order Items */}
-      <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-700">
+      <div className="bg-surface rounded-2xl border border-line overflow-hidden mb-6">
+        <div className="px-6 py-4 border-b border-line">
           <h2 className="text-sm font-semibold">Order Items</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-                <th className="text-left px-6 py-3 font-medium text-zinc-500 dark:text-zinc-400">Product</th>
-                <th className="text-left px-6 py-3 font-medium text-zinc-500 dark:text-zinc-400">Price</th>
-                <th className="text-left px-6 py-3 font-medium text-zinc-500 dark:text-zinc-400">Qty</th>
-                <th className="text-right px-6 py-3 font-medium text-zinc-500 dark:text-zinc-400">Subtotal</th>
+              <tr className="border-b border-line bg-surface-2/50">
+                <th className="text-left px-6 py-3 font-medium text-muted">Product</th>
+                <th className="text-left px-6 py-3 font-medium text-muted">Price</th>
+                <th className="text-left px-6 py-3 font-medium text-muted">Qty</th>
+                <th className="text-right px-6 py-3 font-medium text-muted">Subtotal</th>
               </tr>
             </thead>
             <tbody>
               {order.order_items?.map((item) => (
-                <tr key={item.id} className="border-b border-zinc-100 dark:border-zinc-700/50">
+                <tr key={item.id} className="border-b border-line/50">
                   <td className="px-6 py-3">
                       <div className="flex items-center gap-3">
                       <img
@@ -451,7 +451,7 @@ export default function OrderDetailPage() {
                       <div className="min-w-0">
                         <p className="font-medium truncate max-w-[200px] sm:max-w-none">{item.product_name}</p>
                         {(item.selected_size || item.selected_color) && (
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                          <p className="text-xs text-muted mt-0.5">
                             {item.selected_size && `Size: ${item.selected_size}`}
                             {item.selected_size && item.selected_color && " | "}
                             {item.selected_color && `Color: ${item.selected_color}`}
@@ -467,7 +467,7 @@ export default function OrderDetailPage() {
               ))}
               {(!order.order_items || order.order_items.length === 0) && (
                 <tr>
-                  <td colSpan={4} className="text-center py-8 text-zinc-500 dark:text-zinc-400">No items</td>
+                  <td colSpan={4} className="text-center py-8 text-muted">No items</td>
                 </tr>
               )}
             </tbody>
@@ -476,21 +476,21 @@ export default function OrderDetailPage() {
       </div>
 
       {/* Order Totals */}
-      <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6 ml-auto w-full max-w-sm">
+      <div className="bg-surface rounded-2xl border border-line p-6 ml-auto w-full max-w-sm">
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-zinc-500 dark:text-zinc-400">Subtotal</span>
+            <span className="text-muted">Subtotal</span>
             <span>{formatPrice(order.subtotal)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-zinc-500 dark:text-zinc-400">Shipping</span>
+            <span className="text-muted">Shipping</span>
             <span>{formatPrice(order.shipping_cost)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-zinc-500 dark:text-zinc-400">Tax</span>
+            <span className="text-muted">Tax</span>
             <span>{formatPrice(order.tax)}</span>
           </div>
-          <div className="border-t border-zinc-200 dark:border-zinc-700 pt-2 flex justify-between font-bold text-base">
+          <div className="border-t border-line pt-2 flex justify-between font-bold text-base">
             <span>Total</span>
             <span>{formatPrice(order.total)}</span>
           </div>

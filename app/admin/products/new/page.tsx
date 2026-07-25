@@ -90,13 +90,13 @@ export default function NewProductPage() {
           </Link>
         </div>
         <h1 className="font-serif text-2xl font-bold">New Product</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Add a new product to your store</p>
+        <p className="text-sm text-muted mt-1">Add a new product to your store</p>
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 p-6"
+        className="bg-surface rounded-2xl border border-line p-6"
       >
         <ProductForm
           onSubmit={handleSubmit}

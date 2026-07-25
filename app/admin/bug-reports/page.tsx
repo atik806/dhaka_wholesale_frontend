@@ -17,7 +17,7 @@ import {
 import { useRealtimeData } from "@/src/hooks/useRealtimeData";
 
 const PRIORITY_STYLES: Record<string, string> = {
-  low: "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-zinc-300",
+  low: "bg-zinc-100 dark:bg-zinc-700 text-zinc-600 dark:text-muted",
   medium: "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400",
   high: "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400",
   critical: "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400",
@@ -127,8 +127,8 @@ export default function AdminBugReportsPage() {
         const truncated = r.message.length > 60 ? r.message.slice(0, 60) + "..." : r.message;
         return (
           <div>
-            <p className="font-medium text-zinc-900 dark:text-zinc-100 max-w-xs truncate">{truncated}</p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 flex items-center gap-1">
+            <p className="font-medium text-fg max-w-xs truncate">{truncated}</p>
+            <p className="text-xs text-muted mt-0.5 flex items-center gap-1">
               <ExternalLink className="w-3 h-3" />
               <span className="truncate max-w-[200px]">{r.page_url}</span>
             </p>
@@ -141,18 +141,18 @@ export default function AdminBugReportsPage() {
       label: "Screenshot",
       render: (r) =>
         r.screenshot_url ? (
-          <div className="w-10 h-10 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700">
+          <div className="w-10 h-10 rounded-lg overflow-hidden border border-line">
             <img src={r.screenshot_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
           </div>
         ) : (
-          <span className="text-xs text-zinc-400">—</span>
+          <span className="text-xs text-muted">—</span>
         ),
     },
     {
       key: "created_at",
       label: "Date",
       render: (r) => (
-        <span className="text-zinc-500 dark:text-zinc-400 text-sm">{formatDate(r.created_at)}</span>
+        <span className="text-muted text-sm">{formatDate(r.created_at)}</span>
       ),
     },
   ], []);
@@ -162,7 +162,7 @@ export default function AdminBugReportsPage() {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-2xl font-bold">Bug Reports</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-sm text-muted mt-1">
             {reports.length} total
           </p>
         </div>
@@ -173,8 +173,8 @@ export default function AdminBugReportsPage() {
               onClick={() => setStatusFilter(s)}
               className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
                 statusFilter === s
-                  ? "bg-primary text-white"
-                  : "border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
+                  ? "bg-accent text-accent-fg"
+                  : "border border-line hover:bg-surface-2 text-zinc-600 dark:text-muted"
               }`}
             >
               {s || "All"}
@@ -201,10 +201,10 @@ export default function AdminBugReportsPage() {
               <div className="flex items-center gap-2 mb-1">
                 <span className={`w-2 h-2 rounded-full shrink-0 ${r.priority === "critical" ? "bg-red-500" : r.priority === "high" ? "bg-orange-500" : r.priority === "medium" ? "bg-amber-500" : "bg-zinc-400"}`} />
                 <StatusBadge status={r.status} />
-                <span className="text-xs text-zinc-500 dark:text-zinc-400 capitalize">{r.priority}</span>
+                <span className="text-xs text-muted capitalize">{r.priority}</span>
               </div>
               <p className="text-sm line-clamp-2">{r.message}</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{formatDate(r.created_at)}</p>
+              <p className="text-xs text-muted mt-1">{formatDate(r.created_at)}</p>
             </div>
           </div>
         )}
@@ -220,19 +220,19 @@ export default function AdminBugReportsPage() {
           >
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelected(null)} />
             <motion.div
-              className="relative bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto border border-zinc-200 dark:border-zinc-700"
+              className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto border border-line"
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
             >
-              <div className="flex items-center justify-between p-5 border-b border-zinc-200 dark:border-zinc-700">
+              <div className="flex items-center justify-between p-5 border-b border-line">
         <div className="flex flex-wrap gap-2">
                   <Bug className="w-5 h-5 text-amber-500" />
                   <h2 className="font-serif text-lg font-bold">Bug Report</h2>
                 </div>
                 <button
                   onClick={() => setSelected(null)}
-                  className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
+                  className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -241,12 +241,12 @@ export default function AdminBugReportsPage() {
               <div className="p-5 space-y-4">
                 <div className="flex items-center gap-3">
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Priority</p>
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider mb-1">Priority</p>
                     <select
                       value={selected.priority}
                       onChange={(e) => handlePriorityChange(selected, e.target.value)}
                       disabled={updating}
-                      className="text-sm font-medium rounded-lg border border-zinc-200 dark:border-zinc-700 px-2 py-1 bg-white dark:bg-zinc-800 outline-none"
+                      className="text-sm font-medium rounded-lg border border-line px-2 py-1 bg-surface outline-none"
                     >
                       <option value="low">Low</option>
                       <option value="medium">Medium</option>
@@ -255,12 +255,12 @@ export default function AdminBugReportsPage() {
                     </select>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Status</p>
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider mb-1">Status</p>
                     <select
                       value={selected.status}
                       onChange={(e) => handleStatusChange(selected, e.target.value)}
                       disabled={updating}
-                      className="text-sm font-medium rounded-lg border border-zinc-200 dark:border-zinc-700 px-2 py-1 bg-white dark:bg-zinc-800 outline-none"
+                      className="text-sm font-medium rounded-lg border border-line px-2 py-1 bg-surface outline-none"
                     >
                       <option value="pending">Pending</option>
                       <option value="reviewed">Reviewed</option>
@@ -270,19 +270,19 @@ export default function AdminBugReportsPage() {
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Description</p>
-                  <p className="text-sm text-zinc-700 dark:text-zinc-300 mt-1 whitespace-pre-wrap leading-relaxed">
+                  <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Description</p>
+                  <p className="text-sm text-zinc-700 dark:text-muted mt-1 whitespace-pre-wrap leading-relaxed">
                     {selected.message}
                   </p>
                 </div>
 
                 <div>
-                  <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Page URL</p>
+                  <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Page URL</p>
                   <a
                     href={selected.page_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline mt-1 flex items-center gap-1 break-all"
+                    className="text-sm text-link hover:underline mt-1 flex items-center gap-1 break-all"
                   >
                     <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                     {selected.page_url}
@@ -291,8 +291,8 @@ export default function AdminBugReportsPage() {
 
                 {selected.screenshot_url && (
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Screenshot</p>
-                    <div className="rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700">
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider mb-1">Screenshot</p>
+                    <div className="rounded-xl overflow-hidden border border-line">
                       <img
                         src={selected.screenshot_url}
                         alt="Bug screenshot"
@@ -304,43 +304,43 @@ export default function AdminBugReportsPage() {
                 )}
 
                 {!selected.screenshot_url && (
-                  <div className="flex items-center gap-2 text-xs text-zinc-400">
+                  <div className="flex items-center gap-2 text-xs text-muted">
                     <ImageIcon className="w-4 h-4" />
                     No screenshot attached
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-zinc-200 dark:border-zinc-700">
+                <div className="grid grid-cols-2 gap-4 pt-2 border-t border-line">
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Reported</p>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Reported</p>
+                    <p className="text-sm font-medium text-fg mt-1">
                       {formatDate(selected.created_at)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">User</p>
-                    <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100 mt-1">
+                    <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">User</p>
+                    <p className="text-sm font-medium text-fg mt-1">
                       {selected.user_id ? "Logged-in user" : "Anonymous"}
                     </p>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-zinc-200 dark:border-zinc-700">
-                  <p className="text-xs font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-wider mb-1">Admin Reply</p>
+                <div className="pt-2 border-t border-line">
+                  <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider mb-1">Admin Reply</p>
                   <textarea
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Add a reply or internal note..."
                     rows={3}
                     maxLength={2000}
-                    className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 resize-none"
+                    className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted resize-none"
                   />
                   <div className="flex justify-between items-center mt-2">
-                    <span className="text-xs text-zinc-400">{replyText.length}/2000</span>
+                    <span className="text-xs text-muted">{replyText.length}/2000</span>
                     <button
                       onClick={handleSaveReply}
                       disabled={updating}
-                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-primary text-white hover:bg-primary-dark transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium bg-accent text-accent-fg hover:bg-primary-dark transition-colors disabled:opacity-50"
                     >
                       {updating ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                       {updating ? "Saving..." : "Save Reply"}

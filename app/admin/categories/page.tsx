@@ -111,14 +111,14 @@ export default function CategoriesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-link" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-2xl p-6 text-center">{error}</div>
+      <div className="text-danger bg-danger-soft rounded-2xl p-6 text-center">{error}</div>
     );
   }
 
@@ -128,22 +128,22 @@ export default function CategoriesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-2xl font-bold">Categories</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage your product categories</p>
+          <p className="text-sm text-muted mt-1">Manage your product categories</p>
         </div>
         <button
           onClick={openCreate}
-          className="flex items-center gap-2 bg-primary text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-primary-dark transition-colors"
+          className="flex items-center gap-2 bg-accent text-accent-fg rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-primary-dark transition-colors"
         >
           <Plus className="w-4 h-4" />
           Add Category
         </button>
       </div>
 
-      <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden">
+      <div className="bg-surface rounded-2xl border border-line overflow-hidden">
         {/* Mobile card view */}
         <div className="md:hidden divide-y divide-zinc-100 dark:divide-zinc-700/50">
           {categories.length === 0 ? (
-            <div className="p-8 text-center text-zinc-500 dark:text-zinc-400">No categories found</div>
+            <div className="p-8 text-center text-muted">No categories found</div>
           ) : (
             categories.map((cat) => (
               <div key={cat.id} className="p-4">
@@ -156,15 +156,15 @@ export default function CategoriesPage() {
                     )}
                     <div className="min-w-0">
                       <p className="font-medium truncate">{cat.name}</p>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{cat.productCount} products</p>
-                      {cat.description && <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 line-clamp-1">{cat.description}</p>}
+                      <p className="text-xs text-muted">{cat.productCount} products</p>
+                      {cat.description && <p className="text-xs text-muted mt-0.5 line-clamp-1">{cat.description}</p>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
-                    <button onClick={() => openEdit(cat)} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-500 hover:text-primary">
+                    <button onClick={() => openEdit(cat)} className="p-2 rounded-lg hover:bg-surface-2 transition-colors text-zinc-500 hover:text-link-hover">
                       <Pencil className="w-4 h-4" />
                     </button>
-                    <button onClick={() => handleDelete(cat)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors text-zinc-500 hover:text-red-500">
+                    <button onClick={() => handleDelete(cat)} className="p-2 rounded-lg hover:bg-danger-soft transition-colors text-zinc-500 hover:text-red-500">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -178,22 +178,22 @@ export default function CategoriesPage() {
         <div className="overflow-x-auto hidden md:block">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
-                <th className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Name</th>
-                <th className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Slug</th>
-                <th className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Products</th>
-                <th className="text-left px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Description</th>
-                <th className="text-right px-4 py-3 font-medium text-zinc-500 dark:text-zinc-400">Actions</th>
+              <tr className="border-b border-line bg-surface-2/50">
+                <th className="text-left px-4 py-3 font-medium text-muted">Name</th>
+                <th className="text-left px-4 py-3 font-medium text-muted">Slug</th>
+                <th className="text-left px-4 py-3 font-medium text-muted">Products</th>
+                <th className="text-left px-4 py-3 font-medium text-muted">Description</th>
+                <th className="text-right px-4 py-3 font-medium text-muted">Actions</th>
               </tr>
             </thead>
             <tbody>
               {categories.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12 text-zinc-500 dark:text-zinc-400">No categories found</td>
+                  <td colSpan={5} className="text-center py-12 text-muted">No categories found</td>
                 </tr>
               ) : (
                 categories.map((cat) => (
-                  <tr key={cat.id} className="border-b border-zinc-100 dark:border-zinc-700/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
+                  <tr key={cat.id} className="border-b border-line/50 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
                         {cat.image && (
@@ -204,15 +204,15 @@ export default function CategoriesPage() {
                         <span className="font-medium">{cat.name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400">{cat.slug}</td>
+                    <td className="px-4 py-3 text-muted">{cat.slug}</td>
                     <td className="px-4 py-3">{cat.productCount}</td>
-                    <td className="px-4 py-3 text-zinc-500 dark:text-zinc-400 max-w-xs truncate">{cat.description}</td>
+                    <td className="px-4 py-3 text-muted max-w-xs truncate">{cat.description}</td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <button onClick={() => openEdit(cat)} className="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors text-zinc-500 hover:text-primary" title="Edit">
+                        <button onClick={() => openEdit(cat)} className="p-2 rounded-lg hover:bg-surface-2 transition-colors text-zinc-500 hover:text-link-hover" title="Edit">
                           <Pencil className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(cat)} className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors text-zinc-500 hover:text-red-500" title="Delete">
+                        <button onClick={() => handleDelete(cat)} className="p-2 rounded-lg hover:bg-danger-soft transition-colors text-zinc-500 hover:text-red-500" title="Delete">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Quote } from "lucide-react";
+import { motion } from "framer-motion";
+import { Quote, Star } from "lucide-react";
 import Link from "next/link";
 import { API_BASE } from "@/src/lib/constants";
 import { Card } from "@/src/components/ui/Card";
-import { Rating } from "@/src/components/ui/Rating";
 import { Section, SectionHeader } from "@/src/components/ui/Section";
-import { formatDate } from "@/src/lib/utils";
 
 interface Review {
   id: string;
@@ -17,6 +16,34 @@ interface Review {
   product_id: string;
   profiles: { name: string; avatar_url: string | null } | null;
   products: { name: string; slug: string; images: string[] } | null;
+}
+
+function formatDate(date: string | null | undefined): string {
+  if (!date) return "—";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "—";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(d);
+}
+
+function ReviewStars({ value }: { value: number }) {
+  return (
+    <div className="flex gap-0.5" aria-label={`Rated ${value} out of 5`}>
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`w-3.5 h-3.5 ${
+            star <= Math.round(value)
+              ? "fill-accent text-accent"
+              : "fill-surface-3 text-surface-3"
+          }`}
+        />
+      ))}
+    </div>
+  );
 }
 
 export function CustomerReviews() {
@@ -43,44 +70,59 @@ export function CustomerReviews() {
         description="Real feedback from customers across Bangladesh."
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        {reviews.map((review) => (
-          <Card key={review.id} padded className="relative flex flex-col">
-            <Quote
-              className="absolute top-5 right-5 w-6 h-6 text-surface-3"
-              aria-hidden="true"
-            />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {reviews.slice(0, 6).map((review, i) => (
+          <motion.div
+            key={review.id}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ duration: 0.4, delay: i * 0.06 }}
+          >
+            <Card padded className="relative flex h-full flex-col">
+              {/* Decorative quote mark */}
+              <Quote
+                className="absolute top-4 right-4 w-7 h-7 text-surface-3/70"
+                aria-hidden="true"
+                strokeWidth={1}
+              />
 
-            <div className="flex items-center gap-2 mb-3 pr-8">
-              <Rating value={review.rating} />
-              <span className="text-xs text-subtle tabular">
-                {formatDate(review.created_at)}
-              </span>
-            </div>
-
-            <p className="text-sm text-fg leading-relaxed line-clamp-4 mb-5">
-              &ldquo;{review.text}&rdquo;
-            </p>
-
-            <div className="flex items-center gap-3 mt-auto pt-4 border-t border-line">
-              <div className="w-9 h-9 rounded-full bg-brand text-brand-fg font-bold text-sm flex items-center justify-center shrink-0">
-                {review.profiles?.name?.[0]?.toUpperCase() ?? "?"}
+              {/* Rating + date */}
+              <div className="flex items-center justify-between gap-3 mb-3.5 pr-6">
+                <ReviewStars value={review.rating} />
+                <span className="text-[11px] text-subtle tabular shrink-0">
+                  {formatDate(review.created_at)}
+                </span>
               </div>
-              <div className="min-w-0">
-                <p className="text-[13px] font-semibold text-fg truncate">
-                  {review.profiles?.name ?? "Customer"}
+
+              {/* Review text */}
+              <div className="flex-1">
+                <p className="text-sm text-fg leading-relaxed line-clamp-4 italic">
+                  &ldquo;{review.text}&rdquo;
                 </p>
-                {review.products && (
-                  <Link
-                    href={`/product/${review.products.slug}`}
-                    className="text-xs text-link hover:text-link-hover transition-colors truncate block"
-                  >
-                    {review.products.name}
-                  </Link>
-                )}
               </div>
-            </div>
-          </Card>
+
+              {/* Author info */}
+              <div className="flex items-center gap-3 mt-auto pt-4 border-t border-line">
+                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand to-brand-hover text-brand-fg font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  {review.profiles?.name?.[0]?.toUpperCase() ?? "?"}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-semibold text-fg truncate">
+                    {review.profiles?.name ?? "Customer"}
+                  </p>
+                  {review.products && (
+                    <Link
+                      href={`/product/${review.products.slug}`}
+                      className="text-[12px] text-link hover:text-link-hover transition-colors truncate block"
+                    >
+                      {review.products.name}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </Card>
+          </motion.div>
         ))}
       </div>
     </Section>

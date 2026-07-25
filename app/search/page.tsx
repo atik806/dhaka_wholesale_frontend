@@ -55,7 +55,7 @@ function SearchPage() {
         <Breadcrumbs items={[{ label: "Search" }]} />
 
         <header className="mb-5">
-          <h1 className="text-2xl font-bold text-fg sm:text-3xl">Search products</h1>
+          <h1 className="text-2xl font-bold font-serif text-fg sm:text-3xl">Search products</h1>
           <p className="mt-1.5 text-sm text-muted">
             Find products across every category in the store.
           </p>

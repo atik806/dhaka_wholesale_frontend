@@ -242,23 +242,25 @@ export default function CheckoutPage() {
       <div className="container py-6 sm:py-8 pb-32 lg:pb-8">
         <Breadcrumbs items={[{ label: "Checkout" }]} />
 
-        <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
+        <div className="flex flex-wrap items-end justify-between gap-3 mb-6 sm:mb-8">
           <div className="min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold">Checkout</h1>
-            <p className="text-[13px] text-muted mt-1 flex items-center gap-1.5">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-serif tracking-tight">
+              Checkout
+            </h1>
+            <p className="text-sm text-muted mt-1.5 flex items-center gap-1.5">
               <Lock className="w-3.5 h-3.5 text-subtle" />
               Secure checkout · cash on delivery nationwide
             </p>
           </div>
           <Link
             href="/cart"
-            className="text-[13px] font-semibold text-link hover:text-link-hover underline underline-offset-4 shrink-0"
+            className="text-[13px] font-semibold text-link hover:text-link-hover underline underline-offset-4 shrink-0 flex items-center gap-1"
           >
             Edit cart
           </Link>
         </div>
 
-        <Card className="p-4 sm:p-5 mb-6">
+        <Card className="p-3 sm:p-4 mb-6 shadow-sm">
           <CheckoutStepper step={shippingComplete ? 2 : 0} />
         </Card>
 

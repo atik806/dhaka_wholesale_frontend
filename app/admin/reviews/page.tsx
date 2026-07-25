@@ -54,7 +54,7 @@ export default function AdminReviewsPage() {
       key: "product",
       label: "Product",
       render: (review) => (
-        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+        <span className="font-medium text-fg">
           {review.products?.name || "Unknown Product"}
         </span>
       ),
@@ -91,7 +91,7 @@ export default function AdminReviewsPage() {
         const truncated = review.text.length > 60 ? review.text.slice(0, 60) + "..." : review.text;
         return (
           <span
-            className="text-zinc-600 dark:text-zinc-300 max-w-xs block truncate"
+            className="text-zinc-600 dark:text-muted max-w-xs block truncate"
             title={review.text}
           >
             {truncated}
@@ -103,7 +103,7 @@ export default function AdminReviewsPage() {
       key: "created_at",
       label: "Date",
       render: (review) => (
-        <span className="text-zinc-500 dark:text-zinc-400">{formatDate(review.created_at)}</span>
+        <span className="text-muted">{formatDate(review.created_at)}</span>
       ),
     },
     {
@@ -113,7 +113,7 @@ export default function AdminReviewsPage() {
         <button
           onClick={(e) => { e.stopPropagation(); handleDelete(review); }}
           disabled={actionLoading === review.id}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-danger-soft disabled:opacity-50 transition-colors"
         >
           {actionLoading === review.id
             ? <div className="w-3.5 h-3.5 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
@@ -128,7 +128,7 @@ export default function AdminReviewsPage() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-2xl px-6 py-4 text-red-700 dark:text-red-400">
+        <div className="bg-danger-soft border border-red-200 dark:border-red-900/50 rounded-2xl px-6 py-4 text-red-700 dark:text-red-400">
           {error}
         </div>
       </div>
@@ -141,8 +141,8 @@ export default function AdminReviewsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
           <h1 className="font-serif text-2xl font-bold">Reviews</h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Manage customer product reviews &mdash; <span className="text-primary font-medium">{reviews.length}</span> total
+          <p className="text-sm text-muted mt-1">
+            Manage customer product reviews &mdash; <span className="text-link font-medium">{reviews.length}</span> total
           </p>
         </div>
       </div>
@@ -159,19 +159,19 @@ export default function AdminReviewsPage() {
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium truncate">{review.products?.name || "Unknown Product"}</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">{review.profiles?.name || "Unknown"}</p>
+              <p className="text-xs text-muted">{review.profiles?.name || "Unknown"}</p>
               <div className="flex items-center gap-0.5 mt-1">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star key={i} className={`w-3 h-3 ${i < review.rating ? "fill-amber-400 text-amber-400" : "fill-zinc-200 dark:fill-zinc-600 text-zinc-200 dark:text-zinc-600"}`} />
                 ))}
               </div>
-              <p className="text-xs text-zinc-600 dark:text-zinc-300 mt-1 line-clamp-2">{review.text}</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">{formatDate(review.created_at)}</p>
+              <p className="text-xs text-zinc-600 dark:text-muted mt-1 line-clamp-2">{review.text}</p>
+              <p className="text-xs text-muted mt-1">{formatDate(review.created_at)}</p>
             </div>
             <button
               onClick={(e) => { e.stopPropagation(); handleDelete(review); }}
               disabled={actionLoading === review.id}
-              className="p-2 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 transition-colors shrink-0"
+              className="p-2 rounded-lg text-red-400 hover:bg-danger-soft disabled:opacity-50 transition-colors shrink-0"
             >
               <Trash2 className="w-4 h-4" />
             </button>

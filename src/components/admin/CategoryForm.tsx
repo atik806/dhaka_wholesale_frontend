@@ -64,11 +64,11 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-zinc-800 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-xl w-full max-w-lg p-6"
+            className="bg-surface rounded-2xl border border-line shadow-xl w-full max-w-lg p-6"
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-bold">{initialData ? "Edit Category" : "Add Category"}</h2>
-              <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors">
+              <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -81,7 +81,7 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
                   onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Category name"
                   required
-                  className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                  className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                 />
               </div>
               <div>
@@ -92,7 +92,7 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
                   onChange={(e) => { setSlug(e.target.value); setSlugManuallyEdited(true); }}
                   placeholder="category-slug"
                   required
-                  className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                  className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                 />
               </div>
               <div>
@@ -102,7 +102,7 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Category description"
                   rows={3}
-                  className="w-full rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 resize-none"
+                  className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted resize-none"
                 />
               </div>
               <div>
@@ -120,14 +120,14 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
                 <button
                   type="button"
                   onClick={onClose}
-                  className="flex-1 rounded-xl border border-zinc-200 dark:border-zinc-700 px-4 py-2.5 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
+                  className="flex-1 rounded-xl border border-line px-4 py-2.5 text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-700 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-primary text-white rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 bg-accent text-accent-fg rounded-xl px-4 py-2.5 text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {initialData ? "Save Changes" : "Create Category"}
