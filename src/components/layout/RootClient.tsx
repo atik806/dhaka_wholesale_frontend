@@ -19,8 +19,8 @@ const pageTransition = {
   initial: { opacity: 0, y: 6 },
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -6 },
-  transition: { duration: 0.2, ease: "easeOut" },
-};
+  transition: { duration: 0.2, ease: "easeOut" as const },
+} as const;
 
 export function RootClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
