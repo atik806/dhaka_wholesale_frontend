@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -249,9 +249,7 @@ function ShopPage() {
               <ProductGrid products={[]} loading />
             ) : (
               <>
-                <AnimatePresence mode="wait">
-                  <ProductGrid key={searchParams.toString() || "default"} products={products} />
-                </AnimatePresence>
+                <ProductGrid products={products} />
 
                 {totalPages > 1 && (
                   <nav

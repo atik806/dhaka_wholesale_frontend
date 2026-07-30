@@ -276,26 +276,30 @@ export function DepartmentsPanel() {
 
       <AnimatePresence>
         {open && !isDesktop && (
-          <>
-            <motion.button
-              type="button"
-              aria-label="Close categories"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[55] bg-black/50 lg:hidden"
-              onClick={closeDepartments}
-            />
-            <motion.aside
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "tween", duration: 0.25 }}
-              className="fixed left-0 top-0 bottom-0 z-[60] w-[min(100vw-3rem,20rem)] shadow-xl lg:hidden"
-            >
-              {panelInner}
-            </motion.aside>
-          </>
+          <motion.button
+            key="overlay"
+            type="button"
+            aria-label="Close categories"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[55] bg-black/50 lg:hidden"
+            onClick={closeDepartments}
+          />
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {open && !isDesktop && (
+          <motion.aside
+            key="panel"
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "tween", duration: 0.25 }}
+            className="fixed left-0 top-0 bottom-0 z-[60] w-[min(100vw-3rem,20rem)] shadow-xl lg:hidden"
+          >
+            {panelInner}
+          </motion.aside>
         )}
       </AnimatePresence>
 
