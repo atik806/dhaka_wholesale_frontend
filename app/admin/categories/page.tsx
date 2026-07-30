@@ -292,7 +292,7 @@ export default function CategoriesPage() {
           slug: editingCategory.slug,
           description: editingCategory.description,
           image_url: editingCategory.image,
-          parent_id: findParentId(editingCategory),
+          parent_id: findParentId(editingCategory) ?? '',
         } : undefined}
         loading={submitting}
       />

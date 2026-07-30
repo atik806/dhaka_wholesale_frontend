@@ -19,27 +19,22 @@ interface CategoryFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: CategoryFormData) => Promise<void>;
-  initialData?: Partial<CategoryFormData>;
+  initialData?: Record<string, unknown>;
   loading?: boolean;
-}
-
-interface CategoryFormInitialData extends Partial<CategoryFormData> {
-  id?: string;
 }
 
 export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }: CategoryFormProps) {
   const { data: allCategories = [] } = useCategories();
-  const typedInitial = initialData as CategoryFormInitialData | undefined;
-  const [name, setName] = useState(typedInitial?.name ?? "");
-  const [slug, setSlug] = useState(typedInitial?.slug ?? "");
-  const [description, setDescription] = useState(typedInitial?.description ?? "");
-  const [imageUrl, setImageUrl] = useState(typedInitial?.image_url ?? "");
-  const [parentId, setParentId] = useState<string>(typedInitial?.parent_id ?? "");
+  const [name, setName] = useState((initialData?.name as string) ?? "");
+  const [slug, setSlug] = useState((initialData?.slug as string) ?? "");
+  const [description, setDescription] = useState((initialData?.description as string) ?? "");
+  const [imageUrl, setImageUrl] = useState((initialData?.image_url as string) ?? "");
+  const [parentId, setParentId] = useState<string>((initialData?.parent_id as string) ?? "");
   const [error, setError] = useState("");
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
   const parentOptions = allCategories.filter(
-    (cat) => !cat.parentId && cat.id !== typedInitial?.id
+    (cat) => !cat.parentId && cat.id !== (initialData?.id as string)
   );
 
   const handleNameChange = (value: string) => {
