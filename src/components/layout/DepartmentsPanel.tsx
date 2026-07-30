@@ -5,10 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, ChevronRight, Package, Sparkles, TrendingUp, X } from "lucide-react";
-import { useCategories } from "@/src/hooks/useApi";
+import { Menu, ChevronRight, ChevronDown, Package, Sparkles, TrendingUp, X } from "lucide-react";
+import { useCategoryTree, useCategories } from "@/src/hooks/useApi";
 import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
-import { safeImage } from "@/src/lib/utils";
+import { safeImage, cn } from "@/src/lib/utils";
 
 const QUICK_LINKS = [
   { href: "/shop", label: "All shop", icon: Package },
@@ -21,6 +21,8 @@ const isCompact = () => window.matchMedia("(max-width: 1023px)").matches;
 export function DepartmentsPanel() {
   const pathname = usePathname();
   const { data: categories = [], isLoading } = useCategories();
+  const { data: categoryTree = [] } = useCategoryTree();
+  const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
   const open = useDepartmentsStore((s) => s.open);
   const setOpen = useDepartmentsStore((s) => s.setOpen);
   const toggleDepartments = useDepartmentsStore((s) => s.toggleDepartments);
@@ -113,46 +115,130 @@ export function DepartmentsPanel() {
             <p className="px-4 py-6 text-sm text-muted">No categories yet.</p>
           )}
           <ul className="divide-y divide-line">
-            {categories.map((cat) => {
-              const active = pathname === `/shop/${cat.slug}`;
-              return (
-                <li key={cat.id}>
-                  <Link
-                    href={`/shop/${cat.slug}`}
-                    onClick={closeIfCompact}
-                    aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                      active
-                        ? "bg-accent-soft border-l-[3px] border-l-accent pl-[13px]"
-                        : "hover:bg-surface-2"
-                    }`}
-                  >
-                    <span className="relative w-9 h-9 shrink-0 rounded-md overflow-hidden bg-surface-2 border border-line">
-                      <Image
-                        src={safeImage(cat.image ? [cat.image] : [])}
-                        alt=""
-                        fill
-                        className="object-cover"
-                        sizes="36px"
-                      />
-                    </span>
-                    <span className="flex-1 min-w-0">
-                      <span
-                        className={`block text-[13px] leading-tight truncate ${
-                          active ? "font-bold text-fg" : "font-medium text-fg"
+            {categoryTree.length > 0
+              ? categoryTree.map((parent) => {
+                  const isExpanded = expandedParents[parent.id] !== false;
+                  const hasChildren = parent.children && parent.children.length > 0;
+                  return (
+                    <li key={parent.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (hasChildren) {
+                            setExpandedParents((prev) => ({
+                              ...prev,
+                              [parent.id]: !isExpanded,
+                            }));
+                          } else {
+                            closeIfCompact();
+                          }
+                        }}
+                        className="flex items-center gap-3 w-full px-4 py-2.5 transition-colors hover:bg-surface-2 text-left"
+                      >
+                        <span className="relative w-9 h-9 shrink-0 rounded-md overflow-hidden bg-surface-2 border border-line">
+                          <Image
+                            src={safeImage(parent.image ? [parent.image] : [])}
+                            alt=""
+                            fill
+                            className="object-cover"
+                            sizes="36px"
+                          />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-[13px] leading-tight truncate font-bold text-fg">
+                            {parent.name}
+                          </span>
+                          <span className="block text-[11px] text-subtle tabular">
+                            {parent.productCount ?? 0} items
+                          </span>
+                        </span>
+                        {hasChildren && (
+                          <ChevronDown
+                            className={cn(
+                              "w-4 h-4 text-subtle shrink-0 transition-transform duration-200",
+                              isExpanded ? "" : "-rotate-90"
+                            )}
+                          />
+                        )}
+                      </button>
+                      {hasChildren && isExpanded && (
+                        <ul className="border-t border-line">
+                          {parent.children!.map((child) => {
+                            const active = pathname === `/shop/${child.slug}`;
+                            return (
+                              <li key={child.id}>
+                                <Link
+                                  href={`/shop/${child.slug}`}
+                                  onClick={closeIfCompact}
+                                  aria-current={active ? "page" : undefined}
+                                  className={`flex items-center gap-3 pl-12 pr-4 py-2.5 transition-colors ${
+                                    active
+                                      ? "bg-accent-soft border-l-[3px] border-l-accent"
+                                      : "hover:bg-surface-2"
+                                  }`}
+                                >
+                                  <span className="flex-1 min-w-0">
+                                    <span
+                                      className={`block text-[13px] leading-tight truncate ${
+                                        active ? "font-bold text-fg" : "font-medium text-fg"
+                                      }`}
+                                    >
+                                      {child.name}
+                                    </span>
+                                    <span className="block text-[11px] text-subtle tabular">
+                                      {child.productCount ?? 0} items
+                                    </span>
+                                  </span>
+                                  <ChevronRight className="w-4 h-4 text-subtle shrink-0" />
+                                </Link>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })
+              : categories.map((cat) => {
+                  const active = pathname === `/shop/${cat.slug}`;
+                  return (
+                    <li key={cat.id}>
+                      <Link
+                        href={`/shop/${cat.slug}`}
+                        onClick={closeIfCompact}
+                        aria-current={active ? "page" : undefined}
+                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
+                          active
+                            ? "bg-accent-soft border-l-[3px] border-l-accent pl-[13px]"
+                            : "hover:bg-surface-2"
                         }`}
                       >
-                        {cat.name}
-                      </span>
-                      <span className="block text-[11px] text-subtle tabular">
-                        {cat.productCount ?? 0} items
-                      </span>
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-subtle shrink-0" />
-                  </Link>
-                </li>
-              );
-            })}
+                        <span className="relative w-9 h-9 shrink-0 rounded-md overflow-hidden bg-surface-2 border border-line">
+                          <Image
+                            src={safeImage(cat.image ? [cat.image] : [])}
+                            alt=""
+                            fill
+                            className="object-cover"
+                            sizes="36px"
+                          />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span
+                            className={`block text-[13px] leading-tight truncate ${
+                              active ? "font-bold text-fg" : "font-medium text-fg"
+                            }`}
+                          >
+                            {cat.name}
+                          </span>
+                          <span className="block text-[11px] text-subtle tabular">
+                            {cat.productCount ?? 0} items
+                          </span>
+                        </span>
+                        <ChevronRight className="w-4 h-4 text-subtle shrink-0" />
+                      </Link>
+                    </li>
+                  );
+                })}
           </ul>
         </nav>
       </div>

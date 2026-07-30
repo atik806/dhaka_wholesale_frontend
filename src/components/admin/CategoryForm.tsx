@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
 import { slugify } from "@/src/lib/utils";
+import { useCategories } from "@/src/hooks/useApi";
 import { ImageUpload } from "./ImageUpload";
 
 export interface CategoryFormData {
@@ -11,6 +12,7 @@ export interface CategoryFormData {
   slug: string;
   description: string;
   image_url: string;
+  parent_id?: string | null;
 }
 
 interface CategoryFormProps {
@@ -21,13 +23,24 @@ interface CategoryFormProps {
   loading?: boolean;
 }
 
+interface CategoryFormInitialData extends Partial<CategoryFormData> {
+  id?: string;
+}
+
 export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }: CategoryFormProps) {
-  const [name, setName] = useState(initialData?.name ?? "");
-  const [slug, setSlug] = useState(initialData?.slug ?? "");
-  const [description, setDescription] = useState(initialData?.description ?? "");
-  const [imageUrl, setImageUrl] = useState(initialData?.image_url ?? "");
+  const { data: allCategories = [] } = useCategories();
+  const typedInitial = initialData as CategoryFormInitialData | undefined;
+  const [name, setName] = useState(typedInitial?.name ?? "");
+  const [slug, setSlug] = useState(typedInitial?.slug ?? "");
+  const [description, setDescription] = useState(typedInitial?.description ?? "");
+  const [imageUrl, setImageUrl] = useState(typedInitial?.image_url ?? "");
+  const [parentId, setParentId] = useState<string>(typedInitial?.parent_id ?? "");
   const [error, setError] = useState("");
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+
+  const parentOptions = allCategories.filter(
+    (cat) => !cat.parentId && cat.id !== typedInitial?.id
+  );
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -42,7 +55,13 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
     if (!name.trim()) { setError("Name is required"); return; }
     if (!slug.trim()) { setError("Slug is required"); return; }
     try {
-      await onSubmit({ name: name.trim(), slug: slug.trim(), description: description.trim(), image_url: imageUrl.trim() || '' });
+      await onSubmit({
+        name: name.trim(),
+        slug: slug.trim(),
+        description: description.trim(),
+        image_url: imageUrl.trim() || '',
+        parent_id: parentId || null,
+      });
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -94,6 +113,21 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
                   required
                   className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Parent Category</label>
+                <select
+                  value={parentId}
+                  onChange={(e) => setParentId(e.target.value)}
+                  className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg"
+                >
+                  <option value="">None (top-level category)</option>
+                  {parentOptions.map((parent) => (
+                    <option key={parent.id} value={parent.id}>
+                      {parent.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5">Description</label>

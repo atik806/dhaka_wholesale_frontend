@@ -36,6 +36,8 @@ interface BackendCategory {
   description: string;
   image_url: string;
   product_count: number;
+  parent_id: string | null;
+  children?: BackendCategory[];
 }
 
 function mapProduct(p: BackendProduct): Product {
@@ -72,6 +74,8 @@ function mapCategory(c: BackendCategory): Category {
     image: c.image_url ?? '',
     productCount: c.product_count,
     description: c.description ?? '',
+    parentId: c.parent_id ?? null,
+    children: c.children ? c.children.map(mapCategory) : undefined,
   };
 }
 
@@ -179,6 +183,11 @@ export async function fetchCategoryBySlug(slug: string, signal?: AbortSignal): P
   } catch {
     return null;
   }
+}
+
+export async function fetchCategoryTree(signal?: AbortSignal): Promise<Category[]> {
+  const res = await fetcher<BackendCategory[]>('/categories?tree=true', signal);
+  return (res.data || []).map(mapCategory);
 }
 
 export async function submitReport(data: {

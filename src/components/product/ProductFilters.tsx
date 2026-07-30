@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, X, Star, SlidersHorizontal } from "lucide-react";
-import { useCategories } from "@/src/hooks/useApi";
+import { useCategoryTree } from "@/src/hooks/useApi";
 import { priceRanges } from "@/src/lib/constants";
 import { cn } from "@/src/lib/utils";
 
@@ -95,7 +95,7 @@ export function ProductFilters({
   onClose,
   bare = false,
 }: ProductFiltersProps) {
-  const { data: categories = [] } = useCategories();
+  const { data: categoryTree = [] } = useCategoryTree();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     category: true,
     price: true,
@@ -171,21 +171,32 @@ export function ProductFilters({
         expanded={expandedSections.category}
         onToggle={() => toggleSection("category")}
       >
-        <div className="space-y-1">
-          {categories.map((cat) => (
-            <label
-              key={cat.id}
-              className="group flex cursor-pointer items-center gap-2.5 py-1"
-            >
-              <CustomCheckbox
-                checked={filters.categories.includes(cat.slug)}
-                onChange={() => toggleCategory(cat.slug)}
-              />
-              <span className="text-[13px] text-fg transition-colors group-hover:text-accent-hover">
-                {cat.name}
-              </span>
-            </label>
-          ))}
+        <div className="space-y-2">
+          {categoryTree.length > 0
+            ? categoryTree.map((parent) => (
+                <div key={parent.id}>
+                  <p className="label-caps text-[11px] text-subtle mb-1 mt-2 first:mt-0">
+                    {parent.name}
+                  </p>
+                  {parent.children?.map((child) => (
+                    <label
+                      key={child.id}
+                      className="group flex cursor-pointer items-center gap-2.5 py-1"
+                    >
+                      <CustomCheckbox
+                        checked={filters.categories.includes(child.slug)}
+                        onChange={() => toggleCategory(child.slug)}
+                      />
+                      <span className="text-[13px] text-fg transition-colors group-hover:text-accent-hover">
+                        {child.name}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              ))
+            : categoryTree.length === 0 &&
+              /* Fallback: show all categories flat */
+              null}
         </div>
       </FilterSection>
 

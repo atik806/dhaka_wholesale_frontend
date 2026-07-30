@@ -1,3 +1,5 @@
+import type { Category } from '@/src/types/product';
+
 type ClassValue = string | number | bigint | false | null | undefined;
 
 export function cn(...inputs: ClassValue[]) {
@@ -35,6 +37,38 @@ export function generateId(): string {
 
 export function safeImage(images: string[] | undefined | null, fallback = '/placeholder.svg'): string {
   return images?.[0] || fallback;
+}
+
+export function groupCategoriesByParent(
+  categories: Category[]
+): { parents: Category[]; childrenByParentId: Record<string, Category[]>; ungrouped: Category[] } {
+  const parents: Category[] = [];
+  const childrenByParentId: Record<string, Category[]> = {};
+  const ungrouped: Category[] = [];
+
+  const parentMap = new Map<string, Category>();
+
+  for (const cat of categories) {
+    if (!cat.parentId) {
+      parents.push(cat);
+      parentMap.set(cat.id, cat);
+    }
+  }
+
+  for (const cat of categories) {
+    if (cat.parentId) {
+      if (parentMap.has(cat.parentId)) {
+        if (!childrenByParentId[cat.parentId]) {
+          childrenByParentId[cat.parentId] = [];
+        }
+        childrenByParentId[cat.parentId].push(cat);
+      } else {
+        ungrouped.push(cat);
+      }
+    }
+  }
+
+  return { parents, childrenByParentId, ungrouped };
 }
 
 

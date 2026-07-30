@@ -18,7 +18,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore, useCartHydrated } from "@/src/store/useCartStore";
 import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
-import { useCategories } from "@/src/hooks/useApi";
+import { useCategories, useCategoryTree } from "@/src/hooks/useApi";
 import { fetchProducts } from "@/src/lib/api";
 import { formatPrice, safeImage } from "@/src/lib/utils";
 import { MobileNav } from "./MobileNav";
@@ -34,6 +34,7 @@ const navItem =
 
 export const Header = memo(function Header() {
   const { data: categories = [] } = useCategories();
+  const { data: categoryTree = [] } = useCategoryTree();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [navHidden, setNavHidden] = useState(false);
   const lastScrollY = useRef(0);
@@ -236,11 +237,23 @@ export const Header = memo(function Header() {
                   className="hidden lg:block max-w-[8.5rem] shrink-0 bg-surface-2 text-fg text-[13px] font-medium border-0 border-r border-line px-2.5 outline-none cursor-pointer"
                 >
                   <option value="all">All categories</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.slug}>
-                      {cat.name}
-                    </option>
-                  ))}
+                  {categoryTree.length > 0
+                    ? categoryTree.map((parent) => (
+                        <optgroup key={parent.id} label={parent.name}>
+                          {parent.children?.map((child) => (
+                            <option key={child.id} value={child.slug}>
+                              {child.name}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))
+                    : categories.map((cat) =>
+                        cat.parentId ? null : (
+                          <option key={cat.id} value={cat.slug}>
+                            {cat.name}
+                          </option>
+                        )
+                      )}
                 </select>
                 <input
                   ref={searchInputRef}

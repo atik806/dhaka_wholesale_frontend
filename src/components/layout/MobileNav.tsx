@@ -19,7 +19,7 @@ import {
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useRef, useEffect } from "react";
-import { useCategories } from "@/src/hooks/useApi";
+import { useCategoryTree } from "@/src/hooks/useApi";
 import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { Button } from "@/src/components/ui/Button";
@@ -47,7 +47,7 @@ const drawerRow =
 
 export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
   const pathname = usePathname();
-  const { data: categories = [] } = useCategories();
+  const { data: categoryTree = [] } = useCategoryTree();
   const openDepartments = useDepartmentsStore((s) => s.openDepartments);
   const navRef = useRef<HTMLElement>(null);
   const { theme, toggleTheme } = useTheme();
@@ -204,29 +204,35 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                 </div>
 
                 {/* Categories */}
-                {categories.length > 0 && (
+                {categoryTree.length > 0 && (
                   <div className="mt-6">
                     <p className="label-caps text-subtle px-3 mb-2">Categories</p>
                     <ul>
-                      {categories.map((cat) => {
-                        const active = pathname === `/shop/${cat.slug}`;
-                        return (
-                          <li key={cat.id}>
-                            <Link
-                              href={`/shop/${cat.slug}`}
-                              onClick={onClose}
-                              aria-current={active ? "page" : undefined}
-                              className={`block px-3 min-h-[44px] py-2.5 rounded-md text-sm transition-colors ${
-                                active
-                                  ? "bg-accent-soft text-fg font-semibold"
-                                  : "text-muted hover:bg-surface-2 hover:text-fg"
-                              }`}
-                            >
-                              {cat.name}
-                            </Link>
-                          </li>
-                        );
-                      })}
+                      {categoryTree.map((parent) => (
+                        <li key={parent.id}>
+                          <p className="px-3 py-2 text-[13px] font-bold text-fg">
+                            {parent.name}
+                          </p>
+                          {parent.children?.map((child) => {
+                            const active = pathname === `/shop/${child.slug}`;
+                            return (
+                              <Link
+                                key={child.id}
+                                href={`/shop/${child.slug}`}
+                                onClick={onClose}
+                                aria-current={active ? "page" : undefined}
+                                className={`block pl-8 pr-3 min-h-[44px] py-2.5 rounded-md text-sm transition-colors ${
+                                  active
+                                    ? "bg-accent-soft text-fg font-semibold"
+                                    : "text-muted hover:bg-surface-2 hover:text-fg"
+                                }`}
+                              >
+                                {child.name}
+                              </Link>
+                            );
+                          })}
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}

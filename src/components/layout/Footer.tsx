@@ -11,7 +11,7 @@ import {
   Headphones,
 } from "lucide-react";
 import Link from "next/link";
-import { useCategories } from "@/src/hooks/useApi";
+import { useCategoryTree } from "@/src/hooks/useApi";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { SITE_NAME } from "@/src/lib/constants";
 
@@ -58,7 +58,7 @@ const linkClass =
 const headingClass = "text-[15px] font-bold text-brand-fg mb-4";
 
 export const Footer = memo(function Footer() {
-  const { data: categories = [] } = useCategories();
+  const { data: categoryTree = [] } = useCategoryTree();
 
   return (
     <footer className="bg-brand text-brand-fg">
@@ -165,10 +165,10 @@ export const Footer = memo(function Footer() {
                   Shop All Products
                 </Link>
               </li>
-              {categories.slice(0, 5).map((cat) => (
-                <li key={cat.id}>
-                  <Link href={`/shop/${cat.slug}`} className={linkClass}>
-                    {cat.name}
+              {categoryTree.slice(0, 4).map((parent) => (
+                <li key={parent.id}>
+                  <Link href={`/shop/${parent.slug}`} className={linkClass}>
+                    {parent.name}
                   </Link>
                 </li>
               ))}
