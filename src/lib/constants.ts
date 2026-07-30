@@ -31,9 +31,8 @@ export const DELIVERY_ZONE_LABELS: Record<DeliveryZone, string> = {
 
 export const priceRanges = [
   { value: "all", label: "All Prices" },
-  { value: "0-25", label: "Under ৳25" },
-  { value: "25-50", label: "৳25 - ৳50" },
-  { value: "50-100", label: "৳50 - ৳100" },
-  { value: "100-200", label: "৳100 - ৳200" },
-  { value: "200-99999", label: "Over ৳200" },
+  { value: "0-1000", label: "Under ৳1,000" },
+  { value: "1000-2000", label: "৳1,000 - ৳2,000" },
+  { value: "2000-5000", label: "৳2,000 - ৳5,000" },
+  { value: "5000-999999", label: "Over ৳5,000" },
 ];
