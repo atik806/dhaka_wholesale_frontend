@@ -31,6 +31,14 @@ const nextConfig: NextConfig = {
         : []),
     ],
   },
+  // Keep recently-viewed dynamic pages (product/category) in the client router
+  // cache briefly so back-navigation renders instantly instead of re-fetching.
+  experimental: {
+    staleTimes: {
+      dynamic: 30,
+      static: 300,
+    },
+  },
   async headers() {
     return [
       {

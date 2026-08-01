@@ -8,13 +8,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, ChevronRight, ChevronDown, Package, Sparkles, TrendingUp, X } from "lucide-react";
 import { useCategoryTree, useCategories } from "@/src/hooks/useApi";
 import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
-import { safeImage, cn } from "@/src/lib/utils";
+import { safeImage, cn, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
+import type { Category } from "@/src/types/product";
 
 const QUICK_LINKS = [
   { href: "/shop", label: "All shop", icon: Package },
   { href: "/shop?sort=newest", label: "New in", icon: Sparkles },
   { href: "/shop?sort=popular", label: "Bestsellers", icon: TrendingUp },
 ];
+
+// A parent's item count should include its subcategories' products.
+const countItems = (cat: Category): number =>
+  (cat.productCount ?? 0) +
+  (cat.children ?? []).reduce((sum, c) => sum + countItems(c), 0);
 
 const isCompact = () => window.matchMedia("(max-width: 1023px)").matches;
 
@@ -140,6 +146,9 @@ export function DepartmentsPanel() {
                             src={safeImage(parent.image ? [parent.image] : [])}
                             alt=""
                             fill
+                            placeholder="blur"
+                            blurDataURL={IMAGE_BLUR_PLACEHOLDER}
+                            loading="lazy"
                             className="object-cover"
                             sizes="36px"
                           />
@@ -149,7 +158,7 @@ export function DepartmentsPanel() {
                             {parent.name}
                           </span>
                           <span className="block text-[11px] text-subtle tabular">
-                            {parent.productCount ?? 0} items
+                            {countItems(parent)} items
                           </span>
                         </span>
                         {hasChildren && (
@@ -186,7 +195,7 @@ export function DepartmentsPanel() {
                                       {child.name}
                                     </span>
                                     <span className="block text-[11px] text-subtle tabular">
-                                      {child.productCount ?? 0} items
+                                      {countItems(child)} items
                                     </span>
                                   </span>
                                   <ChevronRight className="w-4 h-4 text-subtle shrink-0" />
@@ -218,6 +227,9 @@ export function DepartmentsPanel() {
                             src={safeImage(cat.image ? [cat.image] : [])}
                             alt=""
                             fill
+                            placeholder="blur"
+                            blurDataURL={IMAGE_BLUR_PLACEHOLDER}
+                            loading="lazy"
                             className="object-cover"
                             sizes="36px"
                           />
@@ -231,7 +243,7 @@ export function DepartmentsPanel() {
                             {cat.name}
                           </span>
                           <span className="block text-[11px] text-subtle tabular">
-                            {cat.productCount ?? 0} items
+                            {countItems(cat)} items
                           </span>
                         </span>
                         <ChevronRight className="w-4 h-4 text-subtle shrink-0" />

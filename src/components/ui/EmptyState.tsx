@@ -11,6 +11,8 @@ interface EmptyStateProps {
   description: string;
   actionLabel?: string;
   actionHref?: string;
+  /** Renders a button with this click handler when provided (takes precedence over actionHref) */
+  onAction?: () => void;
   /** Secondary action shown below the primary CTA */
   secondaryLabel?: string;
   secondaryHref?: string;
@@ -22,6 +24,7 @@ export function EmptyState({
   description,
   actionLabel,
   actionHref,
+  onAction,
   secondaryLabel,
   secondaryHref,
 }: EmptyStateProps) {
@@ -42,7 +45,12 @@ export function EmptyState({
       </motion.div>
       <h3 className="text-xl font-bold text-fg mb-2">{title}</h3>
       <p className="text-muted text-sm max-w-sm mb-7 leading-relaxed">{description}</p>
-      {actionLabel && actionHref && (
+      {actionLabel && onAction && (
+        <button type="button" className={buttonClasses()} onClick={onAction}>
+          {actionLabel}
+        </button>
+      )}
+      {actionLabel && !onAction && actionHref && (
         <Link href={actionHref} className={buttonClasses()}>
           {actionLabel}
         </Link>

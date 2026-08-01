@@ -15,12 +15,13 @@ import {
   Package,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCartStore, useCartHydrated } from "@/src/store/useCartStore";
 import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
 import { useCategories, useCategoryTree } from "@/src/hooks/useApi";
 import { fetchProducts } from "@/src/lib/api";
-import { formatPrice, safeImage } from "@/src/lib/utils";
+import { formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 import { MobileNav } from "./MobileNav";
 import { CartNavButton } from "./CartNavButton";
 import { FloatingCartButton } from "./FloatingCartButton";
@@ -178,9 +179,13 @@ export const Header = memo(function Header() {
       onClick={handleResultClick}
       className="flex items-center gap-3 px-3 py-2.5 hover:bg-surface-2 transition-colors"
     >
-      <img
+      <Image
         src={safeImage(product.images)}
         alt=""
+        width={44}
+        height={44}
+        placeholder="blur"
+        blurDataURL={IMAGE_BLUR_PLACEHOLDER}
         className="w-11 h-11 rounded-md object-cover bg-surface-2 border border-line shrink-0"
       />
       <div className="flex-1 min-w-0">

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2 } from "lucide-react";
 import { slugify } from "@/src/lib/utils";
 import { useCategories } from "@/src/hooks/useApi";
 import { ImageUpload } from "./ImageUpload";
+import type { Category } from "@/src/types/product";
 
 export interface CategoryFormData {
   name: string;
@@ -33,9 +34,52 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
   const [error, setError] = useState("");
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
 
-  const parentOptions = allCategories.filter(
-    (cat) => !cat.parentId && cat.id !== (initialData?.id as string)
-  );
+  const editingId = initialData?.id as string | undefined;
+
+  // Build a children map so we can render the tree and protect against cycles.
+  const childrenMap = useMemo(() => {
+    const map: Record<string, Category[]> = {};
+    for (const cat of allCategories) {
+      if (cat.parentId) (map[cat.parentId] ??= []).push(cat);
+    }
+    return map;
+  }, [allCategories]);
+
+  // A category cannot be its own parent or the parent of one of its descendants.
+  const forbiddenIds = useMemo(() => {
+    const set = new Set<string>();
+    if (!editingId) return set;
+    set.add(editingId);
+    const stack = [...(childrenMap[editingId] ?? [])];
+    while (stack.length > 0) {
+      const cur = stack.pop()!;
+      set.add(cur.id);
+      stack.push(...(childrenMap[cur.id] ?? []));
+    }
+    return set;
+  }, [childrenMap, editingId]);
+
+  // List every valid parent candidate in hierarchy order so admins can nest a
+  // category under any other category or promote it to a top-level parent.
+  const parentOptions = useMemo(() => {
+    const ordered: { cat: Category; depth: number }[] = [];
+    const visited = new Set<string>();
+    const visit = (list: Category[], depth: number) => {
+      for (const cat of list) {
+        if (forbiddenIds.has(cat.id)) continue;
+        visited.add(cat.id);
+        ordered.push({ cat, depth });
+        visit(childrenMap[cat.id] ?? [], depth + 1);
+      }
+    };
+    visit(allCategories.filter((c) => !c.parentId), 0);
+    for (const cat of allCategories) {
+      if (!visited.has(cat.id) && !forbiddenIds.has(cat.id)) {
+        ordered.push({ cat, depth: 0 });
+      }
+    }
+    return ordered;
+  }, [allCategories, childrenMap, forbiddenIds]);
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -116,13 +160,17 @@ export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }
                   onChange={(e) => setParentId(e.target.value)}
                   className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg"
                 >
-                  <option value="">None (top-level category)</option>
-                  {parentOptions.map((parent) => (
-                    <option key={parent.id} value={parent.id}>
-                      {parent.name}
+                  <option value="">None (top-level / parent category)</option>
+                  {parentOptions.map(({ cat, depth }) => (
+                    <option key={cat.id} value={cat.id}>
+                      {"— ".repeat(depth)}{cat.name}
                     </option>
                   ))}
                 </select>
+                <p className="mt-1.5 text-xs text-muted">
+                  Choose &ldquo;None&rdquo; to make this a top-level parent category, or pick
+                  another category to place it underneath.
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5">Description</label>

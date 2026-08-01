@@ -29,6 +29,7 @@ import { cn, formatPrice, slugify } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 import { useProduct, useRelatedProducts, useCategories } from "@/src/hooks/useApi";
+import type { Product } from "@/src/types/product";
 
 const STOCK_LABEL = {
   "in-stock": "In stock",
@@ -36,7 +37,7 @@ const STOCK_LABEL = {
   "out-of-stock": "Out of stock",
 } as const;
 
-export function ProductPageClient() {
+export function ProductPageClient({ initialProduct }: { initialProduct?: Product | null }) {
   const params = useParams();
   const slug = params.slug as string;
   const { addItem, toggleWishlist, isInWishlist, items } = useCartStore();
@@ -52,12 +53,26 @@ export function ProductPageClient() {
     return () => window.clearTimeout(t);
   }, [justAdded]);
 
-  const { data: product, isLoading } = useProduct(slug);
+  const { data: product, isLoading, error, mutate } = useProduct(slug, initialProduct);
   const { data: related } = useRelatedProducts(slug);
   const { data: liveCategories = [] } = useCategories();
 
-  if (isLoading) {
+  if (isLoading && !product) {
     return <ProductDetailSkeleton />;
+  }
+
+  if (error && !product) {
+    return (
+      <div className="container py-10">
+        <EmptyState
+          icon={<PackageSearch className="h-7 w-7 text-subtle" />}
+          title="Something went wrong"
+          description="We couldn't load this product. Please try again."
+          actionLabel="Try again"
+          onAction={() => mutate()}
+        />
+      </div>
+    );
   }
 
   if (!product) {

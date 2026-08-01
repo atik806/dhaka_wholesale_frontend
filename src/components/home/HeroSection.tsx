@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, BadgeCheck, Truck, Wallet } from "lucide-rea
 import Image from "next/image";
 import Link from "next/link";
 import { buttonClasses } from "@/src/components/ui/Button";
+import { IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 
 const SLIDES = [
   {
@@ -92,6 +93,9 @@ export function HeroSection() {
               alt={s.title}
               fill
               priority={i === 0}
+              placeholder="blur"
+              blurDataURL={IMAGE_BLUR_PLACEHOLDER}
+              loading={i === index ? undefined : "lazy"}
               sizes="100vw"
               className={`object-cover object-center ${i === index ? "ken-burns" : ""}`}
             />

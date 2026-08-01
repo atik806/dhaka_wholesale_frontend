@@ -83,9 +83,15 @@ async function fetcher<T>(url: string, signal?: AbortSignal): Promise<ApiRespons
   const res = await fetch(`${API_BASE}${url}`, { signal });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err.message || `HTTP ${res.status}`);
+    const error = new Error(err.message || `HTTP ${res.status}`) as Error & { status?: number };
+    error.status = res.status;
+    throw error;
   }
   return res.json();
+}
+
+function isNotFound(err: unknown): boolean {
+  return (err as { status?: number })?.status === 404;
 }
 
 export interface ProductQueryParams {
@@ -137,18 +143,15 @@ export async function fetchProductBySlug(slug: string, signal?: AbortSignal): Pr
   try {
     const res = await fetcher<BackendProduct>(`/products/${encodeURIComponent(slug)}`, signal);
     return res.data ? mapProduct(res.data) : null;
-  } catch {
-    return null;
+  } catch (err) {
+    if (isNotFound(err)) return null;
+    throw err;
   }
 }
 
 export async function fetchRelatedProducts(slug: string, signal?: AbortSignal): Promise<Product[]> {
-  try {
-    const res = await fetcher<BackendProduct[]>(`/products/${encodeURIComponent(slug)}/related`, signal);
-    return (res.data || []).map(mapProduct);
-  } catch {
-    return [];
-  }
+  const res = await fetcher<BackendProduct[]>(`/products/${encodeURIComponent(slug)}/related`, signal);
+  return (res.data || []).map(mapProduct);
 }
 
 export async function fetchFeaturedProducts(signal?: AbortSignal): Promise<Product[]> {
@@ -180,8 +183,9 @@ export async function fetchCategoryBySlug(slug: string, signal?: AbortSignal): P
   try {
     const res = await fetcher<BackendCategory>(`/categories/${encodeURIComponent(slug)}`, signal);
     return res.data ? mapCategory(res.data) : null;
-  } catch {
-    return null;
+  } catch (err) {
+    if (isNotFound(err)) return null;
+    throw err;
   }
 }
 
@@ -231,6 +235,40 @@ export interface Review {
   created_at: string;
   updated_at: string;
   profiles: { name: string; avatar_url: string | null } | null;
+}
+
+export interface RecentReview extends Review {
+  products: { name: string; slug: string; images: string[] } | null;
+}
+
+export interface PromoBannerData {
+  badge?: string;
+  title?: string;
+  subtitle?: string;
+  button_text?: string;
+  button_link?: string;
+  enabled?: boolean;
+}
+
+export async function fetchPromoBanner(signal?: AbortSignal): Promise<PromoBannerData | null> {
+  try {
+    const res = await fetch(`${API_BASE}/site-settings/promo_banner`, { signal });
+    if (!res.ok) return null;
+    return (await res.json()) as PromoBannerData;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchRecentReviews(signal?: AbortSignal): Promise<RecentReview[]> {
+  try {
+    const res = await fetch(`${API_BASE}/reviews/recent`, { signal });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (json.data ?? []) as RecentReview[];
+  } catch {
+    return [];
+  }
 }
 
 export interface ReviewsResult {

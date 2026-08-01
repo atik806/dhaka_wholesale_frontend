@@ -1,22 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Quote, Star } from "lucide-react";
 import Link from "next/link";
-import { API_BASE } from "@/src/lib/constants";
 import { Card } from "@/src/components/ui/Card";
 import { Section, SectionHeader } from "@/src/components/ui/Section";
-
-interface Review {
-  id: string;
-  rating: number;
-  text: string;
-  created_at: string;
-  product_id: string;
-  profiles: { name: string; avatar_url: string | null } | null;
-  products: { name: string; slug: string; images: string[] } | null;
-}
+import { useRecentReviews } from "@/src/hooks/useApi";
 
 function formatDate(date: string | null | undefined): string {
   if (!date) return "—";
@@ -47,20 +36,9 @@ function ReviewStars({ value }: { value: number }) {
 }
 
 export function CustomerReviews() {
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: reviews = [] } = useRecentReviews();
 
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch(`${API_BASE}/reviews/recent`, { signal: controller.signal })
-      .then((res) => res.json())
-      .then((json) => setReviews(json.data ?? []))
-      .catch(() => setReviews([]))
-      .finally(() => setLoading(false));
-    return () => controller.abort();
-  }, []);
-
-  if (loading || reviews.length === 0) return null;
+  if (reviews.length === 0) return null;
 
   return (
     <Section>

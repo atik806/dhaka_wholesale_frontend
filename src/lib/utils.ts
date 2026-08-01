@@ -39,6 +39,10 @@ export function safeImage(images: string[] | undefined | null, fallback = '/plac
   return images?.[0] || fallback;
 }
 
+/** Neutral shimmer placeholder used for `next/image` blur-up while remote images load. */
+export const IMAGE_BLUR_PLACEHOLDER =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPjxyZWN0IHdpZHRoPSI4IiBoZWlnaHQ9IjgiIGZpbGw9IiNlMmUyZTIiLz48L3N2Zz4=";
+
 export function groupCategoriesByParent(
   categories: Category[]
 ): { parents: Category[]; childrenByParentId: Record<string, Category[]>; ungrouped: Category[] } {

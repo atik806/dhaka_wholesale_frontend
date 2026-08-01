@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
 import { buttonClasses } from "@/src/components/ui/Button";
-import { formatPrice, safeImage } from "@/src/lib/utils";
+import { formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 
 const stepperButton =
   "w-9 h-9 flex items-center justify-center text-fg hover:bg-surface-2 transition-colors disabled:opacity-40 disabled:pointer-events-none";
@@ -132,6 +132,9 @@ export const CartDrawer = memo(function CartDrawer() {
                             src={safeImage(item.product.images)}
                             alt={item.product.name}
                             fill
+                            placeholder="blur"
+                            blurDataURL={IMAGE_BLUR_PLACEHOLDER}
+                            loading="lazy"
                             className="object-cover"
                             sizes="80px"
                             onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.svg" }}

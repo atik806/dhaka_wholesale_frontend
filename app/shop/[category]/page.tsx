@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { cache } from "react";
 import { fetchCategoryBySlug } from "@/src/lib/api";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/src/lib/constants";
 import { CategoryPageClient } from "./CategoryPageClient";
+import type { Category } from "@/src/types/product";
 
 const SITE_URL = "https://dhakawholesale.com";
 
@@ -9,9 +12,20 @@ type Props = {
   params: Promise<{ category: string }>;
 };
 
+const getCategory = cache((slug: string) => fetchCategoryBySlug(slug));
+
+/** Best-effort category fetch: returns null on both 404 and transient API errors. */
+async function safeGetCategory(slug: string): Promise<Category | null> {
+  try {
+    return await getCategory(slug);
+  } catch {
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category: categorySlug } = await params;
-  const category = await fetchCategoryBySlug(categorySlug);
+  const category = await safeGetCategory(categorySlug);
 
   if (!category) {
     return {
@@ -42,6 +56,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default function CategoryPage() {
-  return <CategoryPageClient />;
+export default async function CategoryPage({ params }: Props) {
+  const { category: categorySlug } = await params;
+
+  let category: Category | null = null;
+  let fetchFailed = false;
+  try {
+    category = await getCategory(categorySlug);
+  } catch {
+    fetchFailed = true;
+  }
+
+  if (fetchFailed) {
+    return <CategoryPageClient initialCategory={null} />;
+  }
+
+  if (!category) {
+    notFound();
+  }
+
+  return <CategoryPageClient initialCategory={category} />;
 }

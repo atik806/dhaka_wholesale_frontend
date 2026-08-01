@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/src/lib/utils";
+import { cn, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 
 interface ProductGalleryProps {
   images: string[];
@@ -79,6 +79,8 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                 src={images[activeIndex]}
                 alt={`${name} — image ${activeIndex + 1}`}
                 fill
+                placeholder="blur"
+                blurDataURL={IMAGE_BLUR_PLACEHOLDER}
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 45vw"
                 priority
@@ -144,6 +146,9 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                   src={img}
                   alt={`${name} thumbnail ${i + 1}`}
                   fill
+                  placeholder="blur"
+                  blurDataURL={IMAGE_BLUR_PLACEHOLDER}
+                  loading="lazy"
                   className="object-cover"
                   sizes="80px"
                 />

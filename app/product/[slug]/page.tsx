@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { cache } from "react";
 import { fetchProductBySlug } from "@/src/lib/api";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/src/lib/constants";
 import { ProductPageClient } from "./ProductPageClient";
+import type { Product } from "@/src/types/product";
 
 const SITE_URL = "https://dhakawholesale.com";
 
@@ -9,9 +12,20 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+const getProduct = cache((slug: string) => fetchProductBySlug(slug));
+
+/** Best-effort product fetch: returns null on both 404 and transient API errors. */
+async function safeGetProduct(slug: string): Promise<Product | null> {
+  try {
+    return await getProduct(slug);
+  } catch {
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = await fetchProductBySlug(slug);
+  const product = await safeGetProduct(slug);
 
   if (!product) {
     return {
@@ -106,12 +120,27 @@ function ProductJsonLd({
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const product = await fetchProductBySlug(slug);
+
+  let product: Product | null = null;
+  let fetchFailed = false;
+  try {
+    product = await getProduct(slug);
+  } catch {
+    fetchFailed = true;
+  }
+
+  if (fetchFailed) {
+    return <ProductPageClient initialProduct={null} />;
+  }
+
+  if (!product) {
+    notFound();
+  }
 
   return (
     <>
-      {product && <ProductJsonLd slug={slug} product={product} />}
-      <ProductPageClient />
+      <ProductJsonLd slug={slug} product={product} />
+      <ProductPageClient initialProduct={product} />
     </>
   );
 }

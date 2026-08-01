@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Category } from "@/src/types/product";
+import { IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 
 interface CategoryCardProps {
   category: Category;
@@ -32,6 +33,8 @@ export const CategoryCard = memo(function CategoryCard({ category, index = 0 }: 
             src={imgSrc}
             alt={category.name}
             fill
+            placeholder="blur"
+            blurDataURL={IMAGE_BLUR_PLACEHOLDER}
             className="object-cover transition-transform duration-700 group-hover:scale-110"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
             onError={() => setImgSrc("/placeholder.svg")}

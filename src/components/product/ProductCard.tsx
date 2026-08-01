@@ -9,7 +9,7 @@ import type { Product } from "@/src/types/product";
 import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
 import { Rating } from "@/src/components/ui/Rating";
-import { cn, formatPrice, safeImage } from "@/src/lib/utils";
+import { cn, formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 
@@ -87,6 +87,8 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
               src={imgSrc}
               alt={product.name}
               fill
+              placeholder="blur"
+              blurDataURL={IMAGE_BLUR_PLACEHOLDER}
               className={cn(
                 "object-cover transition-all duration-500 group-hover:scale-110",
                 isOutOfStock && "opacity-60",

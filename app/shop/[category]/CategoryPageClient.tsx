@@ -10,18 +10,19 @@ import { Button } from "@/src/components/ui/Button";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 import { ShopSkeleton } from "@/src/components/ui/Skeleton";
 import { useCategory, useProducts } from "@/src/hooks/useApi";
+import type { Category } from "@/src/types/product";
 
-export function CategoryPageClient() {
+export function CategoryPageClient({ initialCategory }: { initialCategory?: Category | null }) {
   const params = useParams();
   const categorySlug = params.category as string;
-  return <CategoryPageContent key={categorySlug} categorySlug={categorySlug} />;
+  return <CategoryPageContent key={categorySlug} categorySlug={categorySlug} initialCategory={initialCategory} />;
 }
 
-function CategoryPageContent({ categorySlug }: { categorySlug: string }) {
+function CategoryPageContent({ categorySlug, initialCategory }: { categorySlug: string; initialCategory?: Category | null }) {
   const [page, setPage] = useState(1);
   const limit = 12;
 
-  const { data: category, isLoading: catLoading } = useCategory(categorySlug);
+  const { data: category, isLoading: catLoading } = useCategory(categorySlug, initialCategory);
   const { data: result, isLoading: prodLoading } = useProducts({ category: categorySlug, page, limit });
 
   const loading = catLoading || prodLoading;
