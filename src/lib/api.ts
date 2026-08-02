@@ -2,13 +2,13 @@ import type { Product, Category } from '@/src/types/product';
 
 import { API_BASE } from './constants';
 
-interface ApiResponse<T> {
+export interface ApiResponse<T> {
   success: boolean;
   data: T;
   meta?: { total: number; page: number; limit: number; totalPages: number };
 }
 
-interface BackendProduct {
+export interface BackendProduct {
   id: string;
   slug: string;
   name: string;
@@ -29,7 +29,7 @@ interface BackendProduct {
   categories?: { name: string; slug: string } | null;
 }
 
-interface BackendCategory {
+export interface BackendCategory {
   id: string;
   name: string;
   slug: string;
@@ -40,7 +40,7 @@ interface BackendCategory {
   children?: BackendCategory[];
 }
 
-function mapProduct(p: BackendProduct): Product {
+export function mapProduct(p: BackendProduct): Product {
   const sizes = p.sizes ?? [];
   const colors = p.colors ?? [];
   return {
@@ -66,7 +66,7 @@ function mapProduct(p: BackendProduct): Product {
   };
 }
 
-function mapCategory(c: BackendCategory): Category {
+export function mapCategory(c: BackendCategory): Category {
   return {
     id: c.id,
     name: c.name,
@@ -97,6 +97,8 @@ function isNotFound(err: unknown): boolean {
 export interface ProductQueryParams {
   search?: string;
   category?: string;
+  /** Multi-category selection (slugs). Takes precedence over `category`. */
+  categories?: string[];
   priceMin?: number;
   priceMax?: number;
   minRating?: number;
@@ -117,7 +119,11 @@ export interface ProductListResult {
 export async function fetchProducts(params: ProductQueryParams = {}, signal?: AbortSignal): Promise<ProductListResult> {
   const qs = new URLSearchParams();
   if (params.search) qs.set('search', params.search);
-  if (params.category) qs.set('category', params.category);
+  if (params.categories && params.categories.length > 0) {
+    params.categories.forEach((cat) => qs.append('categories', cat));
+  } else if (params.category) {
+    qs.set('category', params.category);
+  }
   if (params.priceMin !== undefined) qs.set('priceMin', String(params.priceMin));
   if (params.priceMax !== undefined) qs.set('priceMax', String(params.priceMax));
   if (params.minRating !== undefined) qs.set('minRating', String(params.minRating));

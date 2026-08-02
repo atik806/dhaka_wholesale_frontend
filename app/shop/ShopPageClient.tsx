@@ -100,7 +100,14 @@ function ShopPage() {
     params.sort = sort;
     params.page = page;
     params.limit = ITEMS_PER_PAGE;
-    if (selectedCategoryNames.length === 1) {
+    if (selectedCategoryNames.length > 1) {
+      // Multi-category filtering happens server-side so pagination and
+      // totals stay correct. Filtering a single fetched page client-side
+      // silently truncated results and broke page counts.
+      params.categories = selectedCategoryNames
+        .map((name) => CATEGORY_SLUG[name])
+        .filter(Boolean);
+    } else if (selectedCategoryNames.length === 1) {
       params.category = CATEGORY_SLUG[selectedCategoryNames[0]];
     }
     return params;
@@ -108,20 +115,9 @@ function ShopPage() {
 
   const { data, isLoading } = useSWR(
     swrKey,
-    async () => {
+    () => {
       const params = buildFetchParams();
-      const result = await fetchProducts(params as Parameters<typeof fetchProducts>[0]);
-      if (selectedCategoryNames.length > 1) {
-        result.products = result.products.filter((p) =>
-          selectedCategoryNames.includes(p.category)
-        );
-        result.total = result.products.length;
-        result.totalPages = Math.ceil(result.products.length / ITEMS_PER_PAGE);
-        const safePage = Math.min(page, Math.max(result.totalPages, 1));
-        const start = (safePage - 1) * ITEMS_PER_PAGE;
-        result.products = result.products.slice(start, start + ITEMS_PER_PAGE);
-      }
-      return result;
+      return fetchProducts(params as Parameters<typeof fetchProducts>[0]);
     },
     { revalidateOnFocus: false, keepPreviousData: true }
   );
