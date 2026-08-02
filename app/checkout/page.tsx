@@ -51,6 +51,7 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quoteError, setQuoteError] = useState("");
 
   useEffect(() => {
     if (authHydrated && !isLoggedIn) {
@@ -83,6 +84,7 @@ export default function CheckoutPage() {
 
     let active = true;
     setQuote(localQuote);
+    setQuoteError("");
     setQuoteLoading(true);
 
     const quoteItems = items.map((i) => ({
@@ -91,11 +93,23 @@ export default function CheckoutPage() {
     }));
 
     const timer = window.setTimeout(() => {
-      fetchCheckoutQuote(deliveryZone, quoteItems).then((serverQuote) => {
-        if (!active) return;
-        setQuote(serverQuote ?? localQuote);
-        setQuoteLoading(false);
-      });
+      fetchCheckoutQuote(deliveryZone, quoteItems)
+        .then((serverQuote) => {
+          if (!active) return;
+          setQuote(serverQuote ?? localQuote);
+          setQuoteError("");
+          setQuoteLoading(false);
+        })
+        .catch((err) => {
+          // The server rejected the quote (invalid/deleted product). Do not
+          // fall back to a local estimate that claims can_checkout: true.
+          if (!active) return;
+          setQuote(localQuote);
+          setQuoteError(
+            err instanceof Error ? err.message : "Could not confirm your items",
+          );
+          setQuoteLoading(false);
+        });
     }, 250);
 
     return () => {
@@ -107,6 +121,7 @@ export default function CheckoutPage() {
   const orderSummary = quote ?? localQuote;
   const quoteBlocksCheckout =
     orderSummary.fromServer && orderSummary.can_checkout === false;
+  const quoteRejected = !!quoteError;
 
   const shippingComplete = useMemo(
     () =>
@@ -230,7 +245,7 @@ export default function CheckoutPage() {
     return <OrderComplete orderId={orderId} />;
   }
 
-  const blocked = outOfStockInCart.length > 0 || quoteBlocksCheckout;
+  const blocked = outOfStockInCart.length > 0 || quoteBlocksCheckout || quoteRejected;
 
   return (
     <motion.div
@@ -271,16 +286,20 @@ export default function CheckoutPage() {
           >
             <AlertTriangle className="w-5 h-5 text-danger shrink-0 mt-0.5" />
             <p className="text-[13px] text-fg break-words">
-              {quoteBlocksCheckout
-                ? `Unavailable: ${
-                    orderSummary.unavailable_items.map((u) => u.name).join(", ") ||
-                    "some items"
-                  }. Update `
-                : "Some items in your cart are out of stock. Please update "}
-              <Link href="/cart" className="font-semibold text-danger underline underline-offset-2">
-                your cart
-              </Link>{" "}
-              before placing the order.
+              {quoteRejected
+                ? `${quoteError}. `
+                : quoteBlocksCheckout
+                  ? `Unavailable: ${
+                      orderSummary.unavailable_items.map((u) => u.name).join(", ") ||
+                      "some items"
+                    }. Update `
+                  : "Some items in your cart are out of stock. Please update "}
+              {!quoteRejected && (
+                <Link href="/cart" className="font-semibold text-danger underline underline-offset-2">
+                  your cart
+                </Link>
+              )}
+              {quoteRejected ? "Please update your cart and try again." : " before placing the order."}
             </p>
           </div>
         )}

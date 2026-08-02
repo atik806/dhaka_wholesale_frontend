@@ -29,6 +29,7 @@ export default function CartPage() {
   const [deliveryZone, setDeliveryZone] = useState<DeliveryZone>("inside_dhaka");
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quoteError, setQuoteError] = useState("");
 
   const cartSubtotal = useMemo(
     () =>
@@ -54,6 +55,7 @@ export default function CartPage() {
 
     let active = true;
     setQuote(localQuote);
+    setQuoteError("");
 
     if (!authHydrated || !isLoggedIn) {
       setQuoteLoading(false);
@@ -67,11 +69,25 @@ export default function CartPage() {
     }));
 
     const timer = window.setTimeout(() => {
-      fetchCheckoutQuote(deliveryZone, quoteItems).then((serverQuote) => {
-        if (!active) return;
-        setQuote(serverQuote ?? localQuote);
-        setQuoteLoading(false);
-      });
+      fetchCheckoutQuote(deliveryZone, quoteItems)
+        .then((serverQuote) => {
+          if (!active) return;
+          // serverQuote is null only on network failure → keep the local estimate.
+          setQuote(serverQuote ?? localQuote);
+          setQuoteError("");
+          setQuoteLoading(false);
+        })
+        .catch((err) => {
+          // The server rejected the quote (e.g. invalid/deleted product).
+          // Surface the reason instead of letting the user check out with a
+          // locally-computed quote that claims can_checkout: true.
+          if (!active) return;
+          setQuote(localQuote);
+          setQuoteError(
+            err instanceof Error ? err.message : "Could not confirm your items",
+          );
+          setQuoteLoading(false);
+        });
     }, 250);
 
     return () => {
@@ -81,6 +97,20 @@ export default function CartPage() {
   }, [items, deliveryZone, localQuote, authHydrated, isLoggedIn]);
 
   const orderSummary = quote ?? localQuote;
+
+  // Server-authoritative per-product unit price (from the quote). When the
+  // server has priced the cart, line items must show that price, not the
+  // snapshot stored in the cart — otherwise a stale/tampered client price
+  // is displayed next to server-derived totals.
+  const serverUnitPrice = useMemo(() => {
+    const map = new Map<string, number>();
+    (quote?.items || []).forEach((line) => {
+      if (!map.has(line.product_id)) map.set(line.product_id, line.price);
+    });
+    return map;
+  }, [quote]);
+
+  const checkoutBlocked = !orderSummary.can_checkout || !!quoteError;
 
   if (items.length === 0) {
     return (
@@ -140,7 +170,8 @@ export default function CartPage() {
             <Card className="overflow-hidden">
               <ul className="divide-y divide-line">
                 {items.map((item) => {
-                  const lineTotal = (item.product.price || 0) * item.quantity;
+                  const unitPrice = serverUnitPrice.get(item.product.id) ?? item.product.price;
+                  const lineTotal = (unitPrice || 0) * item.quantity;
                   return (
                     <motion.li
                       key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
@@ -180,7 +211,7 @@ export default function CartPage() {
                               </p>
                               <p className="text-[13px] text-muted mt-1.5">
                                 <span className="tabular font-semibold text-price">
-                                  {fp(item.product.price)}
+                                  {fp(unitPrice)}
                                 </span>{" "}
                                 / unit
                               </p>
@@ -334,13 +365,35 @@ export default function CartPage() {
                     </p>
                   )}
 
-                  <Link
-                    href="/checkout"
-                    className={buttonClasses({ size: "lg", fullWidth: true, className: "mt-5" })}
-                  >
-                    Proceed to checkout
-                    <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  {quoteError && (
+                    <p className="mt-4 text-[13px] font-medium text-danger bg-danger-soft border border-danger/25 rounded-md px-3 py-2.5 break-words">
+                      {quoteError}
+                    </p>
+                  )}
+
+                  {checkoutBlocked ? (
+                    <button
+                      type="button"
+                      disabled
+                      aria-disabled="true"
+                      className={buttonClasses({
+                        size: "lg",
+                        fullWidth: true,
+                        className: "mt-5 opacity-60 cursor-not-allowed",
+                      })}
+                      title={quoteError || "Some items are unavailable"}
+                    >
+                      Proceed to checkout
+                    </button>
+                  ) : (
+                    <Link
+                      href="/checkout"
+                      className={buttonClasses({ size: "lg", fullWidth: true, className: "mt-5" })}
+                    >
+                      Proceed to checkout
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  )}
                 </div>
               </Card>
 
@@ -370,13 +423,27 @@ export default function CartPage() {
               {fp(orderSummary.total)}
             </p>
           </div>
-          <Link
-            href="/checkout"
-            className={buttonClasses({ size: "lg", className: "flex-1 min-w-0" })}
-          >
-            Checkout
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          {checkoutBlocked ? (
+            <button
+              type="button"
+              disabled
+              aria-disabled="true"
+              className={buttonClasses({
+                size: "lg",
+                className: "flex-1 min-w-0 opacity-60 cursor-not-allowed",
+              })}
+            >
+              Checkout
+            </button>
+          ) : (
+            <Link
+              href="/checkout"
+              className={buttonClasses({ size: "lg", className: "flex-1 min-w-0" })}
+            >
+              Checkout
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          )}
         </div>
       </div>
     </motion.div>

@@ -166,6 +166,15 @@ export interface CheckoutQuoteUnavailableItem {
   stock_quantity: number;
 }
 
+/** Server-authoritative per-line pricing from POST /checkout/quote. */
+export interface CheckoutQuoteLine {
+  product_id: string;
+  price: number;
+  quantity: number;
+  line_total: number;
+  available: boolean;
+}
+
 export interface CheckoutQuote {
   subtotal: number;
   shipping_cost: number;
@@ -175,6 +184,8 @@ export interface CheckoutQuote {
   currency: string;
   can_checkout: boolean;
   unavailable_items: CheckoutQuoteUnavailableItem[];
+  /** Server-authoritative per-line prices. Empty for the local estimate. */
+  items: CheckoutQuoteLine[];
   /** true when response came from POST /checkout/quote */
   fromServer: boolean;
 }
@@ -199,6 +210,7 @@ export function computeLocalCheckoutQuote(
     currency: "BDT",
     can_checkout: true,
     unavailable_items: [],
+    items: [],
     fromServer: false,
   };
 }
@@ -206,12 +218,18 @@ export function computeLocalCheckoutQuote(
 /**
  * Authoritative totals from POST /api/checkout/quote (auth required).
  * Pass `items` for client cart; omit to quote the server cart.
- * Returns null on failure — caller should use computeLocalCheckoutQuote.
+ *
+ * Returns null only on network/parse failure (caller falls back to
+ * computeLocalCheckoutQuote). A non-OK HTTP response is a server REJECTION —
+ * e.g. the cart references a deleted/invalid product — and throwing surfaces
+ * that instead of silently letting the user continue to checkout with a
+ * locally-computed quote that claims can_checkout: true.
  */
 export async function fetchCheckoutQuote(
   deliveryZone: DeliveryZone,
   items?: CheckoutQuoteItem[],
 ): Promise<CheckoutQuote | null> {
+  let res: Response;
   try {
     const body: {
       delivery_zone: DeliveryZone;
@@ -225,32 +243,54 @@ export async function fetchCheckoutQuote(
       }));
     }
 
-    const res = await authFetch(`${API_BASE}/checkout/quote`, {
+    res = await authFetch(`${API_BASE}/checkout/quote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-
-    const json = await res.json().catch(() => ({}));
-    if (!res.ok) return null;
-
-    const data = json.data ?? json;
-    return {
-      subtotal: Number(data.subtotal) || 0,
-      shipping_cost: Number(data.shipping_cost) || DELIVERY_CHARGES[deliveryZone],
-      tax: data.tax == null ? 0 : Number(data.tax) || 0,
-      total: Number(data.total) || 0,
-      delivery_zone: (data.delivery_zone as DeliveryZone) || deliveryZone,
-      currency: typeof data.currency === "string" ? data.currency : "BDT",
-      can_checkout: data.can_checkout !== false,
-      unavailable_items: Array.isArray(data.unavailable_items)
-        ? data.unavailable_items
-        : [],
-      fromServer: true,
-    };
-  } catch {
+  } catch (err) {
+    // Network failure / auth fetch threw — fall back to the local estimate.
+    console.warn("[checkout] quote request failed:", err);
     return null;
   }
+
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const serverMessage = Array.isArray(json?.message)
+      ? json.message.join(", ")
+      : json?.message;
+    throw new Error(
+      typeof serverMessage === "string" && serverMessage
+        ? serverMessage
+        : `Checkout quote failed (${res.status})`,
+    );
+  }
+
+  const data = json.data ?? json;
+  const serverLines: CheckoutQuoteLine[] = Array.isArray(data.items)
+    ? data.items.map((line: Record<string, unknown>) => ({
+        product_id: String(line.product_id),
+        price: Number(line.price) || 0,
+        quantity: Number(line.quantity) || 0,
+        line_total: Number(line.line_total) || 0,
+        available: line.available !== false,
+      }))
+    : [];
+
+  return {
+    subtotal: Number(data.subtotal) || 0,
+    shipping_cost: Number(data.shipping_cost) || DELIVERY_CHARGES[deliveryZone],
+    tax: data.tax == null ? 0 : Number(data.tax) || 0,
+    total: Number(data.total) || 0,
+    delivery_zone: (data.delivery_zone as DeliveryZone) || deliveryZone,
+    currency: typeof data.currency === "string" ? data.currency : "BDT",
+    can_checkout: data.can_checkout !== false,
+    unavailable_items: Array.isArray(data.unavailable_items)
+      ? data.unavailable_items
+      : [],
+    items: serverLines,
+    fromServer: true,
+  };
 }
 
 export async function fetchUserOrders(): Promise<UserOrder[]> {
