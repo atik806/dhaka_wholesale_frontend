@@ -16,8 +16,13 @@ const DEFAULT_PROMO: PromoBannerData = {
   enabled: true,
 };
 
-export function PromoBanner() {
-  const { data: fetched } = usePromoBanner();
+interface PromoBannerProps {
+  /** Server-rendered data so the banner paints instantly; SWR revalidates in the background. */
+  fallbackData?: PromoBannerData | null;
+}
+
+export function PromoBanner({ fallbackData }: PromoBannerProps) {
+  const { data: fetched } = usePromoBanner(fallbackData);
 
   const raw = (fetched ?? null) as PromoBannerData & { data?: PromoBannerData } | null;
   const payload = raw && typeof raw === "object" && "data" in raw && raw.data ? raw.data : raw;

@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { fetchCategoryBySlug } from "@/src/lib/api";
+import { fetchCategoryForPage } from "@/src/lib/server/data";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/src/lib/constants";
 import { CategoryPageClient } from "./CategoryPageClient";
 import type { Category } from "@/src/types/product";
+
+// Category pages cache and revalidate every 5 minutes (same window as the home page).
+export const revalidate = 300;
 
 const SITE_URL = "https://dhakawholesale.com";
 
@@ -12,7 +15,7 @@ type Props = {
   params: Promise<{ category: string }>;
 };
 
-const getCategory = cache((slug: string) => fetchCategoryBySlug(slug));
+const getCategory = cache((slug: string) => fetchCategoryForPage(slug));
 
 /** Best-effort category fetch: returns null on both 404 and transient API errors. */
 async function safeGetCategory(slug: string): Promise<Category | null> {

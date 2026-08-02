@@ -6,9 +6,16 @@ import { CategoryCard } from "@/src/components/product/CategoryCard";
 import { Section, SectionHeader } from "@/src/components/ui/Section";
 import { buttonClasses } from "@/src/components/ui/Button";
 import { Skeleton } from "@/src/components/ui/Skeleton";
+import type { Category } from "@/src/types/product";
 
-export function FeaturedCategories() {
-  const { data: categories = [], isLoading } = useCategories();
+interface FeaturedCategoriesProps {
+  /** Server-rendered data so the section paints instantly; SWR revalidates in the background. */
+  fallbackData?: Category[];
+}
+
+export function FeaturedCategories({ fallbackData }: FeaturedCategoriesProps) {
+  const { data, isLoading } = useCategories(fallbackData);
+  const categories = data ?? fallbackData ?? [];
 
   return (
     <Section>
@@ -21,7 +28,7 @@ export function FeaturedCategories() {
       />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-        {isLoading
+        {isLoading && categories.length === 0
           ? Array.from({ length: 6 }).map((_, i) => (
               <Skeleton key={i} className="aspect-[4/5] w-full rounded-xl" />
             ))

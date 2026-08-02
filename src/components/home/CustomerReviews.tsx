@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Card } from "@/src/components/ui/Card";
 import { Section, SectionHeader } from "@/src/components/ui/Section";
 import { useRecentReviews } from "@/src/hooks/useApi";
+import type { RecentReview } from "@/src/lib/api";
 
 function formatDate(date: string | null | undefined): string {
   if (!date) return "—";
@@ -35,8 +36,13 @@ function ReviewStars({ value }: { value: number }) {
   );
 }
 
-export function CustomerReviews() {
-  const { data: reviews = [] } = useRecentReviews();
+interface CustomerReviewsProps {
+  /** Server-rendered data so the section paints instantly; SWR revalidates in the background. */
+  fallbackData?: RecentReview[];
+}
+
+export function CustomerReviews({ fallbackData }: CustomerReviewsProps) {
+  const { data: reviews = [] } = useRecentReviews(fallbackData);
 
   if (reviews.length === 0) return null;
 

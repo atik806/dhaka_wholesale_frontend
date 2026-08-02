@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { fetchProductBySlug } from "@/src/lib/api";
+import { fetchProductForPage } from "@/src/lib/server/data";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/src/lib/constants";
 import { ProductPageClient } from "./ProductPageClient";
 import type { Product } from "@/src/types/product";
+
+// Product details change rarely (price/stock aside); cache the page and revalidate every 5 minutes.
+export const revalidate = 300;
 
 const SITE_URL = "https://dhakawholesale.com";
 
@@ -12,7 +15,7 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-const getProduct = cache((slug: string) => fetchProductBySlug(slug));
+const getProduct = cache((slug: string) => fetchProductForPage(slug));
 
 /** Best-effort product fetch: returns null on both 404 and transient API errors. */
 async function safeGetProduct(slug: string): Promise<Product | null> {
@@ -68,7 +71,7 @@ function ProductJsonLd({
   product,
 }: {
   slug: string;
-  product: NonNullable<Awaited<ReturnType<typeof fetchProductBySlug>>>;
+  product: NonNullable<Awaited<ReturnType<typeof fetchProductForPage>>>;
 }) {
   const availability =
     product.stock === "out-of-stock"

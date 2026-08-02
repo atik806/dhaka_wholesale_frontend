@@ -11,15 +11,19 @@ import {
   fetchPromoBanner,
   fetchRecentReviews,
   type ProductQueryParams,
+  type PromoBannerData,
+  type RecentReview,
 } from '@/src/lib/api';
 import type { Product, Category } from '@/src/types/product';
 
+// SWR has no `staleTime` option (that's TanStack Query) — a staleTime key was
+// previously passed here and silently ignored. Freshness is governed by
+// `dedupingInterval` (dedupes in-flight refetches) plus the revalidate flags.
 const SWR_CONFIG = {
   revalidateOnFocus: false,
   revalidateOnReconnect: true,
   dedupingInterval: 60000,
   errorRetryCount: 2,
-  staleTime: 30000,
 };
 
 export function useProducts(params: ProductQueryParams = {}) {
@@ -35,9 +39,10 @@ export function useProducts(params: ProductQueryParams = {}) {
   });
 }
 
-export function useFeaturedProducts() {
+export function useFeaturedProducts(fallbackData?: Product[]) {
   return useSWR('/products/featured', () => fetchFeaturedProducts(), {
     ...SWR_CONFIG,
+    fallbackData,
   });
 }
 
@@ -57,9 +62,10 @@ export function useRelatedProducts(slug: string | null) {
   );
 }
 
-export function useCategories() {
+export function useCategories(fallbackData?: Category[]) {
   return useSWR('/categories', () => fetchCategories(), {
     ...SWR_CONFIG,
+    fallbackData,
   });
 }
 
@@ -85,16 +91,16 @@ export function useProductReviews(productId: string | null, page = 1) {
   );
 }
 
-export function usePromoBanner() {
+export function usePromoBanner(fallbackData?: PromoBannerData | null) {
   return useSWR('/site-settings/promo_banner', () => fetchPromoBanner(), {
     ...SWR_CONFIG,
-    staleTime: 300000,
+    fallbackData,
   });
 }
 
-export function useRecentReviews() {
+export function useRecentReviews(fallbackData?: RecentReview[]) {
   return useSWR('/reviews/recent', () => fetchRecentReviews(), {
     ...SWR_CONFIG,
-    staleTime: 120000,
+    fallbackData,
   });
 }

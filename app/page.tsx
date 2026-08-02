@@ -1,6 +1,3 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { HeroSection } from "@/src/components/home/HeroSection";
 import { FeaturedCategories } from "@/src/components/home/FeaturedCategories";
 import { TrendingProducts } from "@/src/components/home/TrendingProducts";
@@ -8,22 +5,23 @@ import { BrandStrip } from "@/src/components/home/BrandStrip";
 import { PromoBanner } from "@/src/components/home/PromoBanner";
 import { CustomerReviews } from "@/src/components/home/CustomerReviews";
 import { Newsletter } from "@/src/components/home/Newsletter";
+import { getHomeData } from "@/src/lib/server/data";
 
-export default function Home() {
+// The home page's catalog data changes slowly; cache it and revalidate every 5 minutes.
+export const revalidate = 300;
+
+export default async function Home() {
+  const { featured, categories, promo, reviews } = await getHomeData();
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="bg-canvas"
-    >
+    <div className="bg-canvas">
       <HeroSection />
-      <FeaturedCategories />
-      <TrendingProducts />
+      <FeaturedCategories fallbackData={categories} />
+      <TrendingProducts fallbackData={featured} />
       <BrandStrip />
-      <PromoBanner />
-      <CustomerReviews />
+      <PromoBanner fallbackData={promo} />
+      <CustomerReviews fallbackData={reviews} />
       <Newsletter />
-    </motion.div>
+    </div>
   );
 }
