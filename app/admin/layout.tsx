@@ -28,7 +28,15 @@ async function validateToken(): Promise<boolean> {
     const res = await fetch(`${API_BASE}/auth/profile`, {
       headers: { Authorization: `Bearer ${session.session.access_token}` },
     });
-    if (res.ok) return true;
+    if (res.ok) {
+      // The profile endpoint returns the DB role — an access token alone
+      // must never be enough to reach the admin panel.
+      const profileData = await res.json().catch(() => null);
+      const role =
+        profileData?.data?.role ?? profileData?.data?.user?.role ?? null;
+      if (role !== "admin") return false;
+      return true;
+    }
     if (res.status !== 401) return false;
     const refreshToken = session.session.refresh_token;
     if (!refreshToken) return false;
@@ -40,9 +48,12 @@ async function validateToken(): Promise<boolean> {
     if (!refreshRes.ok) return false;
     const refreshData = await refreshRes.json();
     if (refreshData?.data?.session) {
+      const refreshedRole = refreshData?.data?.user?.role;
+      if (refreshedRole !== "admin") return false;
       localStorage.setItem("admin_session", JSON.stringify({
         ...session,
         session: refreshData.data.session,
+        user: refreshData.data.user,
       }));
       return true;
     }

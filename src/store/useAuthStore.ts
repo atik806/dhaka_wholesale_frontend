@@ -5,6 +5,7 @@ import { persist } from "zustand/middleware";
 import type { AuthUser, AuthSession } from "@/src/lib/auth-api";
 import { refreshSession } from "@/src/lib/auth-api";
 import { getSupabase } from "@/src/lib/supabase";
+import { useCartStore } from "@/src/store/useCartStore";
 
 interface AuthState {
   user: AuthUser | null;
@@ -35,6 +36,10 @@ export const useAuthStore = create<AuthState>()(
         } catch (err) {
           console.warn("[auth] Supabase signOut failed during logout:", err);
         }
+        // A cart is tied to the signed-in account; leaving it behind on
+        // logout leaks one user's selection to the next user of this
+        // browser and resurrects on their next login.
+        useCartStore.getState().clearCart();
         set({ user: null, session: null });
       },
 

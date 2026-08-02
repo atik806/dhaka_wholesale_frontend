@@ -33,6 +33,10 @@ export default function AdminLoginPage() {
         setError("Invalid response from server");
         return;
       }
+      if (json?.data?.user?.role !== "admin") {
+        setError("You do not have admin access");
+        return;
+      }
       localStorage.setItem("admin_session", JSON.stringify(json.data));
       const raw = new URLSearchParams(window.location.search).get("redirect") || "/admin";
       const redirect = raw.startsWith("/admin") ? raw : "/admin";

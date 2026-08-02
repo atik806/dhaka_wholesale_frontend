@@ -1,3 +1,4 @@
+import { toast } from "@/src/providers/ToastProvider";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useCartStore } from "@/src/store/useCartStore";
 import type { CartItem } from "@/src/types/cart";
@@ -52,6 +53,10 @@ export async function loadServerCartAndWishlist(): Promise<void> {
       useCartStore.getState().setServerSynced(true);
     } catch (err) {
       console.error("[cart-sync] Failed to load server cart/wishlist:", err);
+      toast(
+        "Couldn't load your saved cart — showing items saved on this device.",
+        "error",
+      );
     } finally {
       loadInFlight = null;
     }
@@ -107,6 +112,7 @@ export async function mergeGuestCartOnLogin(
       await loadServerCartAndWishlist();
     } catch (err) {
       console.error("[cart-sync] Merge on login failed:", err);
+      toast("Couldn't merge your previous cart — loaded the cart on your account.", "error");
       // Fall back to server load so auth cart is still usable.
       await loadServerCartAndWishlist();
     } finally {
@@ -139,6 +145,10 @@ export async function syncAddCartItem(item: CartItem): Promise<void> {
     }
   } catch (err) {
     console.error("[cart-sync] addItem sync failed:", err);
+    toast(
+      "Couldn't save this item to your account — it's only saved on this device.",
+      "error",
+    );
   }
 }
 
@@ -170,6 +180,7 @@ export async function syncUpdateCartQuantity(
       await removeServerCartItem(id);
     } catch (err) {
       console.error("[cart-sync] remove on qty<=0 failed:", err);
+      toast("Couldn't remove this item from your account.", "error");
     }
     return;
   }
@@ -181,6 +192,7 @@ export async function syncUpdateCartQuantity(
     });
   } catch (err) {
     console.error("[cart-sync] updateQuantity sync failed:", err);
+    toast("Couldn't update this item on your account.", "error");
   }
 }
 
@@ -206,6 +218,7 @@ export async function syncRemoveCartItem(
     await removeServerCartItem(id);
   } catch (err) {
     console.error("[cart-sync] removeItem sync failed:", err);
+    toast("Couldn't remove this item from your account.", "error");
   }
 }
 
@@ -215,6 +228,7 @@ export async function syncClearCart(): Promise<void> {
     await clearServerCart();
   } catch (err) {
     console.error("[cart-sync] clearCart sync failed:", err);
+    toast("Couldn't clear your saved cart.", "error");
   }
 }
 
@@ -231,5 +245,6 @@ export async function syncToggleWishlist(
     }
   } catch (err) {
     console.error("[cart-sync] wishlist sync failed:", err);
+    toast("Couldn't update your wishlist.", "error");
   }
 }

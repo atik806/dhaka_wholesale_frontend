@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2, Check, Download, Trash2 } from "lucide-react";
 import { fetchOrder, updateOrderStatus, updatePaymentStatus, deleteOrder } from "@/src/lib/admin-api";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
+import { useToast } from "@/src/providers/ToastProvider";
 import { formatPrice, formatDate, safeImage, cn } from "@/src/lib/utils";
 import { SITE_NAME } from "@/src/lib/constants";
 import type { Order } from "@/src/lib/admin-api";
@@ -26,6 +27,7 @@ export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { confirm, dialog } = useConfirm();
+  const { addToast } = useToast();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -58,8 +60,9 @@ export default function OrderDetailPage() {
     try {
       const updated = await updateOrderStatus(order.id, newStatus);
       setOrder(updated);
+      addToast("Order status updated", "success");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to update status");
+      addToast(err instanceof Error ? err.message : "Failed to update status", "error");
     } finally {
       setUpdating(false);
     }
@@ -212,9 +215,9 @@ export default function OrderDetailPage() {
     const fileName = `receipt-${order.id.slice(0, 8)}.pdf`;
     doc.save(fileName);
     } catch {
-      alert("Failed to generate receipt");
+      addToast("Failed to generate receipt", "error");
     }
-  }, [order]);
+  }, [order, addToast]);
 
   const handlePaymentStatusChange = async (newStatus: string) => {
     if (!order || order.payment_status === newStatus) return;
@@ -222,8 +225,9 @@ export default function OrderDetailPage() {
     try {
       const updated = await updatePaymentStatus(order.id, newStatus);
       setOrder(updated);
+      addToast("Payment status updated", "success");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to update payment status");
+      addToast(err instanceof Error ? err.message : "Failed to update payment status", "error");
     } finally {
       setUpdating(false);
     }
@@ -236,9 +240,10 @@ export default function OrderDetailPage() {
     setUpdating(true);
     try {
       await deleteOrder(order.id);
+      addToast("Order deleted", "success");
       router.push("/admin/orders");
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Failed to delete order");
+      addToast(err instanceof Error ? err.message : "Failed to delete order", "error");
       setUpdating(false);
     }
   };

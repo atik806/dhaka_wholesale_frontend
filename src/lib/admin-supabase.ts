@@ -9,7 +9,7 @@ function readAdminSession() {
     const raw = localStorage.getItem("admin_session");
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (parsed?.session?.access_token) {
+    if (parsed?.session?.access_token && parsed?.user?.role === "admin") {
       return {
         access_token: parsed.session.access_token,
         refresh_token: parsed.session.refresh_token || "",
