@@ -57,6 +57,21 @@ export const metadata: Metadata = {
   },
 };
 
+/** Best-effort origin extraction so preconnects degrade gracefully in dev/CI. */
+function getOrigin(raw: string | undefined): string | null {
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
+// The browser talks to two cross-origin hosts: the Nest API and Supabase (PKCE auth).
+// Preconnect warms both TCP/TLS connections so the first request doesn't stall.
+const API_ORIGIN = getOrigin(process.env.NEXT_PUBLIC_API_URL);
+const SUPABASE_ORIGIN = getOrigin(process.env.NEXT_PUBLIC_SUPABASE_URL);
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -69,6 +84,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-dvh flex flex-col bg-canvas text-fg font-sans antialiased">
+        {API_ORIGIN && <link rel="preconnect" href={API_ORIGIN} crossOrigin="anonymous" />}
+        {SUPABASE_ORIGIN && (
+          <link rel="preconnect" href={SUPABASE_ORIGIN} crossOrigin="anonymous" />
+        )}
         <ThemeInit />
         <a
           href="#main-content"

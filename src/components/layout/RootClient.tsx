@@ -13,13 +13,16 @@ import { ReportButton } from "../report/ReportButton";
 import { loadServerCartAndWishlist } from "@/src/lib/cart-sync";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useCartHydrated } from "@/src/store/useCartStore";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
+// Non-blocking fade-in on navigation. AnimatePresence mode="wait" was removed:
+// it deferred mounting the next page until the exit animation finished (~200ms),
+// which made every link click feel laggy. Without an exit step the new page
+// mounts immediately and only fades in, so navigation stays instant.
 const pageTransition = {
-  initial: { opacity: 0, y: 6 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -6 },
-  transition: { duration: 0.2, ease: "easeOut" as const },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  transition: { duration: 0.15, ease: "easeOut" as const },
 } as const;
 
 export function RootClient({ children }: { children: React.ReactNode }) {
@@ -56,20 +59,16 @@ export function RootClient({ children }: { children: React.ReactNode }) {
         <div className="flex-1 flex items-stretch">
           <DepartmentsPanel />
           <main id="main-content" className="flex-1 min-w-0 pb-14 md:pb-0">
-            <AnimatePresence mode="wait">
-              <motion.div key={pathname} {...pageTransition}>
-                {children}
-              </motion.div>
-            </AnimatePresence>
+            <motion.div {...pageTransition}>
+              {children}
+            </motion.div>
           </main>
         </div>
       ) : (
         <main id="main-content" className={`flex-1 ${isAuthPage ? "" : "pb-14 md:pb-0"}`}>
-          <AnimatePresence mode="wait">
-            <motion.div key={pathname} {...pageTransition}>
-              {children}
-            </motion.div>
-          </AnimatePresence>
+          <motion.div {...pageTransition}>
+            {children}
+          </motion.div>
         </main>
       )}
       {!isAdmin && !isAuthPage && (

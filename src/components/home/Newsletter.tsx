@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, SendHorizonal, CheckCircle2 } from "lucide-react";
+import { Mail, SendHorizonal, Info } from "lucide-react";
 import { Card } from "@/src/components/ui/Card";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
@@ -10,6 +10,9 @@ export function Newsletter() {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
 
+  // There is no newsletter backend on this store — the email is not sent or
+  // stored anywhere. Be honest about that instead of showing a fake
+  // "you're subscribed" confirmation that implies a real signup happened.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email.trim()) {
@@ -40,10 +43,11 @@ export function Newsletter() {
 
             <div className="w-full md:w-1/2">
               {subscribed ? (
-                <div className="flex items-center gap-2.5 p-4 rounded-md bg-success-soft border border-success/30 text-success">
-                  <CheckCircle2 className="w-5 h-5 shrink-0" aria-hidden="true" />
+                <div className="flex items-center gap-2.5 p-4 rounded-md bg-info-soft border border-info/30 text-info">
+                  <Info className="w-5 h-5 shrink-0" aria-hidden="true" />
                   <span className="text-sm font-semibold">
-                    You&rsquo;re subscribed. Thank you!
+                    Thanks for the interest — this demo store doesn&rsquo;t send
+                    emails yet, so nothing was saved.
                   </span>
                 </div>
               ) : (

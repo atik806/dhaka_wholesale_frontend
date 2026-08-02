@@ -10,7 +10,7 @@ import { IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 
 const SLIDES = [
   {
-    image: "/hero-slides/slide-01.png",
+    image: "/hero-slides/slide-01.webp",
     eyebrow: "Dhaka Wholesale",
     title: "Direct market stock at store rates",
     subtitle: "Quality products, cash on delivery, and fast shipping nationwide.",
@@ -18,7 +18,7 @@ const SLIDES = [
     href: "/shop",
   },
   {
-    image: "/hero-slides/slide-02.png",
+    image: "/hero-slides/slide-02.webp",
     eyebrow: "New arrivals",
     title: "Fresh stock, ready to ship",
     subtitle: "Browse the latest additions across every category.",
@@ -26,7 +26,7 @@ const SLIDES = [
     href: "/shop?sort=newest",
   },
   {
-    image: "/hero-slides/slide-03.png",
+    image: "/hero-slides/slide-03.webp",
     eyebrow: "Best sellers",
     title: "Customer favorites this week",
     subtitle: "Top-rated picks trusted by shops and homes across Bangladesh.",
@@ -34,7 +34,7 @@ const SLIDES = [
     href: "/shop?sort=popular",
   },
   {
-    image: "/hero-slides/slide-04.png",
+    image: "/hero-slides/slide-04.webp",
     eyebrow: "COD nationwide",
     title: "Pay when it arrives",
     subtitle: "Inside Dhaka ৳80 · Outside Dhaka ৳120 · Inspect before you pay.",
