@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, ChevronRight, ChevronDown, Package, Sparkles, TrendingUp, X } from "lucide-react";
 import { useCategoryTree, useCategories } from "@/src/hooks/useApi";
@@ -26,6 +26,7 @@ const isCompact = () => window.matchMedia("(max-width: 1023px)").matches;
 
 export function DepartmentsPanel() {
   const pathname = usePathname();
+  const router = useRouter();
   const { data: categories = [], isLoading } = useCategories();
   const { data: categoryTree = [] } = useCategoryTree();
   const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
@@ -136,6 +137,7 @@ export function DepartmentsPanel() {
                               [parent.id]: !isExpanded,
                             }));
                           } else {
+                            router.push(`/shop/${parent.slug}`);
                             closeIfCompact();
                           }
                         }}

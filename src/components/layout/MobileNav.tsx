@@ -208,31 +208,51 @@ export function MobileNav({ open, onClose, onSearchOpen }: MobileNavProps) {
                   <div className="mt-6">
                     <p className="label-caps text-subtle px-3 mb-2">Categories</p>
                     <ul>
-                      {categoryTree.map((parent) => (
-                        <li key={parent.id}>
-                          <p className="px-3 py-2 text-[13px] font-bold text-fg">
-                            {parent.name}
-                          </p>
-                          {parent.children?.map((child) => {
-                            const active = pathname === `/shop/${child.slug}`;
-                            return (
+                      {categoryTree.map((parent) => {
+                        const children = parent.children ?? [];
+                        if (children.length === 0) {
+                          const active = pathname === `/shop/${parent.slug}`;
+                          return (
+                            <li key={parent.id}>
                               <Link
-                                key={child.id}
-                                href={`/shop/${child.slug}`}
+                                href={`/shop/${parent.slug}`}
                                 onClick={onClose}
                                 aria-current={active ? "page" : undefined}
-                                className={`block pl-8 pr-3 min-h-[44px] py-2.5 rounded-md text-sm transition-colors ${
-                                  active
-                                    ? "bg-accent-soft text-fg font-semibold"
-                                    : "text-muted hover:bg-surface-2 hover:text-fg"
+                                className={`block px-3 py-2.5 text-[13px] font-bold text-fg rounded-md transition-colors ${
+                                  active ? "bg-accent-soft" : "hover:bg-surface-2"
                                 }`}
                               >
-                                {child.name}
+                                {parent.name}
                               </Link>
-                            );
-                          })}
-                        </li>
-                      ))}
+                            </li>
+                          );
+                        }
+                        return (
+                          <li key={parent.id}>
+                            <p className="px-3 py-2 text-[13px] font-bold text-fg">
+                              {parent.name}
+                            </p>
+                            {children.map((child) => {
+                              const active = pathname === `/shop/${child.slug}`;
+                              return (
+                                <Link
+                                  key={child.id}
+                                  href={`/shop/${child.slug}`}
+                                  onClick={onClose}
+                                  aria-current={active ? "page" : undefined}
+                                  className={`block pl-8 pr-3 min-h-[44px] py-2.5 rounded-md text-sm transition-colors ${
+                                    active
+                                      ? "bg-accent-soft text-fg font-semibold"
+                                      : "text-muted hover:bg-surface-2 hover:text-fg"
+                                  }`}
+                                >
+                                  {child.name}
+                                </Link>
+                              );
+                            })}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}

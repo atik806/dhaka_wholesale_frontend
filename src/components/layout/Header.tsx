@@ -243,15 +243,26 @@ export const Header = memo(function Header() {
                 >
                   <option value="all">All categories</option>
                   {categoryTree.length > 0
-                    ? categoryTree.map((parent) => (
-                        <optgroup key={parent.id} label={parent.name}>
-                          {parent.children?.map((child) => (
-                            <option key={child.id} value={child.slug}>
-                              {child.name}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))
+                    ? categoryTree.map((parent) => {
+                        const hasChildren =
+                          parent.children && parent.children.length > 0;
+                        if (hasChildren) {
+                          return (
+                            <optgroup key={parent.id} label={parent.name}>
+                              {parent.children!.map((child) => (
+                                <option key={child.id} value={child.slug}>
+                                  {child.name}
+                                </option>
+                              ))}
+                            </optgroup>
+                          );
+                        }
+                        return (
+                          <option key={parent.id} value={parent.slug}>
+                            {parent.name}
+                          </option>
+                        );
+                      })
                     : categories.map((cat) =>
                         cat.parentId ? null : (
                           <option key={cat.id} value={cat.slug}>
