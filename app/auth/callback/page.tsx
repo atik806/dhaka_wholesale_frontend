@@ -3,7 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "@/src/lib/supabase";
-import { getProfile, syncProfile } from "@/src/lib/auth-api";
+import { API_BASE } from "@/src/lib/constants";
 import {
   mergeGuestCartOnLogin,
   snapshotGuestCart,
@@ -98,50 +98,48 @@ function CallbackHandler() {
       };
 
       try {
-        const user = await getProfile(access_token);
-        setAuth(user, { access_token, refresh_token, expires_at });
+        // Import the Supabase client session into the httpOnly dw_session
+        // cookie. The backend verifies the access token, creates the profile
+        // for a brand-new OAuth user, and responds with the user — the tokens
+        // themselves never reach JavaScript.
+        const res = await fetch(`${API_BASE}/auth/sync-session`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ access_token, refresh_token, expires_at }),
+        });
+        if (!res.ok) throw new Error("Could not import session into cookie");
+
+        const json = await res.json();
+        const user = json.data?.user;
+        if (!user) throw new Error("Empty user from session sync");
+
+        // The httpOnly cookie is the only session store now — purge the
+        // tokens the Supabase client wrote to localStorage. scope:'local'
+        // clears this browser only and never calls the server, so it cannot
+        // revoke the refresh token the cookie depends on.
+        try {
+          await supabase.auth.signOut({ scope: "local" });
+        } catch {
+          // Non-fatal: the cookie already holds the session.
+        }
+
+        setAuth(user);
         await mergeGuestCartOnLogin(guest);
         router.push(redirect);
-      } catch (profileErr: unknown) {
-        console.warn(
-          "[OAuth Callback] getProfile failed, trying sync-profile:",
-          profileErr instanceof Error ? profileErr.message : profileErr,
+      } catch (syncErr: unknown) {
+        const syncMsg = syncErr instanceof Error ? syncErr.message : "unknown";
+        console.error(
+          "[OAuth Callback] Session sync failed:",
+          syncMsg,
         );
-        const oauthName =
-          session.user.user_metadata?.full_name ??
-          session.user.user_metadata?.name ??
-          session.user.email ??
-          "";
-        const oauthEmail = session.user.email ?? "";
 
-        try {
-          // Add a timeout so the user never gets stuck on a spinner
-          const SYNC_TIMEOUT_MS = 20_000;
-          const syncPromise = syncProfile(access_token, oauthName, oauthEmail);
-          const timeout = new Promise<never>((_, reject) =>
-            setTimeout(
-              () => reject(new Error("Profile sync timed out")),
-              SYNC_TIMEOUT_MS,
-            ),
-          );
-          const user = await Promise.race([syncPromise, timeout]);
-          setAuth(user, { access_token, refresh_token, expires_at });
-          await mergeGuestCartOnLogin(guest);
-          router.push(redirect);
-        } catch (syncErr: unknown) {
-          const syncMsg = syncErr instanceof Error ? syncErr.message : "unknown";
-          console.error(
-            "[OAuth Callback] Profile sync failed:",
-            syncMsg,
-          );
-
-          // Do NOT set phantom auth state — just redirect with error
-          router.push(
-            `/login?error=oauth_profile_failed&error_description=${encodeURIComponent(
-              syncMsg || "Could not create backend profile. Please try again.",
-            )}`,
-          );
-        }
+        // Do NOT set phantom auth state — just redirect with error
+        router.push(
+          `/login?error=oauth_exchange_failed&error_description=${encodeURIComponent(
+            syncMsg || "Could not complete Google sign-in. Please try again.",
+          )}`,
+        );
       }
     };
 

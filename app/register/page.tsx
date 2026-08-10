@@ -81,9 +81,9 @@ function RegisterForm() {
     setLoading(true);
     try {
       const data = await registerUser(name, email, password);
-      if (data.session?.access_token) {
+      if (data.authed) {
         const guest = snapshotGuestCart();
-        setAuth(data.user, data.session);
+        setAuth(data.user);
         await mergeGuestCartOnLogin(guest);
         router.push(safeRedirect(searchParams.get("redirect")));
       } else {
@@ -105,13 +105,9 @@ function RegisterForm() {
     setSuccess("");
     setLoading(true);
     try {
-      const data = await loginUser(email, password);
-      if (!data.session?.access_token) {
-        setError(data.message || "Login failed");
-        return;
-      }
+      const user = await loginUser(email, password);
       const guest = snapshotGuestCart();
-      setAuth(data.user, data.session);
+      setAuth(user);
       await mergeGuestCartOnLogin(guest);
       router.push(safeRedirect(searchParams.get("redirect")));
     } catch (err) {

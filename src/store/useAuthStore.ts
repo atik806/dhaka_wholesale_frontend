@@ -2,21 +2,25 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { AuthUser, AuthSession } from "@/src/lib/auth-api";
+import type { AuthUser } from "@/src/lib/auth-api";
 import { refreshSession } from "@/src/lib/auth-api";
-import { getSupabase } from "@/src/lib/supabase";
+import { API_BASE } from "@/src/lib/constants";
 import { useCartStore } from "@/src/store/useCartStore";
 
 interface AuthState {
   user: AuthUser | null;
-  session: AuthSession | null;
   _hydrated: boolean;
   _initialized: boolean;
 
-  setAuth: (user: AuthUser, session: AuthSession) => void;
-  logout: () => void;
+  setAuth: (user: AuthUser) => void;
+  logout: () => Promise<void>;
+  /**
+   * Session died server-side (401 after refresh). Drop the user but KEEP the
+   * cart — a guest cart should survive an expired session, and this path is
+   * reached on silent expiries where the user may not even be looking.
+   */
+  clearSession: () => void;
   updateUser: (fields: Partial<AuthUser>) => void;
-  refreshAuth: () => Promise<boolean>;
   initAuth: () => Promise<void>;
 }
 
@@ -24,89 +28,84 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
       user: null,
-      session: null,
       _hydrated: false,
       _initialized: false,
 
-      setAuth: (user, session) => set({ user, session }),
+      setAuth: (user) => set({ user }),
+
+      clearSession: () => set({ user: null }),
 
       logout: async () => {
+        // Best-effort server-side revoke + cookie clear. Failure is never
+        // fatal — the local state is cleared regardless.
         try {
-          await getSupabase().auth.signOut({ scope: "local" });
+          await fetch(`${API_BASE}/auth/logout`, {
+            method: "POST",
+            credentials: "include",
+          });
         } catch (err) {
-          console.warn("[auth] Supabase signOut failed during logout:", err);
+          console.warn("[auth] logout request failed:", err);
         }
-        // A cart is tied to the signed-in account; leaving it behind on
-        // logout leaks one user's selection to the next user of this
-        // browser and resurrects on their next login.
         useCartStore.getState().clearCart();
-        set({ user: null, session: null });
+        set({ user: null });
       },
 
       updateUser: (fields) =>
-        set((state) => ({
-          user: state.user ? { ...state.user, ...fields } : null,
-        })),
-
-      refreshAuth: async () => {
-        const { session } = get();
-        if (!session?.refresh_token) return false;
-        try {
-          const data = await refreshSession(session.refresh_token);
-          if (!data?.session?.access_token) {
-            throw new Error("Refresh returned no access token");
-          }
-          const existing = get().user;
-          set({
-            user: existing ? { ...existing, ...data.user } : data.user,
-            session: data.session,
-          });
-          return true;
-        } catch (err) {
-          console.warn("[auth] Session refresh failed; clearing local session:", err);
-          try {
-            await getSupabase().auth.signOut({ scope: "local" });
-          } catch {
-            // ignore secondary cleanup errors
-          }
-          set({ user: null, session: null });
-          return false;
-        }
-      },
+        set((state) =>
+          state.user ? { user: { ...state.user, ...fields } } : state,
+        ),
 
       initAuth: async () => {
-        const { session, _initialized } = get();
-        if (_initialized) return;
+        if (get()._initialized) return;
         set({ _initialized: true });
 
-        if (!session?.refresh_token) {
-          // Stale user without a refresh token cannot restore a session
-          if (session || get().user) {
-            set({ user: null, session: null });
-          }
+        // Plain fetch (not authFetch): an unauthenticated guest must not be
+        // redirected to /login just by loading a page.
+        let res: Response;
+        try {
+          res = await fetch(`${API_BASE}/auth/profile`, {
+            credentials: "include",
+          });
+        } catch {
+          set({ user: null });
           return;
         }
 
-        const isExpired =
-          !session.expires_at || session.expires_at * 1000 <= Date.now() + 60_000;
+        if (res.ok) {
+          const json = await res.json();
+          set({ user: json.data ?? null });
+          return;
+        }
 
-        if (isExpired) {
-          const ok = await get().refreshAuth();
-          if (!ok) {
-            set({ user: null, session: null });
+        // 401 — try one cookie refresh, then re-check the profile once.
+        if (res.status === 401) {
+          const ok = await refreshSession();
+          if (ok) {
+            try {
+              const retry = await fetch(`${API_BASE}/auth/profile`, {
+                credentials: "include",
+              });
+              if (retry.ok) {
+                const json = await retry.json();
+                set({ user: json.data ?? null });
+                return;
+              }
+            } catch {
+              // fall through to the no-user state below
+            }
           }
         }
+        set({ user: null });
       },
     }),
     {
-      name: "cholokini-auth",
-      partialize: (state) => ({
-        user: state.user,
-        session: state.session,
-      }),
+      name: "dhaka-wholesale-auth",
+      // Only the user object persists — tokens live exclusively in the
+      // httpOnly cookie set by the backend.
+      partialize: (state) => ({ user: state.user }),
       onRehydrateStorage: () => (state, error) => {
         if (error) {
-          console.warn("[auth] Failed to rehydrate persisted session:", error);
+          console.warn("[auth] Failed to rehydrate persisted auth:", error);
         }
         if (state) state._hydrated = true;
         else {
@@ -123,5 +122,5 @@ export function useAuthHydrated() {
 }
 
 export function useIsLoggedIn() {
-  return useAuthStore((s) => !!s.user && !!s.session);
+  return useAuthStore((s) => !!s.user);
 }

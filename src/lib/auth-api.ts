@@ -1,14 +1,5 @@
 import { API_BASE, DELIVERY_CHARGES, type DeliveryZone } from "./constants";
 
-interface AuthStoreState {
-  session: AuthSession | null;
-  refreshAuth: () => Promise<boolean>;
-}
-
-interface AuthStore {
-  getState(): AuthStoreState;
-}
-
 export interface ShippingAddress {
   firstName?: string;
   lastName?: string;
@@ -29,22 +20,22 @@ export interface AuthUser {
   role: string;
 }
 
+/**
+ * Mirror of the backend `dw_session` httpOnly cookie payload. Kept only for
+ * the OAuth callback, which posts these tokens once to `/auth/sync-session`
+ * so the backend can re-set the cookie. They are never stored in JS.
+ */
 export interface AuthSession {
   access_token: string;
   refresh_token: string;
   expires_at: number;
 }
 
-interface AuthResponse {
+export interface RegisterResult {
   user: AuthUser;
-  session: AuthSession;
   message?: string;
-}
-
-function authHeaders(token?: string): Record<string, string> {
-  const headers: Record<string, string> = { "Content-Type": "application/json" };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  return headers;
+  /** true when the session cookie was set (auto sign-in after registration). */
+  authed: boolean;
 }
 
 function parseError(res: { status: number }, json: Record<string, unknown>): string {
@@ -61,13 +52,35 @@ function parseError(res: { status: number }, json: Record<string, unknown>): str
   return typeof json.message === "string" ? json.message : `Request failed (${res.status})`;
 }
 
+/**
+ * POST /auth/login. The session arrives via the httpOnly `dw_session` cookie —
+ * the response body carries the user object alone.
+ */
+export async function loginUser(email: string, password: string): Promise<AuthUser> {
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(parseError(res, json));
+  return json.data.user;
+}
+
+/**
+ * POST /auth/register. Returns { user, message, authed } — `authed` is false
+ * only when the user row was created but the auto sign-in (and therefore the
+ * session cookie) failed, in which case the caller should prompt them to sign in.
+ */
 export async function registerUser(
   name: string,
   email: string,
   password: string,
-): Promise<AuthResponse> {
+): Promise<RegisterResult> {
   const res = await fetch(`${API_BASE}/auth/register`, {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, password }),
   });
@@ -76,57 +89,103 @@ export async function registerUser(
   return json.data;
 }
 
-export async function loginUser(
-  email: string,
-  password: string,
-): Promise<AuthResponse> {
-  const res = await fetch(`${API_BASE}/auth/login`, {
+let refreshInFlight: Promise<boolean> | null = null;
+
+/**
+ * POST /auth/refresh with an empty body — the refresh token lives in the
+ * httpOnly cookie. Single-flight: any number of concurrent 401s share one
+ * refresh request.
+ */
+export async function refreshSession(): Promise<boolean> {
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/auth/refresh`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: "{}",
+        });
+        return res.ok;
+      } catch {
+        return false;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+  }
+  return refreshInFlight;
+}
+
+/** GET /auth/profile — cookie-authenticated. */
+export async function getProfile(): Promise<AuthUser> {
+  const res = await authFetch(`${API_BASE}/auth/profile`);
+  const json = await res.json();
+  if (!res.ok) throw new Error(parseError(res, json));
+  return json.data;
+}
+
+/** POST /auth/sync-profile (OAuth callback) — cookie-authenticated. */
+export async function syncProfile(name: string, email: string): Promise<AuthUser> {
+  const res = await authFetch(`${API_BASE}/auth/sync-profile`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(parseError(res, json));
-  return json.data;
-}
-
-export async function refreshSession(
-  refreshToken: string,
-): Promise<AuthResponse> {
-  const res = await fetch(`${API_BASE}/auth/refresh`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ refresh_token: refreshToken }),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(parseError(res, json));
-  return json.data;
-}
-
-export async function getProfile(
-  token: string,
-): Promise<AuthUser> {
-  const res = await fetch(`${API_BASE}/auth/profile`, {
-    headers: authHeaders(token),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(parseError(res, json));
-  return json.data;
-}
-
-export async function syncProfile(
-  token: string,
-  name: string,
-  email: string,
-): Promise<AuthUser> {
-  const res = await fetch(`${API_BASE}/auth/sync-profile`, {
-    method: "POST",
-    headers: authHeaders(token),
     body: JSON.stringify({ name, email }),
   });
   const json = await res.json();
   if (!res.ok) throw new Error(parseError(res, json));
   return json.data;
+}
+
+/** PATCH /auth/profile — cookie-authenticated. */
+export async function updateProfile(updates: {
+  name?: string;
+  phone?: string;
+  shipping_address?: ShippingAddress;
+}): Promise<AuthUser> {
+  const res = await authFetch(`${API_BASE}/auth/profile`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates),
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(parseError(res, json));
+  return json.data;
+}
+
+/** Don't bounce people who are already on an auth page. */
+function shouldRedirectToLogin(): boolean {
+  if (typeof window === "undefined") return false;
+  return !/^\/(login|register|admin\/login)/.test(window.location.pathname);
+}
+
+async function handleExpiredSession(): Promise<void> {
+  const { useAuthStore } = await import("@/src/store/useAuthStore");
+  useAuthStore.getState().clearSession();
+  if (shouldRedirectToLogin()) window.location.href = "/login";
+}
+
+/**
+ * Fetch with credentials (the httpOnly `dw_session` cookie). On 401, try a
+ * single-flight cookie refresh, then retry once. A second 401 means the
+ * session is genuinely dead — clear the local user and redirect to login.
+ */
+export async function authFetch(
+  url: string,
+  options: RequestInit = {},
+): Promise<Response> {
+  let res = await fetch(url, { ...options, credentials: "include" });
+  if (res.status !== 401) return res;
+
+  const ok = await refreshSession();
+  if (!ok) {
+    await handleExpiredSession();
+    return res;
+  }
+
+  res = await fetch(url, { ...options, credentials: "include" });
+  if (res.status === 401) await handleExpiredSession();
+  return res;
 }
 
 export interface UserOrderItem {
@@ -314,83 +373,4 @@ export async function cancelUserOrder(orderId: string): Promise<UserOrder> {
   const json = await res.json();
   if (!res.ok) throw new Error(parseError(res, json));
   return json.data;
-}
-
-export async function updateProfile(
-  _token: string,
-  updates: { name?: string; phone?: string; shipping_address?: ShippingAddress },
-): Promise<AuthUser> {
-  const res = await authFetch(`${API_BASE}/auth/profile`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updates),
-  });
-  const json = await res.json();
-  if (!res.ok) throw new Error(parseError(res, json));
-  return json.data;
-}
-
-let refreshPromise: Promise<string | null> | null = null;
-
-async function getValidToken(): Promise<string | null> {
-  let authStore: AuthStore;
-  try {
-    authStore = (await import("@/src/store/useAuthStore")).useAuthStore;
-  } catch {
-    return null;
-  }
-  const { session, refreshAuth } = authStore.getState();
-
-  if (!session?.access_token) return null;
-
-  if (session.expires_at && session.expires_at * 1000 > Date.now() + 30_000) {
-    return session.access_token;
-  }
-
-  if (!refreshPromise) {
-    refreshPromise = (async () => {
-      try {
-        const ok = await refreshAuth();
-        if (!ok) return null;
-        return authStore.getState().session?.access_token ?? null;
-      } finally {
-        refreshPromise = null;
-      }
-    })();
-  }
-
-  return refreshPromise;
-}
-
-export async function authFetch(
-  url: string,
-  options: RequestInit = {},
-): Promise<Response> {
-  let token = await getValidToken();
-  if (!token) throw new Error("No active session. Please log in.");
-
-  const headers = new Headers(options.headers);
-  headers.set("Authorization", `Bearer ${token}`);
-
-  let res = await fetch(url, { ...options, headers });
-
-  if (res.status === 401) {
-    let authStore: AuthStore;
-    try {
-      authStore = (await import("@/src/store/useAuthStore")).useAuthStore;
-    } catch {
-      throw new Error("Failed to load auth store for token refresh.");
-    }
-
-    const ok = await authStore.getState().refreshAuth();
-    if (!ok) throw new Error("Session refresh failed. Please log in again.");
-
-    token = authStore.getState().session?.access_token ?? null;
-    if (!token) throw new Error("Session refresh returned no token. Please log in again.");
-
-    headers.set("Authorization", `Bearer ${token}`);
-    res = await fetch(url, { ...options, headers });
-  }
-
-  return res;
 }

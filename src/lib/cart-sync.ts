@@ -20,8 +20,8 @@ let mergeInFlight: Promise<void> | null = null;
 let loadInFlight: Promise<void> | null = null;
 
 function isAuthenticated(): boolean {
-  const { user, session } = useAuthStore.getState();
-  return !!user && !!session?.access_token;
+  const { user } = useAuthStore.getState();
+  return !!user;
 }
 
 function guestCartPayload(items: CartItem[]) {

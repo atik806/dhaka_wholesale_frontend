@@ -1,6 +1,7 @@
 import type { Product, Category } from '@/src/types/product';
 
 import { API_BASE } from './constants';
+import { authFetch } from './auth-api';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -165,17 +166,6 @@ export async function fetchFeaturedProducts(signal?: AbortSignal): Promise<Produ
   return (res.data || []).map(mapProduct);
 }
 
-export interface ProductStockStats {
-  total: number;
-  lowStock: number;
-  outOfStock: number;
-}
-
-export async function fetchProductStockStats(signal?: AbortSignal): Promise<ProductStockStats> {
-  const res = await fetcher<ProductStockStats>('/products/stats', signal);
-  return res.data || { total: 0, lowStock: 0, outOfStock: 0 };
-}
-
 export interface CategoryListResult {
   categories: Category[];
 }
@@ -303,14 +293,10 @@ export async function submitReview(
   productId: string,
   rating: number,
   text: string,
-  token: string,
 ): Promise<Review> {
-  const res = await fetch(`${API_BASE}/products/${productId}/reviews`, {
+  const res = await authFetch(`${API_BASE}/products/${productId}/reviews`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rating, text }),
   });
   const json = await res.json();

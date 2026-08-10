@@ -20,7 +20,6 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
   const [page, setPage] = useState(1);
   const { data: reviewsData, isLoading, mutate } = useProductReviews(productId, page);
   const user = useAuthStore((s) => s.user);
-  const session = useAuthStore((s) => s.session);
   const { addToast } = useToast();
 
   const [formOpen, setFormOpen] = useState(false);
@@ -34,10 +33,10 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.access_token) return;
+    if (!user) return;
     setSubmitting(true);
     try {
-      await submitReview(productId, rating, text, session.access_token);
+      await submitReview(productId, rating, text);
       setText("");
       setRating(5);
       setFormOpen(false);
