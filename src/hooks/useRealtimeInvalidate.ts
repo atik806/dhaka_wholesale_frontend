@@ -1,6 +1,11 @@
 import { useEffect, useRef, useCallback } from "react";
 import { getAdminSupabase } from "@/src/lib/admin-supabase";
 
+/** M1 fallback: sessions moved to httpOnly cookies, so realtime can't
+ *  authenticate. Pages that only invalidate (e.g. the dashboard) instead
+ *  re-run `onInvalidate` on a 30s loop — they keep updating, just slower. */
+const POLL_INTERVAL_MS = 30_000;
+
 interface InvalidateOptions {
   table: string;
   onInvalidate: () => void;
@@ -47,8 +52,14 @@ export function useRealtimeInvalidate({
       }
     })();
 
+    // 30s polling fallback — realtime no longer authenticates (M1).
+    const poll = setInterval(() => {
+      if (active) stableInvalidate();
+    }, POLL_INTERVAL_MS);
+
     return () => {
       active = false;
+      clearInterval(poll);
       if (channel) {
         (async () => {
           try {

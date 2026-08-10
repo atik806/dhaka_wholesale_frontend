@@ -2,6 +2,10 @@ import { useEffect, useState, useRef } from "react";
 import { getAdminSupabase } from "@/src/lib/admin-supabase";
 import type { SupabaseClient, RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 
+/** M1 fallback: sessions moved to httpOnly cookies, so realtime can't
+ *  authenticate. Admin pages keep fresh via a 30s polling loop instead. */
+const POLL_INTERVAL_MS = 30_000;
+
 interface RealtimeOptions<T> {
   table: string;
   initialFetch: () => Promise<T[]>;
@@ -51,21 +55,27 @@ export function useRealtimeData<T>({
     let active = true;
     let channel: ReturnType<SupabaseClient["channel"]> | null = null;
 
-    (async () => {
+    // Reloads the table. Loading is only toggled on the first run so the
+    // 30s polls don't flash spinners; transient poll failures just surface
+    // in `error` and are cleared on the next successful poll.
+    const refreshData = async () => {
+      if (!active) return;
       try {
-        setLoading(true);
         setError(null);
         const result = await initialFetchRef.current();
-        if (!active) return;
-        setData(result);
-        setLoading(false);
+        if (active) setData(result);
       } catch (err) {
-        if (!active) return;
-        setError(err instanceof Error ? err.message : "Failed to fetch");
-        setLoading(false);
-        return;
+        if (active) setError(err instanceof Error ? err.message : "Failed to fetch");
+      } finally {
+        if (active) setLoading(false);
       }
+    };
 
+    // Initial load — data appears immediately, then the polling loop keeps
+    // it fresh (M1 removed the JWT realtime relied on).
+    refreshData();
+
+    (async () => {
       try {
         const supabase = await getAdminSupabase();
         if (!active) return;
@@ -110,8 +120,11 @@ export function useRealtimeData<T>({
       }
     })();
 
+    const poll = setInterval(() => { refreshData(); }, POLL_INTERVAL_MS);
+
     return () => {
       active = false;
+      clearInterval(poll);
       if (channel) {
         (async () => {
           try {
