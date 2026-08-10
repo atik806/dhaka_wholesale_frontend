@@ -135,7 +135,7 @@ export default function AdminBugReportsPage() {
       key: "screenshot",
       label: "Screenshot",
       render: (r) =>
-        r.screenshot_url ? (
+        isSafeHttpUrl(r.screenshot_url) ? (
           <div className="w-10 h-10 rounded-lg overflow-hidden border border-line">
             <img src={r.screenshot_url} alt="" className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
           </div>
@@ -290,7 +290,7 @@ export default function AdminBugReportsPage() {
                   )}
                 </div>
 
-                {selected.screenshot_url && (
+                {isSafeHttpUrl(selected.screenshot_url) && (
                   <div>
                     <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider mb-1">Screenshot</p>
                     <div className="rounded-xl overflow-hidden border border-line">
@@ -304,7 +304,7 @@ export default function AdminBugReportsPage() {
                   </div>
                 )}
 
-                {!selected.screenshot_url && (
+                {!isSafeHttpUrl(selected.screenshot_url) && (
                   <div className="flex items-center gap-2 text-xs text-muted">
                     <ImageIcon className="w-4 h-4" />
                     No screenshot attached
