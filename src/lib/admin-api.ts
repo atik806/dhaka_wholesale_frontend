@@ -145,9 +145,16 @@ export async function updateUserRole(id: string, role: string): Promise<UserProf
   return res.data;
 }
 export async function createUser(data: { name: string; email: string; password: string; role?: string }): Promise<UserProfile> {
+  // M2: only send `role` when the caller explicitly chose one. The old
+  // `data.role || "admin"` silently escalated any omitted role to admin; the
+  // backend Zod default ('customer') now applies when the field is absent.
+  const payload = {
+    ...data,
+    ...(data.role !== undefined ? { role: data.role } : {}),
+  };
   const res = await adminFetcher<UserProfile>("/admin/users", {
     method: "POST",
-    body: JSON.stringify({ ...data, role: data.role || "admin" }),
+    body: JSON.stringify(payload),
   });
   return res.data;
 }
