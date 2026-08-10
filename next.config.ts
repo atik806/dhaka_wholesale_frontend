@@ -46,6 +46,14 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
+            // C4: `script-src 'unsafe-inline'` is kept intentionally. The App
+            // Router inlines bootstrapping scripts during streaming/hydration,
+            // so a strict nonce policy would need middleware-injected nonces
+            // plus a next/script transform to be reliable — deferred. The
+            // residual inline-script surface is mitigated by React's
+            // auto-escaping and by the URL-scheme guards (isSafeHttpUrl /
+            // safePromoLink) applied to every DB-backed URL the app renders.
+            // `'unsafe-eval'` is dev-only (added when NODE_ENV !== production).
             value:
               `default-src 'self'; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ${apiOrigin}${supabaseOrigin ? ` ${supabaseOrigin}` : ""}; frame-ancestors 'none';`,
           },
