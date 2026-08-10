@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { fetchDashboard } from "@/src/lib/admin-api";
+import { API_BASE } from "@/src/lib/constants";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 
 interface BadgeCounts {
@@ -69,8 +70,16 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
     }
   }, [open]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("admin_session");
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch {
+      // Best-effort — the server clears the cookie; client redirect happens regardless.
+    }
     router.push("/admin/login");
   };
 

@@ -5,62 +5,31 @@ import { usePathname, useRouter } from "next/navigation";
 import { AdminSidebar } from "@/src/components/admin/AdminSidebar";
 
 import { API_BASE } from "@/src/lib/constants";
+import { refreshSession } from "@/src/lib/auth-api";
 
-function getSessionFromStorage() {
-  if (typeof window === "undefined") return null;
-  try {
-    const sessionStr = localStorage.getItem("admin_session");
-    if (!sessionStr) return null;
-    const session = JSON.parse(sessionStr);
-    if (session.session?.access_token && session.user?.role === "admin") {
-      return session;
+/**
+ * Cookie-authenticated admin check. The middleware gates the route on cookie
+ * presence; this verifies the live session server-side and enforces the admin
+ * role before the shell renders (M5 — no unauthenticated shell flash).
+ */
+async function validateAdminSession(): Promise<boolean> {
+  let res = await fetch(`${API_BASE}/auth/profile`, {
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+  });
+  if (res.status === 401) {
+    const ok = await refreshSession();
+    if (ok) {
+      res = await fetch(`${API_BASE}/auth/profile`, {
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+      });
     }
-    return null;
-  } catch {
-    return null;
   }
-}
-
-async function validateToken(): Promise<boolean> {
-  try {
-    const session = getSessionFromStorage();
-    if (!session) return false;
-    const res = await fetch(`${API_BASE}/auth/profile`, {
-      headers: { Authorization: `Bearer ${session.session.access_token}` },
-    });
-    if (res.ok) {
-      // The profile endpoint returns the DB role — an access token alone
-      // must never be enough to reach the admin panel.
-      const profileData = await res.json().catch(() => null);
-      const role =
-        profileData?.data?.role ?? profileData?.data?.user?.role ?? null;
-      if (role !== "admin") return false;
-      return true;
-    }
-    if (res.status !== 401) return false;
-    const refreshToken = session.session.refresh_token;
-    if (!refreshToken) return false;
-    const refreshRes = await fetch(`${API_BASE}/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
-    if (!refreshRes.ok) return false;
-    const refreshData = await refreshRes.json();
-    if (refreshData?.data?.session) {
-      const refreshedRole = refreshData?.data?.user?.role;
-      if (refreshedRole !== "admin") return false;
-      localStorage.setItem("admin_session", JSON.stringify({
-        ...session,
-        session: refreshData.data.session,
-        user: refreshData.data.user,
-      }));
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
+  if (!res.ok) return false;
+  const profileData = await res.json().catch(() => null);
+  const role = profileData?.data?.role ?? profileData?.data?.user?.role ?? null;
+  return role === "admin";
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -77,20 +46,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (active) setAuthed(true);
         return;
       }
-      const session = getSessionFromStorage();
-      if (!session) {
-        if (active) setAuthed(false);
+      // Render nothing (spinner) until the cookie session is validated — the
+      // shell must never appear for an unauthenticated user (M5).
+      const valid = await validateAdminSession();
+      if (!valid && active) {
+        setAuthed(false);
         router.replace("/admin/login");
         return;
       }
-      // Show admin shell immediately; validate token in background once per mount
       if (active) setAuthed(true);
-      const valid = await validateToken();
-      if (!valid && active) {
-        localStorage.removeItem("admin_session");
-        setAuthed(false);
-        router.replace("/admin/login");
-      }
     })();
     return () => { active = false; };
     // Validate once on mount / login-page toggle — not on every admin route change

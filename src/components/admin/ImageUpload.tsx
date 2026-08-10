@@ -12,17 +12,6 @@ interface ImageUploadProps {
   maxImages?: number;
 }
 
-function getToken(): string | null {
-  try {
-    const s = localStorage.getItem("admin_session");
-    if (!s) return null;
-    const session = JSON.parse(s);
-    return session.session?.access_token || null;
-  } catch {
-    return null;
-  }
-}
-
 export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -36,7 +25,6 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
     setError("");
     const newUrls: string[] = [];
     const errors: string[] = [];
-    const token = getToken();
 
     const remainingSlots = maxImages - value.length;
     const fileArray = Array.from(files);
@@ -60,7 +48,7 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
         formData.append("file", file);
         const res = await fetch(`${API_BASE}/upload`, {
           method: "POST",
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          credentials: "include",
           body: formData,
         });
         const data = await res.json();

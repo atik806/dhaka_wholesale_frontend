@@ -21,6 +21,7 @@ export default function AdminLoginPage() {
       const res = await fetch(`${API_BASE}/auth/admin-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email, password }),
       });
       const json = await res.json().catch(() => null);
@@ -29,15 +30,12 @@ export default function AdminLoginPage() {
         setError(msg);
         return;
       }
-      if (!json?.data?.session?.access_token) {
-        setError("Invalid response from server");
-        return;
-      }
+      // The session arrives via the httpOnly dw_session cookie (M1) — the body
+      // carries only the user. The role check still gates the admin panel.
       if (json?.data?.user?.role !== "admin") {
         setError("You do not have admin access");
         return;
       }
-      localStorage.setItem("admin_session", JSON.stringify(json.data));
       const raw = new URLSearchParams(window.location.search).get("redirect") || "/admin";
       const redirect = raw.startsWith("/admin") ? raw : "/admin";
       router.push(redirect);

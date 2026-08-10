@@ -20,34 +20,45 @@ const dateRanges = [
   { label: "All Time", value: "all" },
 ];
 
+function buildRangeParams(range: string): { from?: string; to?: string } {
+  const params: { from?: string; to?: string } = {};
+  if (range !== "all") {
+    const days = range === "7d" ? 7 : 30;
+    const from = new Date();
+    from.setDate(from.getDate() - days);
+    params.from = from.toISOString();
+  }
+  return params;
+}
+
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState("30d");
 
   const loadData = useCallback(async (range: string) => {
-    setLoading(true);
     try {
-      const params: { from?: string; to?: string } = {};
-      if (range !== "all") {
-        const days = range === "7d" ? 7 : 30;
-        const from = new Date();
-        from.setDate(from.getDate() - days);
-        params.from = from.toISOString();
-      }
-      const result = await fetchDashboard(params);
+      const result = await fetchDashboard(buildRangeParams(range));
       setData(result);
-    } catch {
-      const session = localStorage.getItem("admin_session");
-      if (!session) window.location.href = "/admin/login";
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadData(dateRange);
-  }, [dateRange, loadData]);
+    let active = true;
+    (async () => {
+      try {
+        const result = await fetchDashboard(buildRangeParams(dateRange));
+        if (active) setData(result);
+      } finally {
+        if (active) setLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [dateRange]);
 
   useRealtimeInvalidate({ table: "orders", onInvalidate: () => loadData(dateRange) });
   useRealtimeInvalidate({ table: "products", onInvalidate: () => loadData(dateRange) });

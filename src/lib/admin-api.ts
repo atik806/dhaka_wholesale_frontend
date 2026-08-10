@@ -1,4 +1,5 @@
 import { API_BASE } from "./constants";
+import { refreshSession } from "./auth-api";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -6,31 +7,47 @@ interface ApiResponse<T> {
   meta?: { total: number; page: number; limit: number; totalPages: number };
 }
 
-export function getToken(): string | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const session = JSON.parse(localStorage.getItem("admin_session") || "{}");
-    return session.session?.access_token || null;
-  } catch {
-    return null;
+/** Send admins to the admin login when the cookie session is gone. */
+function redirectToAdminLogin(): void {
+  if (typeof window === "undefined") return;
+  if (!/^\/admin\/login/.test(window.location.pathname)) {
+    window.location.href = "/admin/login";
   }
 }
 
+/**
+ * Admin fetch, cookie-authenticated via the httpOnly `dw_session` cookie (M1).
+ * On 401, try a single-flight cookie refresh, then retry once. A second 401
+ * means the session is genuinely dead — send the admin to /admin/login.
+ */
 export async function adminFetcher<T>(url: string, options?: RequestInit): Promise<ApiResponse<T>> {
-  const token = getToken();
-  const res = await fetch(`${API_BASE}${url}`, {
+  let res = await fetch(`${API_BASE}${url}`, {
     ...options,
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },
   });
-  if (!res.ok) {
-    if (res.status === 401) {
-      localStorage.removeItem("admin_session");
-      if (typeof window !== "undefined") window.location.href = "/admin/login";
+
+  if (res.status === 401) {
+    const ok = await refreshSession();
+    if (!ok) {
+      redirectToAdminLogin();
+    } else {
+      res = await fetch(`${API_BASE}${url}`, {
+        ...options,
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          ...options?.headers,
+        },
+      });
+      if (res.status === 401) redirectToAdminLogin();
     }
+  }
+
+  if (!res.ok) {
     const err = await res.json().catch(() => ({}));
     let msg = err.message || `HTTP ${res.status}`;
     if (err.errors && Array.isArray(err.errors) && err.errors.length > 0) {
@@ -41,6 +58,17 @@ export async function adminFetcher<T>(url: string, options?: RequestInit): Promi
     throw new Error(msg);
   }
   return res.json();
+}
+
+// Products
+export interface ProductStockStats {
+  total: number;
+  lowStock: number;
+  outOfStock: number;
+}
+export async function fetchAdminProductStockStats(): Promise<ProductStockStats> {
+  const res = await adminFetcher<ProductStockStats>("/products/stats");
+  return res.data || { total: 0, lowStock: 0, outOfStock: 0 };
 }
 
 // Dashboard
