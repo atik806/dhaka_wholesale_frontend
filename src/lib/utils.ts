@@ -43,6 +43,27 @@ export function isSafeHttpUrl(url: string | null | undefined): url is string {
   }
 }
 
+/**
+ * Sanitize a DB-backed promo `button_link` before it becomes an `<a href>`.
+ * Unlike `isSafeHttpUrl`, same-site paths beginning with "/" are valid promo
+ * targets (e.g. "/shop", "/collections/sale"). Anything else — `javascript:`,
+ * `data:`, `ftp:`, protocol-relative `//host` — is not a clickable vector here,
+ * so it drops back to "/shop".
+ */
+export function safePromoLink(link: string | null | undefined): string {
+  if (typeof link !== "string" || link.length === 0) return "/shop";
+  if (link.startsWith("/") && !link.startsWith("//")) return link;
+  try {
+    const parsed = new URL(link);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return link;
+    }
+  } catch {
+    /* not parseable as a URL — fall through to default */
+  }
+  return "/shop";
+}
+
 export function slugify(text: string): string {
   return text.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
 }

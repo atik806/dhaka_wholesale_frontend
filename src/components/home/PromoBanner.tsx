@@ -5,6 +5,7 @@ import Link from "next/link";
 import { buttonClasses } from "@/src/components/ui/Button";
 import { usePromoBanner } from "@/src/hooks/useApi";
 import type { PromoBannerData } from "@/src/lib/api";
+import { safePromoLink } from "@/src/lib/utils";
 
 const DEFAULT_PROMO: PromoBannerData = {
   badge: "Limited time offer",
@@ -71,7 +72,7 @@ export function PromoBanner({ fallbackData }: PromoBannerProps) {
           </div>
 
           <Link
-            href={promo.button_link || "/shop"}
+            href={safePromoLink(promo.button_link)}
             className={buttonClasses({
               size: "lg",
               className:
