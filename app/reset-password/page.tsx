@@ -70,7 +70,13 @@ export default function ResetPasswordPage() {
         return;
       }
       setSuccess("Password updated. You can sign in with your new password.");
-      setTimeout(() => router.push("/login"), 1500);
+
+      // M3: never leave the PKCE (localStorage) session alive after a password
+      // reset — the old remembered token must not be usable, and the user
+      // should sign in again with the new password. `scope: "local"` clears
+      // only the client-side session and leaves httpOnly cookies untouched.
+      await supabase.auth.signOut({ scope: "local" });
+      router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update password");
     } finally {
