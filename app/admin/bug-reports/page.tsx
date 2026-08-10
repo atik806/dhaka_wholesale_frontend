@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Bug, X, Loader2, ExternalLink, Image as ImageIcon,
@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
-import { formatDate } from "@/src/lib/utils";
+import { formatDate, isSafeHttpUrl } from "@/src/lib/utils";
 import {
   fetchBugReports,
   updateBugReport,
@@ -37,7 +37,7 @@ const PRIORITY_ICON: Record<string, React.ReactNode> = {
 };
 
 export default function AdminBugReportsPage() {
-  const [selected, setSelected] = useState<BugReport | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [updating, setUpdating] = useState(false);
@@ -51,14 +51,9 @@ export default function AdminBugReportsPage() {
     }, []),
   });
 
-  useEffect(() => {
-    if (!selected) return;
-    const updated = reports.find((r) => r.id === selected.id);
-    if (updated && updated !== selected) {
-      setSelected(updated);
-      setReplyText(updated.admin_reply || "");
-    }
-  }, [reports, selected]);
+  // Derive the open report from its id so realtime updates are always
+  // reflected without an effect syncing state.
+  const selected = reports.find((r) => r.id === selectedId) ?? null;
 
   const handleStatusChange = useCallback(async (report: BugReport, status: string) => {
     setUpdating(true);
@@ -188,7 +183,7 @@ export default function AdminBugReportsPage() {
         data={statusFiltered}
         keyExtractor={(r) => r.id}
         onRowClick={(r) => {
-          setSelected(r);
+          setSelectedId(r.id);
           setReplyText(r.admin_reply || "");
         }}
         searchable
@@ -218,7 +213,7 @@ export default function AdminBugReportsPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelected(null)} />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedId(null)} />
             <motion.div
               className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto border border-line"
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -231,7 +226,7 @@ export default function AdminBugReportsPage() {
                   <h2 className="font-serif text-lg font-bold">Bug Report</h2>
                 </div>
                 <button
-                  onClick={() => setSelected(null)}
+                  onClick={() => setSelectedId(null)}
                   className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors"
                 >
                   <X className="w-5 h-5" />
@@ -278,15 +273,21 @@ export default function AdminBugReportsPage() {
 
                 <div>
                   <p className="text-xs font-medium text-muted dark:text-zinc-500 uppercase tracking-wider">Page URL</p>
-                  <a
-                    href={selected.page_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-link hover:underline mt-1 flex items-center gap-1 break-all"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
-                    {selected.page_url}
-                  </a>
+                  {isSafeHttpUrl(selected.page_url) ? (
+                    <a
+                      href={selected.page_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-link hover:underline mt-1 flex items-center gap-1 break-all"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                      {selected.page_url}
+                    </a>
+                  ) : (
+                    <span className="text-sm text-zinc-700 dark:text-muted mt-1 break-all">
+                      {selected.page_url}
+                    </span>
+                  )}
                 </div>
 
                 {selected.screenshot_url && (

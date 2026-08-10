@@ -27,6 +27,22 @@ export function formatDate(date: string | null | undefined): string {
   }).format(d);
 }
 
+/**
+ * H1 defense-in-depth: only render a URL as a clickable link when the scheme
+ * is exactly http/https. Anything else (javascript:, data:, ...) must be shown
+ * as plain text — React does not sanitize `javascript:` hrefs, so a malicious
+ * page_url stored before this guard would otherwise become an anchor sink.
+ */
+export function isSafeHttpUrl(url: string | null | undefined): url is string {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export function slugify(text: string): string {
   return text.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
 }
