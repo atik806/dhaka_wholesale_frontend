@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Eye, EyeOff, Trash2, X, Loader2 } from "lucide-react";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
@@ -16,7 +16,7 @@ import { useToast } from "@/src/providers/ToastProvider";
 
 export default function AdminContactMessagesPage() {
   const { addToast } = useToast();
-  const [selected, setSelected] = useState<ContactMessage | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -28,12 +28,9 @@ export default function AdminContactMessagesPage() {
     }, []),
   });
 
-  // Sync selected message when realtime updates arrive
-  useEffect(() => {
-    if (!selected) return;
-    const updated = messages.find((m) => m.id === selected.id);
-    if (updated && updated !== selected) setSelected(updated);
-  }, [messages, selected]);
+  // Derive the open message from its id so realtime updates (read status,
+  // new fields) are always reflected without an effect syncing state.
+  const selected = messages.find((m) => m.id === selectedId) ?? null;
 
   const handleMarkRead = useCallback(async (msg: ContactMessage) => {
     if (msg.is_read) return;
@@ -49,7 +46,7 @@ export default function AdminContactMessagesPage() {
     setDeleting(true);
     try {
       await deleteContactMessage(selectedMsg.id);
-      setSelected(null);
+      setSelectedId(null);
       addToast("Message deleted", "success");
     } catch {
       addToast("Failed to delete message", "error");
@@ -142,7 +139,7 @@ export default function AdminContactMessagesPage() {
         columns={columns}
         data={filtered}
         keyExtractor={(m) => m.id}
-        onRowClick={(msg) => setSelected(msg)}
+        onRowClick={(msg) => setSelectedId(msg.id)}
         searchable
         searchValue={search}
         onSearchChange={setSearch}
@@ -170,7 +167,7 @@ export default function AdminContactMessagesPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelected(null)} />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setSelectedId(null)} />
             <motion.div
               className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto border border-line"
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -183,7 +180,7 @@ export default function AdminContactMessagesPage() {
                   <h2 className="font-serif text-lg font-bold">Message Details</h2>
                 </div>
                 <button
-                  onClick={() => setSelected(null)}
+                  onClick={() => setSelectedId(null)}
                   className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors"
                 >
                   <X className="w-5 h-5" />

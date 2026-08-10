@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import useSWR from "swr";
 import Link from "next/link";
 import { Plus, Edit, Trash2, Package, AlertTriangle, CheckCircle } from "lucide-react";
-import { fetchProducts, fetchCategories, fetchProductStockStats } from "@/src/lib/api";
+import { fetchProducts, fetchCategories } from "@/src/lib/api";
 import type { Product, Category } from "@/src/types/product";
 import { Button } from "@/src/components/ui/Button";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
@@ -13,7 +13,7 @@ import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { formatPrice, safeImage } from "@/src/lib/utils";
 import { useToast } from "@/src/providers/ToastProvider";
-import { adminFetcher } from "@/src/lib/admin-api";
+import { adminFetcher, fetchAdminProductStockStats } from "@/src/lib/admin-api";
 import { useRealtimeInvalidate } from "@/src/hooks/useRealtimeInvalidate";
 
 const PER_PAGE = 10;
@@ -38,7 +38,7 @@ export default function AdminProductsPage() {
     fetchCategories()
       .then((cats) => { if (active) setCategories(cats); })
       .catch(() => {});
-    fetchProductStockStats()
+    fetchAdminProductStockStats()
       .then((stats) => { if (active) setStockStats(stats); })
       .catch(() => {});
     return () => { active = false; };
@@ -74,7 +74,7 @@ export default function AdminProductsPage() {
 
   const refreshAll = useCallback(async () => {
     await mutate();
-    const stats = await fetchProductStockStats().catch(() => null);
+    const stats = await fetchAdminProductStockStats().catch(() => null);
     if (stats) setStockStats(stats);
   }, [mutate]);
 

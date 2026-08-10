@@ -44,11 +44,9 @@ export default function SiteSettingsPage() {
   }, [addToast]);
 
   useEffect(() => {
-    let active = true;
     (async () => {
       await loadSettings();
     })();
-    return () => { active = false; };
   }, [loadSettings]);
 
   useRealtimeInvalidate({ table: "site_settings", onInvalidate: loadSettings });
