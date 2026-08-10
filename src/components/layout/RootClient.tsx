@@ -37,7 +37,7 @@ export function RootClient({ children }: { children: React.ReactNode }) {
   const initAuth = useAuthStore((s) => s.initAuth);
   const hydrated = useAuthStore((s) => s._hydrated);
   const cartHydrated = useCartHydrated();
-  const isLoggedIn = useAuthStore((s) => !!s.user && !!s.session);
+  const isLoggedIn = useAuthStore((s) => !!s.user);
 
   useEffect(() => {
     if (hydrated) void initAuth();

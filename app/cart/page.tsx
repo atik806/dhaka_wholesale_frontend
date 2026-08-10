@@ -45,24 +45,28 @@ export default function CartPage() {
     [cartSubtotal, deliveryZone],
   );
 
+  // Reset the quote back to the local estimate whenever the cart, auth state,
+  // or delivery zone changes. This runs during render (React's "adjusting
+  // state when props change" pattern) so no effect needs to sync it.
+  const quoteResetKey = [
+    authHydrated ? "h" : "nh",
+    isLoggedIn ? "in" : "out",
+    deliveryZone,
+    items.map((i) => `${i.product.id}:${i.quantity}`).join("|"),
+  ].join(":");
+  const [prevQuoteKey, setPrevQuoteKey] = useState(quoteResetKey);
+  if (prevQuoteKey !== quoteResetKey) {
+    setPrevQuoteKey(quoteResetKey);
+    setQuote(null);
+    setQuoteError("");
+    setQuoteLoading(authHydrated && isLoggedIn && items.length > 0);
+  }
+
   // Zone-aware estimate: POST /checkout/quote when logged in; else local 80/120 + tax 0.
   useEffect(() => {
-    if (items.length === 0) {
-      setQuote(null);
-      setQuoteLoading(false);
-      return;
-    }
+    if (items.length === 0 || !authHydrated || !isLoggedIn) return;
 
     let active = true;
-    setQuote(localQuote);
-    setQuoteError("");
-
-    if (!authHydrated || !isLoggedIn) {
-      setQuoteLoading(false);
-      return;
-    }
-
-    setQuoteLoading(true);
     const quoteItems = items.map((i) => ({
       product_id: i.product.id,
       quantity: i.quantity,

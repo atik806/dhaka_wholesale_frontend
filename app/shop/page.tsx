@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { SITE_DESCRIPTION, SITE_NAME } from "@/src/lib/constants";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
 import { ShopPageClient } from "./ShopPageClient";
-
-const SITE_URL = "https://dhakawholesale.com";
 
 // Revalidate the route shell (metadata/HTML) so prices & stock stay fresh
 // rather than serving a build-time snapshot indefinitely.

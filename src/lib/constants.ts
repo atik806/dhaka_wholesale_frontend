@@ -1,5 +1,6 @@
 export const SITE_NAME = "Dhaka Wholesale";
 export const SITE_DESCRIPTION = "Bangladesh's trusted online store. Quality products, cash on delivery, and fast shipping nationwide.";
+export const SITE_URL = "https://dhakawholesale.com";
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 

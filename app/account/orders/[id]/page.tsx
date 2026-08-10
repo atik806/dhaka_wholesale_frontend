@@ -55,6 +55,17 @@ export default function CustomerOrderDetailPage() {
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState("");
 
+  // Reset view state whenever the target order or session changes (runs
+  // during render, per React's "adjusting state when props change" pattern).
+  const loadKey = `${hydrated ? (user?.id ?? "") : ""}:${id ?? ""}`;
+  const [prevLoadKey, setPrevLoadKey] = useState(loadKey);
+  if (prevLoadKey !== loadKey) {
+    setPrevLoadKey(loadKey);
+    setOrder(null);
+    setError("");
+    setLoading(true);
+  }
+
   useEffect(() => {
     if (hydrated && !user) {
       router.replace(`/login?redirect=/account/orders/${id}`);
@@ -64,8 +75,6 @@ export default function CustomerOrderDetailPage() {
   useEffect(() => {
     if (!hydrated || !user || !id) return;
     let active = true;
-    setLoading(true);
-    setError("");
     fetchUserOrder(id)
       .then((data) => {
         if (active) {

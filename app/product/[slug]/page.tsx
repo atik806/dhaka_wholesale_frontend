@@ -2,14 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { fetchProductForPage } from "@/src/lib/server/data";
-import { SITE_DESCRIPTION, SITE_NAME } from "@/src/lib/constants";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
 import { ProductPageClient } from "./ProductPageClient";
 import type { Product } from "@/src/types/product";
 
 // Product details change rarely (price/stock aside); cache the page and revalidate every 5 minutes.
 export const revalidate = 300;
-
-const SITE_URL = "https://dhakawholesale.com";
 
 type Props = {
   params: Promise<{ slug: string }>;

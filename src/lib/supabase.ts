@@ -15,7 +15,7 @@ export function getSupabase(): SupabaseClient {
       auth: {
         flowType: "pkce",
         // Browser auth uses localStorage (not HTTP cookies). Keep this
-        // explicit so session restore matches Zustand's cholokini-auth key.
+        // explicit so session restore matches Zustand's dhaka-wholesale-auth key.
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: true,

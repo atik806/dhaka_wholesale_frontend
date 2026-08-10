@@ -6,7 +6,6 @@ import { ChevronDown, Search, HelpCircle, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { Input } from "@/src/components/ui/Input";
-import { EmptyState } from "@/src/components/ui/EmptyState";
 import { Card } from "@/src/components/ui/Card";
 
 const faqData = [

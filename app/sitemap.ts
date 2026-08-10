@@ -1,7 +1,6 @@
 import type { MetadataRoute } from "next";
 import { fetchCategories, fetchProducts } from "@/src/lib/api";
-
-const SITE_URL = "https://dhakawholesale.com";
+import { SITE_URL } from "@/src/lib/constants";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [

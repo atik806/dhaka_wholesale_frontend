@@ -5,6 +5,7 @@ import { ToastProvider } from "@/src/providers/ToastProvider";
 import { ThemeProvider } from "@/src/providers/ThemeProvider";
 import { RootClient } from "@/src/components/layout/RootClient";
 import { ThemeInit } from "@/src/components/layout/ThemeInit";
+import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/src/lib/constants";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -27,11 +28,11 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Dhaka Wholesale",
-    template: "%s | Dhaka Wholesale",
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: "Bangladesh's trusted online store. Quality products, cash on delivery, fast shipping & nationwide delivery.",
-  metadataBase: new URL("https://dhakawholesale.com"),
+  description: SITE_DESCRIPTION,
+  metadataBase: new URL(SITE_URL),
   icons: {
     icon: [
       { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
@@ -41,17 +42,17 @@ export const metadata: Metadata = {
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
   openGraph: {
-    title: "Dhaka Wholesale",
+    title: SITE_NAME,
     description: "Bangladesh's trusted online store.",
-    url: "https://dhakawholesale.com",
-    siteName: "Dhaka Wholesale",
-    images: [{ url: "/logo.png", width: 1024, height: 1024, alt: "Dhaka Wholesale" }],
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    images: [{ url: "/logo.png", width: 1024, height: 1024, alt: SITE_NAME }],
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Dhaka Wholesale",
+    title: SITE_NAME,
     description: "Bangladesh's trusted online store.",
     images: ["/logo.png"],
   },

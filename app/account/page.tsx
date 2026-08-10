@@ -44,7 +44,7 @@ function OrderStatusBadge({ status }: { status: string }) {
 
 export default function AccountPage() {
   const router = useRouter();
-  const { user, session, logout, updateUser } = useAuthStore();
+  const { user, logout, updateUser } = useAuthStore();
   const hydrated = useAuthHydrated();
   const [name, setName] = useState(user?.name ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
@@ -75,7 +75,6 @@ export default function AccountPage() {
   useEffect(() => {
     if (!hydrated || !user) return;
     let active = true;
-    setOrdersLoading(true);
     fetchUserOrders()
       .then((data) => { if (active) { setOrders(data); setOrdersLoading(false); } })
       .catch((err) => { if (active) { setOrdersError(err instanceof Error ? err.message : "Failed to load orders"); setOrdersLoading(false); } });
@@ -92,12 +91,12 @@ export default function AccountPage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.access_token) return;
+    if (!user) return;
     setSaving(true);
     setMessage("");
     setError("");
     try {
-      const updated = await updateProfile(session.access_token, { name, phone: phone || undefined });
+      const updated = await updateProfile({ name, phone: phone || undefined });
       updateUser({ name: updated.name, phone: updated.phone, avatar_url: updated.avatar_url });
       setMessage("Profile updated successfully");
     } catch (err) {
@@ -109,12 +108,12 @@ export default function AccountPage() {
 
   const handleSaveAddress = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!session?.access_token) return;
+    if (!user) return;
     setAddrSaving(true);
     setAddrMessage("");
     setAddrError("");
     try {
-      const updated = await updateProfile(session.access_token, { shipping_address: addr });
+      const updated = await updateProfile({ shipping_address: addr });
       updateUser({ shipping_address: updated.shipping_address });
       setAddrMessage("Shipping address saved");
     } catch (err) {
