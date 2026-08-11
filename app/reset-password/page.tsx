@@ -73,8 +73,10 @@ export default function ResetPasswordPage() {
 
       // M3: never leave the PKCE (localStorage) session alive after a password
       // reset — the old remembered token must not be usable, and the user
-      // should sign in again with the new password. `scope: "local"` clears
-      // only the client-side session and leaves httpOnly cookies untouched.
+      // should sign in again with the new password. Note signOut() also posts
+      // to /auth/v1/logout, which revokes the Supabase session server-side;
+      // that is intended here (the reset session and the cookie it was
+      // imported into must both be invalidated before re-login).
       await supabase.auth.signOut({ scope: "local" });
       router.push("/login");
     } catch (err) {

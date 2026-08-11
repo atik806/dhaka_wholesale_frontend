@@ -115,13 +115,28 @@ function CallbackHandler() {
         if (!user) throw new Error("Empty user from session sync");
 
         // The httpOnly cookie is the only session store now — purge the
-        // tokens the Supabase client wrote to localStorage. scope:'local'
-        // clears this browser only and never calls the server, so it cannot
-        // revoke the refresh token the cookie depends on.
-        try {
-          await supabase.auth.signOut({ scope: "local" });
-        } catch {
-          // Non-fatal: the cookie already holds the session.
+        // Supabase client's localStorage copy so the app never reads tokens
+        // from JS storage again. We must NOT use signOut() for this:
+        // supabase-js always posts to /auth/v1/logout regardless of scope,
+        // which revokes the Supabase session — including the rotated tokens
+        // the cookie just imported — and invalidates it immediately.
+        // Removing the storage keys directly forgets the tokens locally
+        // without revoking the server-side session the cookie depends on.
+        //
+        // Exception: the password-recovery flow hands off to
+        // /reset-password, which re-uses the Supabase localStorage session to
+        // verify the link and update the password — keep it in that case.
+        const isRecoveryRedirect =
+          redirect === "/reset-password" ||
+          redirect.startsWith("/reset-password");
+        if (!isRecoveryRedirect) {
+          try {
+            Object.keys(window.localStorage)
+              .filter((k) => k.startsWith("sb-"))
+              .forEach((k) => window.localStorage.removeItem(k));
+          } catch {
+            // Non-fatal: the cookie already holds the session.
+          }
         }
 
         setAuth(user);
