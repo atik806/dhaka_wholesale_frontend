@@ -9,6 +9,10 @@ import {
   snapshotGuestCart,
 } from "@/src/lib/cart-sync";
 import { getSupabase } from "@/src/lib/supabase";
+import {
+  oauthCallbackUrl,
+  rememberPostAuthRedirect,
+} from "@/src/lib/oauth-redirect";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import {
   AuthBanner,
@@ -64,12 +68,12 @@ function LoginForm() {
     setOauthError("");
     setGoogleLoading(true);
     try {
-      const redirect = safeRedirect(searchParams.get("redirect"));
+      rememberPostAuthRedirect(safeRedirect(searchParams.get("redirect")));
       const supabase = getSupabase();
       const { data, error: oauthErr } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirect)}`,
+          redirectTo: oauthCallbackUrl(),
           skipBrowserRedirect: true,
         },
       });

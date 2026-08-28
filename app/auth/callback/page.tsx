@@ -4,17 +4,13 @@ import { useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { getSupabase } from "@/src/lib/supabase";
 import { API_BASE } from "@/src/lib/constants";
+import { takePostAuthRedirect } from "@/src/lib/oauth-redirect";
 import {
   mergeGuestCartOnLogin,
   snapshotGuestCart,
 } from "@/src/lib/cart-sync";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { AuthSpinner } from "@/src/components/auth/AuthLanding";
-
-function safeRedirect(path: string | null): string {
-  if (!path || !path.startsWith("/") || path.startsWith("//")) return "/";
-  return path;
-}
 
 function CallbackHandler() {
   const router = useRouter();
@@ -28,9 +24,22 @@ function CallbackHandler() {
       const getParam = (key: string) =>
         new URLSearchParams(window.location.search).get(key);
 
-      const code = getParam("code");
-      const redirect = safeRedirect(getParam("redirect"));
+      const redirect = takePostAuthRedirect(getParam("redirect"));
 
+      // Supabase/Google append `?error=...&error_description=...` when the
+      // provider itself rejects the sign-in or the redirect URL is not on the
+      // project's allow-list. Surface that instead of a generic failure.
+      const providerError = getParam("error") || getParam("error_code");
+      if (providerError) {
+        const desc = getParam("error_description") || providerError;
+        console.error("[OAuth Callback] Provider error:", providerError, desc);
+        router.push(
+          `/login?error=oauth_failed&error_description=${encodeURIComponent(desc)}`,
+        );
+        return;
+      }
+
+      const code = getParam("code");
       if (!code) {
         console.error("[OAuth Callback] No code parameter in URL");
         router.push(
@@ -69,13 +78,35 @@ function CallbackHandler() {
         return;
       }
 
-      const { data, error: sessionError } = sessionResult;
+      let session = sessionResult.data?.session ?? null;
+      let sessionError: { message: string } | null = sessionResult.error;
 
       if (sessionError) {
         console.error("[OAuth Callback] Session error:", sessionError.message);
       }
 
-      if (sessionError || !data?.session) {
+      // `detectSessionInUrl` normally exchanges the code during client init.
+      // If it didn't (race, or it silently failed), try once explicitly so the
+      // real reason surfaces — a missing PKCE verifier ("code verifier ...")
+      // points at a cross-origin / redirect-URL mismatch rather than a
+      // transient error.
+      if (!sessionError && !session) {
+        try {
+          const exchanged = await supabase.auth.exchangeCodeForSession(code);
+          session = exchanged.data?.session ?? null;
+          sessionError = exchanged.error;
+          if (exchanged.error) {
+            console.error(
+              "[OAuth Callback] exchangeCodeForSession failed:",
+              exchanged.error.message,
+            );
+          }
+        } catch (err) {
+          console.error("[OAuth Callback] exchangeCodeForSession threw:", err);
+        }
+      }
+
+      if (sessionError || !session) {
         const desc = sessionError?.message ?? "no_session";
         console.error(
           "[OAuth Callback] No session. Error:",
@@ -91,7 +122,6 @@ function CallbackHandler() {
         return;
       }
 
-      const session = data.session;
       const { access_token, refresh_token, expires_at } = {
         ...session,
         expires_at: session.expires_at ?? Math.floor(Date.now() / 1000) + 3600,
