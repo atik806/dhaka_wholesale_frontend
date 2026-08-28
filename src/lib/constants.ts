@@ -8,7 +8,22 @@ if (!apiUrl) {
   console.warn("NEXT_PUBLIC_API_URL is not set — API calls will fail");
 }
 
-export const API_BASE = apiUrl || "http://localhost:5000/api";
+/**
+ * Absolute backend URL — used for server-side fetches (RSC / ISR / route
+ * handlers), which have no origin of their own.
+ */
+export const API_ORIGIN_BASE = apiUrl || "http://localhost:5000/api";
+
+/**
+ * In the browser we deliberately call the app's OWN origin (`/api`), which
+ * `next.config.ts` rewrites to `API_ORIGIN_BASE`. This keeps the `dw_session`
+ * auth cookie first-party: a cross-site cookie (frontend on dhakawholesale.com,
+ * backend on *.vercel.app) is dropped by Safari and by Chrome's third-party
+ * cookie controls, which is what breaks admin/customer login. On the server
+ * there is no origin, so we hit the backend directly.
+ */
+export const API_BASE =
+  typeof window === "undefined" ? API_ORIGIN_BASE : "/api";
 
 export const sortOptions = [
   { value: "newest", label: "Newest" },

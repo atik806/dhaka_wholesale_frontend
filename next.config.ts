@@ -31,6 +31,21 @@ const nextConfig: NextConfig = {
         : []),
     ],
   },
+  // Proxy the browser's same-origin `/api/*` requests to the real backend.
+  // The frontend (dhakawholesale.com) and backend (*.vercel.app) are different
+  // sites, so a cookie the backend sets cross-site is dropped by Safari and by
+  // Chrome's third-party-cookie controls — which silently breaks admin and
+  // customer login. Routing every browser API call through this same-origin
+  // path makes the `dw_session` cookie first-party. Server-side code still
+  // calls the backend directly (see src/lib/constants.ts).
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${apiUrl.replace(/\/+$/, "")}/:path*`,
+      },
+    ];
+  },
   // Keep recently-viewed dynamic pages (product/category) in the client router
   // cache briefly so back-navigation renders instantly instead of re-fetching.
   experimental: {
