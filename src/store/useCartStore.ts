@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { CartStore } from "@/src/types/cart";
+import type { CartItem, CartStore } from "@/src/types/cart";
 
 export const useCartStore = create<CartStore>()(
   persist(
@@ -13,18 +13,17 @@ export const useCartStore = create<CartStore>()(
 
       addItem: (item) => {
         set((state) => {
-          const existing = state.items.find(
-            (i) =>
-              i.product.id === item.product.id &&
-              i.selectedSize === item.selectedSize &&
-              i.selectedColor === item.selectedColor,
-          );
+          // Normalise undefined/null the same way every other cart method does,
+          // so a no-variant re-add merges quantity instead of adding a line.
+          const sameLine = (i: CartItem) =>
+            i.product.id === item.product.id &&
+            (i.selectedSize ?? null) === (item.selectedSize ?? null) &&
+            (i.selectedColor ?? null) === (item.selectedColor ?? null);
+          const existing = state.items.find(sameLine);
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.product.id === item.product.id &&
-                i.selectedSize === item.selectedSize &&
-                i.selectedColor === item.selectedColor
+                sameLine(i)
                   ? { ...i, quantity: i.quantity + item.quantity }
                   : i,
               ),

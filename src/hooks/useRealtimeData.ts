@@ -48,7 +48,15 @@ export function useRealtimeData<T>({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const initialFetchRef = useRef(initialFetch);
-  useEffect(() => { initialFetchRef.current = initialFetch; });
+  const onInsertRef = useRef(onInsert);
+  const onUpdateRef = useRef(onUpdate);
+  const onDeleteRef = useRef(onDelete);
+  useEffect(() => {
+    initialFetchRef.current = initialFetch;
+    onInsertRef.current = onInsert;
+    onUpdateRef.current = onUpdate;
+    onDeleteRef.current = onDelete;
+  });
 
   useEffect(() => {
     if (!enabled) return;
@@ -96,19 +104,19 @@ export function useRealtimeData<T>({
             setData((current) => {
               if (eventType === "INSERT") {
                 const item = newRow as T;
-                return onInsert
-                  ? onInsert(current, item)
+                return onInsertRef.current
+                  ? onInsertRef.current(current, item)
                   : [item, ...current];
               }
               if (eventType === "UPDATE") {
-                return onUpdate
-                  ? onUpdate(current, newRow as T)
+                return onUpdateRef.current
+                  ? onUpdateRef.current(current, newRow as T)
                   : defaultOnUpdate(current, newRow, primaryKey);
               }
               if (eventType === "DELETE") {
                 const deleted = oldRow ?? newRow;
-                return onDelete
-                  ? onDelete(current, deleted as T)
+                return onDeleteRef.current
+                  ? onDeleteRef.current(current, deleted as T)
                   : defaultOnDelete(current, deleted, primaryKey);
               }
               return current;
@@ -134,7 +142,9 @@ export function useRealtimeData<T>({
         })();
       }
     };
-  }, [table, filter, enabled, primaryKey, onInsert, onUpdate, onDelete]);
+    // Callbacks are read through refs so an inline `onInsert`/`onUpdate`/
+    // `onDelete` prop can't force a resubscribe + refetch on every render.
+  }, [table, filter, enabled, primaryKey]);
 
   return { data, loading, error };
 }

@@ -9,6 +9,8 @@ export interface Product {
   rating: number;
   reviewCount: number;
   stock: "in-stock" | "low-stock" | "out-of-stock";
+  /** Precise units in stock when the API exposes it; undefined for list cards that omit it. */
+  stockQuantity?: number;
   description: string;
   tags: string[];
   variants?: {

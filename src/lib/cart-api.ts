@@ -15,6 +15,7 @@ interface BackendProduct {
   rating?: number;
   review_count?: number;
   stock: string;
+  stock_quantity?: number | null;
   tags?: string[];
   sizes?: string[];
   colors?: { name: string; hex: string }[];
@@ -59,6 +60,7 @@ function mapProduct(p: BackendProduct): Product {
     stock: (["in-stock", "low-stock", "out-of-stock"].includes(p.stock)
       ? p.stock
       : "in-stock") as Product["stock"],
+    stockQuantity: p.stock_quantity ?? undefined,
     description: p.description ?? "",
     tags: p.tags ?? [],
     variants: {

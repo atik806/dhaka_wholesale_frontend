@@ -52,7 +52,12 @@ export default function CartPage() {
     authHydrated ? "h" : "nh",
     isLoggedIn ? "in" : "out",
     deliveryZone,
-    items.map((i) => `${i.product.id}:${i.quantity}`).join("|"),
+    items
+      .map(
+        (i) =>
+          `${i.product.id}:${i.quantity}:${i.selectedSize ?? ""}:${i.selectedColor ?? ""}`,
+      )
+      .join("|"),
   ].join(":");
   const [prevQuoteKey, setPrevQuoteKey] = useState(quoteResetKey);
   if (prevQuoteKey !== quoteResetKey) {

@@ -21,6 +21,7 @@ export interface BackendProduct {
   rating: number;
   review_count: number;
   stock: string;
+  stock_quantity?: number | null;
   tags?: string[];
   sizes?: string[];
   colors?: { name: string; hex: string }[];
@@ -55,6 +56,7 @@ export function mapProduct(p: BackendProduct): Product {
     rating: p.rating ?? 0,
     reviewCount: p.review_count ?? 0,
     stock: (['in-stock', 'low-stock', 'out-of-stock'].includes(p.stock) ? p.stock : 'in-stock') as Product['stock'],
+    stockQuantity: p.stock_quantity ?? undefined,
     description: p.description ?? '',
     tags: p.tags ?? [],
     variants: {
@@ -279,7 +281,7 @@ export async function fetchReviewsByProduct(
   signal?: AbortSignal,
 ): Promise<ReviewsResult> {
   const res = await fetch(
-    `${API_BASE}/products/${productId}/reviews?page=${page}&limit=${limit}`,
+    `${API_BASE}/products/${encodeURIComponent(productId)}/reviews?page=${page}&limit=${limit}`,
     { signal },
   );
   if (!res.ok) {
@@ -294,7 +296,7 @@ export async function submitReview(
   rating: number,
   text: string,
 ): Promise<Review> {
-  const res = await authFetch(`${API_BASE}/products/${productId}/reviews`, {
+  const res = await authFetch(`${API_BASE}/products/${encodeURIComponent(productId)}/reviews`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ rating, text }),

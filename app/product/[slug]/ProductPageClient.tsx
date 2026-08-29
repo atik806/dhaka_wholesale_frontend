@@ -97,11 +97,28 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : null;
 
+  // Cap the quantity stepper at real stock when the API exposes it (falls back
+  // to a sane ceiling for list-card data that omits stock_quantity).
+  const maxQty = Math.max(
+    1,
+    Math.min(product.stockQuantity ?? 100, 100),
+  );
+
+  // A product with variants must have one picked before it can be added — the
+  // cart keys on size/colour and the server records them per line.
+  const needsSize = Boolean(product.variants?.sizes?.length) && !selectedSize;
+  const needsColor = Boolean(product.variants?.colors?.length) && !selectedColor;
+  const missingVariant = needsSize || needsColor;
+
+  useEffect(() => {
+    setQuantity((q) => Math.min(q, maxQty));
+  }, [maxQty]);
+
   const handleAdd = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || missingVariant) return;
     addItem({
       product,
-      quantity,
+      quantity: Math.min(quantity, maxQty),
       selectedSize,
       selectedColor,
     });
@@ -284,8 +301,8 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                     </span>
                     <button
                       type="button"
-                      onClick={() => setQuantity((q) => Math.min(q + 1, 100))}
-                      disabled={isOutOfStock}
+                      onClick={() => setQuantity((q) => Math.min(q + 1, maxQty))}
+                      disabled={isOutOfStock || quantity >= maxQty}
                       aria-label="Increase quantity"
                       className="flex h-11 w-11 items-center justify-center text-fg transition-colors hover:bg-surface-2 disabled:opacity-40"
                     >
@@ -308,12 +325,14 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                   size="lg"
                   variant={isOutOfStock ? "outline" : showAdded ? "secondary" : "primary"}
                   onClick={handleAdd}
-                  disabled={isOutOfStock}
+                  disabled={isOutOfStock || missingVariant}
                   aria-live="polite"
                   className="min-h-12 flex-1"
                 >
                   {isOutOfStock ? (
                     "Sold out"
+                  ) : missingVariant ? (
+                    `Select ${needsSize ? "a size" : "a colour"}`
                   ) : showAdded ? (
                     <>
                       <Check className="h-4 w-4" strokeWidth={2.5} />
