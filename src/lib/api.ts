@@ -56,7 +56,9 @@ export function mapProduct(p: BackendProduct): Product {
     rating: p.rating ?? 0,
     reviewCount: p.review_count ?? 0,
     stock: (['in-stock', 'low-stock', 'out-of-stock'].includes(p.stock) ? p.stock : 'in-stock') as Product['stock'],
-    stockQuantity: p.stock_quantity ?? undefined,
+    // Only trust a positive counter — `stock_quantity` drifts to 0/negative over
+    // a product's life while the shop still lists it via the `stock` enum.
+    stockQuantity: typeof p.stock_quantity === 'number' && p.stock_quantity > 0 ? p.stock_quantity : undefined,
     description: p.description ?? '',
     tags: p.tags ?? [],
     variants: {

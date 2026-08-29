@@ -145,10 +145,23 @@ export async function syncAddCartItem(item: CartItem): Promise<void> {
     }
   } catch (err) {
     console.error("[cart-sync] addItem sync failed:", err);
-    toast(
-      "Couldn't save this item to your account — it's only saved on this device.",
-      "error",
-    );
+    const message = err instanceof Error ? err.message : "";
+    if (/out of stock|unavailable|invalid|not found/i.test(message)) {
+      // The line can never be ordered — roll back the optimistic add so it
+      // doesn't sit in the cart and block checkout, and show the real reason.
+      useCartStore
+        .getState()
+        .removeItem(item.product.id, item.selectedSize, item.selectedColor);
+      toast(message || "This item is currently unavailable.", "error");
+    } else if (/only \d+ unit|available in stock/i.test(message)) {
+      // Quantity cap hit — the line is fine, this add just exceeded stock.
+      toast(message, "error");
+    } else {
+      toast(
+        "Couldn't save this item to your account — it's only saved on this device.",
+        "error",
+      );
+    }
   }
 }
 
