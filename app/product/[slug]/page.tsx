@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { fetchProductForPage } from "@/src/lib/server/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
+import { safeJsonLd } from "@/src/lib/utils";
 import { ProductPageClient } from "./ProductPageClient";
 import type { Product } from "@/src/types/product";
 
@@ -114,7 +115,7 @@ function ProductJsonLd({
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
     />
   );
 }

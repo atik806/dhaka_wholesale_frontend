@@ -64,6 +64,21 @@ export function safePromoLink(link: string | null | undefined): string {
   return "/shop";
 }
 
+/**
+ * Serialize an object for embedding inside a `<script type="application/ld+json">`
+ * tag. `JSON.stringify` leaves `<`, `>` and `&` intact, so a value containing
+ * `</script>` (e.g. a product name/description authored in the admin) would
+ * otherwise break out of the tag and become an XSS sink. Escaping these three
+ * to their `\uXXXX` forms keeps the payload valid JSON while making tag/comment
+ * breakout impossible.
+ */
+export function safeJsonLd(data: unknown): string {
+  return JSON.stringify(data)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}
+
 export function slugify(text: string): string {
   return text.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]+/g, "");
 }
