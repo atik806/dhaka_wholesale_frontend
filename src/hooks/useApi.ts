@@ -13,6 +13,7 @@ import {
   type ProductQueryParams,
   type PromoBannerData,
   type RecentReview,
+  type ReviewsResult,
 } from '@/src/lib/api';
 import type { Product, Category } from '@/src/types/product';
 
@@ -54,11 +55,11 @@ export function useProduct(slug: string | null, fallbackData?: Product | null) {
   });
 }
 
-export function useRelatedProducts(slug: string | null) {
+export function useRelatedProducts(slug: string | null, fallbackData?: Product[]) {
   return useSWR(
     slug ? `/products/${slug}/related` : null,
     () => fetchRelatedProducts(slug!),
-    { ...SWR_CONFIG, keepPreviousData: true }
+    { ...SWR_CONFIG, keepPreviousData: true, fallbackData }
   );
 }
 
@@ -77,17 +78,23 @@ export function useCategory(slug: string | null, fallbackData?: Category | null)
   });
 }
 
-export function useCategoryTree() {
+export function useCategoryTree(fallbackData?: Category[]) {
   return useSWR('/categories?tree=true', () => fetchCategoryTree(), {
     ...SWR_CONFIG,
+    fallbackData,
   });
 }
 
-export function useProductReviews(productId: string | null, page = 1) {
+export function useProductReviews(
+  productId: string | null,
+  page = 1,
+  fallbackData?: ReviewsResult,
+) {
   return useSWR(
     productId ? `/products/${productId}/reviews?page=${page}` : null,
     () => fetchReviewsByProduct(productId!, page),
-    { ...SWR_CONFIG },
+    // Only seed the first page — the SSR fetch only ever fetches page 1.
+    { ...SWR_CONFIG, fallbackData: page === 1 ? fallbackData : undefined },
   );
 }
 

@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { fetchProductForPage } from "@/src/lib/server/data";
+import {
+  fetchProductForPage,
+  getCategoriesList,
+  fetchRelatedProductsForPage,
+  fetchProductReviewsForPage,
+} from "@/src/lib/server/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
 import { safeJsonLd } from "@/src/lib/utils";
 import { ProductPageClient } from "./ProductPageClient";
-import type { Product } from "@/src/types/product";
+import type { Product, Category } from "@/src/types/product";
+import type { ReviewsResult } from "@/src/lib/api";
 
 // Product details change rarely (price/stock aside); cache the page and revalidate every 5 minutes.
 export const revalidate = 300;
@@ -139,10 +145,27 @@ export default async function ProductDetailPage({ params }: Props) {
     notFound();
   }
 
+  // Best-effort — these only seed the client hooks' fallbackData, so a
+  // failure here just falls back to today's client-side fetch behaviour.
+  const [initialCategories, initialRelated, initialReviews]: [
+    Category[],
+    Product[],
+    ReviewsResult | null,
+  ] = await Promise.all([
+    getCategoriesList().catch(() => [] as Category[]),
+    fetchRelatedProductsForPage(slug).catch(() => [] as Product[]),
+    fetchProductReviewsForPage(product.id, 1).catch(() => null),
+  ]);
+
   return (
     <>
       <ProductJsonLd slug={slug} product={product} />
-      <ProductPageClient initialProduct={product} />
+      <ProductPageClient
+        initialProduct={product}
+        initialCategories={initialCategories}
+        initialRelated={initialRelated}
+        initialReviews={initialReviews}
+      />
     </>
   );
 }

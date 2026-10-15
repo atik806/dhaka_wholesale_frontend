@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import {
@@ -10,9 +11,14 @@ import {
 import { fetchDashboard, type DashboardStats } from "@/src/lib/admin-api";
 import { StatsCard } from "@/src/components/admin/StatsCard";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
-import { RevenueChart } from "@/src/components/admin/RevenueChart";
 import { formatPrice, formatDate } from "@/src/lib/utils";
 import { useRealtimeInvalidate } from "@/src/hooks/useRealtimeInvalidate";
+
+// recharts is only used here — keep it out of the customer-facing bundle.
+const RevenueChart = dynamic(
+  () => import("@/src/components/admin/RevenueChart").then((m) => m.RevenueChart),
+  { ssr: false }
+);
 
 const dateRanges = [
   { label: "7 Days", value: "7d" },

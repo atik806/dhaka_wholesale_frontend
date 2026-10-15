@@ -17,15 +17,28 @@ import { Button } from "@/src/components/ui/Button";
 import { Select } from "@/src/components/ui/Field";
 import { Modal } from "@/src/components/ui/Modal";
 import { ShopSkeleton } from "@/src/components/ui/Skeleton";
-import { fetchProducts } from "@/src/lib/api";
+import { fetchProducts, type ProductListResult } from "@/src/lib/api";
 import { cn } from "@/src/lib/utils";
+import {
+  parseShopFilters,
+  buildShopSwrKey,
+  buildShopFetchParams,
+  categorySlugMapByName,
+} from "@/src/lib/shop-query";
+import type { Category } from "@/src/types/product";
 
 const ITEMS_PER_PAGE = 12;
 
-export function ShopPageClient() {
+interface ShopPageClientProps {
+  initialCategories?: Category[];
+  initialProducts?: ProductListResult;
+  initialSwrKey?: string | null;
+}
+
+export function ShopPageClient(props: ShopPageClientProps) {
   return (
     <Suspense fallback={<ShopSkeleton />}>
-      <ShopPage />
+      <ShopPage {...props} />
     </Suspense>
   );
 }
@@ -47,10 +60,10 @@ function pageWindow(current: number, total: number): (number | "gap")[] {
   return out;
 }
 
-function ShopPage() {
-  const { data: categories = [] } = useCategories();
+function ShopPage({ initialCategories, initialProducts, initialSwrKey }: ShopPageClientProps) {
+  const { data: categories = [] } = useCategories(initialCategories);
   const CATEGORY_SLUG: Record<string, string> = useMemo(
-    () => Object.fromEntries(categories.map((c) => [c.name, c.slug])),
+    () => categorySlugMapByName(categories),
     [categories]
   );
   const searchParams = useSearchParams();
@@ -63,10 +76,18 @@ function ShopPage() {
   const sort = searchParams.get("sort") || "popular";
   const page = parseInt(searchParams.get("page") || "1", 10);
 
-  const selectedCategoryNames = useMemo(
-    () => (categoriesParam ? categoriesParam.split(",") : []),
-    [categoriesParam]
+  const shopFilters = useMemo(
+    () =>
+      parseShopFilters({
+        categories: categoriesParam || undefined,
+        price: priceRange,
+        rating: ratingParam || undefined,
+        sort,
+        page: String(page),
+      }),
+    [categoriesParam, priceRange, ratingParam, sort, page]
   );
+  const selectedCategoryNames = shopFilters.selectedCategoryNames;
 
   const filters = useMemo(() => ({
     categories: selectedCategoryNames,
@@ -74,44 +95,15 @@ function ShopPage() {
     rating: ratingParam ? parseInt(ratingParam, 10) : null,
   }), [selectedCategoryNames, priceRange, ratingParam]);
 
-  const categorySlugReady =
-    selectedCategoryNames.length !== 1 || Boolean(CATEGORY_SLUG[selectedCategoryNames[0]]);
+  const swrKey = useMemo(
+    () => buildShopSwrKey(shopFilters, CATEGORY_SLUG),
+    [shopFilters, CATEGORY_SLUG]
+  );
 
-  const swrKey = useMemo(() => {
-    if (!categorySlugReady) return null;
-    const parts: string[] = [];
-    if (selectedCategoryNames.length === 1) parts.push(`cat=${CATEGORY_SLUG[selectedCategoryNames[0]]}`);
-    if (selectedCategoryNames.length > 1) parts.push(`cats=${selectedCategoryNames.join(",")}`);
-    if (priceRange !== "all") parts.push(`price=${priceRange}`);
-    if (ratingParam) parts.push(`rating=${ratingParam}`);
-    parts.push(`sort=${sort}`);
-    parts.push(`page=${page}`);
-    return `/shop?${parts.join("&")}`;
-  }, [selectedCategoryNames, priceRange, ratingParam, sort, page, CATEGORY_SLUG, categorySlugReady]);
-
-  const buildFetchParams = useCallback(() => {
-    const params: Record<string, unknown> = {};
-    if (priceRange !== "all") {
-      const [min, max] = priceRange.split("-").map(Number);
-      params.priceMin = min;
-      params.priceMax = max;
-    }
-    if (ratingParam) params.minRating = parseInt(ratingParam, 10);
-    params.sort = sort;
-    params.page = page;
-    params.limit = ITEMS_PER_PAGE;
-    if (selectedCategoryNames.length > 1) {
-      // Multi-category filtering happens server-side so pagination and
-      // totals stay correct. Filtering a single fetched page client-side
-      // silently truncated results and broke page counts.
-      params.categories = selectedCategoryNames
-        .map((name) => CATEGORY_SLUG[name])
-        .filter(Boolean);
-    } else if (selectedCategoryNames.length === 1) {
-      params.category = CATEGORY_SLUG[selectedCategoryNames[0]];
-    }
-    return params;
-  }, [selectedCategoryNames, priceRange, ratingParam, sort, page, CATEGORY_SLUG]);
+  const buildFetchParams = useCallback(
+    () => buildShopFetchParams(shopFilters, CATEGORY_SLUG, ITEMS_PER_PAGE),
+    [shopFilters, CATEGORY_SLUG]
+  );
 
   const { data, isLoading } = useSWR(
     swrKey,
@@ -119,7 +111,14 @@ function ShopPage() {
       const params = buildFetchParams();
       return fetchProducts(params as Parameters<typeof fetchProducts>[0]);
     },
-    { revalidateOnFocus: false, keepPreviousData: true }
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+      // Only seed from the SSR fetch when the key it was fetched for still
+      // matches — otherwise (e.g. filters changed before hydration) fall
+      // back to today's behaviour of fetching fresh.
+      fallbackData: swrKey && swrKey === initialSwrKey ? initialProducts : undefined,
+    }
   );
 
   const updateParams = useCallback(

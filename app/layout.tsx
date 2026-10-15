@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/src/providers/ThemeProvider";
 import { RootClient } from "@/src/components/layout/RootClient";
 import { ThemeInit } from "@/src/components/layout/ThemeInit";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/src/lib/constants";
+import { getCategoriesTree } from "@/src/lib/server/data";
 
 const fraunces = Fraunces({
   variable: "--font-fraunces",
@@ -73,11 +74,13 @@ function getOrigin(raw: string | undefined): string | null {
 const API_ORIGIN = getOrigin(process.env.NEXT_PUBLIC_API_URL);
 const SUPABASE_ORIGIN = getOrigin(process.env.NEXT_PUBLIC_SUPABASE_URL);
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialCategoryTree = await getCategoriesTree();
+
   return (
     <html
       lang="en"
@@ -98,7 +101,7 @@ export default function RootLayout({
         </a>
         <ThemeProvider>
           <ToastProvider>
-            <RootClient>{children}</RootClient>
+            <RootClient initialCategoryTree={initialCategoryTree}>{children}</RootClient>
           </ToastProvider>
         </ThemeProvider>
       </body>

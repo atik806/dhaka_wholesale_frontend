@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, BadgeCheck, Truck, Wallet } from "lucide-react";
 import Image from "next/image";
@@ -49,13 +49,29 @@ const HIGHLIGHTS = [
   { icon: BadgeCheck, label: "Inspect first", detail: "Check your order before paying" },
 ];
 
+// Mirrors the slide crossfade's `transition-opacity duration-700`.
+const CROSSFADE_MS = 700;
+
 export function HeroSection() {
   const [index, setIndex] = useState(0);
+  // Only the active slide's <Image> stays mounted at rest — the previous one
+  // is kept mounted for just the crossfade duration so the transition still
+  // looks like a fade, not a hard cut, without loading all 4 slides upfront.
+  const [prevIndex, setPrevIndex] = useState<number | null>(null);
+  const prevIndexRef = useRef(0);
   const slide = SLIDES[index];
 
   const go = useCallback((next: number) => {
     setIndex((next + SLIDES.length) % SLIDES.length);
   }, []);
+
+  useEffect(() => {
+    if (prevIndexRef.current === index) return;
+    setPrevIndex(prevIndexRef.current);
+    prevIndexRef.current = index;
+    const t = window.setTimeout(() => setPrevIndex(null), CROSSFADE_MS);
+    return () => window.clearTimeout(t);
+  }, [index]);
 
   useEffect(() => {
     const id = window.setInterval(() => go(index + 1), 6000);
@@ -80,27 +96,30 @@ export function HeroSection() {
           }}
         />
 
-        {/* Slides */}
-        {SLIDES.map((s, i) => (
-          <div
-            key={s.image}
-            className="absolute inset-0 transition-opacity duration-700 ease-out"
-            style={{ opacity: i === index ? 1 : 0, zIndex: i === index ? 1 : 0 }}
-            aria-hidden={i !== index}
-          >
-            <Image
-              src={s.image}
-              alt={s.title}
-              fill
-              priority={i === 0}
-              placeholder="blur"
-              blurDataURL={IMAGE_BLUR_PLACEHOLDER}
-              loading={i === index ? undefined : "lazy"}
-              sizes="100vw"
-              className={`object-cover object-center ${i === index ? "ken-burns" : ""}`}
-            />
-          </div>
-        ))}
+        {/* Slides — only the active slide (plus the outgoing one, briefly, for
+            the crossfade) is mounted, so the other 2-3 never load at all. */}
+        {SLIDES.map((s, i) => {
+          if (i !== index && i !== prevIndex) return null;
+          return (
+            <div
+              key={s.image}
+              className="absolute inset-0 transition-opacity duration-700 ease-out"
+              style={{ opacity: i === index ? 1 : 0, zIndex: i === index ? 1 : 0 }}
+              aria-hidden={i !== index}
+            >
+              <Image
+                src={s.image}
+                alt={s.title}
+                fill
+                priority={i === 0}
+                placeholder="blur"
+                blurDataURL={IMAGE_BLUR_PLACEHOLDER}
+                sizes="100vw"
+                className={`object-cover object-center ${i === index ? "ken-burns" : ""}`}
+              />
+            </div>
+          );
+        })}
 
         {/* Premium multi-layered overlay */}
         <div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-r from-brand-deep/95 via-brand-deep/75 to-brand-deep/30" />

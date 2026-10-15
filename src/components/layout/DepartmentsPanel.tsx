@@ -6,7 +6,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, ChevronRight, ChevronDown, Package, Sparkles, TrendingUp, X } from "lucide-react";
-import { useCategoryTree, useCategories } from "@/src/hooks/useApi";
+import { useCategoryTree } from "@/src/hooks/useApi";
 import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
 import { safeImage, cn, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 import type { Category } from "@/src/types/product";
@@ -24,11 +24,10 @@ const countItems = (cat: Category): number =>
 
 const isCompact = () => window.matchMedia("(max-width: 1023px)").matches;
 
-export function DepartmentsPanel() {
+export function DepartmentsPanel({ initialCategoryTree }: { initialCategoryTree?: Category[] }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { data: categories = [], isLoading } = useCategories();
-  const { data: categoryTree = [] } = useCategoryTree();
+  const { data: categoryTree = [], isLoading } = useCategoryTree(initialCategoryTree);
   const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
   const open = useDepartmentsStore((s) => s.open);
   const setOpen = useDepartmentsStore((s) => s.setOpen);
@@ -118,12 +117,12 @@ export function DepartmentsPanel() {
               ))}
             </div>
           )}
-          {!isLoading && categories.length === 0 && (
+          {!isLoading && categoryTree.length === 0 && (
             <p className="px-4 py-6 text-sm text-muted">No categories yet.</p>
           )}
           <ul className="divide-y divide-line">
-            {categoryTree.length > 0
-              ? categoryTree.map((parent) => {
+            {categoryTree.length > 0 &&
+              categoryTree.map((parent) => {
                   const isExpanded = expandedParents[parent.id] !== false;
                   const hasChildren = parent.children && parent.children.length > 0;
                   return (
@@ -207,49 +206,6 @@ export function DepartmentsPanel() {
                           })}
                         </ul>
                       )}
-                    </li>
-                  );
-                })
-              : categories.map((cat) => {
-                  const active = pathname === `/shop/${cat.slug}`;
-                  return (
-                    <li key={cat.id}>
-                      <Link
-                        href={`/shop/${cat.slug}`}
-                        onClick={closeIfCompact}
-                        aria-current={active ? "page" : undefined}
-                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                          active
-                            ? "bg-accent-soft border-l-[3px] border-l-accent pl-[13px]"
-                            : "hover:bg-surface-2"
-                        }`}
-                      >
-                        <span className="relative w-9 h-9 shrink-0 rounded-md overflow-hidden bg-surface-2 border border-line">
-                          <Image
-                            src={safeImage(cat.image ? [cat.image] : [])}
-                            alt=""
-                            fill
-                            placeholder="blur"
-                            blurDataURL={IMAGE_BLUR_PLACEHOLDER}
-                            loading="lazy"
-                            className="object-cover"
-                            sizes="36px"
-                          />
-                        </span>
-                        <span className="flex-1 min-w-0">
-                          <span
-                            className={`block text-[13px] leading-tight truncate ${
-                              active ? "font-bold text-fg" : "font-medium text-fg"
-                            }`}
-                          >
-                            {cat.name}
-                          </span>
-                          <span className="block text-[11px] text-subtle tabular">
-                            {countItems(cat)} items
-                          </span>
-                        </span>
-                        <ChevronRight className="w-4 h-4 text-subtle shrink-0" />
-                      </Link>
                     </li>
                   );
                 })}

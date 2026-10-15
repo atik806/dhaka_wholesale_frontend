@@ -1,4 +1,9 @@
 import type { NextConfig } from "next";
+import withBundleAnalyzerFactory from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = withBundleAnalyzerFactory({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://placeholder.vercel.app/api";
 
@@ -22,10 +27,9 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const nextConfig: NextConfig = {
   images: {
+    // Only the real product-image host is needed here — placehold.co/picsum/unsplash
+    // were leftover demo hosts unused by any rendered image in the app.
     remotePatterns: [
-      { protocol: "https", hostname: "placehold.co" },
-      { protocol: "https", hostname: "picsum.photos" },
-      { protocol: "https", hostname: "images.unsplash.com" },
       ...(supabaseOrigin
         ? [{ protocol: "https" as const, hostname: new URL(supabaseOrigin).hostname }]
         : []),
@@ -83,4 +87,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

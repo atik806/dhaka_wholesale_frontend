@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Star, Loader2, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useProductReviews } from "@/src/hooks/useApi";
-import { submitReview, type Review } from "@/src/lib/api";
+import { submitReview, type Review, type ReviewsResult } from "@/src/lib/api";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useToast } from "@/src/providers/ToastProvider";
 import { Button, buttonClasses } from "@/src/components/ui/Button";
@@ -14,11 +14,16 @@ import { cn, formatDate } from "@/src/lib/utils";
 
 interface ReviewSectionProps {
   productId: string;
+  initialReviews?: ReviewsResult | null;
 }
 
-export function ReviewSection({ productId }: ReviewSectionProps) {
+export function ReviewSection({ productId, initialReviews }: ReviewSectionProps) {
   const [page, setPage] = useState(1);
-  const { data: reviewsData, isLoading, mutate } = useProductReviews(productId, page);
+  const { data: reviewsData, isLoading, mutate } = useProductReviews(
+    productId,
+    page,
+    initialReviews ?? undefined,
+  );
   const user = useAuthStore((s) => s.user);
   const { addToast } = useToast();
 

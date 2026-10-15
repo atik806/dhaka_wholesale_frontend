@@ -29,7 +29,8 @@ import { cn, formatPrice, slugify } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 import { useProduct, useRelatedProducts, useCategories } from "@/src/hooks/useApi";
-import type { Product } from "@/src/types/product";
+import type { Product, Category } from "@/src/types/product";
+import type { ReviewsResult } from "@/src/lib/api";
 
 const STOCK_LABEL = {
   "in-stock": "In stock",
@@ -37,7 +38,19 @@ const STOCK_LABEL = {
   "out-of-stock": "Out of stock",
 } as const;
 
-export function ProductPageClient({ initialProduct }: { initialProduct?: Product | null }) {
+interface ProductPageClientProps {
+  initialProduct?: Product | null;
+  initialCategories?: Category[];
+  initialRelated?: Product[];
+  initialReviews?: ReviewsResult | null;
+}
+
+export function ProductPageClient({
+  initialProduct,
+  initialCategories,
+  initialRelated,
+  initialReviews,
+}: ProductPageClientProps) {
   const params = useParams();
   const slug = params.slug as string;
   const { addItem, toggleWishlist, isInWishlist, items } = useCartStore();
@@ -54,8 +67,8 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
   }, [justAdded]);
 
   const { data: product, isLoading, error, mutate } = useProduct(slug, initialProduct);
-  const { data: related } = useRelatedProducts(slug);
-  const { data: liveCategories = [] } = useCategories();
+  const { data: related } = useRelatedProducts(slug, initialRelated);
+  const { data: liveCategories = [] } = useCategories(initialCategories);
 
   if (isLoading && !product) {
     return <ProductDetailSkeleton />;
@@ -416,7 +429,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
           </section>
         )}
 
-        <ReviewSection productId={product.id} />
+        <ReviewSection productId={product.id} initialReviews={initialReviews} />
 
         {(related || []).length > 0 && (
           <section className="mt-10 border-t border-line pt-8">

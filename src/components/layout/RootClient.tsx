@@ -13,19 +13,21 @@ import { ReportButton } from "../report/ReportButton";
 import { loadServerCartAndWishlist } from "@/src/lib/cart-sync";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useCartHydrated } from "@/src/store/useCartStore";
-import { motion } from "framer-motion";
+import type { Category } from "@/src/types/product";
 
-// Non-blocking fade-in on navigation. AnimatePresence mode="wait" was removed:
-// it deferred mounting the next page until the exit animation finished (~200ms),
-// which made every link click feel laggy. Without an exit step the new page
-// mounts immediately and only fades in, so navigation stays instant.
-const pageTransition = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  transition: { duration: 0.15, ease: "easeOut" as const },
-} as const;
+// Non-blocking fade-in on navigation via a plain CSS animation (see
+// `.page-fade-in` in globals.css) rather than framer-motion: this wrapper
+// sits in the root layout on every route, so pulling framer-motion in here
+// forced it into the shared bundle chunk for pages that don't otherwise use
+// it. The visual effect (150ms opacity fade on mount) is unchanged.
 
-export function RootClient({ children }: { children: React.ReactNode }) {
+export function RootClient({
+  children,
+  initialCategoryTree,
+}: {
+  children: React.ReactNode;
+  initialCategoryTree?: Category[];
+}) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith("/admin");
   const isAuthPage =
@@ -57,18 +59,18 @@ export function RootClient({ children }: { children: React.ReactNode }) {
       {!isAdmin && !isAuthPage && <Header />}
       {!isAdmin && !isAuthPage ? (
         <div className="flex-1 flex items-stretch">
-          <DepartmentsPanel />
+          <DepartmentsPanel initialCategoryTree={initialCategoryTree} />
           <main id="main-content" className="flex-1 min-w-0 pb-14 md:pb-0">
-            <motion.div {...pageTransition}>
+            <div className="page-fade-in">
               {children}
-            </motion.div>
+            </div>
           </main>
         </div>
       ) : (
         <main id="main-content" className={`flex-1 ${isAuthPage ? "" : "pb-14 md:pb-0"}`}>
-          <motion.div {...pageTransition}>
+          <div className="page-fade-in">
             {children}
-          </motion.div>
+          </div>
         </main>
       )}
       {!isAdmin && !isAuthPage && (
