@@ -3,13 +3,13 @@
 import { useRef, useState, memo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Check } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/src/types/product";
 import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
 import { Rating } from "@/src/components/ui/Rating";
-import { cn, formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
+import { ProductCardGallery } from "./ProductCardGallery";
+import { cn, formatPrice } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 
@@ -25,7 +25,6 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
   const wishlisted = useCartStore((s) => s.wishlistIds.includes(product.id));
   const inCart = useCartStore((s) => s.items.some((i) => i.product.id === product.id));
   const cardRef = useRef<HTMLDivElement>(null);
-  const [imgSrc, setImgSrc] = useState(safeImage(product.images));
   const [justAdded, setJustAdded] = useState(false);
 
   useEffect(() => {
@@ -36,6 +35,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
 
   const showAdded = justAdded || inCart;
   const isOutOfStock = product.stock === "out-of-stock";
+  const showCompleteImage = product.tags?.some((tag) => tag.trim().toLowerCase() === "whole box");
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -75,32 +75,14 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
       className="h-full"
     >
       <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface transition-all duration-300 hover:border-line-strong hover:shadow-lg hover:-translate-y-0.5">
-        {/* Image container */}
-        <div className="relative aspect-square overflow-hidden bg-surface-2">
-          <Link
-            href={`/product/${product.slug}`}
-            className="block h-full w-full"
-            tabIndex={-1}
-            aria-hidden="true"
-          >
-            <Image
-              src={imgSrc}
-              alt={product.name}
-              fill
-              placeholder="blur"
-              blurDataURL={IMAGE_BLUR_PLACEHOLDER}
-              className={cn(
-                "object-cover transition-all duration-500 group-hover:scale-110",
-                isOutOfStock && "opacity-60",
-              )}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              onError={() => setImgSrc("/placeholder.svg")}
-            />
-          </Link>
-
-          {/* Hover overlay — subtle dark gradient on hover */}
-          <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/0 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
+        <ProductCardGallery
+          key={product.id}
+          images={product.images}
+          name={product.name}
+          href={`/product/${product.slug}`}
+          contain={showCompleteImage}
+          muted={isOutOfStock}
+        >
           {/* Badges */}
           <div className="pointer-events-none absolute left-2.5 top-2.5 z-10 flex flex-col items-start gap-1.5">
             {discountPercent ? (
@@ -123,7 +105,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
               className={cn("h-[18px] w-[18px] transition-all duration-200", wishlisted && "fill-sale text-sale scale-110")}
             />
           </button>
-        </div>
+        </ProductCardGallery>
 
         {/* Content */}
         <div className="flex flex-1 flex-col p-3 sm:p-3.5">

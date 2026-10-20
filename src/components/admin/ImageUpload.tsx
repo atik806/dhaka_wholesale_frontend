@@ -10,9 +10,10 @@ interface ImageUploadProps {
   value: string[];
   onChange: (urls: string[]) => void;
   maxImages?: number;
+  allowCoverSelection?: boolean;
 }
 
-export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, maxImages = 8, allowCoverSelection = false }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
@@ -92,14 +93,31 @@ export function ImageUpload({ value, onChange, maxImages = 8 }: ImageUploadProps
           {value.map((url, i) => (
             <div key={url} className="relative group aspect-square rounded-xl overflow-hidden border border-line">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={url} alt={`Upload ${i + 1}`} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
+              <img src={url} alt={`Upload ${i + 1}`} className="w-full h-full object-contain bg-surface-2 p-1" onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }} />
               <button
                 type="button"
                 onClick={() => removeImage(i)}
+                aria-label={`Remove image ${i + 1}`}
                 className="absolute top-1.5 right-1.5 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
+              {allowCoverSelection && (
+                i === 0 ? (
+                  <span className="absolute bottom-1.5 left-1.5 rounded-md bg-fg px-2 py-1 text-xs font-semibold text-surface">
+                    Cover photo
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => onChange([url, ...value.filter((_, index) => index !== i)])}
+                    className="absolute bottom-1.5 left-1.5 rounded-md bg-surface/95 px-2 py-1 text-xs font-semibold text-fg shadow-sm hover:bg-surface focus-visible:ring-2 focus-visible:ring-accent"
+                    aria-label={`Use image ${i + 1} as cover`}
+                  >
+                    Use as cover
+                  </button>
+                )
+              )}
             </div>
           ))}
         </div>

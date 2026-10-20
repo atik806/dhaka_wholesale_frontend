@@ -15,6 +15,7 @@ import {
   Check,
   PackageSearch,
 } from "lucide-react";
+import { ProductDescription } from "@/src/components/product/ProductDescription";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { ReviewSection } from "@/src/components/product/ReviewSection";
@@ -151,7 +152,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
           {/* Gallery */}
           <div className="lg:col-span-7">
-            <ProductGallery images={product.images} name={product.name} />
+            <ProductGallery images={product.images} name={product.name} fit={product.tags?.some((tag) => tag.trim().toLowerCase() === "whole box") ? "contain" : "cover"} />
           </div>
 
           {/* Buy box */}
@@ -397,9 +398,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
           <section className="mt-8">
             <Card padded>
               <h2 className="text-lg font-bold text-fg">Product details</h2>
-              <p className="mt-2.5 max-w-3xl text-sm leading-relaxed text-muted">
-                {product.description}
-              </p>
+              <ProductDescription text={product.description} />
               {product.tags?.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {product.tags.map((tag) => (

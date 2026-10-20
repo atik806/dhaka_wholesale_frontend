@@ -9,9 +9,10 @@ import { cn, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 interface ProductGalleryProps {
   images: string[];
   name: string;
+  fit?: "cover" | "contain";
 }
 
-export function ProductGallery({ images, name }: ProductGalleryProps) {
+export function ProductGallery({ images, name, fit = "cover" }: ProductGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
@@ -81,7 +82,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                 fill
                 placeholder="blur"
                 blurDataURL={IMAGE_BLUR_PLACEHOLDER}
-                className="object-cover"
+                className={fit === "contain" ? "object-contain p-3" : "object-cover"}
                 sizes="(max-width: 768px) 100vw, 45vw"
                 priority
               />

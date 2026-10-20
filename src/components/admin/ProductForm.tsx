@@ -171,6 +171,8 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
       <div>
         <label className={labelClass}>Product Images *</label>
         <ImageUpload
+          maxImages={12}
+          allowCoverSelection
           value={form.images ? form.images.split(",").map((s) => s.trim()).filter(Boolean) : []}
           onChange={(urls) => update("images", urls.join(", "))}
         />
