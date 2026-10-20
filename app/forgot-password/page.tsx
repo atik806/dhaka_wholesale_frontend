@@ -1,17 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { getSupabase } from "@/src/lib/supabase";
+import {
+  oauthCallbackUrl,
+  rememberPostAuthRedirect,
+} from "@/src/lib/oauth-redirect";
 import {
   AuthBanner,
   AuthShell,
+  AuthSpinner,
   authLinkClass,
 } from "@/src/components/auth/AuthLanding";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordForm() {
+  const searchParams = useSearchParams();
+  const isAdmin = searchParams.get("admin") === "1";
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -24,10 +32,11 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       const supabase = getSupabase();
+      rememberPostAuthRedirect("/reset-password", true);
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email.trim(),
         {
-          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent("/reset-password")}`,
+          redirectTo: oauthCallbackUrl(),
         },
       );
       if (resetError) {
@@ -46,13 +55,17 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthShell
-      title="Forgot password?"
-      subtitle="Enter your email and we'll send a link to reset your password."
+      title={isAdmin ? "Reset admin password" : "Forgot password?"}
+      subtitle={
+        isAdmin
+          ? "Enter the admin email and we'll send a secure reset link."
+          : "Enter your email and we'll send a link to reset your password."
+      }
       footer={
         <>
           Remembered it?{" "}
-          <Link href="/login" className={authLinkClass}>
-            Log in
+          <Link href={isAdmin ? "/admin/login" : "/login"} className={authLinkClass}>
+            {isAdmin ? "Admin login" : "Log in"}
           </Link>
         </>
       }
@@ -82,5 +95,13 @@ export default function ForgotPasswordPage() {
         </Button>
       </form>
     </AuthShell>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<AuthSpinner message="Loading password recovery…" />}>
+      <ForgotPasswordForm />
+    </Suspense>
   );
 }

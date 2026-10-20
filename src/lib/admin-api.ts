@@ -60,6 +60,19 @@ export async function adminFetcher<T>(url: string, options?: RequestInit): Promi
   return res.json();
 }
 
+export async function changeAdminPassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  await adminFetcher<{ message: string }>("/auth/admin-password", {
+    method: "PATCH",
+    body: JSON.stringify({
+      current_password: currentPassword,
+      new_password: newPassword,
+    }),
+  });
+}
+
 // Products
 export interface ProductStockStats {
   total: number;
