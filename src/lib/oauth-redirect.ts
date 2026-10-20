@@ -14,16 +14,34 @@
  * allow-list entry is enough.
  */
 const STORAGE_KEY = "dw:postAuthRedirect";
+const PERSISTENT_STORAGE_KEY = "dw:postAuthRedirect:persistent";
 
 function isSafePath(path: string | null | undefined): path is string {
   return !!path && path.startsWith("/") && !path.startsWith("//");
 }
 
-/** Call right before `signInWithOAuth` / `resetPasswordForEmail`. */
-export function rememberPostAuthRedirect(path: string | null): void {
-  if (!isSafePath(path) || path === "/") return;
+/**
+ * Call right before `signInWithOAuth` / `resetPasswordForEmail`.
+ * Recovery links commonly open in a new tab, so those callers can persist the
+ * safe local path across tabs. The callback still consumes it exactly once.
+ */
+export function rememberPostAuthRedirect(
+  path: string | null,
+  persistent = false,
+): void {
+  if (!isSafePath(path) || path === "/") {
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(PERSISTENT_STORAGE_KEY);
+    } catch {
+      // ignore unavailable browser storage
+    }
+    return;
+  }
   try {
     sessionStorage.setItem(STORAGE_KEY, path);
+    if (persistent) localStorage.setItem(PERSISTENT_STORAGE_KEY, path);
+    else localStorage.removeItem(PERSISTENT_STORAGE_KEY);
   } catch {
     // Private mode / storage disabled — the callback just defaults to "/".
   }
@@ -35,6 +53,9 @@ export function takePostAuthRedirect(fallback?: string | null): string {
   try {
     stored = sessionStorage.getItem(STORAGE_KEY);
     if (stored) sessionStorage.removeItem(STORAGE_KEY);
+    const persistent = localStorage.getItem(PERSISTENT_STORAGE_KEY);
+    if (!stored && persistent) stored = persistent;
+    if (persistent) localStorage.removeItem(PERSISTENT_STORAGE_KEY);
   } catch {
     // ignore
   }

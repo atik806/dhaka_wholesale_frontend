@@ -12,9 +12,13 @@ import {
 } from "@/src/components/auth/AuthLanding";
 import { Button, buttonClasses } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
+import { useAuthStore } from "@/src/store/useAuthStore";
+import { validateStrongPassword } from "@/src/lib/password";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const isAdmin = useAuthStore((state) => state.user?.role === "admin");
+  const logout = useAuthStore((state) => state.logout);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -53,8 +57,9 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     setError("");
     setSuccess("");
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+    const validationError = validateStrongPassword(password);
+    if (validationError) {
+      setError(validationError);
       return;
     }
     if (password !== confirmPassword) {
@@ -71,14 +76,12 @@ export default function ResetPasswordPage() {
       }
       setSuccess("Password updated. You can sign in with your new password.");
 
-      // M3: never leave the PKCE (localStorage) session alive after a password
-      // reset — the old remembered token must not be usable, and the user
-      // should sign in again with the new password. Note signOut() also posts
-      // to /auth/v1/logout, which revokes the Supabase session server-side;
-      // that is intended here (the reset session and the cookie it was
-      // imported into must both be invalidated before re-login).
+      // Clear both session stores created during recovery: the backend's
+      // httpOnly cookie and Supabase's local PKCE session. Capture the role
+      // before logout clears the store so admins return to the correct login.
+      await logout();
       await supabase.auth.signOut({ scope: "local" });
-      router.push("/login");
+      router.replace(isAdmin ? "/admin/login" : "/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not update password");
     } finally {
@@ -91,8 +94,8 @@ export default function ResetPasswordPage() {
       title="Set new password"
       subtitle={`Choose a strong password for your ${SITE_NAME} account.`}
       footer={
-        <Link href="/login" className={authLinkClass}>
-          Back to log in
+        <Link href={isAdmin ? "/admin/login" : "/login"} className={authLinkClass}>
+          Back to {isAdmin ? "admin login" : "log in"}
         </Link>
       }
     >
@@ -126,6 +129,7 @@ export default function ResetPasswordPage() {
             placeholder="Min 8 characters"
             required
             minLength={8}
+            maxLength={100}
             autoComplete="new-password"
           />
           <Input
@@ -136,6 +140,7 @@ export default function ResetPasswordPage() {
             placeholder="Repeat password"
             required
             minLength={8}
+            maxLength={100}
             autoComplete="new-password"
           />
 

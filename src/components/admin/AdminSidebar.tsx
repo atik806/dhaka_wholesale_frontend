@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, Star, Mail, LogOut,
-  PanelRightClose, PanelRightOpen, Sun, Moon, X, Bug, Settings, Tag,
+  PanelRightClose, PanelRightOpen, Sun, Moon, X, Bug, Settings, Tag, ShieldCheck,
 } from "lucide-react";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { fetchDashboard } from "@/src/lib/admin-api";
@@ -28,6 +28,7 @@ const navItems = [
   { href: "/admin/contact-messages", label: "Messages", icon: Mail, badge: "unreadMessages" as const },
   { href: "/admin/bug-reports", label: "Bug Reports", icon: Bug, badge: "pendingBugs" as const },
   { href: "/admin/site-settings", label: "Site Settings", icon: Settings },
+  { href: "/admin/security", label: "Security", icon: ShieldCheck },
 ];
 
 interface AdminSidebarProps {

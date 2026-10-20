@@ -103,6 +103,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
     1,
     Math.min(product.stockQuantity ?? 100, 100),
   );
+  const effectiveQuantity = Math.min(quantity, maxQty);
 
   // A product with variants must have one picked before it can be added — the
   // cart keys on size/colour and the server records them per line.
@@ -110,15 +111,11 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
   const needsColor = Boolean(product.variants?.colors?.length) && !selectedColor;
   const missingVariant = needsSize || needsColor;
 
-  useEffect(() => {
-    setQuantity((q) => Math.min(q, maxQty));
-  }, [maxQty]);
-
   const handleAdd = () => {
     if (isOutOfStock || missingVariant) return;
     addItem({
       product,
-      quantity: Math.min(quantity, maxQty),
+      quantity: effectiveQuantity,
       selectedSize,
       selectedColor,
     });
@@ -286,8 +283,8 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                   <div className="flex items-center overflow-hidden rounded-md border border-line-strong bg-surface">
                     <button
                       type="button"
-                      onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                      disabled={isOutOfStock || quantity <= 1}
+                      onClick={() => setQuantity(Math.max(1, effectiveQuantity - 1))}
+                      disabled={isOutOfStock || effectiveQuantity <= 1}
                       aria-label="Decrease quantity"
                       className="flex h-11 w-11 items-center justify-center text-fg transition-colors hover:bg-surface-2 disabled:opacity-40"
                     >
@@ -297,12 +294,12 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                       aria-live="polite"
                       className="tabular w-12 border-x border-line text-center text-sm font-bold text-fg"
                     >
-                      {isOutOfStock ? 0 : quantity}
+                      {isOutOfStock ? 0 : effectiveQuantity}
                     </span>
                     <button
                       type="button"
-                      onClick={() => setQuantity((q) => Math.min(q + 1, maxQty))}
-                      disabled={isOutOfStock || quantity >= maxQty}
+                      onClick={() => setQuantity(Math.min(effectiveQuantity + 1, maxQty))}
+                      disabled={isOutOfStock || effectiveQuantity >= maxQty}
                       aria-label="Increase quantity"
                       className="flex h-11 w-11 items-center justify-center text-fg transition-colors hover:bg-surface-2 disabled:opacity-40"
                     >
@@ -312,7 +309,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                   <span className="text-[13px] text-muted">
                     Total{" "}
                     <span className="tabular font-bold text-price">
-                      {formatPrice(product.price * (isOutOfStock ? 0 : quantity))}
+                      {formatPrice(product.price * (isOutOfStock ? 0 : effectiveQuantity))}
                     </span>
                   </span>
                 </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { API_BASE } from "@/src/lib/constants";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 
@@ -74,13 +75,25 @@ export default function AdminLoginPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-fg mb-1.5">Password</label>
+              <div className="mb-1.5 flex items-center justify-between gap-3">
+                <label className="block text-sm font-semibold text-fg" htmlFor="admin-password">
+                  Password
+                </label>
+                <Link
+                  href="/forgot-password?admin=1"
+                  className="text-xs font-semibold text-link hover:text-link-hover"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
+                id="admin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
+                autoComplete="current-password"
                 className="w-full rounded-lg border border-line-strong px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted transition-colors"
               />
             </div>
