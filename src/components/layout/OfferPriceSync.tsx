@@ -3,12 +3,13 @@
 import { useEffect } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { fetchFlashSale, fetchProducts } from "@/src/lib/api";
+import { OFFER_POLL_MS } from "@/src/lib/constants";
 import { useCartHydrated, useCartStore } from "@/src/store/useCartStore";
 
 /** Revalidate open product views and persisted carts when an offer changes or crosses a boundary. */
 export function OfferPriceSync() {
   const { data: sale } = useSWR('/offers', () => fetchFlashSale(), {
-    refreshInterval: 15_000, dedupingInterval: 1_000, revalidateOnFocus: true,
+    refreshInterval: OFFER_POLL_MS, dedupingInterval: 1_000, revalidateOnFocus: true,
   });
   const { mutate } = useSWRConfig();
   const cartHydrated = useCartHydrated();

@@ -22,6 +22,14 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const nextConfig: NextConfig = {
   images: {
+    // Every distinct (src, width, quality) costs a Hobby-plan transformation.
+    // Next 16 keeps optimized images for only 4h by default, so the same
+    // product photos were re-transformed all day. Uploads get unique file
+    // names (upload.service.ts), so a long TTL can't serve a stale image.
+    minimumCacheTTL: 2678400, // 31 days
+    // Fewer widths = fewer variants per image (the defaults generate ~12).
+    deviceSizes: [640, 828, 1080, 1920],
+    imageSizes: [48, 96, 256],
     remotePatterns: [
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "picsum.photos" },

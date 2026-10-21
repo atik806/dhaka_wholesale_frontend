@@ -7,6 +7,7 @@ import Link from "next/link";
 import { buttonClasses } from "@/src/components/ui/Button";
 import { usePromoBanner } from "@/src/hooks/useApi";
 import { fetchFlashSale, type PromoBannerData } from "@/src/lib/api";
+import { OFFER_POLL_MS } from "@/src/lib/constants";
 import { getCountdownParts, getOfferStatus } from "@/src/lib/offers";
 import { safePromoLink } from "@/src/lib/utils";
 import { normalizePromoBanner } from "@/src/lib/promo-banner";
@@ -19,7 +20,7 @@ interface PromoBannerProps {
 export function PromoBanner({ fallbackData }: PromoBannerProps) {
   const { data: fetched } = usePromoBanner(fallbackData);
   const { data: flashSale } = useSWR("/offers", () => fetchFlashSale(), {
-    refreshInterval: 15_000,
+    refreshInterval: OFFER_POLL_MS,
     revalidateOnFocus: true,
   });
   const [now, setNow] = useState<number | null>(null);

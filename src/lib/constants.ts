@@ -52,3 +52,9 @@ export const priceRanges = [
   { value: "2000-5000", label: "৳2,000 - ৳5,000" },
   { value: "5000-999999", label: "Over ৳5,000" },
 ];
+
+// Storefront polling only catches admin edits to offers/banners — sale start
+// and end are handled by client timers. Each poll costs a backend function
+// invocation (or a CDN hit), so keep these slow.
+export const OFFER_POLL_MS = 60_000;
+export const QUOTE_REFRESH_MS = 60_000;

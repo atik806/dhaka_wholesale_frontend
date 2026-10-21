@@ -265,7 +265,7 @@ export async function fetchFlashSale(signal?: AbortSignal): Promise<FlashSale | 
 }
 
 export async function fetchPromoBanner(signal?: AbortSignal): Promise<PromoBannerData | null> {
-  const res = await fetch(`${API_BASE}/site-settings/promo_banner`, { signal, cache: 'no-store' });
+  const res = await fetch(`${API_BASE}/site-settings/promo_banner`, { signal });
   if (res.status === 404) return null;
   if (!res.ok) throw new Error('Failed to load promo banner');
   const json = await res.json();

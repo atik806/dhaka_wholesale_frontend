@@ -19,7 +19,7 @@ import { PaymentForm } from "@/src/components/checkout/PaymentForm";
 import { ReviewOrder } from "@/src/components/checkout/ReviewOrder";
 import { CouponEntry } from "@/src/components/checkout/CouponEntry";
 import { OrderComplete } from "@/src/components/checkout/OrderComplete";
-import { API_BASE, DELIVERY_ZONE_LABELS, type DeliveryZone } from "@/src/lib/constants";
+import { API_BASE, DELIVERY_ZONE_LABELS, QUOTE_REFRESH_MS, type DeliveryZone } from "@/src/lib/constants";
 import {
   authFetch,
   computeLocalCheckoutQuote,
@@ -135,7 +135,7 @@ export default function CheckoutPage() {
         });
     };
     const timer = window.setTimeout(loadQuote, 250);
-    const refresh = window.setInterval(loadQuote, 15_000);
+    const refresh = window.setInterval(loadQuote, QUOTE_REFRESH_MS);
 
     return () => {
       active = false;

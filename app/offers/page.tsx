@@ -5,6 +5,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import { ArrowLeft, BadgePercent } from "lucide-react";
 import { fetchFlashSale, fetchProducts } from "@/src/lib/api";
+import { OFFER_POLL_MS } from "@/src/lib/constants";
 import { getCountdownParts, getOfferStatus } from "@/src/lib/offers";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { ComboDeals } from "@/src/components/product/ComboDeals";
@@ -13,11 +14,11 @@ import { Button, buttonClasses } from "@/src/components/ui/Button";
 export default function SaleProductsPage() {
   const [now, setNow] = useState(() => Date.now());
   const [page, setPage] = useState(1);
-  const sale = useSWR('/offers', () => fetchFlashSale(), { refreshInterval: 15_000 });
+  const sale = useSWR('/offers', () => fetchFlashSale(), { refreshInterval: OFFER_POLL_MS });
   const status = getOfferStatus(sale.data ?? {}, now);
   const products = useSWR(status === 'live' ? `sale-products:${page}` : null,
     () => fetchProducts({ onSale: true, page, limit: 12, sort: 'price-asc' }),
-    { refreshInterval: 15_000 });
+    { refreshInterval: OFFER_POLL_MS });
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1_000);

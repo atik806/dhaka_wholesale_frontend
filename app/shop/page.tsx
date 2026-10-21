@@ -4,7 +4,7 @@ import { ShopPageClient } from "./ShopPageClient";
 
 // Revalidate the route shell (metadata/HTML) so prices & stock stay fresh
 // rather than serving a build-time snapshot indefinitely.
-export const revalidate = 60;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Shop",

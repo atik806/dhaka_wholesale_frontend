@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import useSWR from "swr";
 import { PackagePlus } from "lucide-react";
-import { API_BASE } from "@/src/lib/constants";
+import { API_BASE, OFFER_POLL_MS } from "@/src/lib/constants";
 import { fetchProducts } from "@/src/lib/api";
 import { getOfferStatus, type ComboDeal } from "@/src/lib/offers";
 import { formatPrice, safeImage } from "@/src/lib/utils";
@@ -68,12 +68,12 @@ function ComboCard({ combo, products }: { combo: ComboDeal; products: Map<string
 
 export function ComboDeals({ compact = false }: { compact?: boolean }) {
   const [now, setNow] = useState(() => Date.now());
-  const deals = useSWR('/offers/combos', fetchCombos, { refreshInterval: 15_000 });
+  const deals = useSWR('/offers/combos', fetchCombos, { refreshInterval: OFFER_POLL_MS });
   const ids = [...new Set((deals.data ?? []).flatMap((combo) => combo.products.map((line) => line.product_id)))];
   const catalog = useSWR(ids.length ? ['combo-catalog', ids.join(',')] : null, async () => {
     const pages = await Promise.all(Array.from({ length: Math.ceil(ids.length / 100) }, (_, index) => fetchProducts({ ids: ids.slice(index * 100, index * 100 + 100), limit: 100 })));
     return new Map(pages.flatMap((page) => page.products).map((product) => [product.id, product]));
-  }, { refreshInterval: 15_000 });
+  }, { refreshInterval: OFFER_POLL_MS });
   useEffect(() => { const timer = window.setInterval(() => setNow(Date.now()), 1_000); return () => window.clearInterval(timer); }, []);
   const active = (deals.data ?? []).filter((combo) => getOfferStatus(combo, now) === 'live');
   if (compact && (!active.length || deals.error || catalog.error)) return null;
