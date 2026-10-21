@@ -21,6 +21,7 @@ import {
   type UserOrder,
 } from "@/src/lib/auth-api";
 import { formatPrice, formatDate, safeImage } from "@/src/lib/utils";
+import { orderDiscountLines } from "@/src/lib/order-pricing";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { Button, buttonClasses } from "@/src/components/ui/Button";
 import { Card, CardHeader } from "@/src/components/ui/Card";
@@ -283,6 +284,16 @@ export default function CustomerOrderDetailPage() {
                   />
                   <div className="p-5">
                     <dl className="space-y-2.5 text-sm">
+                      {orderDiscountLines(order).map((line) => (
+                        <div key={line.label} className="flex justify-between gap-3">
+                          <dt className="text-muted">{line.label}</dt>
+                          <dd
+                            className={`tabular font-semibold shrink-0 ${line.amount < 0 ? "text-success" : "text-fg"}`}
+                          >
+                            {line.amount < 0 ? `−${formatPrice(-line.amount)}` : formatPrice(line.amount)}
+                          </dd>
+                        </div>
+                      ))}
                       <div className="flex justify-between gap-3">
                         <dt className="text-muted">Subtotal</dt>
                         <dd className="tabular font-semibold text-fg shrink-0">

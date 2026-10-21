@@ -1,4 +1,5 @@
 import { API_BASE, DELIVERY_CHARGES, type DeliveryZone } from "./constants";
+import type { OrderPricingSnapshot } from "./order-pricing";
 
 export interface ShippingAddress {
   firstName?: string;
@@ -199,7 +200,7 @@ export interface UserOrderItem {
   selected_color: string | null;
 }
 
-export interface UserOrder {
+export interface UserOrder extends OrderPricingSnapshot {
   id: string;
   status: string;
   subtotal: number;

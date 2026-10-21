@@ -1,5 +1,6 @@
 import { API_BASE } from "./constants";
 import { refreshSession } from "./auth-api";
+import type { OrderPricingSnapshot } from "./order-pricing";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -107,7 +108,7 @@ export async function fetchDashboard(params?: { from?: string; to?: string }): P
 export interface OrderItem {
   id: string; product_id: string; product_name: string; product_image: string; price: number; quantity: number; selected_size?: string; selected_color?: string;
 }
-export interface Order {
+export interface Order extends OrderPricingSnapshot {
   id: string; user_id: string; status: string; subtotal: number; shipping_cost: number; tax: number; total: number; shipping_address: Record<string,string>; payment_method: string; payment_status: string; created_at: string; order_items?: OrderItem[]; profiles?: { name: string; email: string };
 }
 export async function fetchOrders(params?: { page?: number; limit?: number; status?: string; search?: string }): Promise<{ orders: Order[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {

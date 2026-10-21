@@ -8,6 +8,7 @@ import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { useToast } from "@/src/providers/ToastProvider";
 import { formatPrice, formatDate, safeImage, cn } from "@/src/lib/utils";
+import { orderDiscountLines } from "@/src/lib/order-pricing";
 import { SITE_NAME } from "@/src/lib/constants";
 import type { Order } from "@/src/lib/admin-api";
 
@@ -192,6 +193,16 @@ export default function OrderDetailPage() {
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
+    for (const discountLine of orderDiscountLines(order)) {
+      doc.text(discountLine.label, labelX, y);
+      doc.text(
+        discountLine.amount < 0 ? `-${formatPrice(-discountLine.amount)}` : formatPrice(discountLine.amount),
+        valueX,
+        y,
+        { align: "right" },
+      );
+      y += 5;
+    }
     doc.text("Subtotal", labelX, y);
     doc.text(formatPrice(order.subtotal), valueX, y, { align: "right" });
     y += 5;
@@ -483,6 +494,14 @@ export default function OrderDetailPage() {
       {/* Order Totals */}
       <div className="bg-surface rounded-2xl border border-line p-6 ml-auto w-full max-w-sm">
         <div className="space-y-2 text-sm">
+          {orderDiscountLines(order).map((line) => (
+            <div key={line.label} className="flex justify-between">
+              <span className="text-muted">{line.label}</span>
+              <span className={line.amount < 0 ? "text-success" : undefined}>
+                {line.amount < 0 ? `−${formatPrice(-line.amount)}` : formatPrice(line.amount)}
+              </span>
+            </div>
+          ))}
           <div className="flex justify-between">
             <span className="text-muted">Subtotal</span>
             <span>{formatPrice(order.subtotal)}</span>

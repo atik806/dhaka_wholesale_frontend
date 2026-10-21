@@ -27,6 +27,7 @@ import {
   type CheckoutQuote,
 } from "@/src/lib/auth-api";
 import { formatPrice, safeImage } from "@/src/lib/utils";
+import { createCheckoutKeyStore } from "@/src/lib/order-pricing";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -55,6 +56,9 @@ export default function CheckoutPage() {
   const [quoteError, setQuoteError] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [couponBusy, setCouponBusy] = useState(false);
+  // Same request → same key, so a retry after a timeout cannot place a
+  // second order; the server replays the first one instead.
+  const [checkoutKeys] = useState(() => createCheckoutKeyStore());
 
   useEffect(() => {
     if (authHydrated && !isLoggedIn) {
@@ -203,7 +207,7 @@ export default function CheckoutPage() {
     setPlacing(true);
     setPlaceError("");
     try {
-      const body = {
+      const request = {
         expected_total: orderSummary.total,
         coupon_code: couponCode || undefined,
         shipping_address: shipping,
@@ -216,6 +220,7 @@ export default function CheckoutPage() {
           selected_color: i.selectedColor || null,
         })),
       };
+      const body = { ...request, idempotency_key: checkoutKeys.keyFor(JSON.stringify(request)) };
       const res = await authFetch(`${API_BASE}/orders/checkout`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -228,6 +233,7 @@ export default function CheckoutPage() {
       const json = await res.json();
       const created = json.data ?? json;
       useAuthStore.getState().updateUser({ shipping_address: shipping });
+      checkoutKeys.reset();
       clearCart();
       setOrderId(created?.id);
       setCompleted(true);
@@ -252,6 +258,7 @@ export default function CheckoutPage() {
     orderSummary.fromServer,
     orderSummary.total,
     quoteRejected,
+    checkoutKeys,
   ]);
 
   if (!authHydrated || !isLoggedIn) {
