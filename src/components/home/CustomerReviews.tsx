@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Quote, Star } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/src/components/ui/Card";
+import { Badge } from "@/src/components/ui/Badge";
 import { Section, SectionHeader } from "@/src/components/ui/Section";
 import { useRecentReviews } from "@/src/hooks/useApi";
 import type { RecentReview } from "@/src/lib/api";
@@ -51,7 +52,7 @@ export function CustomerReviews({ fallbackData }: CustomerReviewsProps) {
       <SectionHeader
         eyebrow="Customer reviews"
         title="What customers say"
-        description="Real feedback from customers across Bangladesh."
+        description="Product feedback for shoppers across Bangladesh. Sample reviews are clearly labelled."
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
@@ -92,9 +93,16 @@ export function CustomerReviews({ fallbackData }: CustomerReviewsProps) {
                   {review.profiles?.name?.[0]?.toUpperCase() ?? "?"}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-[13px] font-semibold text-fg truncate">
-                    {review.profiles?.name ?? "Customer"}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-[13px] font-semibold text-fg truncate">
+                      {review.profiles?.name ?? "Customer"}
+                    </p>
+                    {review.profiles?.avatar_url?.startsWith("demo-review://") && (
+                      <Badge variant="neutral" className="shrink-0 px-1.5 py-0 text-[9px] leading-4">
+                        Sample
+                      </Badge>
+                    )}
+                  </div>
                   {review.products && (
                     <Link
                       href={`/product/${review.products.slug}`}

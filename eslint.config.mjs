@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Vercel build output — minified bundles must never be linted.
     ".vercel/**",
+    // Generated launch-video exports are not application source.
+    "brag-output*/**",
   ]),
 ]);
 

@@ -11,6 +11,7 @@ interface ReviewOrderProps {
   shipping: ShippingFormValues;
   deliveryZone: DeliveryZone;
   subtotal: number;
+  discountTotal?: number;
   shippingCost: number;
   tax?: number;
   total: number;
@@ -20,6 +21,7 @@ export function ReviewOrder({
   shipping,
   deliveryZone,
   subtotal,
+  discountTotal = 0,
   shippingCost,
   tax = 0,
   total,
@@ -99,6 +101,7 @@ export function ReviewOrder({
           <dt className="text-muted">Subtotal</dt>
           <dd className="tabular font-semibold text-fg shrink-0">{fp(subtotal)}</dd>
         </div>
+        {discountTotal > 0 && <div className="flex justify-between gap-3 text-success"><dt>Offer savings</dt><dd className="font-semibold">−{fp(discountTotal)}</dd></div>}
         <div className="flex justify-between gap-3">
           <dt className="text-muted min-w-0 truncate">
             Delivery · {DELIVERY_ZONE_LABELS[deliveryZone]}

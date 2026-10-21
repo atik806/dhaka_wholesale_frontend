@@ -1,4 +1,5 @@
 import useSWR from 'swr';
+import { useEffect } from 'react';
 import {
   fetchProducts,
   fetchFeaturedProducts,
@@ -65,6 +66,7 @@ export function useRelatedProducts(slug: string | null) {
 export function useCategories(fallbackData?: Category[]) {
   return useSWR('/categories', () => fetchCategories(), {
     ...SWR_CONFIG,
+    revalidateOnFocus: true,
     fallbackData,
   });
 }
@@ -80,6 +82,7 @@ export function useCategory(slug: string | null, fallbackData?: Category | null)
 export function useCategoryTree() {
   return useSWR('/categories?tree=true', () => fetchCategoryTree(), {
     ...SWR_CONFIG,
+    revalidateOnFocus: true,
   });
 }
 
@@ -92,10 +95,23 @@ export function useProductReviews(productId: string | null, page = 1) {
 }
 
 export function usePromoBanner(fallbackData?: PromoBannerData | null) {
-  return useSWR('/site-settings/promo_banner', () => fetchPromoBanner(), {
+  const result = useSWR('/site-settings/promo_banner', () => fetchPromoBanner(), {
     ...SWR_CONFIG,
     fallbackData,
+    revalidateOnMount: true,
+    revalidateOnFocus: true,
+    refreshInterval: 15_000,
+    dedupingInterval: 2_000,
   });
+  const { mutate } = result;
+  useEffect(() => {
+    const refresh = (event: StorageEvent) => {
+      if (event.key === 'dw:promo-banner-updated') void mutate();
+    };
+    window.addEventListener('storage', refresh);
+    return () => window.removeEventListener('storage', refresh);
+  }, [mutate]);
+  return result;
 }
 
 export function useRecentReviews(fallbackData?: RecentReview[]) {

@@ -6,6 +6,7 @@ import { PromoBanner } from "@/src/components/home/PromoBanner";
 import { CustomerReviews } from "@/src/components/home/CustomerReviews";
 import { Newsletter } from "@/src/components/home/Newsletter";
 import { getHomeData } from "@/src/lib/server/data";
+import { ComboDeals } from "@/src/components/product/ComboDeals";
 
 // The home page's catalog data changes slowly; cache it and revalidate every 5 minutes.
 export const revalidate = 300;
@@ -18,6 +19,7 @@ export default async function Home() {
       <HeroSection />
       <FeaturedCategories fallbackData={categories} />
       <TrendingProducts fallbackData={featured} />
+      <ComboDeals compact />
       <BrandStrip />
       <PromoBanner fallbackData={promo} />
       <CustomerReviews fallbackData={reviews} />

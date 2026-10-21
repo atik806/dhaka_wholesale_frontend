@@ -17,6 +17,7 @@ import { ShippingForm } from "@/src/components/checkout/ShippingForm";
 import type { ShippingFormValues } from "@/src/components/checkout/ShippingForm";
 import { PaymentForm } from "@/src/components/checkout/PaymentForm";
 import { ReviewOrder } from "@/src/components/checkout/ReviewOrder";
+import { CouponEntry } from "@/src/components/checkout/CouponEntry";
 import { OrderComplete } from "@/src/components/checkout/OrderComplete";
 import { API_BASE, DELIVERY_ZONE_LABELS, type DeliveryZone } from "@/src/lib/constants";
 import {
@@ -52,6 +53,8 @@ export default function CheckoutPage() {
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState("");
+  const [couponCode, setCouponCode] = useState("");
+  const [couponBusy, setCouponBusy] = useState(false);
 
   useEffect(() => {
     if (authHydrated && !isLoggedIn) {
@@ -81,10 +84,11 @@ export default function CheckoutPage() {
     authHydrated ? "h" : "nh",
     isLoggedIn ? "in" : "out",
     deliveryZone,
+    couponCode,
     items
       .map(
         (i) =>
-          `${i.product.id}:${i.quantity}:${i.selectedSize ?? ""}:${i.selectedColor ?? ""}`,
+          `${i.product.id}:${i.quantity}:${i.product.price}:${i.selectedSize ?? ""}:${i.selectedColor ?? ""}`,
       )
       .join("|"),
   ].join(":");
@@ -106,12 +110,12 @@ export default function CheckoutPage() {
       quantity: i.quantity,
     }));
 
-    const timer = window.setTimeout(() => {
-      fetchCheckoutQuote(deliveryZone, quoteItems)
+    const loadQuote = () => {
+      fetchCheckoutQuote(deliveryZone, quoteItems, couponCode)
         .then((serverQuote) => {
           if (!active) return;
           setQuote(serverQuote ?? localQuote);
-          setQuoteError("");
+          setQuoteError(serverQuote ? "" : "Could not confirm checkout totals. Please try again.");
           setQuoteLoading(false);
         })
         .catch((err) => {
@@ -124,13 +128,25 @@ export default function CheckoutPage() {
           );
           setQuoteLoading(false);
         });
-    }, 250);
+    };
+    const timer = window.setTimeout(loadQuote, 250);
+    const refresh = window.setInterval(loadQuote, 15_000);
 
     return () => {
       active = false;
       window.clearTimeout(timer);
+      window.clearInterval(refresh);
     };
-  }, [isLoggedIn, items, deliveryZone, localQuote]);
+  }, [isLoggedIn, items, deliveryZone, localQuote, couponCode]);
+
+  const applyCoupon = async (code: string) => {
+    setCouponBusy(true);
+    try {
+      const result = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity })), code);
+      if (!result) throw new Error("Could not verify coupon. Please try again.");
+      setCouponCode(code); setQuote(result); setQuoteError("");
+    } finally { setCouponBusy(false); }
+  };
 
   const orderSummary = quote ?? localQuote;
   const quoteBlocksCheckout =
@@ -152,6 +168,10 @@ export default function CheckoutPage() {
   );
 
   const handlePlaceOrder = useCallback(async () => {
+    if (quoteLoading || couponBusy || !orderSummary.fromServer || quoteRejected) {
+      setPlaceError("Please wait for confirmed checkout totals or remove the invalid coupon.");
+      return;
+    }
     const errs: Record<string, string> = {};
     if (!shipping.firstName.trim()) errs.firstName = "Required";
     if (!shipping.lastName.trim()) errs.lastName = "Required";
@@ -184,6 +204,8 @@ export default function CheckoutPage() {
     setPlaceError("");
     try {
       const body = {
+        expected_total: orderSummary.total,
+        coupon_code: couponCode || undefined,
         shipping_address: shipping,
         payment_method: "cod",
         delivery_zone: deliveryZone,
@@ -211,6 +233,8 @@ export default function CheckoutPage() {
       setCompleted(true);
     } catch (e) {
       setPlaceError(e instanceof Error ? e.message : "Something went wrong");
+      const refreshed = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity })), couponCode).catch(() => null);
+      if (refreshed) setQuote(refreshed);
     } finally {
       setPlacing(false);
     }
@@ -222,6 +246,12 @@ export default function CheckoutPage() {
     outOfStockInCart,
     quoteBlocksCheckout,
     orderSummary.unavailable_items,
+    couponCode,
+    quoteLoading,
+    couponBusy,
+    orderSummary.fromServer,
+    orderSummary.total,
+    quoteRejected,
   ]);
 
   if (!authHydrated || !isLoggedIn) {
@@ -259,7 +289,7 @@ export default function CheckoutPage() {
     return <OrderComplete orderId={orderId} />;
   }
 
-  const blocked = outOfStockInCart.length > 0 || quoteBlocksCheckout || quoteRejected;
+  const blocked = outOfStockInCart.length > 0 || quoteBlocksCheckout || quoteRejected || quoteLoading || couponBusy || !orderSummary.fromServer;
 
   return (
     <motion.div
@@ -293,7 +323,7 @@ export default function CheckoutPage() {
           <CheckoutStepper step={shippingComplete ? 2 : 0} />
         </Card>
 
-        {blocked && (
+        {(outOfStockInCart.length > 0 || quoteBlocksCheckout || quoteRejected) && (
           <div
             role="alert"
             className="mb-6 flex items-start gap-3 rounded-lg border border-danger/30 bg-danger-soft p-4"
@@ -355,7 +385,8 @@ export default function CheckoutPage() {
                 <ReviewOrder
                   shipping={shipping}
                   deliveryZone={deliveryZone}
-                  subtotal={orderSummary.subtotal}
+                  subtotal={orderSummary.original_subtotal}
+                  discountTotal={orderSummary.discount_total}
                   shippingCost={orderSummary.shipping_cost}
                   tax={orderSummary.tax}
                   total={orderSummary.total}
@@ -408,13 +439,17 @@ export default function CheckoutPage() {
                 </ul>
 
                 <div className="p-5 border-t border-line">
+                  <CouponEntry code={couponCode} disabled={placing || couponBusy} onApply={applyCoupon} onRemove={() => setCouponCode("")} />
                   <dl className="space-y-2.5 text-sm">
                     <div className="flex justify-between gap-3">
                       <dt className="text-muted">Subtotal</dt>
                       <dd className="tabular font-semibold text-fg shrink-0">
-                        {formatPrice(orderSummary.subtotal)}
+                        {formatPrice(orderSummary.original_subtotal)}
                       </dd>
                     </div>
+                    {orderSummary.combo_discount > 0 && <div className="flex justify-between gap-3 text-success"><dt>Combo savings</dt><dd className="font-semibold">−{formatPrice(orderSummary.combo_discount)}</dd></div>}
+                    {orderSummary.coupon_discount > 0 && <div className="flex justify-between gap-3 text-success"><dt>Coupon {orderSummary.coupon_code}</dt><dd className="font-semibold">−{formatPrice(orderSummary.coupon_discount)}</dd></div>}
+                    {orderSummary.applied_combos.map((combo) => <div key={combo.id} className="text-xs text-muted">{combo.title} × {combo.quantity}</div>)}
                     <div className="flex justify-between gap-3">
                       <dt className="text-muted flex items-center gap-1.5 min-w-0">
                         <Truck className="w-4 h-4 text-subtle shrink-0" />

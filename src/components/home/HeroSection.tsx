@@ -88,14 +88,15 @@ export function HeroSection() {
             style={{ opacity: i === index ? 1 : 0, zIndex: i === index ? 1 : 0 }}
             aria-hidden={i !== index}
           >
+            {/* The first image must stay preloaded when another slide becomes active. */}
             <Image
               src={s.image}
               alt={s.title}
               fill
-              priority={i === 0}
+              preload={i === 0}
               placeholder="blur"
               blurDataURL={IMAGE_BLUR_PLACEHOLDER}
-              loading={i === index ? undefined : "lazy"}
+              loading={i === 0 ? undefined : i === index ? "eager" : "lazy"}
               sizes="100vw"
               className={`object-cover object-center ${i === index ? "ken-burns" : ""}`}
             />

@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, ChevronRight, ChevronDown, Package, Sparkles, TrendingUp, X } from "lucide-react";
+import { Menu, Package, Sparkles, TrendingUp, X } from "lucide-react";
 import { useCategoryTree, useCategories } from "@/src/hooks/useApi";
 import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
-import { safeImage, cn, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
-import type { Category } from "@/src/types/product";
+import { buildCategoryTree } from "@/src/lib/category-tree";
+import { CategoryNavigation } from "./CategoryNavigation";
 
 const QUICK_LINKS = [
   { href: "/shop", label: "All shop", icon: Package },
@@ -17,19 +16,12 @@ const QUICK_LINKS = [
   { href: "/shop?sort=popular", label: "Bestsellers", icon: TrendingUp },
 ];
 
-// A parent's item count should include its subcategories' products.
-const countItems = (cat: Category): number =>
-  (cat.productCount ?? 0) +
-  (cat.children ?? []).reduce((sum, c) => sum + countItems(c), 0);
-
 const isCompact = () => window.matchMedia("(max-width: 1023px)").matches;
 
 export function DepartmentsPanel() {
   const pathname = usePathname();
-  const router = useRouter();
   const { data: categories = [], isLoading } = useCategories();
   const { data: categoryTree = [] } = useCategoryTree();
-  const [expandedParents, setExpandedParents] = useState<Record<string, boolean>>({});
   const open = useDepartmentsStore((s) => s.open);
   const setOpen = useDepartmentsStore((s) => s.setOpen);
   const toggleDepartments = useDepartmentsStore((s) => s.toggleDepartments);
@@ -37,6 +29,7 @@ export function DepartmentsPanel() {
   // The drawer and the rail render the same markup, so only mount one of them —
   // otherwise every category link is duplicated in the accessibility tree.
   const [isDesktop, setIsDesktop] = useState(false);
+  const drawerRef = useRef<HTMLElement>(null);
 
   // Desktop keeps the rail open by default; small screens use the drawer.
   useEffect(() => {
@@ -56,11 +49,35 @@ export function DepartmentsPanel() {
 
   useEffect(() => {
     if (!open || !isCompact()) return;
+    const previousOverflow = document.body.style.overflow;
+    const previousFocus = document.activeElement as HTMLElement | null;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
+    const focusable = () => Array.from(drawerRef.current?.querySelectorAll<HTMLElement>('button, a[href], [tabindex="0"]') ?? []).filter((element) => element.getClientRects().length > 0);
+    focusable()[0]?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDepartments();
+      }
+      if (event.key !== "Tab") return;
+      const elements = focusable();
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
     };
-  }, [open]);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [open, isDesktop, closeDepartments]);
 
   const closeIfCompact = () => {
     if (isCompact()) closeDepartments();
@@ -121,139 +138,10 @@ export function DepartmentsPanel() {
           {!isLoading && categories.length === 0 && (
             <p className="px-4 py-6 text-sm text-muted">No categories yet.</p>
           )}
-          <ul className="divide-y divide-line">
-            {categoryTree.length > 0
-              ? categoryTree.map((parent) => {
-                  const isExpanded = expandedParents[parent.id] !== false;
-                  const hasChildren = parent.children && parent.children.length > 0;
-                  return (
-                    <li key={parent.id}>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (hasChildren) {
-                            setExpandedParents((prev) => ({
-                              ...prev,
-                              [parent.id]: !isExpanded,
-                            }));
-                          } else {
-                            router.push(`/shop/${parent.slug}`);
-                            closeIfCompact();
-                          }
-                        }}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 transition-colors hover:bg-surface-2 text-left"
-                      >
-                        <span className="relative w-9 h-9 shrink-0 rounded-md overflow-hidden bg-surface-2 border border-line">
-                          <Image
-                            src={safeImage(parent.image ? [parent.image] : [])}
-                            alt=""
-                            fill
-                            placeholder="blur"
-                            blurDataURL={IMAGE_BLUR_PLACEHOLDER}
-                            loading="lazy"
-                            className="object-cover"
-                            sizes="36px"
-                          />
-                        </span>
-                        <span className="flex-1 min-w-0">
-                          <span className="block text-[13px] leading-tight truncate font-bold text-fg">
-                            {parent.name}
-                          </span>
-                          <span className="block text-[11px] text-subtle tabular">
-                            {countItems(parent)} items
-                          </span>
-                        </span>
-                        {hasChildren && (
-                          <ChevronDown
-                            className={cn(
-                              "w-4 h-4 text-subtle shrink-0 transition-transform duration-200",
-                              isExpanded ? "" : "-rotate-90"
-                            )}
-                          />
-                        )}
-                      </button>
-                      {hasChildren && isExpanded && (
-                        <ul className="border-t border-line">
-                          {parent.children!.map((child) => {
-                            const active = pathname === `/shop/${child.slug}`;
-                            return (
-                              <li key={child.id}>
-                                <Link
-                                  href={`/shop/${child.slug}`}
-                                  onClick={closeIfCompact}
-                                  aria-current={active ? "page" : undefined}
-                                  className={`flex items-center gap-3 pl-12 pr-4 py-2.5 transition-colors ${
-                                    active
-                                      ? "bg-accent-soft border-l-[3px] border-l-accent"
-                                      : "hover:bg-surface-2"
-                                  }`}
-                                >
-                                  <span className="flex-1 min-w-0">
-                                    <span
-                                      className={`block text-[13px] leading-tight truncate ${
-                                        active ? "font-bold text-fg" : "font-medium text-fg"
-                                      }`}
-                                    >
-                                      {child.name}
-                                    </span>
-                                    <span className="block text-[11px] text-subtle tabular">
-                                      {countItems(child)} items
-                                    </span>
-                                  </span>
-                                  <ChevronRight className="w-4 h-4 text-subtle shrink-0" />
-                                </Link>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
-                    </li>
-                  );
-                })
-              : categories.map((cat) => {
-                  const active = pathname === `/shop/${cat.slug}`;
-                  return (
-                    <li key={cat.id}>
-                      <Link
-                        href={`/shop/${cat.slug}`}
-                        onClick={closeIfCompact}
-                        aria-current={active ? "page" : undefined}
-                        className={`flex items-center gap-3 px-4 py-2.5 transition-colors ${
-                          active
-                            ? "bg-accent-soft border-l-[3px] border-l-accent pl-[13px]"
-                            : "hover:bg-surface-2"
-                        }`}
-                      >
-                        <span className="relative w-9 h-9 shrink-0 rounded-md overflow-hidden bg-surface-2 border border-line">
-                          <Image
-                            src={safeImage(cat.image ? [cat.image] : [])}
-                            alt=""
-                            fill
-                            placeholder="blur"
-                            blurDataURL={IMAGE_BLUR_PLACEHOLDER}
-                            loading="lazy"
-                            className="object-cover"
-                            sizes="36px"
-                          />
-                        </span>
-                        <span className="flex-1 min-w-0">
-                          <span
-                            className={`block text-[13px] leading-tight truncate ${
-                              active ? "font-bold text-fg" : "font-medium text-fg"
-                            }`}
-                          >
-                            {cat.name}
-                          </span>
-                          <span className="block text-[11px] text-subtle tabular">
-                            {countItems(cat)} items
-                          </span>
-                        </span>
-                        <ChevronRight className="w-4 h-4 text-subtle shrink-0" />
-                      </Link>
-                    </li>
-                  );
-                })}
-          </ul>
+          <CategoryNavigation
+            categories={categoryTree.length ? categoryTree : buildCategoryTree(categories)}
+            onNavigate={closeIfCompact}
+          />
         </nav>
       </div>
 
@@ -271,23 +159,6 @@ export function DepartmentsPanel() {
 
   return (
     <>
-      {/* Edge tab so categories stay reachable on small screens */}
-      <button
-        type="button"
-        onClick={toggleDepartments}
-        className={`fixed left-0 top-1/2 -translate-y-1/2 z-[45] flex items-center rounded-r-md bg-brand text-white shadow-lg px-1.5 py-4 transition-opacity lg:hidden ${
-          open ? "opacity-0 pointer-events-none" : "opacity-100"
-        }`}
-        aria-label="Open categories"
-      >
-        <span
-          className="label-caps text-[10px] tracking-widest"
-          style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-        >
-          Categories
-        </span>
-      </button>
-
       <AnimatePresence>
         {open && !isDesktop && (
           <motion.button
@@ -306,6 +177,11 @@ export function DepartmentsPanel() {
         {open && !isDesktop && (
           <motion.aside
             key="panel"
+            ref={drawerRef}
+            id="mobile-categories-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Category menu"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
@@ -318,7 +194,7 @@ export function DepartmentsPanel() {
       </AnimatePresence>
 
       {/* Persistent desktop rail */}
-      <aside
+      {isDesktop && <aside
         id="categories-panel"
         className={`hidden lg:flex shrink-0 sticky top-[6.25rem] z-30 h-[calc(100dvh-6.25rem)] border-r border-line bg-surface transition-[width] duration-300 ease-out overflow-hidden ${
           open ? "w-[264px]" : "w-11"
@@ -343,7 +219,7 @@ export function DepartmentsPanel() {
             </span>
           </button>
         )}
-      </aside>
+      </aside>}
     </>
   );
 }

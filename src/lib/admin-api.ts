@@ -176,6 +176,84 @@ export async function deleteUser(id: string): Promise<void> {
   await adminFetcher(`/admin/users/${id}`, { method: "DELETE" });
 }
 
+// Staff directory
+export type StaffStatus = "active" | "inactive" | "on_leave";
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  job_title: string;
+  department: string;
+  status: StaffStatus;
+  avatar_url: string | null;
+  joined_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type StaffPayload = Omit<StaffMember, "id" | "created_at" | "updated_at">;
+
+export async function fetchStaff(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: StaffStatus;
+  department?: string;
+}): Promise<{
+  staff: StaffMember[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}> {
+  const qs = new URLSearchParams();
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.limit) qs.set("limit", String(params.limit));
+  if (params?.search) qs.set("search", params.search);
+  if (params?.status) qs.set("status", params.status);
+  if (params?.department) qs.set("department", params.department);
+  const query = qs.toString();
+  const res = await adminFetcher<StaffMember[]>(`/admin/staff${query ? `?${query}` : ""}`);
+  return {
+    staff: res.data || [],
+    meta: res.meta || { total: 0, page: 1, limit: 20, totalPages: 0 },
+  };
+}
+
+export async function createStaff(data: StaffPayload): Promise<StaffMember> {
+  const res = await adminFetcher<StaffMember>("/admin/staff", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  return res.data;
+}
+
+/** Read every API page so search and directory totals include the whole team. */
+export async function fetchAllStaff(): Promise<StaffMember[]> {
+  const members: StaffMember[] = [];
+  let page = 1;
+  let totalPages = 1;
+  do {
+    const result = await fetchStaff({ page, limit: 100 });
+    members.push(...result.staff);
+    totalPages = result.meta.totalPages;
+    page += 1;
+  } while (page <= totalPages);
+  // A concurrent insert can shift page boundaries; keep directory keys unique.
+  return Array.from(new Map(members.map((member) => [member.id, member])).values());
+}
+
+export async function updateStaff(id: string, data: Partial<StaffPayload>): Promise<StaffMember> {
+  const res = await adminFetcher<StaffMember>(`/admin/staff/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+  return res.data;
+}
+
+export async function deleteStaff(id: string): Promise<void> {
+  await adminFetcher(`/admin/staff/${id}`, { method: "DELETE" });
+}
+
 // Reviews
 export interface AdminReview {
   id: string; product_id: string; user_id: string; rating: number; text: string; created_at: string; profiles?: { name: string; avatar_url: string }; products?: { name: string; slug: string };

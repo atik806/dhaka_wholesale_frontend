@@ -3,13 +3,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, PackageSearch } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, PackageSearch, ArrowRight } from "lucide-react";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { Breadcrumbs } from "@/src/components/ui/Breadcrumbs";
 import { Button } from "@/src/components/ui/Button";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 import { ShopSkeleton } from "@/src/components/ui/Skeleton";
-import { useCategory, useProducts } from "@/src/hooks/useApi";
+import { useCategory, useCategoryTree, useProducts } from "@/src/hooks/useApi";
+import { countCategoryProducts, findCategoryInTree } from "@/src/lib/category-tree";
 import type { Category } from "@/src/types/product";
 
 export function CategoryPageClient({ initialCategory }: { initialCategory?: Category | null }) {
@@ -22,10 +24,11 @@ function CategoryPageContent({ categorySlug, initialCategory }: { categorySlug: 
   const [page, setPage] = useState(1);
   const limit = 12;
 
-  const { data: category, isLoading: catLoading } = useCategory(categorySlug, initialCategory);
-  const { data: result, isLoading: prodLoading } = useProducts({ category: categorySlug, page, limit });
+  const { data: category, isLoading: catLoading, error: categoryError, mutate: reloadCategory } = useCategory(categorySlug, initialCategory);
+  const { data: tree = [], isLoading: treeLoading, error: treeError, mutate: reloadTree } = useCategoryTree();
+  const { data: result, isLoading: prodLoading, error: productError, mutate: reloadProducts } = useProducts({ category: categorySlug, page, limit });
 
-  const loading = catLoading || prodLoading;
+  const loading = catLoading;
 
   if (loading) {
     return <ShopSkeleton />;
@@ -36,16 +39,18 @@ function CategoryPageContent({ categorySlug, initialCategory }: { categorySlug: 
       <div className="container py-10">
         <EmptyState
           icon={<PackageSearch className="h-7 w-7 text-subtle" />}
-          title="Category not found"
-          description="The category you're looking for doesn't exist or is no longer available."
-          actionLabel="Back to shop"
-          actionHref="/shop"
+          title={categoryError ? "Could not load this category" : "Category not found"}
+          description={categoryError ? "Please try again in a moment." : "The category you're looking for doesn't exist or is no longer available."}
+          actionLabel={categoryError ? undefined : "Back to shop"}
+          actionHref={categoryError ? undefined : "/shop"}
         />
+        {categoryError && <Button variant="outline" onClick={() => void reloadCategory()}>Try again</Button>}
       </div>
     );
   }
 
   const total = result?.total ?? result?.products.length ?? 0;
+  const children = findCategoryInTree(tree, category.id)?.children ?? [];
 
   return (
     <motion.div
@@ -70,15 +75,48 @@ function CategoryPageContent({ categorySlug, initialCategory }: { categorySlug: 
               {category.description}
             </p>
           )}
-          <p className="mt-2 text-[13px] text-muted">
+          {!productError && !prodLoading && <p className="mt-2 text-[13px] text-muted">
             <span className="tabular font-semibold text-fg">{total}</span>{" "}
             {total === 1 ? "product" : "products"} available
-          </p>
+          </p>}
         </header>
 
-        <ProductGrid products={result?.products || []} />
+        {treeLoading && <div className="shimmer mb-6 h-24 rounded-xl" aria-label="Loading subcategories" role="status" />}
+        {treeError && (
+          <div role="alert" className="mb-6 rounded-xl border border-line bg-surface p-4 text-sm">
+            <p className="text-muted">Could not load subcategories.</p>
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => void reloadTree()}>Try again</Button>
+          </div>
+        )}
+        {children.length > 0 && (
+          <section aria-labelledby="subcategory-heading" className="mb-8">
+            <h2 id="subcategory-heading" className="mb-3 text-lg font-bold text-fg">Shop by subcategory</h2>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {children.map((child) => {
+                const count = countCategoryProducts(child);
+                return (
+                  <Link key={child.id} href={`/shop/${child.slug}`} className="group flex min-h-20 items-center justify-between gap-3 rounded-xl border border-line bg-surface p-4 transition-colors hover:border-accent hover:bg-accent-soft focus-visible:outline-2 focus-visible:outline-accent">
+                    <span>
+                      <span className="block text-sm font-semibold text-fg">{child.name}</span>
+                      <span className="mt-1 block text-xs text-muted">{count} {count === 1 ? "item" : "items"}</span>
+                    </span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-link transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
-        {result && result.totalPages > 1 && (
+        {children.length > 0 && <h2 className="mb-4 text-lg font-bold text-fg">All {category.name}</h2>}
+        {prodLoading ? <ShopSkeleton /> : productError ? (
+          <div role="alert" className="rounded-xl border border-line bg-surface p-6 text-center">
+            <p className="text-muted">Could not load products. Please try again in a moment.</p>
+            <Button variant="outline" className="mt-3" onClick={() => void reloadProducts()}>Try again</Button>
+          </div>
+        ) : <ProductGrid products={result?.products || []} />}
+
+        {!productError && result && result.totalPages > 1 && (
           <nav
             aria-label="Pagination"
             className="mt-10 flex flex-wrap items-center justify-center gap-3"

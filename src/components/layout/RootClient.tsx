@@ -6,6 +6,7 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { CartDrawer } from "./CartDrawer";
 import { DepartmentsPanel } from "./DepartmentsPanel";
+import { OfferPriceSync } from "./OfferPriceSync";
 import { Toaster } from "../ui/Toaster";
 import { ScrollToTop } from "../ui/ScrollToTop";
 import { PageLoader } from "../ui/PageLoader";
@@ -54,6 +55,7 @@ export function RootClient({ children }: { children: React.ReactNode }) {
   return (
     <>
       <PageLoader />
+      {!isAdmin && !isAuthPage && <OfferPriceSync />}
       {!isAdmin && !isAuthPage && <Header />}
       {!isAdmin && !isAuthPage ? (
         <div className="flex-1 flex items-stretch">

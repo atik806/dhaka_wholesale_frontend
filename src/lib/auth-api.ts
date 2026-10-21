@@ -236,6 +236,12 @@ export interface CheckoutQuoteLine {
 
 export interface CheckoutQuote {
   subtotal: number;
+  original_subtotal: number;
+  discount_total: number;
+  combo_discount: number;
+  coupon_discount: number;
+  coupon_code: string | null;
+  applied_combos: { id: string; title: string; quantity: number; discount: number }[];
   shipping_cost: number;
   tax: number;
   total: number;
@@ -262,6 +268,12 @@ export function computeLocalCheckoutQuote(
   const tax = 0;
   return {
     subtotal: Math.round(subtotal * 100) / 100,
+    original_subtotal: Math.round(subtotal * 100) / 100,
+    discount_total: 0,
+    combo_discount: 0,
+    coupon_discount: 0,
+    coupon_code: null,
+    applied_combos: [],
     shipping_cost,
     tax,
     total: Math.round((subtotal + shipping_cost + tax) * 100) / 100,
@@ -287,13 +299,16 @@ export function computeLocalCheckoutQuote(
 export async function fetchCheckoutQuote(
   deliveryZone: DeliveryZone,
   items?: CheckoutQuoteItem[],
+  couponCode?: string,
 ): Promise<CheckoutQuote | null> {
   let res: Response;
   try {
     const body: {
       delivery_zone: DeliveryZone;
       items?: CheckoutQuoteItem[];
+      coupon_code?: string;
     } = { delivery_zone: deliveryZone };
+    if (couponCode?.trim()) body.coupon_code = couponCode.trim().toUpperCase();
 
     if (items && items.length > 0) {
       body.items = items.map((i) => ({
@@ -338,6 +353,12 @@ export async function fetchCheckoutQuote(
 
   return {
     subtotal: Number(data.subtotal) || 0,
+    original_subtotal: Number(data.original_subtotal ?? data.subtotal) || 0,
+    discount_total: Number(data.discount_total) || 0,
+    combo_discount: Number(data.combo_discount) || 0,
+    coupon_discount: Number(data.coupon_discount) || 0,
+    coupon_code: typeof data.coupon_code === "string" ? data.coupon_code : null,
+    applied_combos: Array.isArray(data.applied_combos) ? data.applied_combos : [],
     shipping_cost: Number(data.shipping_cost) || DELIVERY_CHARGES[deliveryZone],
     tax: data.tax == null ? 0 : Number(data.tax) || 0,
     total: Number(data.total) || 0,

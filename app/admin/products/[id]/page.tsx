@@ -17,8 +17,8 @@ function productToFormValues(product: Product, categories: Category[]): Partial<
   return {
     name: product.name,
     description: product.description,
-    price: product.price,
-    original_price: product.originalPrice ?? "",
+    price: product.basePrice ?? product.price,
+    original_price: product.baseOriginalPrice ?? "",
     category_id: cat?.id || "",
     images: product.images?.join(", ") || "",
     stock: product.stock,

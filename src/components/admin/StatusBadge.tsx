@@ -11,12 +11,15 @@ const statusStyles: Record<string, string> = {
   refunded: "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300",
   customer: "bg-zinc-100 dark:bg-zinc-800 text-muted",
   admin: "bg-primary/10 text-link",
+  active: "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300",
+  inactive: "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300",
+  on_leave: "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300",
 };
 
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span className={cn("inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium capitalize", statusStyles[status] || "bg-surface-2 text-muted")}>
-      {status}
+      {status.replaceAll("_", " ")}
     </span>
   );
 }

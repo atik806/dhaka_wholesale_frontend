@@ -12,7 +12,7 @@ export function formatPrice(price: number | null | undefined): string {
   if (price == null || isNaN(price)) return "৳0";
   return `৳${new Intl.NumberFormat("en-BD", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    maximumFractionDigits: 2,
   }).format(price)}`;
 }
 
