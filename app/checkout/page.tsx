@@ -28,6 +28,7 @@ import {
 } from "@/src/lib/auth-api";
 import { formatPrice, safeImage } from "@/src/lib/utils";
 import { createCheckoutKeyStore } from "@/src/lib/order-pricing";
+import { validateShipping } from "@/src/lib/checkout-validation";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -158,16 +159,7 @@ export default function CheckoutPage() {
   const quoteRejected = !!quoteError;
 
   const shippingComplete = useMemo(
-    () =>
-      Boolean(
-        shipping.firstName.trim() &&
-          shipping.lastName.trim() &&
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shipping.email) &&
-          shipping.phone.trim() &&
-          shipping.address.trim() &&
-          shipping.city.trim() &&
-          shipping.zipCode.trim(),
-      ),
+    () => Object.keys(validateShipping(shipping)).length === 0,
     [shipping],
   );
 
@@ -176,15 +168,7 @@ export default function CheckoutPage() {
       setPlaceError("Please wait for confirmed checkout totals or remove the invalid coupon.");
       return;
     }
-    const errs: Record<string, string> = {};
-    if (!shipping.firstName.trim()) errs.firstName = "Required";
-    if (!shipping.lastName.trim()) errs.lastName = "Required";
-    if (!shipping.email.trim()) errs.email = "Required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(shipping.email)) errs.email = "Invalid email";
-    if (!shipping.phone.trim()) errs.phone = "Required";
-    if (!shipping.address.trim()) errs.address = "Required";
-    if (!shipping.city.trim()) errs.city = "Required";
-    if (!shipping.zipCode.trim()) errs.zipCode = "Required";
+    const errs = validateShipping(shipping);
     setErrors(errs);
     if (Object.keys(errs).length > 0) return;
 
