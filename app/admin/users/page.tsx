@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useToast } from "@/src/providers/ToastProvider";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Shield, User, Plus, X } from "lucide-react";
@@ -8,34 +8,59 @@ import { DataTable, type Column } from "@/src/components/admin/DataTable";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { formatDate } from "@/src/lib/utils";
+import { validateStrongPassword } from "@/src/lib/password";
 import { fetchUsers, updateUserRole, deleteUser, createUser, type UserProfile } from "@/src/lib/admin-api";
-import { useRealtimeData } from "@/src/hooks/useRealtimeData";
+
+const PAGE_SIZE = 20;
 
 export default function AdminUsersPage() {
   const { addToast } = useToast();
   const { confirm, dialog } = useConfirm();
   const [search, setSearch] = useState("");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [formError, setFormError] = useState("");
   const [formLoading, setFormLoading] = useState(false);
 
-  const { data: users, loading, error } = useRealtimeData<UserProfile>({
-    table: "profiles",
-    initialFetch: useCallback(async () => {
-      const data = await fetchUsers();
-      return data;
-    }, []),
-  });
+  // Search runs on the server across every account, not just the loaded page.
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setQuery(search);
+      setPage(1);
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [search]);
 
-  const filtered = useMemo(() => {
-    if (!search.trim()) return users;
-    const q = search.toLowerCase();
-    return users.filter(
-      (u) => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
-    );
-  }, [users, search]);
+  useEffect(() => {
+    let active = true;
+    fetchUsers({ page, limit: PAGE_SIZE, search: query })
+      .then(({ users: rows, meta }) => {
+        if (!active) return;
+        setUsers(rows);
+        setTotal(meta.total);
+        setTotalPages(Math.max(1, meta.totalPages));
+        setError(null);
+      })
+      .catch((err) => {
+        if (active) setError(err instanceof Error ? err.message : "Failed to load users");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, [page, query, reloadKey]);
+
+  /** Show the result of an action immediately instead of on the next poll. */
+  const reload = useCallback(() => setReloadKey((key) => key + 1), []);
 
   const handleRoleToggle = useCallback(async (user: UserProfile) => {
     const newRole = user.role === "admin" ? "customer" : "admin";
@@ -49,12 +74,13 @@ export default function AdminUsersPage() {
     try {
       await updateUserRole(user.id, newRole);
       addToast(`User role changed to ${newRole}`, "success");
+      reload();
     } catch (err) {
       addToast(err instanceof Error ? err.message : "Failed to update role", "error");
     } finally {
       setActionLoading(null);
     }
-  }, [confirm, addToast]);
+  }, [confirm, addToast, reload]);
 
   const handleDelete = useCallback(async (user: UserProfile) => {
     const ok = await confirm(
@@ -67,12 +93,13 @@ export default function AdminUsersPage() {
     try {
       await deleteUser(user.id);
       addToast("User deleted", "success");
+      reload();
     } catch (err) {
       addToast(err instanceof Error ? err.message : "Failed to delete user", "error");
     } finally {
       setActionLoading(null);
     }
-  }, [confirm, addToast]);
+  }, [confirm, addToast, reload]);
 
   const columns: Column<UserProfile>[] = useMemo(() => [
     {
@@ -143,8 +170,11 @@ export default function AdminUsersPage() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-danger-soft border border-red-200 dark:border-red-900/50 rounded-2xl px-6 py-4 text-red-700 dark:text-red-400">
-          {error}
+        <div className="flex items-center justify-between gap-4 bg-danger-soft border border-red-200 dark:border-red-900/50 rounded-2xl px-6 py-4 text-red-700 dark:text-red-400">
+          <span>{error}</span>
+          <button type="button" onClick={reload} className="text-sm font-semibold underline">
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -157,7 +187,7 @@ export default function AdminUsersPage() {
           <div>
             <h1 className="font-serif text-2xl font-bold">Users</h1>
             <p className="text-sm text-muted mt-1">
-              Manage customer and admin accounts &mdash; <span className="text-link font-medium">{users.length}</span> total
+              Manage customer and admin accounts &mdash; <span className="text-link font-medium">{total}</span> {query.trim() ? "matching" : "total"}
             </p>
           </div>
           <button
@@ -193,12 +223,20 @@ export default function AdminUsersPage() {
                 </div>
                 <form onSubmit={async (e) => {
                   e.preventDefault();
+                  const passwordError = validateStrongPassword(form.password);
+                  if (passwordError) {
+                    setFormError(passwordError);
+                    return;
+                  }
                   setFormError("");
                   setFormLoading(true);
                   try {
-                    await createUser(form);
+                    // Without an explicit role the API creates a customer.
+                    await createUser({ ...form, role: "admin" });
                     setShowModal(false);
                     setForm({ name: "", email: "", password: "" });
+                    addToast(`Admin account created for ${form.email}`, "success");
+                    reload();
                   } catch (err) {
                     const msg = err instanceof Error ? err.message : "Failed to create user";
                     setFormError(msg.includes("Internal server error") ? "Server error — check backend logs for details" : msg);
@@ -234,11 +272,16 @@ export default function AdminUsersPage() {
                       type="password"
                       value={form.password}
                       onChange={(e) => setForm({ ...form, password: e.target.value })}
-                      placeholder="Min 6 characters"
+                      placeholder="8+ characters"
+                      aria-describedby="new-admin-password-hint"
                       required
-                      minLength={6}
+                      minLength={8}
+                      maxLength={100}
                       className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                     />
+                    <p id="new-admin-password-hint" className="text-xs text-muted mt-1">
+                      At least 8 characters with uppercase, lowercase, a number and a symbol.
+                    </p>
                   </div>
                   {formError && (
                     <p className="text-sm text-danger bg-danger-soft rounded-xl px-4 py-2">{formError}</p>
@@ -268,11 +311,12 @@ export default function AdminUsersPage() {
 
       <DataTable<UserProfile>
         columns={columns}
-        data={filtered}
+        data={users}
         keyExtractor={(u) => u.id}
         searchable
         searchValue={search}
         onSearchChange={setSearch}
+        pagination={{ page, totalPages, onPageChange: setPage }}
         loading={loading}
         mobileCard={(user) => (
           <div className="flex items-start justify-between gap-3">

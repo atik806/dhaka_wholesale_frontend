@@ -147,9 +147,20 @@ export async function deleteOrder(id: string): Promise<void> {
 export interface UserProfile {
   id: string; name: string; email: string; phone?: string; avatar_url?: string; role: string; created_at: string;
 }
-export async function fetchUsers(): Promise<UserProfile[]> {
-  const res = await adminFetcher<UserProfile[]>("/admin/users");
-  return res.data || [];
+export async function fetchUsers(params: { page?: number; limit?: number; search?: string } = {}): Promise<{
+  users: UserProfile[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}> {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.search?.trim()) query.set("search", params.search.trim());
+  const res = await adminFetcher<UserProfile[]>(`/admin/users${query.size ? `?${query}` : ""}`);
+  const users = res.data || [];
+  return {
+    users,
+    meta: res.meta ?? { total: users.length, page: 1, limit: users.length, totalPages: 1 },
+  };
 }
 export async function updateUserRole(id: string, role: string): Promise<UserProfile> {
   const res = await adminFetcher<UserProfile>(`/admin/users/${id}/role`, {
