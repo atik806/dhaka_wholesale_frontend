@@ -7,7 +7,7 @@ import { OfferProductPicker } from "./OfferProductPicker";
 import { useConfirm } from "./ConfirmDialog";
 import { adminFetcher } from "@/src/lib/admin-api";
 import { fetchProducts } from "@/src/lib/api";
-import { dhakaInputToIso, getOfferStatus, toDhakaInputValue, type ComboDeal, type Coupon, type PromotionConfig } from "@/src/lib/offers";
+import { dhakaInputToIso, getOfferStatus, promotionSaveRequest, toDhakaInputValue, type ComboDeal, type Coupon, type PromotionConfig } from "@/src/lib/offers";
 import { formatPrice } from "@/src/lib/utils";
 import { useToast } from "@/src/providers/ToastProvider";
 import type { Product } from "@/src/types/product";
@@ -71,12 +71,16 @@ export function PromotionsManager({ kind, config, onUpdate }: {
     const end = new Date(start.getTime() + 7 * 86_400_000);
     const window = { id: crypto.randomUUID(), enabled: true, starts_at: start.toISOString(), ends_at: end.toISOString() };
     if (kind === "combos") { setCombo(value ? value as ComboDeal : { ...window, title: "", price: 0, products: [] }); setCoupon(null); }
-    else { setCoupon(value ? value as Coupon : { ...window, code: "", type: "percentage", value: 10, minimum_spend: 0, maximum_discount: null }); setCombo(null); setNewCoupon(!value); }
+    else { setCoupon(value ? value as Coupon : { ...window, code: "", type: "percentage", value: 10, minimum_spend: 0, maximum_discount: null, max_redemptions: null, per_customer_limit: null }); setCombo(null); setNewCoupon(!value); }
     setStarts(toDhakaInputValue(value?.starts_at ?? window.starts_at));
     setEnds(toDhakaInputValue(value?.ends_at ?? window.ends_at));
     setFormError("");
   };
   const close = () => { if (!saving) { setCombo(null); setCoupon(null); setPickerOpen(false); } };
+  const put = (value: ComboDeal | Coupon) => {
+    const { body, version } = promotionSaveRequest(value);
+    return adminFetcher(`/offers/${kind}`, { method: "PUT", headers: { "X-Expected-Version": version }, body: JSON.stringify(body) });
+  };
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!editor) return;
@@ -86,7 +90,7 @@ export function PromotionsManager({ kind, config, onUpdate }: {
     if (combo && combo.products.length < 2) { setFormError("Add at least two different products to the combo."); return; }
     setSaving(true); setFormError("");
     try {
-      await adminFetcher(`/offers/${kind}`, { method: "PUT", body: JSON.stringify({ ...editor, starts_at: startsAt, ends_at: endsAt }) });
+      await put({ ...editor, starts_at: startsAt, ends_at: endsAt });
       await onUpdate();
       setCombo(null); setCoupon(null);
       addToast(combo ? "Combo deal saved" : "Coupon saved", "success");
@@ -95,7 +99,7 @@ export function PromotionsManager({ kind, config, onUpdate }: {
   };
   const toggle = async (value: ComboDeal | Coupon) => {
     setSaving(true);
-    try { await adminFetcher(`/offers/${kind}`, { method: "PUT", body: JSON.stringify({ ...value, enabled: !value.enabled }) }); await onUpdate(); addToast(value.enabled ? "Promotion paused" : "Promotion activated", "success"); }
+    try { await put({ ...value, enabled: !value.enabled }); await onUpdate(); addToast(value.enabled ? "Promotion paused" : "Promotion activated", "success"); }
     catch (error) { addToast(error instanceof Error ? error.message : "Failed to update promotion", "error"); }
     finally { setSaving(false); }
   };
@@ -121,7 +125,7 @@ export function PromotionsManager({ kind, config, onUpdate }: {
           const status = getOfferStatus(value, now);
           return <div key={value.id} className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-start">
             <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-2"><h3 className="font-semibold">{"title" in value ? value.title : <span className="font-mono">{value.code}</span>}</h3><span className={`rounded-full px-2 py-1 text-xs font-bold ${status === "live" ? "bg-success-soft text-success" : "bg-surface-2 text-muted"}`}>{!value.enabled ? "Paused" : status === "live" ? "Live" : status === "scheduled" ? "Scheduled" : "Ended"}</span></div>
-              {"products" in value ? <><p className="mt-2 text-sm font-semibold">Bundle price: {formatPrice(value.price)}</p><ul className="mt-1 space-y-1 text-xs text-muted">{value.products.map((line) => <li key={line.product_id}>{line.quantity} × {products[line.product_id]?.name ?? (productError ? "Product unavailable" : "Loading product…")}</li>)}</ul></> : <p className="mt-2 text-sm text-muted">{value.type === "percentage" ? `${value.value}% off` : `${formatPrice(value.value)} off`} · Min. spend {formatPrice(value.minimum_spend)}{value.maximum_discount !== null ? ` · Max. discount ${formatPrice(value.maximum_discount)}` : ""}</p>}
+              {"products" in value ? <><p className="mt-2 text-sm font-semibold">Bundle price: {formatPrice(value.price)}</p><ul className="mt-1 space-y-1 text-xs text-muted">{value.products.map((line) => <li key={line.product_id}>{line.quantity} × {products[line.product_id]?.name ?? (productError ? "Product unavailable" : "Loading product…")}</li>)}</ul></> : <><p className="mt-2 text-sm text-muted">{value.type === "percentage" ? `${value.value}% off` : `${formatPrice(value.value)} off`} · Min. spend {formatPrice(value.minimum_spend)}{value.maximum_discount !== null ? ` · Max. discount ${formatPrice(value.maximum_discount)}` : ""}</p><p className="mt-1 text-xs text-muted">Used {value.redemptions ?? 0}{value.max_redemptions ? ` of ${value.max_redemptions}` : ""} time{(value.redemptions ?? 0) === 1 ? "" : "s"}{value.per_customer_limit ? ` · ${value.per_customer_limit} per customer` : " · no per-customer limit"}</p></>}
               <p className="mt-2 text-xs text-muted">{toDhakaInputValue(value.starts_at).replace("T", " ")} — {toDhakaInputValue(value.ends_at).replace("T", " ")} (Dhaka)</p>
             </div>
             <div className="flex flex-wrap gap-2"><Button size="sm" variant="outline" disabled={saving} onClick={() => void toggle(value)}>{value.enabled ? "Pause" : "Activate"}</Button><Button size="sm" variant="outline" disabled={saving} onClick={() => open(value)}><Edit className="h-3.5 w-3.5" />Edit</Button><Button size="sm" variant="ghost" disabled={saving} onClick={() => void remove(value)} aria-label={`Delete ${"title" in value ? value.title : value.code}`}><Trash2 className="h-4 w-4 text-danger" /></Button></div>
@@ -144,7 +148,8 @@ export function PromotionsManager({ kind, config, onUpdate }: {
                 <label className="block text-sm font-semibold">Coupon code<input required readOnly={!newCoupon} pattern="[A-Za-z0-9_-]{3,40}" maxLength={40} value={coupon.code} onChange={(event) => setCoupon({ ...coupon, code: event.target.value.toUpperCase() })} className={`${inputClass} mt-1.5 font-mono`} placeholder="e.g. WELCOME10" /><span className="mt-1 block text-xs font-normal text-muted">Share this code with customers. Codes cannot be renamed after creation.</span></label>
                 <div className="grid grid-cols-2 gap-4"><label className="block text-sm font-semibold">Discount type<select value={coupon.type} onChange={(event) => setCoupon({ ...coupon, type: event.target.value as Coupon["type"] })} className={`${inputClass} mt-1.5`}><option value="percentage">Percentage (%)</option><option value="fixed">Fixed amount (৳)</option></select></label><label className="block text-sm font-semibold">Discount value<input type="number" min="0.01" step="0.01" max={coupon.type === "percentage" ? 100 : 1000000} required value={coupon.value || ""} onChange={(event) => setCoupon({ ...coupon, value: Number(event.target.value) })} className={`${inputClass} mt-1.5`} /></label></div>
                 <div className="grid grid-cols-2 gap-4"><label className="block text-sm font-semibold">Minimum spend (৳)<input type="number" min={0} max={1000000} step="0.01" required value={coupon.minimum_spend} onChange={(event) => setCoupon({ ...coupon, minimum_spend: Number(event.target.value) })} className={`${inputClass} mt-1.5`} /></label><label className="block text-sm font-semibold">Discount cap (৳)<input type="number" min="0.01" max={1000000} step="0.01" value={coupon.maximum_discount ?? ""} onChange={(event) => setCoupon({ ...coupon, maximum_discount: event.target.value ? Number(event.target.value) : null })} className={`${inputClass} mt-1.5`} placeholder="No cap" /></label></div>
-                <p className="text-xs text-muted">Coupons are reusable. One code per order. Minimum spend and coupon discounts are calculated after combo discounts, excluding shipping.</p>
+                <div className="grid grid-cols-2 gap-4"><label className="block text-sm font-semibold">Total uses<input type="number" min={1} max={1000000} step={1} value={coupon.max_redemptions ?? ""} onChange={(event) => setCoupon({ ...coupon, max_redemptions: event.target.value ? Number(event.target.value) : null })} className={`${inputClass} mt-1.5`} placeholder="Unlimited" /></label><label className="block text-sm font-semibold">Uses per customer<input type="number" min={1} max={1000} step={1} value={coupon.per_customer_limit ?? ""} onChange={(event) => setCoupon({ ...coupon, per_customer_limit: event.target.value ? Number(event.target.value) : null })} className={`${inputClass} mt-1.5`} placeholder="Unlimited" /></label></div>
+                <p className="text-xs text-muted">One code per order. Cancelled orders do not count as uses. Minimum spend and coupon discounts are calculated after combo discounts, excluding shipping.</p>
               </>}
               <div className="grid gap-4 sm:grid-cols-2"><label className="block text-sm font-semibold">Starts (Dhaka)<input type="datetime-local" required value={starts} onChange={(event) => setStarts(event.target.value)} className={`${inputClass} mt-1.5`} /></label><label className="block text-sm font-semibold">Ends (Dhaka)<input type="datetime-local" required value={ends} onChange={(event) => setEnds(event.target.value)} className={`${inputClass} mt-1.5`} /></label></div>
               <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={editor.enabled} onChange={(event) => { if (combo) setCombo({ ...combo, enabled: event.target.checked }); else if (coupon) setCoupon({ ...coupon, enabled: event.target.checked }); }} className="h-4 w-4 accent-accent" />Active during these dates</label>

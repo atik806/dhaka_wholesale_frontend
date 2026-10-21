@@ -16,6 +16,8 @@ export interface ComboDeal {
   ends_at: string;
   price: number;
   products: { product_id: string; quantity: number }[];
+  /** Version from the admin listing; absent until saved. */
+  updated_at?: string;
 }
 
 export interface Coupon {
@@ -28,9 +30,29 @@ export interface Coupon {
   value: number;
   minimum_spend: number;
   maximum_discount: number | null;
+  /** Total uses allowed across all customers; null = unlimited. */
+  max_redemptions: number | null;
+  /** Uses allowed per customer; null = unlimited. */
+  per_customer_limit: number | null;
+  /** Orders (not cancelled) that used the code, from the admin listing. */
+  redemptions?: number;
+  updated_at?: string;
 }
 
 export interface PromotionConfig { combos: ComboDeal[]; coupons: Coupon[] }
+
+/**
+ * Body and X-Expected-Version header for saving a promotion. The listing's
+ * updated_at/redemptions are not part of the promotion; the version tells
+ * the server which copy this edit started from ("new" when creating), so a
+ * concurrent edit by another admin is rejected instead of overwritten.
+ */
+export function promotionSaveRequest<T extends ComboDeal | Coupon>(value: T) {
+  const { updated_at, ...rest } = value;
+  const body = { ...rest } as Record<string, unknown>;
+  delete body.redemptions;
+  return { body, version: updated_at ?? "new" };
+}
 
 export interface OfferWindow {
   enabled?: boolean;
