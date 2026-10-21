@@ -127,18 +127,21 @@ export default function AdminStaffPage() {
   const [page, setPage] = useState(1);
   const modalRef = useRef<HTMLDivElement>(null);
   const savingRef = useRef(saving);
-  savingRef.current = saving;
+  useEffect(() => {
+    savingRef.current = saving;
+  }, [saving]);
 
-  const loadStaff = useCallback(async (showLoader = false) => {
-    if (showLoader) setLoading(true);
+  // State is only set after the request settles, so this is safe to start
+  // from an effect. Callers that want a spinner set `loading` first.
+  const loadStaff = useCallback(async () => {
     try {
-      setError("");
       const result = await fetchAllStaff();
       setStaff(result);
+      setError("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load staff");
     } finally {
-      if (showLoader) setLoading(false);
+      setLoading(false);
     }
   }, []);
 
@@ -181,9 +184,12 @@ export default function AdminStaffPage() {
   }, [modalOpen]);
 
   useEffect(() => {
-    void loadStaff(true);
+    const first = window.setTimeout(() => void loadStaff(), 0);
     const poll = window.setInterval(() => void loadStaff(), 30_000);
-    return () => window.clearInterval(poll);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(poll);
+    };
   }, [loadStaff]);
 
   useEffect(() => {
@@ -418,7 +424,10 @@ export default function AdminStaffPage() {
               <Icon className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-xl sm:text-2xl font-bold text-fg">{value}</p>
+              {/* Don't present 0 as a real count while nothing has loaded. */}
+              <p className="text-xl sm:text-2xl font-bold text-fg">
+                {loading || (error && staff.length === 0) ? "—" : value}
+              </p>
               <p className="text-xs sm:text-sm text-muted truncate">{label}</p>
             </div>
           </motion.div>
@@ -478,7 +487,10 @@ export default function AdminStaffPage() {
           <div className="m-4 bg-danger-soft border border-red-200 dark:border-red-900/50 rounded-xl px-4 py-3 text-sm text-danger flex items-center justify-between gap-3">
             <span>{error}</span>
             <button
-              onClick={() => void loadStaff(true)}
+              onClick={() => {
+                setLoading(true);
+                void loadStaff();
+              }}
               className="font-semibold underline underline-offset-2"
             >
               Retry
