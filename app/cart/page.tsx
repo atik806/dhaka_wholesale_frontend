@@ -55,7 +55,7 @@ export default function CartPage() {
     items
       .map(
         (i) =>
-          `${i.product.id}:${i.quantity}:${i.selectedSize ?? ""}:${i.selectedColor ?? ""}`,
+          `${i.product.id}:${i.quantity}:${i.product.price}:${i.selectedSize ?? ""}:${i.selectedColor ?? ""}`,
       )
       .join("|"),
   ].join(":");
@@ -77,7 +77,7 @@ export default function CartPage() {
       quantity: i.quantity,
     }));
 
-    const timer = window.setTimeout(() => {
+    const loadQuote = () => {
       fetchCheckoutQuote(deliveryZone, quoteItems)
         .then((serverQuote) => {
           if (!active) return;
@@ -97,11 +97,14 @@ export default function CartPage() {
           );
           setQuoteLoading(false);
         });
-    }, 250);
+    };
+    const timer = window.setTimeout(loadQuote, 250);
+    const refresh = window.setInterval(loadQuote, 15_000);
 
     return () => {
       active = false;
       window.clearTimeout(timer);
+      window.clearInterval(refresh);
     };
   }, [items, deliveryZone, localQuote, authHydrated, isLoggedIn]);
 
@@ -334,9 +337,11 @@ export default function CartPage() {
                     <div className="flex justify-between gap-3">
                       <dt className="text-muted">Subtotal</dt>
                       <dd className="tabular font-semibold text-fg shrink-0">
-                        {fp(orderSummary.subtotal)}
+                        {fp(orderSummary.original_subtotal)}
                       </dd>
                     </div>
+                    {orderSummary.combo_discount > 0 && <div className="flex justify-between gap-3 text-success"><dt>Combo savings</dt><dd className="font-semibold">−{fp(orderSummary.combo_discount)}</dd></div>}
+                    {orderSummary.applied_combos.map((combo) => <div key={combo.id} className="text-xs text-muted">{combo.title} × {combo.quantity}</div>)}
                     <div className="flex justify-between gap-3">
                       <dt className="text-muted flex items-center gap-1.5 min-w-0">
                         <Truck className="w-4 h-4 text-subtle shrink-0" />

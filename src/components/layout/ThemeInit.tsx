@@ -1,21 +1,5 @@
-"use client";
-
-import { useEffect } from "react";
+import { THEME_INIT_SCRIPT } from "@/src/lib/theme";
 
 export function ThemeInit() {
-  useEffect(() => {
-    try {
-      const t = localStorage.getItem("theme");
-      if (
-        t === "dark" ||
-        (!t && window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        document.documentElement.classList.add("dark");
-      } else if (t === "light") {
-        document.documentElement.classList.remove("dark");
-      }
-    } catch {}
-  }, []);
-
-  return null;
+  return <script id="theme-init" dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />;
 }

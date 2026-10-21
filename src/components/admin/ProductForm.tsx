@@ -5,6 +5,7 @@ import { Save, Loader2 } from "lucide-react";
 import type { Category } from "@/src/types/product";
 import { Button } from "@/src/components/ui/Button";
 import { ImageUpload } from "@/src/components/admin/ImageUpload";
+import { STOCK_STATUS_LABELS, parseStockQuantity, stockStatusFor } from "@/src/lib/inventory";
 
 export interface ProductFormValues {
   name: string;
@@ -13,7 +14,8 @@ export interface ProductFormValues {
   original_price: number | "";
   category_id: string;
   images: string;
-  stock: string;
+  /** Exact units on hand; the In/Low/Out label is derived from it. */
+  stock_quantity: number | "";
   tags: string;
   sizes: string;
   colors: string;
@@ -37,7 +39,7 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
     original_price: initialValues?.original_price ?? "",
     category_id: initialValues?.category_id ?? "",
     images: initialValues?.images ?? "",
-    stock: initialValues?.stock ?? "in-stock",
+    stock_quantity: initialValues?.stock_quantity ?? "",
     tags: initialValues?.tags ?? "",
     sizes: initialValues?.sizes ?? "",
     colors: initialValues?.colors ?? "",
@@ -53,6 +55,8 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
     else if (form.description.trim().length < 10) errs.description = "Description must be at least 10 characters";
     if (form.price === "" || Number(form.price) <= 0) errs.price = "Price must be greater than 0";
     if (!form.category_id) errs.category_id = "Category is required";
+    const quantity = parseStockQuantity(form.stock_quantity);
+    if (typeof quantity === "string") errs.stock_quantity = quantity;
     const parsedImages = form.images.split(",").map((s) => s.trim()).filter(Boolean);
     if (parsedImages.length === 0) errs.images = "At least one product image is required";
     setErrors(errs);
@@ -130,16 +134,28 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
           {errors.category_id && <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>}
         </div>
         <div>
-          <label className={labelClass}>Stock</label>
-          <select
-            value={form.stock}
-            onChange={(e) => update("stock", e.target.value)}
-            className={inputClass("stock")}
-          >
-            <option value="in-stock">In Stock</option>
-            <option value="low-stock">Low Stock</option>
-            <option value="out-of-stock">Out of Stock</option>
-          </select>
+          <label htmlFor="stock_quantity" className={labelClass}>Units in stock *</label>
+          <input
+            id="stock_quantity"
+            type="number"
+            step="1"
+            min="0"
+            inputMode="numeric"
+            value={form.stock_quantity}
+            onChange={(e) => update("stock_quantity", e.target.value === "" ? "" : Number(e.target.value))}
+            placeholder="0"
+            aria-describedby="stock_quantity_hint"
+            className={inputClass("stock_quantity")}
+          />
+          {errors.stock_quantity ? (
+            <p className="text-xs text-red-500 mt-1">{errors.stock_quantity}</p>
+          ) : (
+            <p id="stock_quantity_hint" className="text-xs text-muted mt-1">
+              {typeof parseStockQuantity(form.stock_quantity) === "number"
+                ? `Shown to customers as: ${STOCK_STATUS_LABELS[stockStatusFor(Number(form.stock_quantity))]}`
+                : "Orders reduce this count automatically; cancellations add it back."}
+            </p>
+          )}
         </div>
       </div>
 

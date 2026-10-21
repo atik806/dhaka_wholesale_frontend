@@ -27,6 +27,7 @@ import { CartNavButton } from "./CartNavButton";
 import { FloatingCartButton } from "./FloatingCartButton";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { useTheme } from "@/src/providers/ThemeProvider";
+import { useDepartmentsStore } from "@/src/store/useDepartmentsStore";
 import type { Product } from "@/src/types/product";
 
 /** The header bar stays dark in both themes, so its own hover/label styles are local. */
@@ -55,6 +56,8 @@ export const Header = memo(function Header() {
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { theme, toggleTheme } = useTheme();
+  const openDepartments = useDepartmentsStore((state) => state.openDepartments);
+  const categoriesOpen = useDepartmentsStore((state) => state.open);
   const router = useRouter();
   const authHydrated = useAuthHydrated();
   const isLoggedIn = useIsLoggedIn();
@@ -249,6 +252,7 @@ export const Header = memo(function Header() {
                         if (hasChildren) {
                           return (
                             <optgroup key={parent.id} label={parent.name}>
+                              <option value={parent.slug}>All {parent.name}</option>
                               {parent.children!.map((child) => (
                                 <option key={child.id} value={child.slug}>
                                   {child.name}
@@ -458,6 +462,17 @@ export const Header = memo(function Header() {
         {/* Secondary bar — categories live in the persistent left sidebar */}
         <div className="bg-brand border-t border-white/5 shadow-inner shadow-black/5">
           <div className="px-3 lg:px-4 flex items-center min-h-[38px] gap-1 overflow-x-auto scrollbar-none">
+            <button
+              type="button"
+              onClick={openDepartments}
+              aria-label="Open categories"
+              aria-expanded={categoriesOpen}
+              aria-controls="mobile-categories-panel"
+              className={`lg:hidden flex shrink-0 items-center gap-1.5 px-2.5 py-2 text-[13px] font-semibold text-white ${navItem}`}
+            >
+              <Menu className="h-4 w-4" aria-hidden="true" />
+              Categories
+            </button>
             {secondaryLinks.map((link) => (
               <Link
                 key={link.href + link.label}

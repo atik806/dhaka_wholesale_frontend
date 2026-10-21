@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Plus, Pencil, Trash2, Loader2, ChevronRight, ChevronDown } from "lucide-react";
 import Image from "next/image";
+import { useSWRConfig } from "swr";
 import { fetchCategoryTree } from "@/src/lib/api";
 import { CategoryForm, type CategoryFormData } from "@/src/components/admin/CategoryForm";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
@@ -21,6 +22,7 @@ interface CategoryItem {
 }
 
 export default function CategoriesPage() {
+  const { mutate } = useSWRConfig();
   const { confirm, dialog } = useConfirm();
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -33,9 +35,17 @@ export default function CategoriesPage() {
 
   const load = async (showSpinner = false) => {
     if (showSpinner) setLoading(true);
+    setError("");
     try {
       const tree = await fetchCategoryTree();
       setCategories(tree);
+      // Keep customer menus and parent pages aligned with admin edits.
+      await mutate("/categories?tree=true", tree, { revalidate: false });
+      await mutate(
+        (key) => typeof key === "string" && (key === "/categories" || key.startsWith("/categories/") || key.startsWith("/products?")),
+        undefined,
+        { revalidate: true },
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load categories");
     } finally {

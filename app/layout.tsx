@@ -81,15 +81,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${fraunces.variable} ${workSans.variable} ${ibmPlexMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        <ThemeInit />
+      </head>
       <body className="min-h-dvh flex flex-col bg-canvas text-fg font-sans antialiased">
         {API_ORIGIN && <link rel="preconnect" href={API_ORIGIN} crossOrigin="anonymous" />}
         {SUPABASE_ORIGIN && (
           <link rel="preconnect" href={SUPABASE_ORIGIN} crossOrigin="anonymous" />
         )}
-        <ThemeInit />
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2.5 focus:bg-accent focus:text-accent-fg focus:font-semibold focus:rounded-md focus:text-sm focus:shadow-lg"

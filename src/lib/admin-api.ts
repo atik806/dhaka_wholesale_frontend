@@ -1,5 +1,6 @@
 import { API_BASE } from "./constants";
 import { refreshSession } from "./auth-api";
+import type { OrderPricingSnapshot } from "./order-pricing";
 
 interface ApiResponse<T> {
   success: boolean;
@@ -107,7 +108,7 @@ export async function fetchDashboard(params?: { from?: string; to?: string }): P
 export interface OrderItem {
   id: string; product_id: string; product_name: string; product_image: string; price: number; quantity: number; selected_size?: string; selected_color?: string;
 }
-export interface Order {
+export interface Order extends OrderPricingSnapshot {
   id: string; user_id: string; status: string; subtotal: number; shipping_cost: number; tax: number; total: number; shipping_address: Record<string,string>; payment_method: string; payment_status: string; created_at: string; order_items?: OrderItem[]; profiles?: { name: string; email: string };
 }
 export async function fetchOrders(params?: { page?: number; limit?: number; status?: string; search?: string }): Promise<{ orders: Order[]; meta: { total: number; page: number; limit: number; totalPages: number } }> {
@@ -146,9 +147,20 @@ export async function deleteOrder(id: string): Promise<void> {
 export interface UserProfile {
   id: string; name: string; email: string; phone?: string; avatar_url?: string; role: string; created_at: string;
 }
-export async function fetchUsers(): Promise<UserProfile[]> {
-  const res = await adminFetcher<UserProfile[]>("/admin/users");
-  return res.data || [];
+export async function fetchUsers(params: { page?: number; limit?: number; search?: string } = {}): Promise<{
+  users: UserProfile[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}> {
+  const query = new URLSearchParams();
+  if (params.page) query.set("page", String(params.page));
+  if (params.limit) query.set("limit", String(params.limit));
+  if (params.search?.trim()) query.set("search", params.search.trim());
+  const res = await adminFetcher<UserProfile[]>(`/admin/users${query.size ? `?${query}` : ""}`);
+  const users = res.data || [];
+  return {
+    users,
+    meta: res.meta ?? { total: users.length, page: 1, limit: users.length, totalPages: 1 },
+  };
 }
 export async function updateUserRole(id: string, role: string): Promise<UserProfile> {
   const res = await adminFetcher<UserProfile>(`/admin/users/${id}/role`, {
@@ -174,6 +186,84 @@ export async function createUser(data: { name: string; email: string; password: 
 
 export async function deleteUser(id: string): Promise<void> {
   await adminFetcher(`/admin/users/${id}`, { method: "DELETE" });
+}
+
+// Staff directory
+export type StaffStatus = "active" | "inactive" | "on_leave";
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  job_title: string;
+  department: string;
+  status: StaffStatus;
+  avatar_url: string | null;
+  joined_at: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type StaffPayload = Omit<StaffMember, "id" | "created_at" | "updated_at">;
+
+export async function fetchStaff(params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: StaffStatus;
+  department?: string;
+}): Promise<{
+  staff: StaffMember[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}> {
+  const qs = new URLSearchParams();
+  if (params?.page) qs.set("page", String(params.page));
+  if (params?.limit) qs.set("limit", String(params.limit));
+  if (params?.search) qs.set("search", params.search);
+  if (params?.status) qs.set("status", params.status);
+  if (params?.department) qs.set("department", params.department);
+  const query = qs.toString();
+  const res = await adminFetcher<StaffMember[]>(`/admin/staff${query ? `?${query}` : ""}`);
+  return {
+    staff: res.data || [],
+    meta: res.meta || { total: 0, page: 1, limit: 20, totalPages: 0 },
+  };
+}
+
+export async function createStaff(data: StaffPayload): Promise<StaffMember> {
+  const res = await adminFetcher<StaffMember>("/admin/staff", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+  return res.data;
+}
+
+/** Read every API page so search and directory totals include the whole team. */
+export async function fetchAllStaff(): Promise<StaffMember[]> {
+  const members: StaffMember[] = [];
+  let page = 1;
+  let totalPages = 1;
+  do {
+    const result = await fetchStaff({ page, limit: 100 });
+    members.push(...result.staff);
+    totalPages = result.meta.totalPages;
+    page += 1;
+  } while (page <= totalPages);
+  // A concurrent insert can shift page boundaries; keep directory keys unique.
+  return Array.from(new Map(members.map((member) => [member.id, member])).values());
+}
+
+export async function updateStaff(id: string, data: Partial<StaffPayload>): Promise<StaffMember> {
+  const res = await adminFetcher<StaffMember>(`/admin/staff/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+  return res.data;
+}
+
+export async function deleteStaff(id: string): Promise<void> {
+  await adminFetcher(`/admin/staff/${id}`, { method: "DELETE" });
 }
 
 // Reviews

@@ -9,6 +9,7 @@ import { useAuthStore } from "@/src/store/useAuthStore";
 import { useToast } from "@/src/providers/ToastProvider";
 import { Button, buttonClasses } from "@/src/components/ui/Button";
 import { Card } from "@/src/components/ui/Card";
+import { Badge } from "@/src/components/ui/Badge";
 import { Textarea } from "@/src/components/ui/Field";
 import { cn, formatDate } from "@/src/lib/utils";
 
@@ -188,7 +189,14 @@ function ReviewCard({ review }: { review: Review }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex items-center justify-between gap-3">
-            <p className="truncate text-sm font-semibold text-fg">{name}</p>
+            <div className="flex min-w-0 items-center gap-2">
+              <p className="truncate text-sm font-semibold text-fg">{name}</p>
+              {review.profiles?.avatar_url?.startsWith("demo-review://") && (
+                <Badge variant="neutral" className="shrink-0 px-1.5 py-0 text-[9px] leading-4">
+                  Sample review
+                </Badge>
+              )}
+            </div>
             <time className="tabular shrink-0 text-xs text-subtle">
               {formatDate(review.created_at)}
             </time>

@@ -1,4 +1,5 @@
 import type { Product, Category } from '@/src/types/product';
+import type { FlashSale } from './offers';
 
 import { API_BASE } from './constants';
 import { authFetch } from './auth-api';
@@ -15,6 +16,8 @@ export interface BackendProduct {
   name: string;
   description?: string;
   price: number;
+  base_price?: number;
+  base_original_price?: number | null;
   original_price: number | null;
   category_id: string;
   images: string[];
@@ -51,6 +54,8 @@ export function mapProduct(p: BackendProduct): Product {
     name: p.name,
     category: p.categories?.name ?? 'Uncategorized',
     price: p.price,
+    basePrice: p.base_price ?? p.price,
+    baseOriginalPrice: p.base_original_price !== undefined ? p.base_original_price : p.original_price,
     originalPrice: p.original_price ?? undefined,
     images: p.images ?? [],
     rating: p.rating ?? 0,
@@ -100,6 +105,7 @@ function isNotFound(err: unknown): boolean {
 }
 
 export interface ProductQueryParams {
+  onSale?: boolean;
   search?: string;
   category?: string;
   /** Multi-category selection (slugs). Takes precedence over `category`. */
@@ -123,6 +129,7 @@ export interface ProductListResult {
 
 export async function fetchProducts(params: ProductQueryParams = {}, signal?: AbortSignal): Promise<ProductListResult> {
   const qs = new URLSearchParams();
+  if (params.onSale) qs.set('onSale', 'true');
   if (params.search) qs.set('search', params.search);
   if (params.categories && params.categories.length > 0) {
     params.categories.forEach((cat) => qs.append('categories', cat));
@@ -248,16 +255,21 @@ export interface PromoBannerData {
   button_text?: string;
   button_link?: string;
   enabled?: boolean;
+  starts_at?: string;
+  ends_at?: string;
+}
+
+export async function fetchFlashSale(signal?: AbortSignal): Promise<FlashSale | null> {
+  const response = await fetcher<FlashSale | null>('/offers', signal);
+  return response.data;
 }
 
 export async function fetchPromoBanner(signal?: AbortSignal): Promise<PromoBannerData | null> {
-  try {
-    const res = await fetch(`${API_BASE}/site-settings/promo_banner`, { signal });
-    if (!res.ok) return null;
-    return (await res.json()) as PromoBannerData;
-  } catch {
-    return null;
-  }
+  const res = await fetch(`${API_BASE}/site-settings/promo_banner`, { signal, cache: 'no-store' });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('Failed to load promo banner');
+  const json = await res.json();
+  return json.data ?? json;
 }
 
 export async function fetchRecentReviews(signal?: AbortSignal): Promise<RecentReview[]> {

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, Star, Mail, LogOut,
-  PanelRightClose, PanelRightOpen, Sun, Moon, X, Bug, Settings, Tag, ShieldCheck,
+  PanelRightClose, PanelRightOpen, Sun, Moon, X, Bug, Settings, Tag, ShieldCheck, BadgePercent,
+  BriefcaseBusiness,
 } from "lucide-react";
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { fetchDashboard } from "@/src/lib/admin-api";
@@ -22,8 +23,10 @@ const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: Tag },
+  { href: "/admin/offers", label: "Offers", icon: BadgePercent },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart, badge: "pendingOrders" as const },
   { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/staff", label: "Staff", icon: BriefcaseBusiness },
   { href: "/admin/reviews", label: "Reviews", icon: Star },
   { href: "/admin/contact-messages", label: "Messages", icon: Mail, badge: "unreadMessages" as const },
   { href: "/admin/bug-reports", label: "Bug Reports", icon: Bug, badge: "pendingBugs" as const },
@@ -110,27 +113,29 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
 
       <aside className={`fixed top-0 left-0 h-full bg-surface border-r border-line z-50 transition-all duration-300 flex flex-col ${collapsed ? "w-16" : "w-64"} ${onClose ? (open ? "translate-x-0" : "-translate-x-full lg:translate-x-0") : ""}`}>
         <div className={`border-b border-line ${collapsed ? "p-2 flex flex-col items-center gap-2" : "p-4 flex items-center justify-between gap-2"}`}>
-          <Link href="/admin" onClick={handleNavClick} className={`flex items-center min-w-0 ${collapsed ? "" : "gap-2.5"}`} title="Admin">
-            <SiteLogo variant="mark" href={null} />
+          <Link href="/admin" onClick={handleNavClick} className={`flex items-center min-w-0 ${collapsed ? "" : "flex-1 gap-2.5"}`} title="Dhaka Wholesale Admin">
+            <SiteLogo variant="mark" href={null} showWordmark={false} />
             {!collapsed && (
-              <span className="leading-tight">
-                <span className="block text-sm font-bold text-fg">Dhaka Wholesale</span>
-                <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#E31C23]">Admin</span>
+              <span className="min-w-0 leading-tight">
+                <span className="block truncate text-sm font-bold text-fg">Dhaka Wholesale</span>
+                <span className="mt-1 flex items-center gap-2">
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[#E31C23]">Admin</span>
+                  {totalBadges > 0 && (
+                    <span aria-label={`${totalBadges} pending items`} className="min-w-5 h-5 shrink-0 inline-flex items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                      {totalBadges > 99 ? "99+" : totalBadges}
+                    </span>
+                  )}
+                </span>
               </span>
             )}
           </Link>
-          <div className="flex items-center gap-1">
-            {!collapsed && totalBadges > 0 && (
-              <span className="mr-1 min-w-[20px] h-5 flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1.5">
-                {totalBadges > 99 ? "99+" : totalBadges}
-              </span>
-            )}
+          <div className="flex shrink-0 items-center gap-1">
             {onClose && open && (
-              <button onClick={onClose} className="p-2 rounded-lg hover:bg-surface-2 transition-colors lg:hidden">
+              <button type="button" onClick={onClose} aria-label="Close menu" className="p-2 rounded-lg hover:bg-surface-2 transition-colors lg:hidden">
                 <X className="w-4 h-4" />
               </button>
             )}
-            <button onClick={() => setCollapsed(!collapsed)} className="p-2 rounded-lg hover:bg-surface-2 transition-colors hidden lg:block">
+            <button type="button" onClick={() => setCollapsed(!collapsed)} aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"} aria-expanded={!collapsed} className="p-2 rounded-lg hover:bg-surface-2 transition-colors hidden lg:block">
               {collapsed ? <PanelRightOpen className="w-4 h-4" /> : <PanelRightClose className="w-4 h-4" />}
             </button>
           </div>

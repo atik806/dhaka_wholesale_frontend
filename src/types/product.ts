@@ -4,6 +4,9 @@ export interface Product {
   name: string;
   category: string;
   price: number;
+  /** Stored price before any timed flash-sale discount. */
+  basePrice?: number;
+  baseOriginalPrice?: number | null;
   originalPrice?: number;
   images: string[];
   rating: number;

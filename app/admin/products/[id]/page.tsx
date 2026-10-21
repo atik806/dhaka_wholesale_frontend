@@ -17,11 +17,13 @@ function productToFormValues(product: Product, categories: Category[]): Partial<
   return {
     name: product.name,
     description: product.description,
-    price: product.price,
-    original_price: product.originalPrice ?? "",
+    price: product.basePrice ?? product.price,
+    original_price: product.baseOriginalPrice ?? "",
     category_id: cat?.id || "",
     images: product.images?.join(", ") || "",
-    stock: product.stock,
+    // The storefront mapping hides a non-positive counter, so 0 is only
+    // known for an out-of-stock product; otherwise ask for the real count.
+    stock_quantity: product.stockQuantity ?? (product.stock === "out-of-stock" ? 0 : ""),
     tags: product.tags?.join(", ") || "",
     sizes: product.variants?.sizes?.join(", ") || "",
     colors: product.variants?.colors?.map((c) => `${c.name}:${c.hex}`).join(", ") || "",
@@ -69,7 +71,7 @@ export default function EditProductPage() {
         original_price: values.original_price ? Number(values.original_price) : null,
         category_id: values.category_id,
         images: values.images.split(",").map((s) => s.trim()).filter(Boolean),
-        stock: values.stock,
+        stock_quantity: Number(values.stock_quantity),
         is_new: values.is_new,
         is_featured: values.is_featured,
       };

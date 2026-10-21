@@ -10,6 +10,7 @@
 --------------------------------------------------------------------------- */
 
 :root {
+  color-scheme: light;
   --canvas: #f4f6f8;
   --surface: #ffffff;
   --surface-2: #eef1f5;
@@ -56,6 +57,7 @@
 }
 
 .dark {
+  color-scheme: dark;
   --canvas: #0b1620;
   --surface: #12212e;
   --surface-2: #182c3c;

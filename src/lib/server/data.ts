@@ -23,7 +23,9 @@ const REVALIDATE = 300;
 
 async function getJson<T>(url: string): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE}${url}`, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(`${API_BASE}${url}`, url.startsWith('/products') || url.startsWith('/site-settings')
+      ? { cache: 'no-store' }
+      : { next: { revalidate: REVALIDATE } });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
@@ -43,7 +45,7 @@ export async function getHomeData(): Promise<HomeData> {
   const [featured, categories, promo, reviews] = await Promise.all([
     getJson<ApiResponse<BackendProduct[]>>("/products/featured"),
     getJson<ApiResponse<BackendCategory[]>>("/categories"),
-    getJson<PromoBannerData>("/site-settings/promo_banner"),
+    getJson<ApiResponse<PromoBannerData>>("/site-settings/promo_banner"),
     getJson<ApiResponse<RecentReview[]>>("/reviews/recent"),
   ]);
 
@@ -51,9 +53,7 @@ export async function getHomeData(): Promise<HomeData> {
     // Slice to what the sections actually render so the RSC payload stays small.
     featured: (featured?.data ?? []).map(mapProduct).slice(0, 8),
     categories: (categories?.data ?? []).map(mapCategory).slice(0, 6),
-    // The banner endpoint returns its payload directly (not wrapped in `data`);
-    // keep the raw shape so the client component's own normalization still applies.
-    promo,
+    promo: promo?.data ?? null,
     reviews: (reviews?.data ?? []).slice(0, 6),
   };
 }
@@ -65,7 +65,7 @@ export async function getHomeData(): Promise<HomeData> {
  */
 export async function fetchProductForPage(slug: string): Promise<Product | null> {
   const res = await fetch(`${API_BASE}/products/${encodeURIComponent(slug)}`, {
-    next: { revalidate: REVALIDATE },
+    cache: 'no-store',
   });
   if (!res.ok) {
     if (res.status === 404) return null;

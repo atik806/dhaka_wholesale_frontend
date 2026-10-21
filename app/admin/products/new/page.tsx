@@ -38,7 +38,7 @@ export default function NewProductPage() {
         original_price: values.original_price ? Number(values.original_price) : null,
         category_id: values.category_id,
         images: values.images.split(",").map((s) => s.trim()).filter(Boolean),
-        stock: values.stock,
+        stock_quantity: Number(values.stock_quantity),
         is_new: values.is_new,
         is_featured: values.is_featured,
       };
