@@ -103,10 +103,16 @@ export default function CustomerOrderDetailPage() {
     setCancelling(true);
     setCancelError("");
     try {
-      const updated = await cancelUserOrder(order.id);
-      setOrder(updated);
+      await cancelUserOrder(order.id);
     } catch (err) {
       setCancelError(err instanceof Error ? err.message : "Failed to cancel order");
+    }
+    // Reload either way: the cancel response has no items, and a conflict
+    // means the order moved on (e.g. it was confirmed) since this page loaded.
+    try {
+      setOrder(await fetchUserOrder(order.id));
+    } catch {
+      // keep the current view; the error above already explains the outcome
     } finally {
       setCancelling(false);
     }

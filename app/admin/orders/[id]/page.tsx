@@ -11,18 +11,9 @@ import { formatPrice, formatDate, safeImage, cn } from "@/src/lib/utils";
 import { orderDiscountLines } from "@/src/lib/order-pricing";
 import { SITE_NAME } from "@/src/lib/constants";
 import type { Order } from "@/src/lib/admin-api";
+import { nextOrderStatuses, nextPaymentStatuses } from "@/src/lib/order-status";
 
 const statusSteps = ["pending", "confirmed", "shipped", "delivered"];
-
-const nextStatuses: Record<string, string[]> = {
-  pending: ["confirmed", "cancelled"],
-  confirmed: ["shipped", "cancelled"],
-  shipped: ["delivered", "cancelled"],
-  delivered: [],
-  cancelled: [],
-};
-
-const paymentStatuses = ["pending", "paid", "failed", "refunded"];
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -399,11 +390,11 @@ export default function OrderDetailPage() {
               <select
                 value={order.status}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                disabled={updating || nextStatuses[order.status]?.length === 0}
+                disabled={updating || nextOrderStatuses(order.status).length === 0}
                 className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg disabled:opacity-50"
               >
                 <option value={order.status} disabled>{order.status}</option>
-                {nextStatuses[order.status]?.map((s) => (
+                {nextOrderStatuses(order.status).map((s) => (
                   <option key={s} value={s}>{s}</option>
                 ))}
               </select>
@@ -413,11 +404,12 @@ export default function OrderDetailPage() {
               <select
                 value={order.payment_status}
                 onChange={(e) => handlePaymentStatusChange(e.target.value)}
-                disabled={updating}
-                className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg"
+                disabled={updating || nextPaymentStatuses(order.payment_status, order.status).length === 0}
+                className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg disabled:opacity-50"
               >
-                {paymentStatuses.map((s) => (
-                  <option key={s} value={s}>{s}</option>
+                <option value={order.payment_status} disabled>{order.payment_status}</option>
+                {nextPaymentStatuses(order.payment_status, order.status).map((s) => (
+                  <option key={s} value={s}>{s === "paid" ? "paid (cash collected)" : s}</option>
                 ))}
               </select>
             </div>
