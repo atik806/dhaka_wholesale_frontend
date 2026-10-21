@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useIsLoggedIn, useAuthHydrated } from "@/src/store/useAuthStore";
 import { formatPrice as fp, safeImage } from "@/src/lib/utils";
-import { DELIVERY_CHARGES, DELIVERY_ZONE_LABELS, type DeliveryZone } from "@/src/lib/constants";
+import { DELIVERY_CHARGES, DELIVERY_ZONE_LABELS, QUOTE_REFRESH_MS, type DeliveryZone } from "@/src/lib/constants";
 import {
   computeLocalCheckoutQuote,
   fetchCheckoutQuote,
@@ -99,7 +99,7 @@ export default function CartPage() {
         });
     };
     const timer = window.setTimeout(loadQuote, 250);
-    const refresh = window.setInterval(loadQuote, 15_000);
+    const refresh = window.setInterval(loadQuote, QUOTE_REFRESH_MS);
 
     return () => {
       active = false;

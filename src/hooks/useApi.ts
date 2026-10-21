@@ -16,6 +16,7 @@ import {
   type RecentReview,
 } from '@/src/lib/api';
 import type { Product, Category } from '@/src/types/product';
+import { OFFER_POLL_MS } from '@/src/lib/constants';
 
 // SWR has no `staleTime` option (that's TanStack Query) — a staleTime key was
 // previously passed here and silently ignored. Freshness is governed by
@@ -100,7 +101,7 @@ export function usePromoBanner(fallbackData?: PromoBannerData | null) {
     fallbackData,
     revalidateOnMount: true,
     revalidateOnFocus: true,
-    refreshInterval: 15_000,
+    refreshInterval: OFFER_POLL_MS,
     dedupingInterval: 2_000,
   });
   const { mutate } = result;

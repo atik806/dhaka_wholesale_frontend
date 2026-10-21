@@ -113,7 +113,7 @@ export default function OffersPage() {
     setLoading(true);
     setLoadError("");
     try {
-      const response = await adminFetcher<FlashSale | null>("/offers");
+      const response = await adminFetcher<FlashSale | null>(`/offers?fresh=${Date.now()}`);
       await loadPromotions();
       const sale = response.data;
       const ids = sale?.products.map((item) => item.product_id) ?? [];
