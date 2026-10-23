@@ -2,7 +2,7 @@
 
 import { memo, useState } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Category } from "@/src/types/product";

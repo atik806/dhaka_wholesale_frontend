@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ImageOff } from "lucide-react";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import { cn, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 
 interface ProductGalleryProps {

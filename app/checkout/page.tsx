@@ -4,7 +4,7 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Lock, Loader2, Truck, ShieldCheck, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useIsLoggedIn, useAuthHydrated, useAuthStore } from "@/src/store/useAuthStore";

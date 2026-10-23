@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, ShieldCheck, Truck, Wallet, RefreshCw } from "lucide-react";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import Link from "next/link";
 import { buttonClasses } from "@/src/components/ui/Button";
 import { IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";

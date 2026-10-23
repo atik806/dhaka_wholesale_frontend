@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Loader2, Package, MapPin, Receipt, Ban, AlertTriangle, MessageSquareText } from "lucide-react";

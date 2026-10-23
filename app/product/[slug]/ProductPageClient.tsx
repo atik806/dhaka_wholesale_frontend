@@ -17,7 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import { ProductDescription, hasProductDetails } from "@/src/components/product/ProductDescription";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { ReviewSection } from "@/src/components/product/ReviewSection";

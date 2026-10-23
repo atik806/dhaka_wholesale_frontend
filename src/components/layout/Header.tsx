@@ -15,7 +15,7 @@ import {
   Package,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import { useRouter } from "next/navigation";
 import { useCartStore, useCartHydrated } from "@/src/store/useCartStore";
 import { useAuthStore, useAuthHydrated, useIsLoggedIn } from "@/src/store/useAuthStore";
