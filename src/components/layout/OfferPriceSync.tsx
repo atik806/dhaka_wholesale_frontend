@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import { fetchFlashSale, fetchProducts } from "@/src/lib/api";
 import { OFFER_POLL_MS } from "@/src/lib/constants";
@@ -13,6 +13,9 @@ export function OfferPriceSync() {
   });
   const { mutate } = useSWRConfig();
   const cartHydrated = useCartHydrated();
+  // Product lists already fetch (or revalidate) on mount, so only re-fetch
+  // them when the offer changes after that, not on the first sync.
+  const listsSynced = useRef(false);
 
   useEffect(() => {
     if (sale === undefined || !cartHydrated) return;
@@ -20,9 +23,12 @@ export function OfferPriceSync() {
     let timer: ReturnType<typeof setTimeout>;
 
     const refresh = async () => {
-      void mutate((key) => typeof key === 'string' && (
-        key.startsWith('/products') || key.startsWith('/shop?') || key.startsWith('sale-products:')
-      ), undefined, { revalidate: true });
+      if (listsSynced.current) {
+        void mutate((key) => typeof key === 'string' && (
+          key.startsWith('/products') || key.startsWith('/shop?') || key.startsWith('sale-products:')
+        ), undefined, { revalidate: true });
+      }
+      listsSynced.current = true;
       const store = useCartStore.getState();
       if (store.wishlistIds.length) store.setWishlistIds([...store.wishlistIds]);
       const ids = [...new Set(store.items.map((item) => item.product.id))];
