@@ -11,6 +11,7 @@ import { Toaster } from "../ui/Toaster";
 import { ScrollToTop } from "../ui/ScrollToTop";
 import { PageLoader } from "../ui/PageLoader";
 import { ReportButton } from "../report/ReportButton";
+import { MessengerButton } from "./MessengerButton";
 import { loadServerCartAndWishlist } from "@/src/lib/cart-sync";
 import { useAuthStore } from "@/src/store/useAuthStore";
 import { useCartHydrated } from "@/src/store/useCartStore";
@@ -81,6 +82,7 @@ export function RootClient({ children }: { children: React.ReactNode }) {
       {!isAdmin && !isAuthPage && <CartDrawer />}
       <Toaster />
       {!isAdmin && !isAuthPage && <ScrollToTop />}
+      {!isAdmin && !isAuthPage && <MessengerButton />}
       {!isAdmin && !isAuthPage && <ReportButton />}
     </>
   );

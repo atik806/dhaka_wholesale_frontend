@@ -17,7 +17,11 @@ const contactDetails = [
   {
     icon: Clock,
     label: "Hours",
-    lines: ["Sun – Thu: 9:00 AM – 7:00 PM", "Fri – Sat: 10:00 AM – 5:00 PM"],
+    lines: [
+      "Messenger chat: 24/7",
+      "Phone, Sun – Thu: 9:00 AM – 7:00 PM",
+      "Phone, Fri – Sat: 10:00 AM – 5:00 PM",
+    ],
   },
 ];
 
