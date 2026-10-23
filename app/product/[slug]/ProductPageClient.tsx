@@ -25,7 +25,6 @@ import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
 import { Card } from "@/src/components/ui/Card";
 import { EmptyState } from "@/src/components/ui/EmptyState";
-import { Rating } from "@/src/components/ui/Rating";
 import { ProductDetailSkeleton } from "@/src/components/ui/Skeleton";
 import { cn, formatPrice, piecesLeft, slugify } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
@@ -196,12 +195,9 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                 ) : null}
               </div>
 
-              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1">
-                <Rating value={product.rating} count={product.reviewCount} size="md" />
-                <span className="font-mono text-[11px] text-subtle">
-                  SKU {product.id.slice(0, 8).toUpperCase()}
-                </span>
-              </div>
+              <p className="mt-2 font-mono text-[11px] text-subtle">
+                SKU {product.id.slice(0, 8).toUpperCase()}
+              </p>
 
               <div className="mt-4 border-y border-line py-4">
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
