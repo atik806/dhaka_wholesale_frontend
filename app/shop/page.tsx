@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
+import { getProductListPage } from "@/src/lib/server/data";
 import { ShopPageClient } from "./ShopPageClient";
 
-// Revalidate the route shell (metadata/HTML) so prices & stock stay fresh
-// rather than serving a build-time snapshot indefinitely.
-export const revalidate = 300;
+// Rebuilt at most every 10s (HOME_REVALIDATE): the page now carries the first
+// page of products, which have prices. Route segment config must be a literal.
+export const revalidate = 10;
+
+/** Products per page; must match ITEMS_PER_PAGE in ShopPageClient so the server page is reused. */
+const PAGE_SIZE = 12;
 
 export const metadata: Metadata = {
   title: "Shop",
@@ -19,6 +23,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ShopPage() {
-  return <ShopPageClient />;
+export default async function ShopPage() {
+  const initialProducts = (await getProductListPage(undefined, PAGE_SIZE)) ?? undefined;
+  return <ShopPageClient initialProducts={initialProducts} />;
 }

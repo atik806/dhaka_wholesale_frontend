@@ -11,6 +11,7 @@ import {
   fetchReviewsByProduct,
   fetchPromoBanner,
   fetchRecentReviews,
+  type ProductListResult,
   type ProductQueryParams,
   type PromoBannerData,
   type RecentReview,
@@ -28,7 +29,7 @@ const SWR_CONFIG = {
   errorRetryCount: 2,
 };
 
-export function useProducts(params: ProductQueryParams = {}) {
+export function useProducts(params: ProductQueryParams = {}, fallbackData?: ProductListResult) {
   const key = `/products?${new URLSearchParams(
     Object.entries(params)
       .filter(([, v]) => v !== undefined && v !== '' && v !== 'popular')
@@ -38,6 +39,7 @@ export function useProducts(params: ProductQueryParams = {}) {
   return useSWR(key, () => fetchProducts(params), {
     ...SWR_CONFIG,
     keepPreviousData: true,
+    fallbackData,
   });
 }
 

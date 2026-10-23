@@ -17,15 +17,23 @@ import { Button } from "@/src/components/ui/Button";
 import { Select } from "@/src/components/ui/Field";
 import { Modal } from "@/src/components/ui/Modal";
 import { ShopSkeleton } from "@/src/components/ui/Skeleton";
-import { fetchProducts } from "@/src/lib/api";
+import { fetchProducts, type ProductListResult } from "@/src/lib/api";
 import { cn } from "@/src/lib/utils";
 
 const ITEMS_PER_PAGE = 12;
 
-export function ShopPageClient() {
+/** SWR key of the unfiltered first page, the one the server pre-fetches. */
+const DEFAULT_LIST_KEY = "/shop?sort=popular&page=1";
+
+interface ShopPageProps {
+  /** Unfiltered first page from the server render. */
+  initialProducts?: ProductListResult;
+}
+
+export function ShopPageClient({ initialProducts }: ShopPageProps) {
   return (
     <Suspense fallback={<ShopSkeleton />}>
-      <ShopPage />
+      <ShopPage initialProducts={initialProducts} />
     </Suspense>
   );
 }
@@ -47,7 +55,7 @@ function pageWindow(current: number, total: number): (number | "gap")[] {
   return out;
 }
 
-function ShopPage() {
+function ShopPage({ initialProducts }: ShopPageProps) {
   const { data: categories = [] } = useCategories();
   // The filter panel writes slugs into ?categories=; older links used names.
   // Resolve either to the slug for the API and to the name for display.
@@ -125,14 +133,21 @@ function ShopPage() {
     return params;
   }, [selectedCategoryNames, priceRange, ratingParam, sort, page, CATEGORY_SLUG]);
 
-  const { data, isLoading } = useSWR(
+  const { data, isLoading: listFetching } = useSWR(
     swrKey,
     () => {
       const params = buildFetchParams();
       return fetchProducts(params as Parameters<typeof fetchProducts>[0]);
     },
-    { revalidateOnFocus: false, keepPreviousData: true }
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+      fallbackData: swrKey === DEFAULT_LIST_KEY ? initialProducts : undefined,
+    }
   );
+  // SWR reports isLoading during its first revalidation even with server
+  // data in hand; only treat "no data yet" as loading.
+  const isLoading = listFetching && !data;
 
   const updateParams = useCallback(
     (updates: Record<string, string | null>) => {
@@ -359,7 +374,7 @@ function ShopPage() {
             >
               Clear all
             </Button>
-            <Button fullWidth onClick={() => setFilterOpen(false)}>
+            <Button fullWidth className="whitespace-nowrap" onClick={() => setFilterOpen(false)}>
               Show {total} {total === 1 ? "result" : "results"}
             </Button>
           </div>

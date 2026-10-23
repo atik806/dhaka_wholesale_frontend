@@ -1,9 +1,28 @@
-import type { Category } from '@/src/types/product';
+import type { Category, Product } from '@/src/types/product';
 
 type ClassValue = string | number | bigint | false | null | undefined;
 
 export function cn(...inputs: ClassValue[]) {
   return inputs.filter((v): v is string => typeof v === "string" && v.length > 0).join(" ");
+}
+
+/** At or below this many pieces, stock is shown as low. */
+export const LOW_STOCK_PIECES = 5;
+
+/**
+ * "12 pieces left" for a product with a known stock count, or null when the
+ * count is unknown or the product is sold out. `low` marks counts worth
+ * nudging the shopper about.
+ */
+export function piecesLeft(
+  product: Pick<Product, 'stock' | 'stockQuantity'>,
+): { label: string; low: boolean } | null {
+  const n = product.stockQuantity;
+  if (product.stock === 'out-of-stock' || n === undefined) return null;
+  return {
+    label: `${n} ${n === 1 ? 'piece' : 'pieces'} left`,
+    low: product.stock === 'low-stock' || n <= LOW_STOCK_PIECES,
+  };
 }
 
 // Intl renders BDT as the "BDT" code rather than the taka sign, so group the

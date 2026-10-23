@@ -1,13 +1,23 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { fetchCategoryForPage } from "@/src/lib/server/data";
+import { fetchCategoryForPage, getProductListPage } from "@/src/lib/server/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
 import { CategoryPageClient } from "./CategoryPageClient";
 import type { Category } from "@/src/types/product";
 
-// Category pages cache and revalidate every 5 minutes (same window as the home page).
-export const revalidate = 300;
+// Rebuilt at most every 10s (HOME_REVALIDATE): the page now carries its first
+// page of products, which have prices. Route segment config must be a literal.
+export const revalidate = 10;
+
+// No paths at build time; each category page is cached on its first visit
+// instead of rendering on every request.
+export async function generateStaticParams() {
+  return [];
+}
+
+/** Products per page; must match CategoryPageClient so the server page is reused. */
+const PAGE_SIZE = 12;
 
 type Props = {
   params: Promise<{ category: string }>;
@@ -60,6 +70,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryPage({ params }: Props) {
   const { category: categorySlug } = await params;
 
+  // Fetch the category and its first page of products together, not one after the other.
+  const productsPromise = getProductListPage(categorySlug, PAGE_SIZE);
   let category: Category | null = null;
   let fetchFailed = false;
   try {
@@ -67,14 +79,15 @@ export default async function CategoryPage({ params }: Props) {
   } catch {
     fetchFailed = true;
   }
+  const initialProducts = (await productsPromise) ?? undefined;
 
   if (fetchFailed) {
-    return <CategoryPageClient initialCategory={null} />;
+    return <CategoryPageClient initialCategory={null} initialProducts={initialProducts} />;
   }
 
   if (!category) {
     notFound();
   }
 
-  return <CategoryPageClient initialCategory={category} />;
+  return <CategoryPageClient initialCategory={category} initialProducts={initialProducts} />;
 }
