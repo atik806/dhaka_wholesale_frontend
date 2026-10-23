@@ -27,7 +27,7 @@ export interface BackendProduct {
   stock_quantity?: number | null;
   tags?: string[];
   sizes?: string[];
-  colors?: { name: string; hex: string }[];
+  colors?: { name: string; hex: string; image?: string | null }[];
   is_new: boolean;
   is_featured: boolean;
   created_at: string;
@@ -68,7 +68,10 @@ export function mapProduct(p: BackendProduct): Product {
     tags: p.tags ?? [],
     variants: {
       sizes: sizes.length > 0 ? sizes : undefined,
-      colors: colors.length > 0 ? colors : undefined,
+      colors:
+        colors.length > 0
+          ? colors.map((c) => ({ name: c.name, hex: c.hex, image: c.image || undefined }))
+          : undefined,
     },
     isNew: p.is_new ?? undefined,
     isFeatured: p.is_featured ?? undefined,

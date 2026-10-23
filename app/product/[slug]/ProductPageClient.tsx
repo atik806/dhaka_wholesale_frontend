@@ -17,6 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import { ProductDescription, hasProductDetails } from "@/src/components/product/ProductDescription";
+import Image from "next/image";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { ReviewSection } from "@/src/components/product/ReviewSection";
@@ -27,7 +28,7 @@ import { Card } from "@/src/components/ui/Card";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 import { ProductDetailSkeleton } from "@/src/components/ui/Skeleton";
 import { Rating } from "@/src/components/ui/Rating";
-import { cn, formatPrice, piecesLeft, slugify } from "@/src/lib/utils";
+import { cn, colorImageIndex, formatPrice, slugify, swatchStyle } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 import { useProduct, useRelatedProducts, useCategories } from "@/src/hooks/useApi";
@@ -48,6 +49,13 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState<string>();
   const [selectedColor, setSelectedColor] = useState<string>();
+  const [imageIndex, setImageIndex] = useState(0);
+  // Picking a colour shows its photo in the gallery when one is linked.
+  const pickColor = (name: string) => {
+    setSelectedColor(name);
+    const index = product ? colorImageIndex(product, name) : -1;
+    if (index >= 0) setImageIndex(index);
+  };
   const [justAdded, setJustAdded] = useState(false);
   // The phone buy bar only shows once the main Add to cart row scrolls away.
   const actionsRef = useRef<HTMLDivElement>(null);
@@ -176,7 +184,12 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
           {/* Gallery */}
           <div className="lg:col-span-7">
-            <ProductGallery images={product.images} name={product.name} />
+            <ProductGallery
+              images={product.images}
+              name={product.name}
+              index={imageIndex}
+              onIndexChange={setImageIndex}
+            />
           </div>
 
           {/* Buy box */}
@@ -240,11 +253,6 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                     )}
                   />
                   {STOCK_LABEL[product.stock]}
-                  {piecesLeft(product) && (
-                    <span className="tabular font-normal text-muted">
-                      · {piecesLeft(product)!.label}
-                    </span>
-                  )}
                 </p>
               </div>
 
@@ -283,28 +291,50 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                     )}
                   </p>
                   <div className="flex flex-wrap gap-2.5">
-                    {product.variants.colors.map((color) => (
-                      <button
-                        key={color.name}
-                        type="button"
-                        onClick={() => setSelectedColor(color.name)}
-                        aria-label={color.name}
-                        aria-pressed={selectedColor === color.name}
-                        title={color.name}
-                        className={cn(
-                          "h-9 w-9 rounded-full border-2 transition-all",
-                          selectedColor === color.name
-                            ? "border-accent ring-2 ring-accent/40"
-                            : "border-line-strong hover:border-brand",
-                        )}
-                        // Admin stores one hex per colour, so draw "Multicolor" as a wheel here.
-                        style={
-                          /multi/i.test(color.name)
-                            ? { background: "conic-gradient(#e5484d, #f5a623, #f6e27a, #46a758, #3e8ed0, #9b6ad6, #e5484d)" }
-                            : { backgroundColor: color.hex }
-                        }
-                      />
-                    ))}
+                    {product.variants.colors.map((color) => {
+                      const selected = selectedColor === color.name;
+                      // A colour with a linked photo shows that photo, so shoppers
+                      // see the exact item even when the gallery is scrolled away.
+                      return color.image ? (
+                        <button
+                          key={color.name}
+                          type="button"
+                          onClick={() => pickColor(color.name)}
+                          aria-label={color.name}
+                          aria-pressed={selected}
+                          title={color.name}
+                          className={cn(
+                            "relative h-14 w-14 overflow-hidden rounded-lg border-2 bg-surface-2 transition-all",
+                            selected
+                              ? "border-accent ring-2 ring-accent/40"
+                              : "border-line hover:border-line-strong",
+                          )}
+                        >
+                          <Image src={color.image} alt="" fill sizes="56px" className="object-cover" />
+                          <span
+                            aria-hidden="true"
+                            className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-surface shadow-sm"
+                            style={swatchStyle(color)}
+                          />
+                        </button>
+                      ) : (
+                        <button
+                          key={color.name}
+                          type="button"
+                          onClick={() => pickColor(color.name)}
+                          aria-label={color.name}
+                          aria-pressed={selected}
+                          title={color.name}
+                          className={cn(
+                            "h-9 w-9 rounded-full border-2 transition-all",
+                            selected
+                              ? "border-accent ring-2 ring-accent/40"
+                              : "border-line-strong hover:border-brand",
+                          )}
+                          style={swatchStyle(color)}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               )}

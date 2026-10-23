@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Save, Loader2 } from "lucide-react";
-import type { Category } from "@/src/types/product";
+import { Save, Loader2, Plus, Trash2, ImageOff } from "lucide-react";
+import Image from "next/image";
+import type { Category, ProductColor } from "@/src/types/product";
 import { Button } from "@/src/components/ui/Button";
 import { ImageUpload } from "@/src/components/admin/ImageUpload";
 import { STOCK_STATUS_LABELS, parseStockQuantity, stockStatusFor } from "@/src/lib/inventory";
@@ -18,7 +19,7 @@ export interface ProductFormValues {
   stock_quantity: number | "";
   tags: string;
   sizes: string;
-  colors: string;
+  colors: ProductColor[];
   is_new: boolean;
   is_featured: boolean;
 }
@@ -42,7 +43,7 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
     stock_quantity: initialValues?.stock_quantity ?? "",
     tags: initialValues?.tags ?? "",
     sizes: initialValues?.sizes ?? "",
-    colors: initialValues?.colors ?? "",
+    colors: initialValues?.colors ?? [],
     is_new: initialValues?.is_new ?? false,
     is_featured: initialValues?.is_featured ?? false,
   });
@@ -59,6 +60,9 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
     if (typeof quantity === "string") errs.stock_quantity = quantity;
     const parsedImages = form.images.split(",").map((s) => s.trim()).filter(Boolean);
     if (parsedImages.length === 0) errs.images = "At least one product image is required";
+    if (form.colors.some((c) => !c.name.trim())) errs.colors = "Every colour needs a name";
+    else if (new Set(form.colors.map((c) => c.name.trim().toLowerCase())).size < form.colors.length)
+      errs.colors = "Colour names must be different";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -69,7 +73,10 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
     await onSubmit(form);
   };
 
-  const update = (key: keyof ProductFormValues, value: string | boolean | number | string[]) => {
+  const update = (
+    key: keyof ProductFormValues,
+    value: string | boolean | number | string[] | ProductColor[],
+  ) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     if (errors[key as string]) {
       setErrors((prev) => {
@@ -204,28 +211,25 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Sizes (comma-separated)</label>
-          <input
-            type="text"
-            value={form.sizes}
-            onChange={(e) => update("sizes", e.target.value)}
-            placeholder="S, M, L, XL"
-            className={inputClass("sizes")}
-          />
-        </div>
-        <div>
-          <label className={labelClass}>Colors (name:hex, comma-separated)</label>
-          <input
-            type="text"
-            value={form.colors}
-            onChange={(e) => update("colors", e.target.value)}
-            placeholder="Red:#FF0000, Blue:#0000FF"
-            className={inputClass("colors")}
-          />
-        </div>
+      <div>
+        <label className={labelClass}>Sizes (comma-separated)</label>
+        <input
+          type="text"
+          value={form.sizes}
+          onChange={(e) => update("sizes", e.target.value)}
+          placeholder="S, M, L, XL"
+          className={inputClass("sizes")}
+        />
       </div>
+
+      <ColorsEditor
+        colors={form.colors}
+        images={form.images.split(",").map((s) => s.trim()).filter(Boolean)}
+        onChange={(colors) => update("colors", colors)}
+        error={errors.colors}
+        inputClass={inputClass("colors")}
+        labelClass={labelClass}
+      />
 
       <div className="flex items-center gap-6">
         <label className="flex items-center gap-2 text-sm cursor-pointer">
@@ -265,4 +269,139 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
       </div>
     </form>
   );
+}
+
+const HEX = /^#[0-9a-f]{6}$/i;
+
+/**
+ * One row per colour: name, swatch colour and the product photo that shows
+ * it. Customers who pick the colour see that photo.
+ */
+function ColorsEditor({
+  colors,
+  images,
+  onChange,
+  error,
+  inputClass,
+  labelClass,
+}: {
+  colors: ProductColor[];
+  images: string[];
+  onChange: (colors: ProductColor[]) => void;
+  error?: string;
+  inputClass: string;
+  labelClass: string;
+}) {
+  const set = (i: number, patch: Partial<ProductColor>) =>
+    onChange(colors.map((c, j) => (j === i ? { ...c, ...patch } : c)));
+
+  return (
+    <div>
+      <div className="mb-1.5 flex items-center justify-between gap-3">
+        <label className={labelClass + " mb-0"}>Colours</label>
+        <button
+          type="button"
+          onClick={() => onChange([...colors, { name: "", hex: "#000000" }])}
+          className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-medium text-link hover:bg-surface-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add colour
+        </button>
+      </div>
+      <p className="mb-3 text-xs text-muted">
+        Customers must choose one of these when ordering. Pick the photo that shows each colour; the
+        product page switches to it when the colour is tapped.
+      </p>
+
+      {colors.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-line px-4 py-3 text-sm text-muted">
+          No colours. Customers order this product without choosing one.
+        </p>
+      ) : (
+        <ul className="space-y-3">
+          {colors.map((color, i) => {
+            const missingPhoto = color.image && !images.includes(color.image);
+            return (
+              <li key={i} className="rounded-xl border border-line bg-surface p-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={HEX.test(color.hex) ? color.hex : "#000000"}
+                    onChange={(e) => set(i, { hex: e.target.value })}
+                    aria-label={`Swatch colour for ${color.name || `colour ${i + 1}`}`}
+                    className="h-10 w-10 shrink-0 cursor-pointer rounded-lg border border-line bg-surface p-0.5"
+                  />
+                  <input
+                    type="text"
+                    value={color.name}
+                    onChange={(e) => set(i, { name: e.target.value })}
+                    placeholder="Colour name, e.g. Purple"
+                    aria-label={`Name of colour ${i + 1}`}
+                    className={inputClass}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => onChange(colors.filter((_, j) => j !== i))}
+                    aria-label={`Remove ${color.name || `colour ${i + 1}`}`}
+                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3">
+                  <p className="mb-1.5 text-xs font-medium text-muted">
+                    Photo for this colour
+                    {missingPhoto && (
+                      <span className="ml-1 text-danger">(its photo was removed; pick another)</span>
+                    )}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => set(i, { image: undefined })}
+                      aria-pressed={!color.image}
+                      title="No photo"
+                      className={`flex h-14 w-14 items-center justify-center rounded-lg border-2 text-muted ${
+                        !color.image ? "border-accent" : "border-line hover:border-line-strong"
+                      }`}
+                    >
+                      <ImageOff className="h-4 w-4" />
+                    </button>
+                    {images.map((url, n) => (
+                      <button
+                        key={url}
+                        type="button"
+                        onClick={() => set(i, { image: url })}
+                        aria-pressed={color.image === url}
+                        aria-label={`Use photo ${n + 1}`}
+                        className={`relative h-14 w-14 overflow-hidden rounded-lg border-2 bg-surface-2 ${
+                          color.image === url ? "border-accent ring-2 ring-accent/30" : "border-line hover:border-line-strong"
+                        }`}
+                      >
+                        <Image src={url} alt="" fill sizes="56px" className="object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+/** Colours as the API expects them: trimmed, with photos that still belong to the product. */
+export function colorsForApi(colors: ProductColor[], images: string): ProductColor[] {
+  const photos = images.split(",").map((s) => s.trim()).filter(Boolean);
+  return colors
+    .filter((c) => c.name.trim())
+    .map((c) => ({
+      name: c.name.trim(),
+      hex: c.hex,
+      ...(c.image && photos.includes(c.image) ? { image: c.image } : {}),
+    }));
 }

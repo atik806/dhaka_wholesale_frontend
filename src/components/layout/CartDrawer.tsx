@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
 import { buttonClasses } from "@/src/components/ui/Button";
-import { formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
+import { formatPrice, IMAGE_BLUR_PLACEHOLDER, variantImage } from "@/src/lib/utils";
 
 const stepperButton =
   "w-9 h-9 flex items-center justify-center text-fg hover:bg-surface-2 transition-colors disabled:opacity-40 disabled:pointer-events-none";
@@ -129,7 +129,7 @@ export const CartDrawer = memo(function CartDrawer() {
                       >
                         <div className="relative w-20 h-20 rounded-md overflow-hidden shrink-0 bg-surface-2 border border-line">
                           <Image
-                            src={safeImage(item.product.images)}
+                            src={variantImage(item.product, item.selectedColor)}
                             alt={item.product.name}
                             fill
                             placeholder="blur"

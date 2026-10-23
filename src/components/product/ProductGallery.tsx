@@ -9,10 +9,19 @@ import { cn, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 interface ProductGalleryProps {
   images: string[];
   name: string;
+  /** Shown photo, when the page controls it (e.g. picking a colour shows its photo). */
+  index?: number;
+  onIndexChange?: (index: number) => void;
 }
 
-export function ProductGallery({ images, name }: ProductGalleryProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+export function ProductGallery({ images, name, index, onIndexChange }: ProductGalleryProps) {
+  const [ownIndex, setOwnIndex] = useState(0);
+  const activeIndex = index ?? ownIndex;
+  const setActiveIndex = (next: number | ((prev: number) => number)) => {
+    const value = typeof next === "function" ? next(activeIndex) : next;
+    setOwnIndex(value);
+    onIndexChange?.(value);
+  };
   const [zoomed, setZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const imageRef = useRef<HTMLDivElement>(null);
