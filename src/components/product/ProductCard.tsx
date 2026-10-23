@@ -9,7 +9,7 @@ import type { Product } from "@/src/types/product";
 import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
 import { Rating } from "@/src/components/ui/Rating";
-import { cn, formatPrice, piecesLeft, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
+import { cn, formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 
@@ -50,7 +50,6 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
 
   const showAdded = justAdded || inCart;
   const isOutOfStock = product.stock === "out-of-stock";
-  const stockLeft = piecesLeft(product);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -220,47 +219,22 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
             </Link>
           </h3>
 
-          {/* Rating */}
-          <div className="mt-1.5">
-            <Rating value={product.rating} count={product.reviewCount} size="sm" />
-          </div>
-
           {/* Price section */}
           <div className="mt-auto pt-2.5">
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="tabular text-[16px] font-bold text-price sm:text-[17px] tracking-tight">
-                {formatPrice(product.price)}
-              </span>
-              {product.originalPrice && (
-                <span className="tabular text-xs text-muted line-through decoration-2">
-                  {formatPrice(product.originalPrice)}
+            {/* The rating keeps its place beside the price; on narrow cards the old price wraps below. */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="tabular text-[16px] font-bold text-price sm:text-[17px] tracking-tight">
+                  {formatPrice(product.price)}
                 </span>
-              )}
+                {product.originalPrice && (
+                  <span className="tabular text-xs text-muted line-through decoration-2">
+                    {formatPrice(product.originalPrice)}
+                  </span>
+                )}
+              </div>
+              <Rating value={product.rating} count={product.reviewCount} className="mt-[3px] shrink-0" />
             </div>
-            {stockLeft ? (
-              <div className="mt-1.5 flex items-center gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "h-1.5 w-1.5 rounded-full",
-                    stockLeft.low ? "bg-accent animate-pulse" : "bg-success",
-                  )}
-                />
-                <p
-                  className={cn(
-                    "tabular text-[11px] font-semibold",
-                    stockLeft.low ? "text-accent-hover" : "text-success",
-                  )}
-                >
-                  {stockLeft.label}
-                </p>
-              </div>
-            ) : product.stock === "low-stock" ? (
-              <div className="mt-1.5 flex items-center gap-1.5">
-                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
-                <p className="text-[11px] font-semibold text-accent-hover">Only a few left</p>
-              </div>
-            ) : null}
           </div>
 
           {/* Add to cart button */}

@@ -9,29 +9,30 @@ interface RatingProps {
 }
 
 const sizes = {
-  sm: "w-3.5 h-3.5",
-  md: "w-4 h-4",
-  lg: "w-5 h-5",
+  sm: { star: "h-3.5 w-3.5", text: "text-xs" },
+  md: { star: "h-4 w-4", text: "text-sm" },
+  lg: { star: "h-5 w-5", text: "text-base" },
 };
 
+/** Review counts past this show as "100+". */
+const COUNT_CAP = 100;
+
+/**
+ * Compact marketplace-style rating: one star, the average and the review
+ * count, e.g. "★ 4.7 (20)". Renders nothing for products without reviews.
+ */
 export function Rating({ value, count, size = "sm", className }: RatingProps) {
+  if (!value || count === 0) return null;
+  const s = sizes[size];
   return (
-    <div className={cn("flex items-center gap-1.5", className)}>
-      <div className="flex" role="img" aria-label={`Rated ${value} out of 5`}>
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={cn(
-              sizes[size],
-              star <= Math.round(value)
-                ? "fill-accent text-accent"
-                : "fill-surface-3 text-surface-3",
-            )}
-          />
-        ))}
-      </div>
+    <div
+      className={cn("flex items-center gap-1", s.text, className)}
+      aria-label={`Rated ${value.toFixed(1)} out of 5${count ? ` from ${count} reviews` : ""}`}
+    >
+      <Star className={cn(s.star, "shrink-0 fill-accent text-accent-hover")} strokeWidth={1.75} aria-hidden="true" />
+      <span className="tabular font-semibold text-fg">{value.toFixed(1)}</span>
       {count !== undefined && (
-        <span className="text-xs text-muted tabular">({count.toLocaleString()})</span>
+        <span className="tabular text-muted">({count >= COUNT_CAP ? `${COUNT_CAP}+` : count})</span>
       )}
     </div>
   );
