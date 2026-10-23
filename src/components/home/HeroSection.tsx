@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, BadgeCheck, Truck, Wallet } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShieldCheck, Truck, Wallet, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { buttonClasses } from "@/src/components/ui/Button";
@@ -13,7 +13,7 @@ const SLIDES = [
     image: "/hero-slides/slide-01.webp",
     eyebrow: "Dhaka Wholesale",
     title: "Direct market stock at store rates",
-    subtitle: "Quality products, cash on delivery, and fast shipping nationwide.",
+    subtitle: "Quality products for homes and shops, straight from the market.",
     cta: "Shop now",
     href: "/shop",
   },
@@ -33,24 +33,19 @@ const SLIDES = [
     cta: "Shop bestsellers",
     href: "/shop?sort=popular",
   },
-  {
-    image: "/hero-slides/slide-04.webp",
-    eyebrow: "COD nationwide",
-    title: "Pay when it arrives",
-    subtitle: "Inside Dhaka ৳80 · Outside Dhaka ৳120 · Inspect before you pay.",
-    cta: "Start shopping",
-    href: "/shop",
-  },
 ];
 
+// The home page's single trust row. The header bar and footer cover other pages.
 const HIGHLIGHTS = [
-  { icon: Wallet, label: "Cash on delivery", detail: "Pay when the parcel arrives" },
+  { icon: Wallet, label: "Cash on delivery", detail: "Inspect first, then pay" },
   { icon: Truck, label: "Flat shipping", detail: "৳80 in Dhaka · ৳120 outside" },
-  { icon: BadgeCheck, label: "Inspect first", detail: "Check your order before paying" },
+  { icon: RefreshCw, label: "7-day exchange", detail: "Hassle-free exchanges" },
+  { icon: ShieldCheck, label: "Genuine products", detail: "Sourced direct from suppliers" },
 ];
 
 export function HeroSection() {
   const [index, setIndex] = useState(0);
+  const [touchX, setTouchX] = useState<number | null>(null);
   const slide = SLIDES[index];
 
   const go = useCallback((next: number) => {
@@ -69,7 +64,15 @@ export function HeroSection() {
       aria-label="Promotions"
     >
       {/* Hero banner with premium height */}
-      <div className="relative overflow-hidden h-[min(48vh,420px)] min-h-[240px] max-h-[460px] sm:min-h-[280px] md:h-[min(42vh,400px)] lg:h-[min(45vh,480px)]">
+      <div
+        onTouchStart={(e) => setTouchX(e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          if (touchX === null) return;
+          const dx = e.changedTouches[0].clientX - touchX;
+          if (Math.abs(dx) > 40) go(index + (dx < 0 ? 1 : -1));
+          setTouchX(null);
+        }}
+        className="relative overflow-hidden h-[min(48vh,420px)] min-h-[240px] max-h-[460px] sm:min-h-[280px] md:h-[min(42vh,400px)] lg:h-[min(45vh,480px)]">
         {/* Subtle pattern overlay for texture */}
         <div
           className="absolute inset-0 z-[1] opacity-[0.03] pointer-events-none"
@@ -117,7 +120,7 @@ export function HeroSection() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.4, ease: "easeOut" }}
-              className="max-w-2xl pr-12 sm:pr-16"
+              className="max-w-2xl"
             >
               <motion.p
                 initial={{ opacity: 0, y: 8 }}
@@ -163,23 +166,26 @@ export function HeroSection() {
           </AnimatePresence>
         </div>
 
-        {/* Premium controls — pill-shaped with glass effect */}
-        <button
-          type="button"
-          onClick={() => go(index - 1)}
-          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/30 hover:bg-black/50 text-brand-fg flex items-center justify-center backdrop-blur-sm border border-white/10 transition-all duration-200 hover:scale-105"
-          aria-label="Previous slide"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => go(index + 1)}
-          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-black/30 hover:bg-black/50 text-brand-fg flex items-center justify-center backdrop-blur-sm border border-white/10 transition-all duration-200 hover:scale-105"
-          aria-label="Next slide"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
+        {/* Prev/next sit together in the bottom-right corner so they never cover the headline.
+            Phones swipe instead. */}
+        <div className="absolute bottom-3 right-4 z-20 hidden md:flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => go(index - 1)}
+            className="h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-brand-fg flex items-center justify-center backdrop-blur-sm border border-white/10 transition-all duration-200 hover:scale-105"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => go(index + 1)}
+            className="h-10 w-10 rounded-full bg-black/30 hover:bg-black/50 text-brand-fg flex items-center justify-center backdrop-blur-sm border border-white/10 transition-all duration-200 hover:scale-105"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
 
         {/* Premium slide indicators — pill badges */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5">
@@ -207,23 +213,23 @@ export function HeroSection() {
       {/* Refined service highlights bar */}
       <div className="bg-surface border-b border-line">
         <div className="container">
-          <ul className="flex items-center gap-4 sm:gap-8 md:gap-12 overflow-x-auto scrollbar-none py-3.5 sm:py-4">
+          <ul className="grid grid-cols-4 gap-1.5 sm:flex sm:flex-wrap sm:items-center sm:gap-x-8 sm:gap-y-3 md:gap-x-12 py-3 sm:py-4">
             {HIGHLIGHTS.map(({ icon: Icon, label, detail }, i) => (
               <motion.li
                 key={label}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + i * 0.1 }}
-                className="flex items-center gap-2.5 shrink-0"
+                className="flex flex-col items-center text-center gap-1.5 sm:flex-row sm:text-left sm:gap-2.5 sm:shrink-0"
               >
                 <span className="h-9 w-9 rounded-lg bg-accent-soft text-accent-hover flex items-center justify-center shrink-0 ring-1 ring-accent/20">
                   <Icon className="w-[18px] h-[18px]" strokeWidth={2} />
                 </span>
                 <span className="min-w-0">
-                  <span className="block text-[13px] font-semibold text-fg leading-tight">
+                  <span className="block text-[12px] sm:text-[13px] font-semibold text-fg leading-tight">
                     {label}
                   </span>
-                  <span className="block text-xs text-muted leading-tight tabular">
+                  <span className="hidden sm:block text-xs text-muted leading-tight tabular">
                     {detail}
                   </span>
                 </span>

@@ -27,7 +27,8 @@ export const FloatingCartButton = memo(function FloatingCartButton({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.9 }}
           transition={{ type: "spring", stiffness: 380, damping: 28 }}
-          className="fixed z-[55] bottom-[5.5rem] md:bottom-6 right-4 md:right-6"
+          /* Phones already have Cart in the bottom nav. */
+          className="fixed z-[55] bottom-6 right-6 hidden md:block"
         >
           <Link
             href="/cart"
