@@ -11,6 +11,11 @@ export interface ShippingAddress {
   zipCode?: string;
 }
 
+/** Address snapshot stored on an order, with the customer's checkout message. */
+export interface OrderAddress extends ShippingAddress {
+  order_note?: string;
+}
+
 export interface AuthUser {
   id: string;
   name: string;
@@ -209,7 +214,7 @@ export interface UserOrder extends OrderPricingSnapshot {
   total: number;
   payment_method: string;
   payment_status: string;
-  shipping_address: ShippingAddress;
+  shipping_address: OrderAddress;
   created_at: string;
   order_items: UserOrderItem[];
 }

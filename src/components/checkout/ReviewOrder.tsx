@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Banknote, MapPin } from "lucide-react";
+import { Banknote, MapPin, MessageSquareText } from "lucide-react";
 import { useCartStore } from "@/src/store/useCartStore";
 import { formatPrice as fp, variantImage } from "@/src/lib/utils";
 import { DELIVERY_ZONE_LABELS, type DeliveryZone } from "@/src/lib/constants";
@@ -9,6 +9,8 @@ import type { ShippingFormValues } from "./ShippingForm";
 
 interface ReviewOrderProps {
   shipping: ShippingFormValues;
+  /** The customer's optional checkout message. */
+  note?: string;
   deliveryZone: DeliveryZone;
   subtotal: number;
   discountTotal?: number;
@@ -19,6 +21,7 @@ interface ReviewOrderProps {
 
 export function ReviewOrder({
   shipping,
+  note,
   deliveryZone,
   subtotal,
   discountTotal = 0,
@@ -56,6 +59,15 @@ export function ReviewOrder({
           </p>
         </div>
       </div>
+
+      {note && (
+        <div className="rounded-lg border border-line bg-surface-2 p-4">
+          <p className="label-caps text-muted flex items-center gap-1.5 mb-2">
+            <MessageSquareText className="w-3.5 h-3.5 text-subtle" /> Your message
+          </p>
+          <p className="text-[13px] text-fg whitespace-pre-line break-words">{note}</p>
+        </div>
+      )}
 
       <div>
         <p className="label-caps text-muted mb-2.5">
