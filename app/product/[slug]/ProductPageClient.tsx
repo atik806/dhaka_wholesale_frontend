@@ -16,6 +16,7 @@ import {
   PackageSearch,
   Zap,
 } from "lucide-react";
+import { ProductDescription, hasProductDetails } from "@/src/components/product/ProductDescription";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import { ReviewSection } from "@/src/components/product/ReviewSection";
@@ -441,13 +442,11 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
         </div>
 
         {/* Description */}
-        {product.description && (
+        {(hasProductDetails(product.description, product.name) || product.tags?.length > 0) && (
           <section className="mt-8">
             <Card padded>
-              <h2 className="text-lg font-bold text-fg">Product details</h2>
-              <p className="mt-2.5 max-w-3xl text-sm leading-relaxed text-muted">
-                {product.description}
-              </p>
+              <h2 className="mb-4 text-lg font-bold text-fg">Product details</h2>
+              <ProductDescription description={product.description} productName={product.name} />
               {product.tags?.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {product.tags.map((tag) => (
