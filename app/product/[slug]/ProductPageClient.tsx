@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Heart,
   ShoppingBag,
@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Check,
   PackageSearch,
+  Zap,
 } from "lucide-react";
 import { ProductGallery } from "@/src/components/product/ProductGallery";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
@@ -39,6 +40,7 @@ const STOCK_LABEL = {
 
 export function ProductPageClient({ initialProduct }: { initialProduct?: Product | null }) {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
   const { addItem, toggleWishlist, isInWishlist, items } = useCartStore();
   const { addToast } = useToast();
@@ -46,6 +48,9 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
   const [selectedSize, setSelectedSize] = useState<string>();
   const [selectedColor, setSelectedColor] = useState<string>();
   const [justAdded, setJustAdded] = useState(false);
+  // The phone buy bar only shows once the main Add to cart row scrolls away.
+  const actionsRef = useRef<HTMLDivElement>(null);
+  const [actionsVisible, setActionsVisible] = useState(true);
 
   useEffect(() => {
     if (!justAdded) return;
@@ -54,6 +59,15 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
   }, [justAdded]);
 
   const { data: product, isLoading, error, mutate } = useProduct(slug, initialProduct);
+
+  const hasProduct = Boolean(product);
+  useEffect(() => {
+    const el = actionsRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([entry]) => setActionsVisible(entry.isIntersecting));
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasProduct]);
   const { data: related } = useRelatedProducts(slug);
   const { data: liveCategories = [] } = useCategories();
 
@@ -123,6 +137,16 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
     addToast(`${product.name} added to cart`, "success");
   };
 
+  // Facebook shoppers expect a one-tap order: add (unless it is already in the
+  // cart) and go straight to checkout.
+  const handleBuyNow = () => {
+    if (isOutOfStock || missingVariant) return;
+    if (!inCart) {
+      addItem({ product, quantity: effectiveQuantity, selectedSize, selectedColor });
+    }
+    router.push("/checkout");
+  };
+
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({ title: product.name, url: window.location.href });
@@ -139,7 +163,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
       exit={{ opacity: 0 }}
       className="min-h-screen bg-canvas"
     >
-      <div className="container py-6 sm:py-8">
+      <div className="container py-6 pb-24 sm:py-8 md:pb-8">
         <Breadcrumbs
           items={[
             { label: "Shop", href: "/shop" },
@@ -269,7 +293,12 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                             ? "border-accent ring-2 ring-accent/40"
                             : "border-line-strong hover:border-brand",
                         )}
-                        style={{ backgroundColor: color.hex }}
+                        // Admin stores one hex per colour, so draw "Multicolor" as a wheel here.
+                        style={
+                          /multi/i.test(color.name)
+                            ? { background: "conic-gradient(#e5484d, #f5a623, #f6e27a, #46a758, #3e8ed0, #9b6ad6, #e5484d)" }
+                            : { backgroundColor: color.hex }
+                        }
                       />
                     ))}
                   </div>
@@ -316,7 +345,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
               </div>
 
               {/* Actions */}
-              <div className="mt-5 flex items-center gap-2.5">
+              <div ref={actionsRef} className="mt-5 flex items-center gap-2.5">
                 <Button
                   type="button"
                   size="lg"
@@ -364,6 +393,20 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                   <Share2 className="h-5 w-5" />
                 </Button>
               </div>
+
+              {!isOutOfStock && (
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="secondary"
+                  onClick={handleBuyNow}
+                  disabled={missingVariant}
+                  className="mt-2.5 min-h-12 w-full"
+                >
+                  <Zap className="h-4 w-4" />
+                  Buy now · Cash on delivery
+                </Button>
+              )}
 
               {/* Reassurance */}
               <ul className="mt-5 space-y-2 border-t border-line pt-4 text-[13px] text-muted">
@@ -424,6 +467,54 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
           </section>
         )}
       </div>
+
+      {/* Phone buy bar, sits above the bottom nav */}
+      {!isOutOfStock && (
+        <div
+          className={cn(
+            "fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 border-t border-line bg-surface/95 px-4 py-2.5 backdrop-blur md:hidden transition-[transform,opacity,visibility] duration-200",
+            // Fade as well as slide: sliding alone leaves it peeking under the bottom nav.
+            actionsVisible
+              ? "pointer-events-none invisible translate-y-4 opacity-0"
+              : "translate-y-0 opacity-100",
+          )}
+          aria-hidden={actionsVisible}
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="min-w-0 flex-1">
+              <p className="tabular text-lg font-bold leading-tight text-price">
+                {formatPrice(product.price)}
+              </p>
+              {product.originalPrice && (
+                <p className="tabular text-[11px] text-muted line-through">
+                  {formatPrice(product.originalPrice)}
+                </p>
+              )}
+            </div>
+            <Button
+              type="button"
+              variant={showAdded ? "outline" : "primary"}
+              onClick={handleAdd}
+              disabled={missingVariant}
+              tabIndex={actionsVisible ? -1 : 0}
+              className="h-11 px-3"
+              aria-label={showAdded ? "Added to cart" : "Add to cart"}
+            >
+              {showAdded ? <Check className="h-4 w-4" strokeWidth={2.5} /> : <ShoppingBag className="h-4 w-4" />}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleBuyNow}
+              disabled={missingVariant}
+              tabIndex={actionsVisible ? -1 : 0}
+              className="h-11 px-5"
+            >
+              {missingVariant ? `Select ${needsSize ? "size" : "colour"}` : "Buy now"}
+            </Button>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
