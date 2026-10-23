@@ -8,6 +8,7 @@ import Link from "next/link";
 import type { Product } from "@/src/types/product";
 import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
+import { Rating } from "@/src/components/ui/Rating";
 import { cn, formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
@@ -220,15 +221,19 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
 
           {/* Price section */}
           <div className="mt-auto pt-2.5">
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="tabular text-[16px] font-bold text-price sm:text-[17px] tracking-tight">
-                {formatPrice(product.price)}
-              </span>
-              {product.originalPrice && (
-                <span className="tabular text-xs text-muted line-through decoration-2">
-                  {formatPrice(product.originalPrice)}
+            {/* The rating keeps its place beside the price; on narrow cards the old price wraps below. */}
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="tabular text-[16px] font-bold text-price sm:text-[17px] tracking-tight">
+                  {formatPrice(product.price)}
                 </span>
-              )}
+                {product.originalPrice && (
+                  <span className="tabular text-xs text-muted line-through decoration-2">
+                    {formatPrice(product.originalPrice)}
+                  </span>
+                )}
+              </div>
+              <Rating value={product.rating} count={product.reviewCount} className="mt-[3px] shrink-0" />
             </div>
           </div>
 

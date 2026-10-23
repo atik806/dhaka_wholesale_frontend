@@ -26,6 +26,7 @@ import { Button } from "@/src/components/ui/Button";
 import { Card } from "@/src/components/ui/Card";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 import { ProductDetailSkeleton } from "@/src/components/ui/Skeleton";
+import { Rating } from "@/src/components/ui/Rating";
 import { cn, formatPrice, piecesLeft, slugify } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
@@ -214,6 +215,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                       Save {formatPrice(product.originalPrice - product.price)}
                     </span>
                   )}
+                  <Rating value={product.rating} count={product.reviewCount} size="md" className="ml-auto self-center" />
                 </div>
 
                 <p
