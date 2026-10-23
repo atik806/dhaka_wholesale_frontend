@@ -33,8 +33,11 @@ export async function adminFetcher<T>(url: string, options?: RequestInit): Promi
   });
 
   if (res.status === 401) {
-    const ok = await refreshSession();
-    if (!ok) {
+    const refreshed = await refreshSession();
+    if (refreshed === "unavailable") {
+      throw new Error("Couldn't reach the server. Please try again.");
+    }
+    if (refreshed === "expired") {
       redirectToAdminLogin();
     } else {
       res = await fetch(`${API_BASE}${url}`, {

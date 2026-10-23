@@ -95,14 +95,23 @@ export async function registerUser(
   return json.data;
 }
 
-let refreshInFlight: Promise<boolean> | null = null;
+/**
+ * "expired": the backend rejected the refresh token, so the session is over.
+ * "unavailable": the refresh could not be answered (rate limit, server
+ * error, cold start, network). The session may still be fine, so callers
+ * must not sign the user out; treating every failure as expired is what
+ * signed people out around deployments.
+ */
+export type RefreshResult = "ok" | "expired" | "unavailable";
+
+let refreshInFlight: Promise<RefreshResult> | null = null;
 
 /**
  * POST /auth/refresh with an empty body — the refresh token lives in the
  * httpOnly cookie. Single-flight: any number of concurrent 401s share one
  * refresh request.
  */
-export async function refreshSession(): Promise<boolean> {
+export async function refreshSession(): Promise<RefreshResult> {
   if (!refreshInFlight) {
     refreshInFlight = (async () => {
       try {
@@ -112,9 +121,10 @@ export async function refreshSession(): Promise<boolean> {
           headers: { "Content-Type": "application/json" },
           body: "{}",
         });
-        return res.ok;
+        if (res.ok) return "ok";
+        return res.status === 401 || res.status === 400 ? "expired" : "unavailable";
       } catch {
-        return false;
+        return "unavailable";
       } finally {
         refreshInFlight = null;
       }
@@ -173,8 +183,10 @@ async function handleExpiredSession(): Promise<void> {
 
 /**
  * Fetch with credentials (the httpOnly `dw_session` cookie). On 401, try a
- * single-flight cookie refresh, then retry once. A second 401 means the
- * session is genuinely dead — clear the local user and redirect to login.
+ * single-flight cookie refresh, then retry once. A rejected refresh or a
+ * second 401 means the session is genuinely dead — clear the local user and
+ * redirect to login. A refresh that could not be answered keeps the session
+ * and returns the 401 for the caller to report.
  */
 export async function authFetch(
   url: string,
@@ -183,8 +195,9 @@ export async function authFetch(
   let res = await fetch(url, { ...options, credentials: "include" });
   if (res.status !== 401) return res;
 
-  const ok = await refreshSession();
-  if (!ok) {
+  const refreshed = await refreshSession();
+  if (refreshed === "unavailable") return res;
+  if (refreshed === "expired") {
     await handleExpiredSession();
     return res;
   }

@@ -60,42 +60,38 @@ export const useAuthStore = create<AuthState>()(
         set({ _initialized: true });
 
         // Plain fetch (not authFetch): an unauthenticated guest must not be
-        // redirected to /login just by loading a page.
-        let res: Response;
-        try {
-          res = await fetch(`${API_BASE}/auth/profile`, {
-            credentials: "include",
-          });
-        } catch {
-          set({ user: null });
-          return;
-        }
-
-        if (res.ok) {
-          const json = await res.json();
-          set({ user: json.data ?? null });
-          return;
-        }
-
-        // 401 — try one cookie refresh, then re-check the profile once.
-        if (res.status === 401) {
-          const ok = await refreshSession();
-          if (ok) {
-            try {
-              const retry = await fetch(`${API_BASE}/auth/profile`, {
-                credentials: "include",
-              });
-              if (retry.ok) {
-                const json = await retry.json();
-                set({ user: json.data ?? null });
-                return;
-              }
-            } catch {
-              // fall through to the no-user state below
-            }
+        // redirected to /login just by loading a page. Only a definite "not
+        // signed in" clears the stored user; a network error, rate limit or
+        // server error (common right after a deploy) keeps it, and the next
+        // request checks again.
+        const profile = async (): Promise<Response | null> => {
+          try {
+            return await fetch(`${API_BASE}/auth/profile`, {
+              credentials: "include",
+            });
+          } catch {
+            return null;
           }
+        };
+
+        let res = await profile();
+        if (res?.status === 401) {
+          // Try one cookie refresh, then re-check the profile once.
+          const refreshed = await refreshSession();
+          if (refreshed === "unavailable") return;
+          if (refreshed === "expired") {
+            set({ user: null });
+            return;
+          }
+          res = await profile();
         }
-        set({ user: null });
+
+        if (res?.ok) {
+          const json = await res.json().catch(() => null);
+          if (json) set({ user: json.data ?? null });
+          return;
+        }
+        if (res?.status === 401) set({ user: null });
       },
     }),
     {
