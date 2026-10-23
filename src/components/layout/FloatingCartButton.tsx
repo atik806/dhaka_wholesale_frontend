@@ -23,22 +23,25 @@ export const FloatingCartButton = memo(function FloatingCartButton({
     <AnimatePresence>
       {visible && (
         <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.85 }}
+          initial={{ opacity: 0, y: -24, scale: 0.85 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 16, scale: 0.9 }}
+          exit={{ opacity: 0, y: -16, scale: 0.9 }}
           transition={{ type: "spring", stiffness: 380, damping: 28 }}
-          /* Phones already have Cart in the bottom nav. */
-          className="fixed z-[55] bottom-6 right-6 hidden md:block"
+          /* Takes the header cart's place, top right, while the header is
+             scrolled away. Phones already have Cart in the bottom nav. */
+          className="fixed z-[55] top-4 right-6 hidden md:block"
         >
           <Link
             href="/cart"
             className="relative flex h-14 w-14 items-center justify-center rounded-full bg-brand text-brand-fg shadow-lg ring-1 ring-brand-fg/15 hover:bg-brand-hover hover:shadow-xl active:scale-95 transition-all duration-150"
-            aria-label={`Open cart, ${count} items`}
+            aria-label={`Open cart, ${count} ${count === 1 ? "item" : "items"}`}
           >
             <ShoppingCart className="w-6 h-6" strokeWidth={1.75} />
-            <span className="absolute -top-1 -right-1 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold tabular text-accent-fg shadow-sm ring-2 ring-canvas">
-              {label}
-            </span>
+            {count > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold tabular text-accent-fg shadow-sm ring-2 ring-canvas">
+                {label}
+              </span>
+            )}
           </Link>
         </motion.div>
       )}

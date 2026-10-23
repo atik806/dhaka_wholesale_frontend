@@ -1,3 +1,10 @@
+export interface ProductColor {
+  name: string;
+  hex: string;
+  /** Product photo showing this colour, one of the product's images. */
+  image?: string;
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -18,7 +25,7 @@ export interface Product {
   tags: string[];
   variants?: {
     sizes?: string[];
-    colors?: { name: string; hex: string }[];
+    colors?: ProductColor[];
   };
   isNew?: boolean;
   isFeatured?: boolean;

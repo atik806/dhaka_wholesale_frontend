@@ -13,34 +13,31 @@ import type { Product, Category } from "@/src/types/product";
 /**
  * Server-only data fetchers for ISR'd pages.
  *
- * Every fetch here opts into the same revalidation window the backend uses
- * for its CDN cache (15s), so category product counts stay current. The first
- * request renders and caches the page; subsequent requests are served from the
- * Next data cache until it revalidates. A failed fetch degrades gracefully
- * (sections render their fallbacks) instead of failing the whole page.
+ * Every fetch is tagged STORE_TAG. Pages are rebuilt at most every
+ * PAGE_REVALIDATE seconds, and an admin edit expires the tag at once (see
+ * app/admin/actions.ts), so changes still show immediately while idle pages
+ * stop rebuilding every few seconds, which was most of the Vercel CPU use.
+ * A failed fetch degrades gracefully (sections render their fallbacks)
+ * instead of failing the whole page.
  */
 
-const REVALIDATE = 15;
+/** Tag on every storefront fetch; expiring it refreshes every store page. */
+export const STORE_TAG = "store";
 
 /**
- * The home page is cached for a few seconds so visitors get it from the CDN
- * instead of waiting on four API calls. Prices can lag an offer change by up
+ * Home, shop and category pages. Prices can lag an offer start or end by up
  * to this long; OfferPriceSync refetches product lists in the browser when an
  * offer starts or ends, and cart and checkout always re-price on the server.
+ * Route segment configs must repeat this as a literal.
  */
-export const HOME_REVALIDATE = 10;
+export const PAGE_REVALIDATE = 300;
 
-/**
- * Product and site-setting responses carry prices and offer state, so they
- * skip the cache unless the caller passes an explicit `revalidate`.
- */
-async function getJson<T>(url: string, revalidate?: number): Promise<T | null> {
+/** Product pages show a single price prominently, so they refresh sooner. */
+export const PRODUCT_REVALIDATE = 60;
+
+async function getJson<T>(url: string, revalidate = PAGE_REVALIDATE): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE}${url}`, revalidate !== undefined
-      ? { next: { revalidate } }
-      : url.startsWith('/products') || url.startsWith('/site-settings')
-        ? { cache: 'no-store' }
-        : { next: { revalidate: REVALIDATE } });
+    const res = await fetch(`${API_BASE}${url}`, { next: { revalidate, tags: [STORE_TAG] } });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
@@ -55,13 +52,13 @@ export interface HomeData {
   reviews: RecentReview[];
 }
 
-/** Fetch every home-page section in parallel, once per HOME_REVALIDATE window. */
+/** Fetch every home-page section in parallel, once per PAGE_REVALIDATE window. */
 export async function getHomeData(): Promise<HomeData> {
   const [featured, categories, promo, reviews] = await Promise.all([
-    getJson<ApiResponse<BackendProduct[]>>("/products/featured", HOME_REVALIDATE),
-    getJson<ApiResponse<BackendCategory[]>>("/categories", HOME_REVALIDATE),
-    getJson<ApiResponse<PromoBannerData>>("/site-settings/promo_banner", HOME_REVALIDATE),
-    getJson<ApiResponse<RecentReview[]>>("/reviews/recent", HOME_REVALIDATE),
+    getJson<ApiResponse<BackendProduct[]>>("/products/featured"),
+    getJson<ApiResponse<BackendCategory[]>>("/categories"),
+    getJson<ApiResponse<PromoBannerData>>("/site-settings/promo_banner"),
+    getJson<ApiResponse<RecentReview[]>>("/reviews/recent"),
   ]);
 
   return {
@@ -76,7 +73,7 @@ export async function getHomeData(): Promise<HomeData> {
 /**
  * First page of a product listing (whole shop, or one category) for the
  * server render, so products arrive with the page instead of after a
- * client fetch. Cached for HOME_REVALIDATE with the same price trade-off as
+ * client fetch. Cached for PAGE_REVALIDATE with the same price trade-off as
  * the home page. Null on failure, in which case the client fetches as before.
  */
 export async function getProductListPage(
@@ -85,7 +82,7 @@ export async function getProductListPage(
 ): Promise<ProductListResult | null> {
   const qs = new URLSearchParams({ limit: String(limit) });
   if (category) qs.set("category", category);
-  const res = await getJson<ApiResponse<BackendProduct[]>>(`/products?${qs}`, HOME_REVALIDATE);
+  const res = await getJson<ApiResponse<BackendProduct[]>>(`/products?${qs}`);
   if (!res) return null;
   return {
     products: (res.data ?? []).map(mapProduct),
@@ -103,7 +100,7 @@ export async function getProductListPage(
  */
 export async function fetchProductForPage(slug: string): Promise<Product | null> {
   const res = await fetch(`${API_BASE}/products/${encodeURIComponent(slug)}`, {
-    cache: 'no-store',
+    next: { revalidate: PRODUCT_REVALIDATE, tags: [STORE_TAG] },
   });
   if (!res.ok) {
     if (res.status === 404) return null;
@@ -115,7 +112,7 @@ export async function fetchProductForPage(slug: string): Promise<Product | null>
 
 export async function fetchCategoryForPage(slug: string): Promise<Category | null> {
   const res = await fetch(`${API_BASE}/categories/${encodeURIComponent(slug)}`, {
-    next: { revalidate: REVALIDATE },
+    next: { revalidate: PAGE_REVALIDATE, tags: [STORE_TAG] },
   });
   if (!res.ok) {
     if (res.status === 404) return null;

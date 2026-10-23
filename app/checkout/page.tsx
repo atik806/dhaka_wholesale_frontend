@@ -26,7 +26,7 @@ import {
   fetchCheckoutQuote,
   type CheckoutQuote,
 } from "@/src/lib/auth-api";
-import { formatPrice, safeImage } from "@/src/lib/utils";
+import { formatPrice, variantImage } from "@/src/lib/utils";
 import { createCheckoutKeyStore } from "@/src/lib/order-pricing";
 import { validateShipping } from "@/src/lib/checkout-validation";
 
@@ -407,7 +407,7 @@ export default function CheckoutPage() {
                     >
                       <div className="relative w-10 h-10 rounded-md overflow-hidden bg-surface-2 border border-line shrink-0">
                         <Image
-                          src={safeImage(item.product.images)}
+                          src={variantImage(item.product, item.selectedColor)}
                           alt={item.product.name}
                           fill
                           className="object-cover"

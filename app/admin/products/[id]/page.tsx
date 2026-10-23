@@ -7,7 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { fetchProductBySlug, fetchCategories } from "@/src/lib/api";
 import type { Product, Category } from "@/src/types/product";
-import { ProductForm, type ProductFormValues } from "@/src/components/admin/ProductForm";
+import { ProductForm, colorsForApi, type ProductFormValues } from "@/src/components/admin/ProductForm";
 import { Button } from "@/src/components/ui/Button";
 import { useToast } from "@/src/providers/ToastProvider";
 import { adminFetcher } from "@/src/lib/admin-api";
@@ -26,7 +26,7 @@ function productToFormValues(product: Product, categories: Category[]): Partial<
     stock_quantity: product.stockQuantity ?? (product.stock === "out-of-stock" ? 0 : ""),
     tags: product.tags?.join(", ") || "",
     sizes: product.variants?.sizes?.join(", ") || "",
-    colors: product.variants?.colors?.map((c) => `${c.name}:${c.hex}`).join(", ") || "",
+    colors: product.variants?.colors ?? [],
     is_new: product.isNew || false,
     is_featured: product.isFeatured || false,
   };
@@ -81,15 +81,8 @@ export default function EditProductPage() {
       if (values.sizes.trim()) {
         body.sizes = values.sizes.split(",").map((s) => s.trim()).filter(Boolean);
       }
-      if (values.colors.trim()) {
-        body.colors = values.colors
-          .split(",")
-          .map((s) => {
-            const [name, hex] = s.trim().split(":");
-            return name && hex ? { name: name.trim(), hex: hex.trim() } : null;
-          })
-          .filter(Boolean);
-      }
+      // Always sent, so removing every colour clears them.
+      body.colors = colorsForApi(values.colors, values.images);
       await adminFetcher(`/products/${product.id}`, {
         method: "PATCH",
         body: JSON.stringify(body),

@@ -28,8 +28,11 @@ const nextConfig: NextConfig = {
     // names (upload.service.ts), so a long TTL can't serve a stale image.
     minimumCacheTTL: 2678400, // 31 days
     // Fewer widths = fewer variants per image (the defaults generate ~12).
-    deviceSizes: [640, 828, 1080, 1920],
-    imageSizes: [48, 96, 256],
+    // Three widths per photo: 256 for thumbnails, swatches and cart lines,
+    // 640 for product cards, 1080 for the product gallery. Phones and
+    // desktops share them, so most requests hit an already-made variant.
+    deviceSizes: [640, 1080],
+    imageSizes: [256],
     remotePatterns: [
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "picsum.photos" },

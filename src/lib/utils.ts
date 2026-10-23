@@ -1,4 +1,4 @@
-import type { Category, Product } from '@/src/types/product';
+import type { Category, Product, ProductColor } from '@/src/types/product';
 
 type ClassValue = string | number | bigint | false | null | undefined;
 
@@ -6,23 +6,14 @@ export function cn(...inputs: ClassValue[]) {
   return inputs.filter((v): v is string => typeof v === "string" && v.length > 0).join(" ");
 }
 
-/** At or below this many pieces, stock is shown as low. */
-export const LOW_STOCK_PIECES = 5;
-
 /**
- * "12 pieces left" for a product with a known stock count, or null when the
- * count is unknown or the product is sold out. `low` marks counts worth
- * nudging the shopper about.
+ * Fill for a colour swatch. Admin stores one hex per colour, so a colour
+ * named "Multicolor" is drawn as a colour wheel instead.
  */
-export function piecesLeft(
-  product: Pick<Product, 'stock' | 'stockQuantity'>,
-): { label: string; low: boolean } | null {
-  const n = product.stockQuantity;
-  if (product.stock === 'out-of-stock' || n === undefined) return null;
-  return {
-    label: `${n} ${n === 1 ? 'piece' : 'pieces'} left`,
-    low: product.stock === 'low-stock' || n <= LOW_STOCK_PIECES,
-  };
+export function swatchStyle(color: ProductColor): { background: string } {
+  return /multi/i.test(color.name)
+    ? { background: "conic-gradient(#e5484d, #f5a623, #f6e27a, #46a758, #3e8ed0, #9b6ad6, #e5484d)" }
+    : { background: color.hex };
 }
 
 // Intl renders BDT as the "BDT" code rather than the taka sign, so group the
@@ -104,6 +95,18 @@ export function slugify(text: string): string {
 
 export function generateId(): string {
   return Math.random().toString(36).substring(2, 11);
+}
+
+/** Index of the photo linked to a colour, or -1 when it has none. */
+export function colorImageIndex(product: Pick<Product, 'images' | 'variants'>, color?: string): number {
+  const image = product.variants?.colors?.find((c) => c.name === color)?.image;
+  return image ? product.images.indexOf(image) : -1;
+}
+
+/** Thumbnail for a cart line: the chosen colour's photo, else the first photo. */
+export function variantImage(product: Pick<Product, 'images' | 'variants'>, color?: string): string {
+  const index = colorImageIndex(product, color);
+  return index >= 0 ? product.images[index] : safeImage(product.images);
 }
 
 export function safeImage(images: string[] | undefined | null, fallback = '/placeholder.svg'): string {

@@ -1,5 +1,6 @@
 import { API_BASE } from "./constants";
 import { refreshSession } from "./auth-api";
+import { refreshStorefront } from "@/app/admin/actions";
 import type { OrderPricingSnapshot } from "./order-pricing";
 
 interface ApiResponse<T> {
@@ -58,6 +59,9 @@ export async function adminFetcher<T>(url: string, options?: RequestInit): Promi
     }
     throw new Error(msg);
   }
+  // Store pages are cached for minutes; refresh them after any admin change.
+  const method = (options?.method ?? "GET").toUpperCase();
+  if (method !== "GET") void refreshStorefront().catch(() => {});
   return res.json();
 }
 

@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useIsLoggedIn, useAuthHydrated } from "@/src/store/useAuthStore";
-import { formatPrice as fp, safeImage } from "@/src/lib/utils";
+import { formatPrice as fp, variantImage } from "@/src/lib/utils";
 import { DELIVERY_CHARGES, DELIVERY_ZONE_LABELS, QUOTE_REFRESH_MS, type DeliveryZone } from "@/src/lib/constants";
 import {
   computeLocalCheckoutQuote,
@@ -199,7 +199,7 @@ export default function CartPage() {
                           className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-md overflow-hidden bg-surface-2 border border-line"
                         >
                           <Image
-                            src={safeImage(item.product.images)}
+                            src={variantImage(item.product, item.selectedColor)}
                             alt={item.product.name}
                             fill
                             className="object-cover"

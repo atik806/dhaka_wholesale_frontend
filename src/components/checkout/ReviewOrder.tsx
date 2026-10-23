@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Banknote, MapPin } from "lucide-react";
 import { useCartStore } from "@/src/store/useCartStore";
-import { formatPrice as fp, safeImage } from "@/src/lib/utils";
+import { formatPrice as fp, variantImage } from "@/src/lib/utils";
 import { DELIVERY_ZONE_LABELS, type DeliveryZone } from "@/src/lib/constants";
 import type { ShippingFormValues } from "./ShippingForm";
 
@@ -69,7 +69,7 @@ export function ReviewOrder({
             >
               <div className="relative w-14 h-14 rounded-md overflow-hidden bg-surface-2 border border-line shrink-0">
                 <Image
-                  src={safeImage(item.product.images)}
+                  src={variantImage(item.product, item.selectedColor)}
                   alt={item.product.name}
                   fill
                   className="object-cover"

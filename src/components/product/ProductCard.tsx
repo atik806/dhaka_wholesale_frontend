@@ -1,15 +1,15 @@
 "use client";
 
 import { useRef, useState, memo, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Check } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Heart, ShoppingBag, Check, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/src/types/product";
 import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
 import { Rating } from "@/src/components/ui/Rating";
-import { cn, formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
+import { cn, colorImageIndex, formatPrice, safeImage, swatchStyle, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 
@@ -41,6 +41,8 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
     ? "/placeholder.svg"
     : images[activeImage] || safeImage(product.images);
   const [justAdded, setJustAdded] = useState(false);
+  // Products sold in several colours ask for one before adding to the cart.
+  const [pickingColor, setPickingColor] = useState(false);
 
   useEffect(() => {
     if (!justAdded) return;
@@ -48,6 +50,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
     return () => window.clearTimeout(t);
   }, [justAdded]);
 
+  const colors = product.variants?.colors ?? [];
   const showAdded = justAdded || inCart;
   const isOutOfStock = product.stock === "out-of-stock";
 
@@ -55,14 +58,28 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
     e.preventDefault();
     e.stopPropagation();
     if (product.stock === "out-of-stock") return;
+    if (colors.length > 1) {
+      setPickingColor((open) => !open);
+      return;
+    }
+    addToCart(colors[0]?.name);
+  };
+
+  const previewColor = (color: string) => {
+    const index = colorImageIndex(product, color);
+    if (index >= 0) setActiveImage(index);
+  };
+
+  const addToCart = (color?: string) => {
     addItem({
       product,
       quantity: 1,
       selectedSize: product.variants?.sizes?.[0],
-      selectedColor: product.variants?.colors?.[0]?.name,
+      selectedColor: color,
     });
+    setPickingColor(false);
     setJustAdded(true);
-    addToast(`${product.name} added to cart`, "success");
+    addToast(`${product.name}${color && colors.length > 1 ? ` (${color})` : ""} added to cart`, "success");
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -188,6 +205,64 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
             {isOutOfStock && <Badge variant="out-of-stock">Out of stock</Badge>}
           </div>
 
+          {/* Colour picker for multi-colour products, over the bottom of the photo */}
+          <AnimatePresence>
+            {pickingColor && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 12 }}
+                transition={{ duration: 0.18 }}
+                role="group"
+                aria-label={`Choose a colour for ${product.name}`}
+                onKeyDown={(e) => e.key === "Escape" && setPickingColor(false)}
+                className="absolute inset-x-2 bottom-2 z-20 max-h-[calc(100%-1rem)] overflow-y-auto rounded-lg border border-line bg-surface/95 p-1.5 shadow-lg backdrop-blur-sm min-[360px]:p-2 sm:p-2.5"
+              >
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <p className="whitespace-nowrap text-[12px] font-semibold text-fg">Pick a colour</p>
+                  <button
+                    type="button"
+                    onClick={() => setPickingColor(false)}
+                    aria-label="Close colour picker"
+                    className="-m-1 flex h-7 w-7 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1 min-[360px]:gap-1.5">
+                  {colors.map((color) => (
+                    <button
+                      key={color.name}
+                      type="button"
+                      onClick={() => addToCart(color.name)}
+                      // Pointer and keyboard users see the colour's photo before choosing.
+                      onMouseEnter={() => previewColor(color.name)}
+                      onFocus={() => previewColor(color.name)}
+                      aria-label={`Add ${color.name} to cart`}
+                      title={color.name}
+                      className={cn(
+                        "relative overflow-hidden border-2 border-surface bg-surface-2 shadow-[0_0_0_1px_var(--line-strong)] transition-transform hover:scale-105 hover:shadow-[0_0_0_2px_var(--accent)] focus-visible:shadow-[0_0_0_2px_var(--accent)] active:scale-95",
+                        color.image ? "h-8 w-8 rounded-md min-[360px]:h-9 min-[360px]:w-9" : "h-8 w-8 rounded-full",
+                      )}
+                      style={color.image ? undefined : swatchStyle(color)}
+                    >
+                      {color.image && (
+                        <>
+                          <Image src={color.image} alt="" fill sizes="36px" className="object-cover" />
+                          <span
+                            aria-hidden="true"
+                            className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border border-surface"
+                            style={swatchStyle(color)}
+                          />
+                        </>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Wishlist button */}
           <button
             type="button"
@@ -240,7 +315,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
           {/* Add to cart button */}
           <div className="mt-3">
             <Button
-              variant={isOutOfStock ? "outline" : showAdded ? "secondary" : "primary"}
+              variant={isOutOfStock || pickingColor ? "outline" : showAdded ? "secondary" : "primary"}
               size="sm"
               fullWidth
               onClick={handleAddToCart}
@@ -250,6 +325,8 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
             >
               {isOutOfStock ? (
                 "Sold out"
+              ) : pickingColor ? (
+                <span>Cancel</span>
               ) : showAdded ? (
                 <>
                   <Check className="h-4 w-4" strokeWidth={2.5} />
