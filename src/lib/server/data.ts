@@ -1,5 +1,6 @@
 import { API_BASE } from "@/src/lib/constants";
 import { mapProduct, mapCategory } from "@/src/lib/api";
+import type { ProductListResult } from "@/src/lib/api";
 import type {
   ApiResponse,
   BackendProduct,
@@ -23,9 +24,9 @@ const REVALIDATE = 15;
 
 /**
  * The home page is cached for a few seconds so visitors get it from the CDN
- * instead of waiting on four API calls. Its prices can lag an offer change by
- * up to this long; the product sections refetch on the client right after
- * load, and cart and checkout always re-price on the server.
+ * instead of waiting on four API calls. Prices can lag an offer change by up
+ * to this long; OfferPriceSync refetches product lists in the browser when an
+ * offer starts or ends, and cart and checkout always re-price on the server.
  */
 export const HOME_REVALIDATE = 10;
 
@@ -69,6 +70,29 @@ export async function getHomeData(): Promise<HomeData> {
     categories: (categories?.data ?? []).map(mapCategory).slice(0, 6),
     promo: promo?.data ?? null,
     reviews: (reviews?.data ?? []).slice(0, 6),
+  };
+}
+
+/**
+ * First page of a product listing (whole shop, or one category) for the
+ * server render, so products arrive with the page instead of after a
+ * client fetch. Cached for HOME_REVALIDATE with the same price trade-off as
+ * the home page. Null on failure, in which case the client fetches as before.
+ */
+export async function getProductListPage(
+  category: string | undefined,
+  limit: number,
+): Promise<ProductListResult | null> {
+  const qs = new URLSearchParams({ limit: String(limit) });
+  if (category) qs.set("category", category);
+  const res = await getJson<ApiResponse<BackendProduct[]>>(`/products?${qs}`, HOME_REVALIDATE);
+  if (!res) return null;
+  return {
+    products: (res.data ?? []).map(mapProduct),
+    total: res.meta?.total || 0,
+    page: res.meta?.page || 1,
+    limit: res.meta?.limit || limit,
+    totalPages: res.meta?.totalPages || 0,
   };
 }
 

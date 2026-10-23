@@ -12,23 +12,48 @@ import { EmptyState } from "@/src/components/ui/EmptyState";
 import { ShopSkeleton } from "@/src/components/ui/Skeleton";
 import { useCategory, useCategoryTree, useProducts } from "@/src/hooks/useApi";
 import { countCategoryProducts, findCategoryInTree } from "@/src/lib/category-tree";
+import type { ProductListResult } from "@/src/lib/api";
 import type { Category } from "@/src/types/product";
 
-export function CategoryPageClient({ initialCategory }: { initialCategory?: Category | null }) {
-  const params = useParams();
-  const categorySlug = params.category as string;
-  return <CategoryPageContent key={categorySlug} categorySlug={categorySlug} initialCategory={initialCategory} />;
+interface CategoryPageProps {
+  initialCategory?: Category | null;
+  /** First page of products from the server render. */
+  initialProducts?: ProductListResult;
 }
 
-function CategoryPageContent({ categorySlug, initialCategory }: { categorySlug: string; initialCategory?: Category | null }) {
+export function CategoryPageClient({ initialCategory, initialProducts }: CategoryPageProps) {
+  const params = useParams();
+  const categorySlug = params.category as string;
+  return (
+    <CategoryPageContent
+      key={categorySlug}
+      categorySlug={categorySlug}
+      initialCategory={initialCategory}
+      initialProducts={initialProducts}
+    />
+  );
+}
+
+function CategoryPageContent({
+  categorySlug,
+  initialCategory,
+  initialProducts,
+}: CategoryPageProps & { categorySlug: string }) {
   const [page, setPage] = useState(1);
   const limit = 12;
 
   const { data: category, isLoading: catLoading, error: categoryError, mutate: reloadCategory } = useCategory(categorySlug, initialCategory);
   const { data: tree = [], isLoading: treeLoading, error: treeError, mutate: reloadTree } = useCategoryTree();
-  const { data: result, isLoading: prodLoading, error: productError, mutate: reloadProducts } = useProducts({ category: categorySlug, page, limit });
+  const { data: result, isLoading: prodLoading, error: productError, mutate: reloadProducts } = useProducts(
+    { category: categorySlug, page, limit },
+    page === 1 ? initialProducts : undefined,
+  );
 
-  const loading = catLoading;
+  // SWR reports isLoading during its first revalidation even when server
+  // data was passed in, so only treat "no data yet" as loading. Otherwise the
+  // server HTML is a skeleton and products wait for a client fetch.
+  const loading = catLoading && !category;
+  const productsLoading = prodLoading && !result;
 
   if (loading) {
     return <ShopSkeleton />;
@@ -75,7 +100,7 @@ function CategoryPageContent({ categorySlug, initialCategory }: { categorySlug: 
               {category.description}
             </p>
           )}
-          {!productError && !prodLoading && <p className="mt-2 text-[13px] text-muted">
+          {!productError && !productsLoading && <p className="mt-2 text-[13px] text-muted">
             <span className="tabular font-semibold text-fg">{total}</span>{" "}
             {total === 1 ? "product" : "products"} available
           </p>}
@@ -109,7 +134,7 @@ function CategoryPageContent({ categorySlug, initialCategory }: { categorySlug: 
         )}
 
         {children.length > 0 && <h2 className="mb-4 text-lg font-bold text-fg">All {category.name}</h2>}
-        {prodLoading ? <ShopSkeleton /> : productError ? (
+        {productsLoading ? <ShopSkeleton /> : productError ? (
           <div role="alert" className="rounded-xl border border-line bg-surface p-6 text-center">
             <p className="text-muted">Could not load products. Please try again in a moment.</p>
             <Button variant="outline" className="mt-3" onClick={() => void reloadProducts()}>Try again</Button>
