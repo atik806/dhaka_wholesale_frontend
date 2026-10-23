@@ -1,4 +1,5 @@
 {
   "framework": "nextjs",
+  "regions": ["sin1"],
   "outputDirectory": ".next"
 }
