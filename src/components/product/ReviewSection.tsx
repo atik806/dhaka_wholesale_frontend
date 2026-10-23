@@ -9,9 +9,9 @@ import { useAuthStore } from "@/src/store/useAuthStore";
 import { useToast } from "@/src/providers/ToastProvider";
 import { Button, buttonClasses } from "@/src/components/ui/Button";
 import { Card } from "@/src/components/ui/Card";
-import { Badge } from "@/src/components/ui/Badge";
 import { Textarea } from "@/src/components/ui/Field";
 import { cn, formatDate } from "@/src/lib/utils";
+import { isSampleReview, reviewBody } from "@/src/lib/reviews";
 
 interface ReviewSectionProps {
   productId: string;
@@ -191,10 +191,10 @@ function ReviewCard({ review }: { review: Review }) {
           <div className="mb-1 flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2">
               <p className="truncate text-sm font-semibold text-fg">{name}</p>
-              {review.profiles?.avatar_url?.startsWith("demo-review://") && (
-                <Badge variant="neutral" className="shrink-0 px-1.5 py-0 text-[9px] leading-4">
+              {isSampleReview(review) && (
+                <span className="shrink-0 rounded-full border border-line-strong bg-surface-2 px-2 py-px text-[11px] font-semibold text-muted">
                   Sample review
-                </Badge>
+                </span>
               )}
             </div>
             <time className="tabular shrink-0 text-xs text-subtle">
@@ -214,7 +214,7 @@ function ReviewCard({ review }: { review: Review }) {
               />
             ))}
           </div>
-          <p className="text-sm leading-relaxed text-muted">{review.text}</p>
+          <p className="text-sm leading-relaxed text-fg">{reviewBody(review.text)}</p>
         </div>
       </div>
     </Card>

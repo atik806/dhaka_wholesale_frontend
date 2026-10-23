@@ -12,14 +12,14 @@ import type { Product, Category } from "@/src/types/product";
 /**
  * Server-only data fetchers for ISR'd pages.
  *
- * Catalog data changes slowly, so every fetch here opts into the same
- * revalidation window the backend uses for its HTTP cache (300s). The first
+ * Every fetch here opts into the same revalidation window the backend uses
+ * for its CDN cache (15s), so category product counts stay current. The first
  * request renders and caches the page; subsequent requests are served from the
  * Next data cache until it revalidates. A failed fetch degrades gracefully
  * (sections render their fallbacks) instead of failing the whole page.
  */
 
-const REVALIDATE = 300;
+const REVALIDATE = 15;
 
 async function getJson<T>(url: string): Promise<T | null> {
   try {

@@ -9,11 +9,18 @@ import {
   Truck,
   Banknote,
   Headphones,
+  MessageCircle,
+  MessageSquareWarning,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCategoryTree } from "@/src/hooks/useApi";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
 import { SITE_NAME } from "@/src/lib/constants";
+import { OPEN_REPORT_EVENT } from "@/src/components/report/ReportButton";
+
+const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61588527085764";
+const MESSENGER_URL = "https://m.me/61588527085764";
 
 const reassurance = [
   {
@@ -59,11 +66,13 @@ const headingClass = "text-[15px] font-bold text-brand-fg mb-4";
 
 export const Footer = memo(function Footer() {
   const { data: categoryTree = [] } = useCategoryTree();
+  // The home page already shows these promises right under the hero.
+  const showReassurance = usePathname() !== "/";
 
   return (
     <footer className="bg-brand text-brand-fg">
       {/* Reassurance strip */}
-      <div className="border-y border-brand-fg/10">
+      <div className={showReassurance ? "border-y border-brand-fg/10" : "hidden"}>
         <div className="container grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-5 py-6">
           {reassurance.map(({ icon: Icon, title, detail }) => (
             <div key={title} className="flex items-start gap-3">
@@ -114,7 +123,7 @@ export const Footer = memo(function Footer() {
 
             <div className="flex items-center gap-2 mt-6">
               <a
-                href="https://www.facebook.com/profile.php?id=61588527085764"
+                href={FACEBOOK_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-md bg-brand-fg/10 ring-1 ring-brand-fg/15 text-brand-fg hover:bg-accent hover:text-accent-fg hover:ring-accent flex items-center justify-center transition-colors"
@@ -125,17 +134,13 @@ export const Footer = memo(function Footer() {
                 </svg>
               </a>
               <a
-                href="https://instagram.com"
+                href={MESSENGER_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-md bg-brand-fg/10 ring-1 ring-brand-fg/15 text-brand-fg hover:bg-accent hover:text-accent-fg hover:ring-accent flex items-center justify-center transition-colors"
-                aria-label="Instagram"
+                aria-label="Messenger"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
-                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                </svg>
+                <MessageCircle className="w-4 h-4" />
               </a>
               <a
                 href="mailto:atikrj8@gmail.com"
@@ -218,37 +223,43 @@ export const Footer = memo(function Footer() {
           </nav>
         </div>
 
-        {/* Newsletter signup */}
+        {/* Follow + message: the shop's real channels (there is no email list) */}
         <div className="mt-10 pt-8 border-t border-brand-fg/10">
           <div className="max-w-2xl mx-auto text-center">
             <p className="label-caps text-accent mb-2">Stay updated</p>
             <p className="text-brand-fg text-sm mb-4">
-              Get stock alerts, new arrivals and exclusive offers by email.
+              New arrivals and offers go up on our Facebook page first.
             </p>
-            <form
-              onSubmit={(e) => e.preventDefault()}
-              className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto"
-            >
-              <label htmlFor="footer-email" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="footer-email"
-                type="email"
-                required
-                placeholder="you@example.com"
-                className="flex-1 min-w-0 h-11 rounded-md px-3.5 text-sm bg-brand-fg/10 border border-brand-fg/20 text-brand-fg placeholder:text-brand-fg/40 outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
-              />
-              <button
-                type="submit"
-                className="h-11 shrink-0 rounded-md px-5 text-sm font-semibold bg-accent text-accent-fg hover:bg-accent-hover transition-colors"
+            <div className="flex flex-col sm:flex-row justify-center gap-2 max-w-md mx-auto">
+              <a
+                href={FACEBOOK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-11 inline-flex items-center justify-center gap-2 rounded-md px-5 text-sm font-semibold bg-accent text-accent-fg hover:bg-accent-hover transition-colors"
               >
-                Subscribe
-              </button>
-            </form>
-            <p className="text-[11px] text-brand-fg/50 mt-2">
-              No spam. Unsubscribe anytime.
-            </p>
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                </svg>
+                Follow on Facebook
+              </a>
+              <a
+                href={MESSENGER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-11 inline-flex items-center justify-center gap-2 rounded-md px-5 text-sm font-semibold bg-brand-fg/10 ring-1 ring-brand-fg/20 text-brand-fg hover:bg-brand-fg/20 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" />
+                Message us
+              </a>
+            </div>
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event(OPEN_REPORT_EVENT))}
+              className="mt-4 inline-flex items-center gap-1.5 text-xs text-brand-fg/60 hover:text-accent transition-colors"
+            >
+              <MessageSquareWarning className="w-3.5 h-3.5" />
+              Report a problem with the website
+            </button>
           </div>
         </div>
       </div>

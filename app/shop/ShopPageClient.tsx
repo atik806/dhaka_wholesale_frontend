@@ -2,10 +2,10 @@
 
 import { Suspense, useState, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { SlidersHorizontal, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
-import { sortOptions } from "@/src/lib/constants";
+import { sortOptions, priceRanges } from "@/src/lib/constants";
 import { useCategories } from "@/src/hooks/useApi";
 import { ProductGrid } from "@/src/components/product/ProductGrid";
 import {
@@ -49,13 +49,25 @@ function pageWindow(current: number, total: number): (number | "gap")[] {
 
 function ShopPage() {
   const { data: categories = [] } = useCategories();
+  // The filter panel writes slugs into ?categories=; older links used names.
+  // Resolve either to the slug for the API and to the name for display.
   const CATEGORY_SLUG: Record<string, string> = useMemo(
-    () => Object.fromEntries(categories.map((c) => [c.name, c.slug])),
+    () =>
+      Object.fromEntries(
+        categories.flatMap((c) => [[c.name, c.slug], [c.slug, c.slug]]),
+      ),
+    [categories]
+  );
+  const CATEGORY_NAME: Record<string, string> = useMemo(
+    () =>
+      Object.fromEntries(
+        categories.flatMap((c) => [[c.slug, c.name], [c.name, c.name]]),
+      ),
     [categories]
   );
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const categoriesParam = searchParams.get("categories") || "";
   const priceRange = searchParams.get("price") || "all";
@@ -157,6 +169,30 @@ function ShopPage() {
   const total = data?.total || 0;
   const activeFilterCount = countActiveFilters(filters);
 
+  // Applied filters show as removable chips next to the Filters button.
+  const filterChips = [
+    ...filters.categories.map((name) => ({
+      key: `cat-${name}`,
+      label: CATEGORY_NAME[name] ?? name,
+      remove: () =>
+        setFilters({ ...filters, categories: filters.categories.filter((c) => c !== name) }),
+    })),
+    ...(filters.priceRange !== "all"
+      ? [{
+          key: "price",
+          label: priceRanges.find((r) => r.value === filters.priceRange)?.label ?? filters.priceRange,
+          remove: () => setFilters({ ...filters, priceRange: "all" }),
+        }]
+      : []),
+    ...(filters.rating !== null
+      ? [{
+          key: "rating",
+          label: `${filters.rating}★ & up`,
+          remove: () => setFilters({ ...filters, rating: null }),
+        }]
+      : []),
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -170,7 +206,7 @@ function ShopPage() {
         <header className="mb-5">
           <h1 className="text-2xl font-bold font-serif text-fg sm:text-3xl">
             {selectedCategoryNames.length === 1
-              ? selectedCategoryNames[0]
+              ? CATEGORY_NAME[selectedCategoryNames[0]] ?? selectedCategoryNames[0]
               : "All products"}
           </h1>
           <p className="mt-1.5 text-sm text-muted">
@@ -193,25 +229,38 @@ function ShopPage() {
         </header>
 
         <div className="mb-6 flex flex-col gap-3 rounded-lg border border-line bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button
-            variant="outline"
-            onClick={() => setMobileFilterOpen(true)}
-            className="xl:hidden"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="tabular ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-accent-fg">
-                {activeFilterCount}
-              </span>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <Button variant="outline" onClick={() => setFilterOpen(true)}>
+              <SlidersHorizontal className="h-4 w-4" />
+              Filters
+              {activeFilterCount > 0 && (
+                <span className="tabular ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-accent-fg">
+                  {activeFilterCount}
+                </span>
+              )}
+            </Button>
+            {filterChips.map((chip) => (
+              <button
+                key={chip.key}
+                type="button"
+                onClick={chip.remove}
+                aria-label={`Remove filter ${chip.label}`}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line-strong bg-surface-2 pl-3 pr-2 text-[13px] font-medium text-fg hover:border-brand transition-colors"
+              >
+                {chip.label}
+                <X className="h-3.5 w-3.5 text-muted" />
+              </button>
+            ))}
+            {filterChips.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setFilters({ categories: [], priceRange: "all", rating: null })}
+                className="h-9 px-2 text-[13px] font-semibold text-link hover:text-link-hover"
+              >
+                Clear all
+              </button>
             )}
-          </Button>
-
-          <p className="hidden text-[13px] text-muted xl:block">
-            {activeFilterCount > 0
-              ? `${activeFilterCount} filter${activeFilterCount > 1 ? "s" : ""} applied`
-              : "Showing all products"}
-          </p>
+          </div>
 
           <div className="w-full sm:w-56">
             <Select
@@ -233,13 +282,7 @@ function ShopPage() {
           </div>
         </div>
 
-        <div className="flex gap-6">
-          <aside className="hidden w-60 shrink-0 xl:block">
-            <div className="sticky top-24">
-              <ProductFilters filters={filters} onChange={setFilters} />
-            </div>
-          </aside>
-
+        <div>
           <div className="min-w-0 flex-1">
             {isLoading ? (
               <ProductGrid products={[]} loading />
@@ -300,8 +343,8 @@ function ShopPage() {
       </div>
 
       <Modal
-        open={mobileFilterOpen}
-        onClose={() => setMobileFilterOpen(false)}
+        open={filterOpen}
+        onClose={() => setFilterOpen(false)}
         title="Filters"
         description="Narrow down products by category, price and rating."
         footer={
@@ -316,7 +359,7 @@ function ShopPage() {
             >
               Clear all
             </Button>
-            <Button fullWidth onClick={() => setMobileFilterOpen(false)}>
+            <Button fullWidth onClick={() => setFilterOpen(false)}>
               Show {total} {total === 1 ? "result" : "results"}
             </Button>
           </div>

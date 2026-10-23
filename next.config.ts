@@ -46,6 +46,22 @@ const nextConfig: NextConfig = {
   // customer login. Routing every browser API call through this same-origin
   // path makes the `dw_session` cookie first-party. Server-side code still
   // calls the backend directly (see src/lib/constants.ts).
+  // Duplicate listings that were merged into another product: keep old links
+  // (Facebook posts, shared carts) landing on the product that replaced them.
+  async redirects() {
+    return [
+      {
+        source: "/product/crystal-floral-hair-claw-clip-pink-and-amber",
+        destination: "/product/crystal-floral-hair-claw-clip-assorted-colors",
+        permanent: true,
+      },
+      {
+        source: "/product/flower-brooch-pin-red-orchid-purple-and-multicolored",
+        destination: "/product/elegant-crystal-flower-brooch-purple-pink",
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

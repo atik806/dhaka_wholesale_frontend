@@ -1,10 +1,8 @@
 import { HeroSection } from "@/src/components/home/HeroSection";
 import { FeaturedCategories } from "@/src/components/home/FeaturedCategories";
 import { TrendingProducts } from "@/src/components/home/TrendingProducts";
-import { BrandStrip } from "@/src/components/home/BrandStrip";
 import { PromoBanner } from "@/src/components/home/PromoBanner";
 import { CustomerReviews } from "@/src/components/home/CustomerReviews";
-import { Newsletter } from "@/src/components/home/Newsletter";
 import { getHomeData } from "@/src/lib/server/data";
 import { ComboDeals } from "@/src/components/product/ComboDeals";
 
@@ -20,10 +18,8 @@ export default async function Home() {
       <FeaturedCategories fallbackData={categories} />
       <TrendingProducts fallbackData={featured} />
       <ComboDeals compact />
-      <BrandStrip />
       <PromoBanner fallbackData={promo} />
       <CustomerReviews fallbackData={reviews} />
-      <Newsletter />
     </div>
   );
 }

@@ -15,7 +15,13 @@ interface FeaturedCategoriesProps {
 
 export function FeaturedCategories({ fallbackData }: FeaturedCategoriesProps) {
   const { data, isLoading } = useCategories(fallbackData);
-  const categories = data ?? fallbackData ?? [];
+  // Lead with categories that have a photo, then the fullest ones, so the
+  // homepage never opens on a grey placeholder tile.
+  const categories = [...(data ?? fallbackData ?? [])].sort(
+    (a, b) =>
+      Number(Boolean(b.image)) - Number(Boolean(a.image)) ||
+      b.productCount - a.productCount,
+  );
 
   return (
     <Section>

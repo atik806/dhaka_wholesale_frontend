@@ -13,6 +13,9 @@ import { cn, formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/ut
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 
+/** Photo thumbnails shown on the card cover. */
+const THUMBS = 4;
+
 interface ProductCardProps {
   product: Product;
   index?: number;
@@ -25,7 +28,12 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
   const wishlisted = useCartStore((s) => s.wishlistIds.includes(product.id));
   const inCart = useCartStore((s) => s.items.some((i) => i.product.id === product.id));
   const cardRef = useRef<HTMLDivElement>(null);
-  const [imgSrc, setImgSrc] = useState(safeImage(product.images));
+  const images = (product.images ?? []).filter(Boolean);
+  const [activeImage, setActiveImage] = useState(0);
+  const [failed, setFailed] = useState<Record<number, boolean>>({});
+  const imgSrc = failed[activeImage]
+    ? "/placeholder.svg"
+    : images[activeImage] || safeImage(product.images);
   const [justAdded, setJustAdded] = useState(false);
 
   useEffect(() => {
@@ -94,9 +102,65 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
                 isOutOfStock && "opacity-60",
               )}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              onError={() => setImgSrc("/placeholder.svg")}
+              onError={() => setFailed((f) => ({ ...f, [activeImage]: true }))}
             />
           </Link>
+
+          {/* Up to 4 photos on the cover: tap (or hover) a thumbnail to swap the main
+              photo. When there are more, the last tile shows "+N" and opens the product. */}
+          {images.length > 1 && (
+            <div className="absolute bottom-2 left-2 z-10 flex gap-1">
+              {images.slice(0, THUMBS).map((img, i) => {
+                const extra = images.length - THUMBS;
+                const isMore = i === THUMBS - 1 && extra > 0;
+                const tileClass = cn(
+                  "relative h-8 w-8 overflow-hidden rounded-md border-2 bg-surface-2 shadow-sm transition-all sm:h-9 sm:w-9",
+                  i === activeImage && !isMore
+                    ? "border-accent"
+                    : "border-surface/90 hover:border-accent/70",
+                );
+                const thumb = (
+                  <Image
+                    src={img}
+                    alt=""
+                    fill
+                    sizes="36px"
+                    loading="lazy"
+                    className="object-cover"
+                  />
+                );
+                return isMore ? (
+                  <Link
+                    key={i}
+                    href={`/product/${product.slug}`}
+                    aria-label={`See all ${images.length} photos of ${product.name}`}
+                    className={tileClass}
+                  >
+                    {thumb}
+                    <span className="tabular absolute inset-0 flex items-center justify-center bg-black/55 text-[11px] font-bold text-white">
+                      +{extra + 1}
+                    </span>
+                  </Link>
+                ) : (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setActiveImage(i);
+                    }}
+                    onMouseEnter={() => setActiveImage(i)}
+                    aria-label={`Show photo ${i + 1} of ${images.length}`}
+                    aria-pressed={i === activeImage}
+                    className={tileClass}
+                  >
+                    {thumb}
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Hover overlay — subtle dark gradient on hover */}
           <div className="absolute inset-0 z-[1] bg-gradient-to-t from-black/0 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />

@@ -1,12 +1,22 @@
 "use client";
 
-import { useState, memo } from "react";
+import { useState, useEffect, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquareWarning } from "lucide-react";
 import { ReportModal } from "./ReportModal";
 
+export const OPEN_REPORT_EVENT = "dw:open-report";
+
 export const ReportButton = memo(function ReportButton() {
   const [open, setOpen] = useState(false);
+
+  // The footer's "Report a problem" link opens the same modal on phones,
+  // where a third floating button would cover product cards.
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(OPEN_REPORT_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_REPORT_EVENT, onOpen);
+  }, []);
 
   return (
     <>
@@ -18,7 +28,7 @@ export const ReportButton = memo(function ReportButton() {
           whileHover={{ scale: 1.06 }}
           whileTap={{ scale: 0.92 }}
           onClick={() => setOpen(true)}
-          className="fixed bottom-[13.5rem] md:bottom-40 right-4 md:right-6 z-50 flex items-center justify-center w-11 h-11 rounded-full bg-surface text-muted border border-line shadow-md hover:text-fg hover:border-line-strong transition-colors"
+          className="fixed bottom-40 right-6 z-50 hidden md:flex items-center justify-center w-11 h-11 rounded-full bg-surface text-muted border border-line shadow-md hover:text-fg hover:border-line-strong transition-colors"
           title="Report a bug"
           aria-label="Report a bug"
         >
