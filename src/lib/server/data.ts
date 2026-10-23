@@ -21,11 +21,25 @@ import type { Product, Category } from "@/src/types/product";
 
 const REVALIDATE = 15;
 
-async function getJson<T>(url: string): Promise<T | null> {
+/**
+ * The home page is cached for a few seconds so visitors get it from the CDN
+ * instead of waiting on four API calls. Its prices can lag an offer change by
+ * up to this long; the product sections refetch on the client right after
+ * load, and cart and checkout always re-price on the server.
+ */
+export const HOME_REVALIDATE = 10;
+
+/**
+ * Product and site-setting responses carry prices and offer state, so they
+ * skip the cache unless the caller passes an explicit `revalidate`.
+ */
+async function getJson<T>(url: string, revalidate?: number): Promise<T | null> {
   try {
-    const res = await fetch(`${API_BASE}${url}`, url.startsWith('/products') || url.startsWith('/site-settings')
-      ? { cache: 'no-store' }
-      : { next: { revalidate: REVALIDATE } });
+    const res = await fetch(`${API_BASE}${url}`, revalidate !== undefined
+      ? { next: { revalidate } }
+      : url.startsWith('/products') || url.startsWith('/site-settings')
+        ? { cache: 'no-store' }
+        : { next: { revalidate: REVALIDATE } });
     if (!res.ok) return null;
     return (await res.json()) as T;
   } catch {
@@ -40,13 +54,13 @@ export interface HomeData {
   reviews: RecentReview[];
 }
 
-/** Fetch every home-page section in parallel, once per ISR revalidation. */
+/** Fetch every home-page section in parallel, once per HOME_REVALIDATE window. */
 export async function getHomeData(): Promise<HomeData> {
   const [featured, categories, promo, reviews] = await Promise.all([
-    getJson<ApiResponse<BackendProduct[]>>("/products/featured"),
-    getJson<ApiResponse<BackendCategory[]>>("/categories"),
-    getJson<ApiResponse<PromoBannerData>>("/site-settings/promo_banner"),
-    getJson<ApiResponse<RecentReview[]>>("/reviews/recent"),
+    getJson<ApiResponse<BackendProduct[]>>("/products/featured", HOME_REVALIDATE),
+    getJson<ApiResponse<BackendCategory[]>>("/categories", HOME_REVALIDATE),
+    getJson<ApiResponse<PromoBannerData>>("/site-settings/promo_banner", HOME_REVALIDATE),
+    getJson<ApiResponse<RecentReview[]>>("/reviews/recent", HOME_REVALIDATE),
   ]);
 
   return {
