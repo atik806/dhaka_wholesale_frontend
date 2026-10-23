@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, ShoppingBag, Truck, ShieldCheck, Loader2, ArrowRight } from "lucide-react";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import Link from "next/link";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useIsLoggedIn, useAuthHydrated } from "@/src/store/useAuthStore";

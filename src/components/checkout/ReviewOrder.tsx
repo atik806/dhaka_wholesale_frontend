@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import { Banknote, MapPin } from "lucide-react";
 import { useCartStore } from "@/src/store/useCartStore";
 import { formatPrice as fp, variantImage } from "@/src/lib/utils";
