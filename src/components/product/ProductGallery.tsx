@@ -83,7 +83,8 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                 blurDataURL={IMAGE_BLUR_PLACEHOLDER}
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 45vw"
-                priority
+                preload={activeIndex === 0}
+                loading={activeIndex === 0 ? undefined : "eager"}
               />
             ) : (
               <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-subtle">
@@ -93,6 +94,20 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
             )}
           </motion.div>
         </AnimatePresence>
+
+        {/* Warm the next photo so the arrow or a swipe shows it without a wait. */}
+        {images.length > 1 && images[(activeIndex + 1) % images.length] && (
+          <Image
+            src={images[(activeIndex + 1) % images.length]}
+            alt=""
+            aria-hidden="true"
+            fill
+            loading="lazy"
+            fetchPriority="low"
+            className="pointer-events-none -z-10 object-cover opacity-0"
+            sizes="(max-width: 768px) 100vw, 45vw"
+          />
+        )}
 
         {images.length > 1 && (
           <>

@@ -15,6 +15,8 @@ import { useToast } from "@/src/providers/ToastProvider";
 
 /** Photo thumbnails shown on the card cover. */
 const THUMBS = 4;
+/** Cards in the first rows load their photo right away instead of lazily. */
+const EAGER_CARDS = 4;
 
 interface ProductCardProps {
   product: Product;
@@ -31,6 +33,10 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
   const images = (product.images ?? []).filter(Boolean);
   const [activeImage, setActiveImage] = useState(0);
   const [failed, setFailed] = useState<Record<number, boolean>>({});
+  // Thumbnails wait for the main photo, so a grid's main photos don't queue
+  // behind three or four thumbnails each.
+  const [mainLoaded, setMainLoaded] = useState(false);
+  const eager = index < EAGER_CARDS;
   const imgSrc = failed[activeImage]
     ? "/placeholder.svg"
     : images[activeImage] || safeImage(product.images);
@@ -79,7 +85,8 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
       initial={{ opacity: 0, y: 15 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
-      transition={{ duration: 0.35, delay: index * 0.04 }}
+      // Short, capped stagger: long delays left loaded photos invisible.
+      transition={{ duration: 0.25, delay: Math.min(index, 3) * 0.03 }}
       className="h-full"
     >
       <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-line bg-surface transition-all duration-300 hover:border-line-strong hover:shadow-lg hover:-translate-y-0.5">
@@ -102,13 +109,19 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
                 isOutOfStock && "opacity-60",
               )}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-              onError={() => setFailed((f) => ({ ...f, [activeImage]: true }))}
+              loading={eager ? "eager" : "lazy"}
+              fetchPriority={eager ? "high" : "auto"}
+              onLoad={() => setMainLoaded(true)}
+              onError={() => {
+                setFailed((f) => ({ ...f, [activeImage]: true }));
+                setMainLoaded(true);
+              }}
             />
           </Link>
 
           {/* Up to 4 photos on the cover: tap (or hover) a thumbnail to swap the main
               photo. When there are more, the last tile shows "+N" and opens the product. */}
-          {images.length > 1 && (
+          {images.length > 1 && mainLoaded && (
             <div className="absolute bottom-2 left-2 z-10 flex gap-1">
               {images.slice(0, THUMBS).map((img, i) => {
                 const extra = images.length - THUMBS;
