@@ -55,7 +55,8 @@ const supportLinks = [
 
 const companyLinks = [
   { label: "About Dhaka Wholesale", href: "/about" },
-  { label: "Track Your Order", href: "/track-order" },
+  // Orders and their status are listed on the account page (checkout needs an account).
+  { label: "Track Your Order", href: "/account" },
   { label: "Contact Us", href: "/contact" },
   { label: "Terms of Service", href: "/privacy-policy" },
 ];

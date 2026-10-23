@@ -10,6 +10,8 @@ export interface Product {
   slug: string;
   name: string;
   category: string;
+  /** The category's URL slug, when the API includes it. */
+  categorySlug?: string;
   price: number;
   /** Stored price before any timed flash-sale discount. */
   basePrice?: number;
