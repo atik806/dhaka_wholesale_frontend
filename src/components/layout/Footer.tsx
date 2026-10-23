@@ -16,11 +16,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCategoryTree } from "@/src/hooks/useApi";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
-import { SITE_NAME } from "@/src/lib/constants";
+import { SITE_NAME, MESSENGER_URL } from "@/src/lib/constants";
 import { OPEN_REPORT_EVENT } from "@/src/components/report/ReportButton";
 
 const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61588527085764";
-const MESSENGER_URL = "https://m.me/61588527085764";
 
 const reassurance = [
   {
@@ -250,7 +249,7 @@ export const Footer = memo(function Footer() {
                 className="h-11 inline-flex items-center justify-center gap-2 rounded-md px-5 text-sm font-semibold bg-brand-fg/10 ring-1 ring-brand-fg/20 text-brand-fg hover:bg-brand-fg/20 transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
-                Message us
+                Message us · 24/7
               </a>
             </div>
             <button
