@@ -7,8 +7,15 @@ import { safeJsonLd } from "@/src/lib/utils";
 import { ProductPageClient } from "./ProductPageClient";
 import type { Product } from "@/src/types/product";
 
-// Product details change rarely (price/stock aside); cache the page and revalidate every 5 minutes.
-export const revalidate = 300;
+// Cached and rebuilt at most every minute (PRODUCT_REVALIDATE) and right after
+// an admin edit. Route segment config must be a literal.
+export const revalidate = 60;
+
+// No paths at build time; each product page is cached on its first visit
+// instead of rendering on every request.
+export async function generateStaticParams() {
+  return [];
+}
 
 type Props = {
   params: Promise<{ slug: string }>;

@@ -3,9 +3,10 @@ import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
 import { getProductListPage } from "@/src/lib/server/data";
 import { ShopPageClient } from "./ShopPageClient";
 
-// Rebuilt at most every 10s (HOME_REVALIDATE): the page now carries the first
-// page of products, which have prices. Route segment config must be a literal.
-export const revalidate = 10;
+// Rebuilt at most every 5 min (PAGE_REVALIDATE) and right after an admin edit:
+// the page carries the first page of products, which have prices. Route
+// segment config must be a literal.
+export const revalidate = 300;
 
 /** Products per page; must match ITEMS_PER_PAGE in ShopPageClient so the server page is reused. */
 const PAGE_SIZE = 12;
