@@ -30,6 +30,9 @@ import { formatPrice, variantImage } from "@/src/lib/utils";
 import { createCheckoutKeyStore } from "@/src/lib/order-pricing";
 import { validateShipping } from "@/src/lib/checkout-validation";
 
+/** Matches ORDER_NOTE_MAX in the backend orders service. */
+const ORDER_NOTE_MAX = 500;
+
 export default function CheckoutPage() {
   const router = useRouter();
   const authHydrated = useAuthHydrated();
@@ -51,6 +54,7 @@ export default function CheckoutPage() {
     zipCode: user?.shipping_address?.zipCode || "",
   });
   const [deliveryZone, setDeliveryZone] = useState<DeliveryZone>("inside_dhaka");
+  const [note, setNote] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [quote, setQuote] = useState<CheckoutQuote | null>(null);
   const [quoteLoading, setQuoteLoading] = useState(false);
@@ -197,6 +201,7 @@ export default function CheckoutPage() {
         shipping_address: shipping,
         payment_method: "cod",
         delivery_zone: deliveryZone,
+        notes: note.trim() || undefined,
         items: items.map((i) => ({
           product_id: i.product.id,
           quantity: i.quantity,
@@ -369,12 +374,38 @@ export default function CheckoutPage() {
 
             <Card>
               <CardHeader
+                title="Message for us"
+                description="Optional: a delivery time, landmark, gift note or anything else"
+              />
+              <div className="p-5 sm:p-6">
+                <label htmlFor="order-note" className="sr-only">
+                  Message for us (optional)
+                </label>
+                <textarea
+                  id="order-note"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  maxLength={ORDER_NOTE_MAX}
+                  rows={3}
+                  placeholder="e.g. Please call before delivery. Near the mosque gate."
+                  aria-describedby="order-note-count"
+                  className="w-full resize-y rounded-lg border border-line bg-surface px-3.5 py-3 text-[15px] text-fg outline-none transition-colors placeholder:text-subtle focus:border-accent focus:ring-2 focus:ring-accent/30"
+                />
+                <p id="order-note-count" className="mt-1.5 text-right text-xs tabular text-subtle">
+                  {note.length}/{ORDER_NOTE_MAX}
+                </p>
+              </div>
+            </Card>
+
+            <Card>
+              <CardHeader
                 title="Review your order"
                 description="Check everything before you confirm"
               />
               <div className="p-5 sm:p-6">
                 <ReviewOrder
                   shipping={shipping}
+                  note={note.trim()}
                   deliveryZone={deliveryZone}
                   subtotal={orderSummary.original_subtotal}
                   discountTotal={orderSummary.discount_total}

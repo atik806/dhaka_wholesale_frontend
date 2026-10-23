@@ -5,15 +5,7 @@ import { motion } from "framer-motion";
 import Image from "@/src/components/ui/Image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import {
-  ArrowLeft,
-  Loader2,
-  Package,
-  MapPin,
-  Receipt,
-  Ban,
-  AlertTriangle,
-} from "lucide-react";
+import { ArrowLeft, Loader2, Package, MapPin, Receipt, Ban, AlertTriangle, MessageSquareText } from "lucide-react";
 import { useAuthStore, useAuthHydrated } from "@/src/store/useAuthStore";
 import {
   fetchUserOrder,
@@ -282,6 +274,17 @@ export default function CustomerOrderDetailPage() {
                     )}
                   </div>
                 </Card>
+                {address?.order_note && (
+                  <Card>
+                    <CardHeader
+                      title="Your message"
+                      action={<MessageSquareText className="w-5 h-5 text-subtle shrink-0" />}
+                    />
+                    <p className="p-5 text-[13px] text-fg whitespace-pre-line break-words">
+                      {address.order_note}
+                    </p>
+                  </Card>
+                )}
 
                 <Card>
                   <CardHeader

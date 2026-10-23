@@ -53,6 +53,7 @@ export function mapProduct(p: BackendProduct): Product {
     slug: p.slug,
     name: p.name,
     category: p.categories?.name ?? 'Uncategorized',
+    categorySlug: p.categories?.slug,
     price: p.price,
     basePrice: p.base_price ?? p.price,
     baseOriginalPrice: p.base_original_price !== undefined ? p.base_original_price : p.original_price,

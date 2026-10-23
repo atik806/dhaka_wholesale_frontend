@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Check, Download, Trash2 } from "lucide-react";
+import { ArrowLeft, Loader2, Check, Download, Trash2, MessageSquareText } from "lucide-react";
 import { fetchOrder, updateOrderStatus, updatePaymentStatus, deleteOrder } from "@/src/lib/admin-api";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
@@ -127,6 +127,21 @@ export default function OrderDetailPage() {
       y += 4;
     }
     y += 2;
+
+    if (addr?.order_note) {
+      bold("Customer message", 11);
+      y += 5;
+      // The PDF font only covers basic Latin (no Bangla or emoji); point to
+      // the order page instead of printing garbled text.
+      const note = /[^\x00-\x7F]/.test(addr.order_note)
+        ? "See the order page in admin (the message uses characters this PDF can't print)."
+        : addr.order_note;
+      for (const row of doc.splitTextToSize(note, pageW - margin * 2) as string[]) {
+        normal(row, 10);
+        y += 4;
+      }
+      y += 2;
+    }
 
     bold("Payment", 11);
     y += 5;
@@ -342,6 +357,18 @@ export default function OrderDetailPage() {
         </div>
       )}
 
+      {(order.shipping_address as Record<string, string> | undefined)?.order_note && (
+        <div className="mb-6 flex items-start gap-3 rounded-2xl border border-accent/40 bg-accent-soft p-5">
+          <MessageSquareText className="mt-0.5 h-5 w-5 shrink-0 text-accent-hover" />
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-fg">Customer message</h2>
+            <p className="mt-1 text-sm text-fg whitespace-pre-line break-words">
+              {(order.shipping_address as Record<string, string>).order_note}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Customer Info */}
         <div className="bg-surface rounded-2xl border border-line p-6">
@@ -370,7 +397,7 @@ export default function OrderDetailPage() {
           <h2 className="text-sm font-semibold mb-4">Shipping Address</h2>
           <div className="space-y-1 text-sm">
             {Object.keys(address).length > 0 ? (
-              Object.entries(address).map(([key, val]) => (
+              Object.entries(address).filter(([key]) => key !== "order_note").map(([key, val]) => (
                 <p key={key}>
                   <span className="text-muted capitalize">{key.replace(/_/g, " ")}:</span> {val}
                 </p>

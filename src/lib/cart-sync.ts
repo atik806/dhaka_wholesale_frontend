@@ -40,29 +40,36 @@ export async function loadServerCartAndWishlist(): Promise<void> {
   if (mergeInFlight) return mergeInFlight;
   if (loadInFlight) return loadInFlight;
 
-  loadInFlight = (async () => {
-    try {
-      const [cartRows, wishRows] = await Promise.all([
-        fetchServerCart(),
-        fetchServerWishlist(),
-      ]);
-      useCartStore.getState().replaceItems(mapServerCartToItems(cartRows));
-      useCartStore
-        .getState()
-        .setWishlistIds(wishRows.map((row) => row.product_id));
-      useCartStore.getState().setServerSynced(true);
-    } catch (err) {
-      console.error("[cart-sync] Failed to load server cart/wishlist:", err);
-      toast(
-        "Couldn't load your saved cart — showing items saved on this device.",
-        "error",
-      );
-    } finally {
-      loadInFlight = null;
-    }
-  })();
-
+  loadInFlight = loadServerState().finally(() => {
+    loadInFlight = null;
+  });
   return loadInFlight;
+}
+
+/**
+ * The load itself, without the in-flight checks. The login merge calls this
+ * directly: going through loadServerCartAndWishlist() from inside the merge
+ * returned the merge's own promise, so the merge awaited itself and login
+ * with items in the cart never finished.
+ */
+async function loadServerState(): Promise<void> {
+  try {
+    const [cartRows, wishRows] = await Promise.all([
+      fetchServerCart(),
+      fetchServerWishlist(),
+    ]);
+    useCartStore.getState().replaceItems(mapServerCartToItems(cartRows));
+    useCartStore
+      .getState()
+      .setWishlistIds(wishRows.map((row) => row.product_id));
+    useCartStore.getState().setServerSynced(true);
+  } catch (err) {
+    console.error("[cart-sync] Failed to load server cart/wishlist:", err);
+    toast(
+      "Couldn't load your saved cart — showing items saved on this device.",
+      "error",
+    );
+  }
 }
 
 export type GuestCartSnapshot = {
@@ -109,12 +116,12 @@ export async function mergeGuestCartOnLogin(
       }
 
       // Always reload so empty-guest + existing-server cart still hydrates.
-      await loadServerCartAndWishlist();
+      await loadServerState();
     } catch (err) {
       console.error("[cart-sync] Merge on login failed:", err);
       toast("Couldn't merge your previous cart — loaded the cart on your account.", "error");
       // Fall back to server load so auth cart is still usable.
-      await loadServerCartAndWishlist();
+      await loadServerState();
     } finally {
       mergeInFlight = null;
     }

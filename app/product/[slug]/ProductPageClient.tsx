@@ -176,7 +176,7 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
         <Breadcrumbs
           items={[
             { label: "Shop", href: "/shop" },
-            { label: product.category, href: `/shop/${liveCategories.find((c) => c.name === product.category)?.slug ?? slugify(product.category)}` },
+            { label: product.category, href: `/shop/${product.categorySlug ?? liveCategories.find((c) => c.name === product.category)?.slug ?? slugify(product.category)}` },
             { label: product.name },
           ]}
         />
