@@ -3,7 +3,7 @@
 import { useRef, useState, memo, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, ShoppingBag, Check, X } from "lucide-react";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import Link from "next/link";
 import type { Product } from "@/src/types/product";
 import { Badge } from "@/src/components/ui/Badge";

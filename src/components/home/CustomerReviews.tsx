@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ChevronRight, Star } from "lucide-react";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import Link from "next/link";
 import { Card } from "@/src/components/ui/Card";
 import { Section, SectionHeader } from "@/src/components/ui/Section";

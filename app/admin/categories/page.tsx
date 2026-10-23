@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { Plus, Pencil, Trash2, Loader2, ChevronRight, ChevronDown } from "lucide-react";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import { useSWRConfig } from "swr";
 import { fetchCategoryTree } from "@/src/lib/api";
 import { CategoryForm, type CategoryFormData } from "@/src/components/admin/CategoryForm";

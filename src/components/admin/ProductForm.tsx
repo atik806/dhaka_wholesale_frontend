@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Save, Loader2, Plus, Trash2, ImageOff } from "lucide-react";
-import Image from "next/image";
+import Image from "@/src/components/ui/Image";
 import type { Category, ProductColor } from "@/src/types/product";
 import { Button } from "@/src/components/ui/Button";
 import { ImageUpload } from "@/src/components/admin/ImageUpload";
