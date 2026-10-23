@@ -9,7 +9,7 @@ import type { Product } from "@/src/types/product";
 import { Badge } from "@/src/components/ui/Badge";
 import { Button } from "@/src/components/ui/Button";
 import { Rating } from "@/src/components/ui/Rating";
-import { cn, formatPrice, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
+import { cn, formatPrice, piecesLeft, safeImage, IMAGE_BLUR_PLACEHOLDER } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 
@@ -50,6 +50,7 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
 
   const showAdded = justAdded || inCart;
   const isOutOfStock = product.stock === "out-of-stock";
+  const stockLeft = piecesLeft(product);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -236,12 +237,30 @@ export const ProductCard = memo(function ProductCard({ product, index = 0 }: Pro
                 </span>
               )}
             </div>
-            {product.stock === "low-stock" && (
+            {stockLeft ? (
               <div className="mt-1.5 flex items-center gap-1.5">
-                <span className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "h-1.5 w-1.5 rounded-full",
+                    stockLeft.low ? "bg-accent animate-pulse" : "bg-success",
+                  )}
+                />
+                <p
+                  className={cn(
+                    "tabular text-[11px] font-semibold",
+                    stockLeft.low ? "text-accent-hover" : "text-success",
+                  )}
+                >
+                  {stockLeft.label}
+                </p>
+              </div>
+            ) : product.stock === "low-stock" ? (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
                 <p className="text-[11px] font-semibold text-accent-hover">Only a few left</p>
               </div>
-            )}
+            ) : null}
           </div>
 
           {/* Add to cart button */}

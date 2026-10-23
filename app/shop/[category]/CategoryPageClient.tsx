@@ -74,7 +74,6 @@ function CategoryPageContent({
     );
   }
 
-  const total = result?.total ?? result?.products.length ?? 0;
   const children = findCategoryInTree(tree, category.id)?.children ?? [];
 
   return (
@@ -100,10 +99,6 @@ function CategoryPageContent({
               {category.description}
             </p>
           )}
-          {!productError && !productsLoading && <p className="mt-2 text-[13px] text-muted">
-            <span className="tabular font-semibold text-fg">{total}</span>{" "}
-            {total === 1 ? "product" : "products"} available
-          </p>}
         </header>
 
         {treeLoading && <div className="shimmer mb-6 h-24 rounded-xl" aria-label="Loading subcategories" role="status" />}

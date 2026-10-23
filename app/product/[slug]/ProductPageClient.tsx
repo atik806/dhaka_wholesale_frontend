@@ -26,7 +26,7 @@ import { Card } from "@/src/components/ui/Card";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 import { Rating } from "@/src/components/ui/Rating";
 import { ProductDetailSkeleton } from "@/src/components/ui/Skeleton";
-import { cn, formatPrice, slugify } from "@/src/lib/utils";
+import { cn, formatPrice, piecesLeft, slugify } from "@/src/lib/utils";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 import { useProduct, useRelatedProducts, useCategories } from "@/src/hooks/useApi";
@@ -241,6 +241,11 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
                     )}
                   />
                   {STOCK_LABEL[product.stock]}
+                  {piecesLeft(product) && (
+                    <span className="tabular font-normal text-muted">
+                      · {piecesLeft(product)!.label}
+                    </span>
+                  )}
                 </p>
               </div>
 
