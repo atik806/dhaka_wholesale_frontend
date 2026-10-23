@@ -10,7 +10,8 @@ interface CartNavButtonProps {
 }
 
 /**
- * Amazon-style cart control: count sits in the basket area of the icon.
+ * Header cart control: a cart icon with an accent count badge, and on wider
+ * screens a two-line label matching the "Hello, sign in / Account" items.
  */
 export function CartNavButton({
   totalItems,
@@ -23,25 +24,28 @@ export function CartNavButton({
   return (
     <Link
       href="/cart"
-      className={`group relative flex items-end gap-1 px-1.5 sm:px-2 py-1 rounded-sm text-brand-fg hover:outline hover:outline-1 hover:outline-brand-fg/40 min-h-[48px] ${className}`}
-      aria-label={`Cart, ${count} items`}
+      className={`group flex min-h-[48px] items-center gap-2.5 rounded-md px-1 py-1.5 sm:px-2 text-brand-fg transition-colors hover:bg-white/10 focus-visible:ring-offset-0 ${className}`}
+      aria-label={`Cart, ${count} ${count === 1 ? "item" : "items"}`}
     >
-      <span className="relative inline-block w-10 h-9 sm:w-11 sm:h-10">
+      <span className="relative flex h-10 w-10 items-center justify-center">
         <ShoppingCart
-          className="absolute inset-0 w-full h-full"
-          strokeWidth={1.6}
+          className="h-[26px] w-[26px] transition-transform duration-200 group-hover:-translate-y-px"
+          strokeWidth={1.8}
           aria-hidden
         />
-        {/* Count nestled in cart basket (Amazon pattern) */}
-        <span
-          className="pointer-events-none absolute left-1/2 top-[2px] -translate-x-1/2 min-w-[1.1rem] text-center text-[13px] sm:text-[14px] font-bold leading-none text-accent tabular select-none"
-          style={{ textShadow: "0 0 3px var(--brand), 0 0 3px var(--brand)" }}
-        >
-          {label}
-        </span>
+        {count > 0 && (
+          <span
+            key={label}
+            className="tabular pointer-events-none absolute -right-0.5 top-0 flex h-[19px] min-w-[19px] animate-[cart-pop_0.3s_ease-out] items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold leading-none text-accent-fg ring-2 ring-brand-deep select-none"
+            aria-hidden
+          >
+            {label}
+          </span>
+        )}
       </span>
-      <span className="hidden sm:inline text-[13px] font-bold pb-0.5">
-        Cart
+      <span className="hidden flex-col justify-center sm:flex">
+        <span className="text-[11px] leading-none text-white/60">Your</span>
+        <span className="text-[13px] font-semibold leading-tight">Cart</span>
       </span>
     </Link>
   );

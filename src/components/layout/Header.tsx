@@ -350,7 +350,8 @@ export const Header = memo(function Header() {
                 type="button"
                 onClick={toggleTheme}
                 suppressHydrationWarning
-                className={`p-2.5 text-white/70 hover:text-white ${navItem}`}
+                // Below 360px the row overflows; the mobile menu has the same toggle.
+                className={`hidden min-[360px]:block p-2.5 text-white/70 hover:text-white ${navItem}`}
                 aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
               >
                 {theme === "dark" ? <Sun className="w-[18px] h-[18px]" /> : <Moon className="w-[18px] h-[18px]" />}
