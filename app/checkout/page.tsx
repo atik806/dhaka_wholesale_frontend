@@ -117,6 +117,8 @@ export default function CheckoutPage() {
     const quoteItems = items.map((i) => ({
       product_id: i.product.id,
       quantity: i.quantity,
+      selected_size: i.selectedSize || null,
+      selected_color: i.selectedColor || null,
     }));
 
     const loadQuote = () => {
@@ -151,7 +153,7 @@ export default function CheckoutPage() {
   const applyCoupon = async (code: string) => {
     setCouponBusy(true);
     try {
-      const result = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity })), code);
+      const result = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity, selected_size: item.selectedSize || null, selected_color: item.selectedColor || null })), code);
       if (!result) throw new Error("Could not verify coupon. Please try again.");
       setCouponCode(code); setQuote(result); setQuoteError("");
     } finally { setCouponBusy(false); }
@@ -228,7 +230,7 @@ export default function CheckoutPage() {
       setCompleted(true);
     } catch (e) {
       setPlaceError(e instanceof Error ? e.message : "Something went wrong");
-      const refreshed = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity })), couponCode).catch(() => null);
+      const refreshed = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity, selected_size: item.selectedSize || null, selected_color: item.selectedColor || null })), couponCode).catch(() => null);
       if (refreshed) setQuote(refreshed);
     } finally {
       setPlacing(false);

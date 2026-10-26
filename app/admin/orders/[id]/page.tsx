@@ -1,9 +1,23 @@
 "use client";
 
+import { OrderOperationsPanel } from "@/src/components/admin/operations/OrderOperationsPanel";
+import { useAdminAccess } from "@/src/components/admin/operations/AccessContext";
+import { can } from "@/src/lib/operations-api";
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2, Check, Download, Trash2, MessageSquareText } from "lucide-react";
-import { fetchOrder, updateOrderStatus, updatePaymentStatus, deleteOrder } from "@/src/lib/admin-api";
+import {
+  ArrowLeft,
+  Loader2,
+  Check,
+  Download,
+  Trash2,
+  MessageSquareText,
+} from "lucide-react";
+import {
+  fetchOrder,
+  updatePaymentStatus,
+  deleteOrder,
+} from "@/src/lib/admin-api";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { useToast } from "@/src/providers/ToastProvider";
@@ -11,11 +25,12 @@ import { formatPrice, formatDate, safeImage, cn } from "@/src/lib/utils";
 import { orderDiscountLines } from "@/src/lib/order-pricing";
 import { SITE_NAME } from "@/src/lib/constants";
 import type { Order } from "@/src/lib/admin-api";
-import { nextOrderStatuses, nextPaymentStatuses } from "@/src/lib/order-status";
+import { nextPaymentStatuses } from "@/src/lib/order-status";
 
 const statusSteps = ["pending", "confirmed", "shipped", "delivered"];
 
 export default function OrderDetailPage() {
+  const { permissions } = useAdminAccess();
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { confirm, dialog } = useConfirm();
@@ -32,205 +47,197 @@ export default function OrderDetailPage() {
         const data = await fetchOrder(id);
         if (active) setOrder(data);
       } catch (err) {
-        if (active) setError(err instanceof Error ? err.message : "Failed to load order");
+        if (active)
+          setError(err instanceof Error ? err.message : "Failed to load order");
       } finally {
         if (active) setLoading(false);
       }
     })();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [id]);
 
   const currentStepIndex = order ? statusSteps.indexOf(order.status) : -1;
 
-  const handleStatusChange = async (newStatus: string) => {
-    if (!order || order.status === newStatus) return;
-    if (newStatus === "cancelled") {
-      const ok = await confirm("Cancel Order", "Are you sure you want to cancel this order? This action cannot be undone.", { confirmLabel: "Cancel Order", danger: true });
-      if (!ok) return;
-    }
-    setUpdating(true);
-    try {
-      const updated = await updateOrderStatus(order.id, newStatus);
-      setOrder(updated);
-      addToast("Order status updated", "success");
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : "Failed to update status", "error");
-    } finally {
-      setUpdating(false);
-    }
-  };
-
   const handleDownloadReceipt = useCallback(async () => {
     if (!order) return;
     try {
-    const { jsPDF } = await import("jspdf");
-    const addr = order.shipping_address as Record<string, string> | undefined;
-    const customerName = addr?.firstName && addr?.lastName
-      ? `${addr.firstName} ${addr.lastName}`
-      : order.profiles?.name || "—";
-    const customerEmail = addr?.email || order.profiles?.email || "—";
+      const { jsPDF } = await import("jspdf");
+      const addr = order.shipping_address as Record<string, string> | undefined;
+      const customerName =
+        addr?.firstName && addr?.lastName
+          ? `${addr.firstName} ${addr.lastName}`
+          : order.profiles?.name || "—";
+      const customerEmail = addr?.email || order.profiles?.email || "—";
 
-    const doc = new jsPDF({ unit: "mm", format: "a4" });
-    const pageW = 210;
-    const margin = 20;
-    const y0 = 20;
-    let y = y0;
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+      const pageW = 210;
+      const margin = 20;
+      const y0 = 20;
+      let y = y0;
 
-    const bold = (text: string, size = 12) => {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(size);
-      doc.text(text, margin, y);
-    };
-    const normal = (text: string, size = 10) => {
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(size);
-      doc.text(text, margin, y);
-    };
-    const line = () => {
-      y += 2;
-      doc.setDrawColor(200);
-      doc.line(margin, y, pageW - margin, y);
-      y += 4;
-    };
+      const bold = (text: string, size = 12) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(size);
+        doc.text(text, margin, y);
+      };
+      const normal = (text: string, size = 10) => {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(size);
+        doc.text(text, margin, y);
+      };
+      const line = () => {
+        y += 2;
+        doc.setDrawColor(200);
+        doc.line(margin, y, pageW - margin, y);
+        y += 4;
+      };
 
-    bold(SITE_NAME, 20);
-    y += 8;
-    bold("RECEIPT", 16);
-    y += 8;
-    line();
+      bold(SITE_NAME, 20);
+      y += 8;
+      bold("RECEIPT", 16);
+      y += 8;
+      line();
 
-    normal(`Order #${order.id.slice(0, 8).toUpperCase()}`, 11);
-    y += 5;
-    normal(`Date: ${formatDate(order.created_at)}`, 10);
-    y += 6;
-
-    bold("Customer", 11);
-    y += 5;
-    normal(`Name: ${customerName}`, 10);
-    y += 4;
-    normal(`Email: ${customerEmail}`, 10);
-    y += 4;
-    if (addr?.phone) {
-      normal(`Phone: ${addr.phone}`, 10);
-      y += 4;
-    }
-    y += 2;
-
-    bold("Shipping Address", 11);
-    y += 5;
-    if (addr) {
-      normal(`${addr.firstName || ""} ${addr.lastName || ""}`, 10);
-      y += 4;
-      normal(addr.address || "", 10);
-      y += 4;
-      normal(`${addr.city || ""} ${addr.zipCode || ""}`, 10);
-      y += 4;
-    }
-    y += 2;
-
-    if (addr?.order_note) {
-      bold("Customer message", 11);
+      normal(`Order #${order.id.slice(0, 8).toUpperCase()}`, 11);
       y += 5;
-      // The PDF font only covers basic Latin (no Bangla or emoji); point to
-      // the order page instead of printing garbled text.
-      const note = /[^\x00-\x7F]/.test(addr.order_note)
-        ? "See the order page in admin (the message uses characters this PDF can't print)."
-        : addr.order_note;
-      for (const row of doc.splitTextToSize(note, pageW - margin * 2) as string[]) {
-        normal(row, 10);
+      normal(`Date: ${formatDate(order.created_at)}`, 10);
+      y += 6;
+
+      bold("Customer", 11);
+      y += 5;
+      normal(`Name: ${customerName}`, 10);
+      y += 4;
+      normal(`Email: ${customerEmail}`, 10);
+      y += 4;
+      if (addr?.phone) {
+        normal(`Phone: ${addr.phone}`, 10);
         y += 4;
       }
       y += 2;
-    }
 
-    bold("Payment", 11);
-    y += 5;
-    normal(`Method: ${order.payment_method.toUpperCase()}`, 10);
-    y += 4;
-    normal(`Status: ${order.payment_status.toUpperCase()}`, 10);
-    y += 6;
-    line();
-
-    // Items table header
-    const col1 = margin;
-    const col2 = 100;
-    const col3 = 140;
-    const col4 = 170;
-    const rowH = 6;
-
-    bold("Items", 11);
-    y += 5;
-
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.text("Product", col1, y);
-    doc.text("Price", col2, y);
-    doc.text("Qty", col3, y);
-    doc.text("Subtotal", col4, y);
-    y += 4;
-    doc.setDrawColor(200);
-    doc.line(margin, y, pageW - margin, y);
-    y += 3;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    order.order_items?.forEach((item) => {
-      const name = item.product_name.length > 40
-        ? item.product_name.slice(0, 38) + ".."
-        : item.product_name;
-      if (y > 270) {
-        doc.addPage();
-        y = y0;
-      }
-      doc.text(name, col1, y, { maxWidth: col2 - col1 - 2 });
-      doc.text(formatPrice(item.price), col2, y);
-      doc.text(String(item.quantity), col3, y);
-      doc.text(formatPrice(item.price * item.quantity), col4, y, { align: "right" });
-      y += rowH;
-    });
-
-    y += 2;
-    line();
-
-    // Totals
-    const totalX = col2;
-    const labelX = totalX;
-    const valueX = col4;
-
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    for (const discountLine of orderDiscountLines(order)) {
-      doc.text(discountLine.label, labelX, y);
-      doc.text(
-        discountLine.amount < 0 ? `-${formatPrice(-discountLine.amount)}` : formatPrice(discountLine.amount),
-        valueX,
-        y,
-        { align: "right" },
-      );
+      bold("Shipping Address", 11);
       y += 5;
-    }
-    doc.text("Subtotal", labelX, y);
-    doc.text(formatPrice(order.subtotal), valueX, y, { align: "right" });
-    y += 5;
-    doc.text("Shipping", labelX, y);
-    doc.text(formatPrice(order.shipping_cost), valueX, y, { align: "right" });
-    y += 5;
-    doc.text("Tax", labelX, y);
-    doc.text(formatPrice(order.tax), valueX, y, { align: "right" });
-    y += 5;
-    doc.setFont("helvetica", "bold");
-    doc.text("Total", labelX, y);
-    doc.text(formatPrice(order.total), valueX, y, { align: "right" });
+      if (addr) {
+        normal(`${addr.firstName || ""} ${addr.lastName || ""}`, 10);
+        y += 4;
+        normal(addr.address || "", 10);
+        y += 4;
+        normal(`${addr.city || ""} ${addr.zipCode || ""}`, 10);
+        y += 4;
+      }
+      y += 2;
 
-    y += 12;
-    line();
-    y += 4;
-    normal(`Order Status: ${order.status.toUpperCase()}`, 9);
-    y += 4;
-    normal(`Thank you for shopping with ${SITE_NAME}!`, 9);
+      if (addr?.order_note) {
+        bold("Customer message", 11);
+        y += 5;
+        const note = /[^\x00-\x7F]/.test(addr.order_note)
+          ? "See the order page in admin (the message uses characters this PDF can't print)."
+          : addr.order_note;
+        for (const row of doc.splitTextToSize(
+          note,
+          pageW - margin * 2,
+        ) as string[]) {
+          normal(row, 10);
+          y += 4;
+        }
+        y += 2;
+      }
 
-    const fileName = `receipt-${order.id.slice(0, 8)}.pdf`;
-    doc.save(fileName);
+      bold("Payment", 11);
+      y += 5;
+      normal(`Method: ${order.payment_method.toUpperCase()}`, 10);
+      y += 4;
+      normal(`Status: ${order.payment_status.toUpperCase()}`, 10);
+      y += 6;
+      line();
+
+      // Items table header
+      const col1 = margin;
+      const col2 = 100;
+      const col3 = 140;
+      const col4 = 170;
+      const rowH = 6;
+
+      bold("Items", 11);
+      y += 5;
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.text("Product", col1, y);
+      doc.text("Price", col2, y);
+      doc.text("Qty", col3, y);
+      doc.text("Subtotal", col4, y);
+      y += 4;
+      doc.setDrawColor(200);
+      doc.line(margin, y, pageW - margin, y);
+      y += 3;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      order.order_items?.forEach((item) => {
+        const name =
+          item.product_name.length > 40
+            ? item.product_name.slice(0, 38) + ".."
+            : item.product_name;
+        if (y > 270) {
+          doc.addPage();
+          y = y0;
+        }
+        doc.text(name, col1, y, { maxWidth: col2 - col1 - 2 });
+        doc.text(formatPrice(item.price), col2, y);
+        doc.text(String(item.quantity), col3, y);
+        doc.text(formatPrice(item.price * item.quantity), col4, y, {
+          align: "right",
+        });
+        y += rowH;
+      });
+
+      y += 2;
+      line();
+
+      // Totals
+      const totalX = col2;
+      const labelX = totalX;
+      const valueX = col4;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      for (const discountLine of orderDiscountLines(order)) {
+        doc.text(discountLine.label, labelX, y);
+        doc.text(
+          discountLine.amount < 0
+            ? `-${formatPrice(-discountLine.amount)}`
+            : formatPrice(discountLine.amount),
+          valueX,
+          y,
+          { align: "right" },
+        );
+        y += 5;
+      }
+      doc.text("Subtotal", labelX, y);
+      doc.text(formatPrice(order.subtotal), valueX, y, { align: "right" });
+      y += 5;
+      doc.text("Shipping", labelX, y);
+      doc.text(formatPrice(order.shipping_cost), valueX, y, { align: "right" });
+      y += 5;
+      doc.text("Tax", labelX, y);
+      doc.text(formatPrice(order.tax), valueX, y, { align: "right" });
+      y += 5;
+      doc.setFont("helvetica", "bold");
+      doc.text("Total", labelX, y);
+      doc.text(formatPrice(order.total), valueX, y, { align: "right" });
+
+      y += 12;
+      line();
+      y += 4;
+      normal(`Order Status: ${order.status.toUpperCase()}`, 9);
+      y += 4;
+      normal(`Thank you for shopping with ${SITE_NAME}!`, 9);
+
+      const fileName = `receipt-${order.id.slice(0, 8)}.pdf`;
+      doc.save(fileName);
     } catch {
       addToast("Failed to generate receipt", "error");
     }
@@ -244,7 +251,10 @@ export default function OrderDetailPage() {
       setOrder(updated);
       addToast("Payment status updated", "success");
     } catch (err) {
-      addToast(err instanceof Error ? err.message : "Failed to update payment status", "error");
+      addToast(
+        err instanceof Error ? err.message : "Failed to update payment status",
+        "error",
+      );
     } finally {
       setUpdating(false);
     }
@@ -252,15 +262,22 @@ export default function OrderDetailPage() {
 
   const handleDelete = async () => {
     if (!order) return;
-    const ok = await confirm("Delete Order", "Are you sure you want to permanently delete this order? This action cannot be undone.", { confirmLabel: "Delete", danger: true });
+    const ok = await confirm(
+      "Archive Order",
+      "Are you sure you want to archive this order? Pending orders will be cancelled and their stock restored. History is retained.",
+      { confirmLabel: "Archive", danger: true },
+    );
     if (!ok) return;
     setUpdating(true);
     try {
       await deleteOrder(order.id);
-      addToast("Order deleted", "success");
+      addToast("Order archived", "success");
       router.push("/admin/orders");
     } catch (err) {
-      addToast(err instanceof Error ? err.message : "Failed to delete order", "error");
+      addToast(
+        err instanceof Error ? err.message : "Failed to archive order",
+        "error",
+      );
       setUpdating(false);
     }
   };
@@ -275,7 +292,9 @@ export default function OrderDetailPage() {
 
   if (error || !order) {
     return (
-      <div className="text-danger bg-danger-soft rounded-2xl p-6 text-center">{error || "Order not found"}</div>
+      <div className="text-danger bg-danger-soft rounded-2xl p-6 text-center">
+        {error || "Order not found"}
+      </div>
     );
   }
 
@@ -294,8 +313,12 @@ export default function OrderDetailPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-serif text-xl sm:text-2xl font-bold">Order #{order.id.slice(0, 8)}</h1>
-          <p className="text-sm text-muted mt-1">{formatDate(order.created_at)}</p>
+          <h1 className="font-serif text-xl sm:text-2xl font-bold">
+            Order #{order.id.slice(0, 8)}
+          </h1>
+          <p className="text-sm text-muted mt-1">
+            {formatDate(order.created_at)}
+          </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <button
@@ -310,6 +333,14 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
+      <OrderOperationsPanel
+        order={order}
+        onChanged={() => {
+          void fetchOrder(id)
+            .then(setOrder)
+            .catch(() => {});
+        }}
+      />
       {/* Status Progression */}
       {order.status !== "cancelled" ? (
         <div className="bg-surface rounded-2xl border border-line p-6 mb-6">
@@ -319,27 +350,46 @@ export default function OrderDetailPage() {
               const isCompleted = currentStepIndex >= i;
               const isCurrent = currentStepIndex === i;
               return (
-                <div key={step} className="flex items-center flex-1 last:flex-none min-w-[60px]">
+                <div
+                  key={step}
+                  className="flex items-center flex-1 last:flex-none min-w-[60px]"
+                >
                   <div className="flex items-center gap-1.5">
-                    <div className={cn(
-                      "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors shrink-0",
-                      isCompleted ? "bg-accent text-accent-fg" : "bg-zinc-100 dark:bg-zinc-700 text-muted dark:text-zinc-500",
-                      isCurrent && "ring-2 ring-primary/30"
-                    )}>
-                      {isCompleted && i < currentStepIndex ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                    <div
+                      className={cn(
+                        "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors shrink-0",
+                        isCompleted
+                          ? "bg-accent text-accent-fg"
+                          : "bg-zinc-100 dark:bg-zinc-700 text-muted dark:text-zinc-500",
+                        isCurrent && "ring-2 ring-primary/30",
+                      )}
+                    >
+                      {isCompleted && i < currentStepIndex ? (
+                        <Check className="w-3.5 h-3.5" />
+                      ) : (
+                        i + 1
+                      )}
                     </div>
-                    <span className={cn(
-                      "text-xs font-medium capitalize hidden sm:inline",
-                      isCompleted ? "text-fg" : "text-muted dark:text-zinc-500"
-                    )}>
+                    <span
+                      className={cn(
+                        "text-xs font-medium capitalize hidden sm:inline",
+                        isCompleted
+                          ? "text-fg"
+                          : "text-muted dark:text-zinc-500",
+                      )}
+                    >
                       {step}
                     </span>
                   </div>
                   {i < statusSteps.length - 1 && (
-                    <div className={cn(
-                      "flex-1 h-0.5 mx-2 min-w-[12px]",
-                      isCompleted ? "bg-primary" : "bg-zinc-200 dark:bg-zinc-700"
-                    )} />
+                    <div
+                      className={cn(
+                        "flex-1 h-0.5 mx-2 min-w-[12px]",
+                        isCompleted
+                          ? "bg-primary"
+                          : "bg-zinc-200 dark:bg-zinc-700",
+                      )}
+                    />
                   )}
                 </div>
               );
@@ -350,42 +400,48 @@ export default function OrderDetailPage() {
         <div className="bg-surface rounded-2xl border border-red-200 dark:border-red-900/50 p-6 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-              <span className="text-sm font-bold text-red-600 dark:text-red-400">!</span>
+              <span className="text-sm font-bold text-red-600 dark:text-red-400">
+                !
+              </span>
             </div>
-            <span className="text-sm font-medium text-red-600 dark:text-red-400">This order has been cancelled</span>
+            <span className="text-sm font-medium text-red-600 dark:text-red-400">
+              This order has been cancelled
+            </span>
           </div>
         </div>
       )}
 
-      {(order.shipping_address as Record<string, string> | undefined)?.order_note && (
+      {order.shipping_address?.order_note && (
         <div className="mb-6 flex items-start gap-3 rounded-2xl border border-accent/40 bg-accent-soft p-5">
           <MessageSquareText className="mt-0.5 h-5 w-5 shrink-0 text-accent-hover" />
           <div className="min-w-0">
             <h2 className="text-sm font-semibold text-fg">Customer message</h2>
             <p className="mt-1 text-sm text-fg whitespace-pre-line break-words">
-              {(order.shipping_address as Record<string, string>).order_note}
+              {order.shipping_address.order_note}
             </p>
           </div>
         </div>
       )}
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Customer Info */}
         <div className="bg-surface rounded-2xl border border-line p-6">
           <h2 className="text-sm font-semibold mb-4">Customer</h2>
           <div className="space-y-2 text-sm">
             <p>
-              <span className="text-muted">Name:</span>{' '}
+              <span className="text-muted">Name:</span>{" "}
               {(() => {
-                const a = order.shipping_address as Record<string, string> | undefined;
-                if (a?.firstName && a?.lastName) return `${a.firstName} ${a.lastName}`;
+                const a = order.shipping_address as
+                  Record<string, string> | undefined;
+                if (a?.firstName && a?.lastName)
+                  return `${a.firstName} ${a.lastName}`;
                 return order.profiles?.name || "—";
               })()}
             </p>
             <p>
-              <span className="text-muted">Email:</span>{' '}
+              <span className="text-muted">Email:</span>{" "}
               {(() => {
-                const a = order.shipping_address as Record<string, string> | undefined;
+                const a = order.shipping_address as
+                  Record<string, string> | undefined;
                 return a?.email || order.profiles?.email || "—";
               })()}
             </p>
@@ -397,11 +453,16 @@ export default function OrderDetailPage() {
           <h2 className="text-sm font-semibold mb-4">Shipping Address</h2>
           <div className="space-y-1 text-sm">
             {Object.keys(address).length > 0 ? (
-              Object.entries(address).filter(([key]) => key !== "order_note").map(([key, val]) => (
-                <p key={key}>
-                  <span className="text-muted capitalize">{key.replace(/_/g, " ")}:</span> {val}
-                </p>
-              ))
+              Object.entries(address)
+                .filter(([key]) => key !== "order_note")
+                .map(([key, val]) => (
+                  <p key={key}>
+                    <span className="text-muted capitalize">
+                      {key.replace(/_/g, " ")}:
+                    </span>{" "}
+                    {val}
+                  </p>
+                ))
             ) : (
               <p className="text-muted">No address details</p>
             )}
@@ -413,31 +474,39 @@ export default function OrderDetailPage() {
           <h2 className="text-sm font-semibold mb-4">Actions</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Order Status</label>
-              <select
-                value={order.status}
-                onChange={(e) => handleStatusChange(e.target.value)}
-                disabled={updating || nextOrderStatuses(order.status).length === 0}
-                className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg disabled:opacity-50"
-              >
-                <option value={order.status} disabled>{order.status}</option>
-                {nextOrderStatuses(order.status).map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
+              <label className="block text-xs font-medium text-muted mb-1.5">
+                Order Status
+              </label>
+              <p className="text-sm capitalize">{order.status}</p>
+              <p className="mt-1 text-xs text-muted">
+                Managed through order review and delivery tracking above.
+              </p>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted mb-1.5">Payment Status</label>
+              <label className="block text-xs font-medium text-muted mb-1.5">
+                Payment Status
+              </label>
               <select
                 value={order.payment_status}
                 onChange={(e) => handlePaymentStatusChange(e.target.value)}
-                disabled={updating || nextPaymentStatuses(order.payment_status, order.status).length === 0}
+                disabled={
+                  updating ||
+                  !can(permissions, "refunds.complete") ||
+                  nextPaymentStatuses(order.payment_status, order.status)
+                    .length === 0
+                }
                 className="w-full rounded-xl border border-line px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg disabled:opacity-50"
               >
-                <option value={order.payment_status} disabled>{order.payment_status}</option>
-                {nextPaymentStatuses(order.payment_status, order.status).map((s) => (
-                  <option key={s} value={s}>{s === "paid" ? "paid (cash collected)" : s}</option>
-                ))}
+                <option value={order.payment_status} disabled>
+                  {order.payment_status}
+                </option>
+                {nextPaymentStatuses(order.payment_status, order.status)
+                  .filter((s) => s !== "refunded")
+                  .map((s) => (
+                    <option key={s} value={s}>
+                      {s === "paid" ? "paid (cash collected)" : s}
+                    </option>
+                  ))}
               </select>
             </div>
             {updating && (
@@ -448,11 +517,11 @@ export default function OrderDetailPage() {
             )}
             <button
               onClick={handleDelete}
-              disabled={updating}
+              disabled={!can(permissions, "*") || updating}
               className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-danger-soft transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Trash2 className="w-4 h-4" />
-              Delete Order
+              Archive Order
             </button>
           </div>
         </div>
@@ -467,29 +536,43 @@ export default function OrderDetailPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line bg-surface-2/50">
-                <th className="text-left px-6 py-3 font-medium text-muted">Product</th>
-                <th className="text-left px-6 py-3 font-medium text-muted">Price</th>
-                <th className="text-left px-6 py-3 font-medium text-muted">Qty</th>
-                <th className="text-right px-6 py-3 font-medium text-muted">Subtotal</th>
+                <th className="text-left px-6 py-3 font-medium text-muted">
+                  Product
+                </th>
+                <th className="text-left px-6 py-3 font-medium text-muted">
+                  Price
+                </th>
+                <th className="text-left px-6 py-3 font-medium text-muted">
+                  Qty
+                </th>
+                <th className="text-right px-6 py-3 font-medium text-muted">
+                  Subtotal
+                </th>
               </tr>
             </thead>
             <tbody>
               {order.order_items?.map((item) => (
                 <tr key={item.id} className="border-b border-line/50">
                   <td className="px-6 py-3">
-                      <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       <img
-                        src={safeImage(item.product_image ? [item.product_image] : undefined)}
+                        src={safeImage(
+                          item.product_image ? [item.product_image] : undefined,
+                        )}
                         alt={item.product_name}
                         className="w-12 h-12 rounded-lg object-cover bg-zinc-100 dark:bg-zinc-700 shrink-0"
                       />
                       <div className="min-w-0">
-                        <p className="font-medium truncate max-w-[200px] sm:max-w-none">{item.product_name}</p>
+                        <p className="font-medium truncate max-w-[200px] sm:max-w-none">
+                          {item.product_name}
+                        </p>
                         {(item.selected_size || item.selected_color) && (
                           <p className="text-xs text-muted mt-0.5">
-                            {item.selected_size && `Size: ${item.selected_size}`}
+                            {item.selected_size &&
+                              `Size: ${item.selected_size}`}
                             {item.selected_size && item.selected_color && " | "}
-                            {item.selected_color && `Color: ${item.selected_color}`}
+                            {item.selected_color &&
+                              `Color: ${item.selected_color}`}
                           </p>
                         )}
                       </div>
@@ -497,12 +580,16 @@ export default function OrderDetailPage() {
                   </td>
                   <td className="px-6 py-3">{formatPrice(item.price)}</td>
                   <td className="px-6 py-3">{item.quantity}</td>
-                  <td className="px-6 py-3 text-right font-medium">{formatPrice(item.price * item.quantity)}</td>
+                  <td className="px-6 py-3 text-right font-medium">
+                    {formatPrice(item.price * item.quantity)}
+                  </td>
                 </tr>
               ))}
               {(!order.order_items || order.order_items.length === 0) && (
                 <tr>
-                  <td colSpan={4} className="text-center py-8 text-muted">No items</td>
+                  <td colSpan={4} className="text-center py-8 text-muted">
+                    No items
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -517,7 +604,9 @@ export default function OrderDetailPage() {
             <div key={line.label} className="flex justify-between">
               <span className="text-muted">{line.label}</span>
               <span className={line.amount < 0 ? "text-success" : undefined}>
-                {line.amount < 0 ? `−${formatPrice(-line.amount)}` : formatPrice(line.amount)}
+                {line.amount < 0
+                  ? `−${formatPrice(-line.amount)}`
+                  : formatPrice(line.amount)}
               </span>
             </div>
           ))}

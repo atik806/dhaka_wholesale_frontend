@@ -100,3 +100,11 @@ Set `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE
 ## Related
 
 - API: [Dhaka_wholesale-backend](../Dhaka_wholesale-backend)
+
+## Admin operations
+
+The admin workspace includes Order Review, Deliveries, Returns & Refunds, Inventory, Activity, Staff Access, Notifications, and Reports. Customer order details include parcel tracking and return requests.
+
+Apply the backend operations migrations before deployment. See [the activation and workflow guide](../Dhaka_wholesale-backend/ADMIN_OPERATIONS.md) for permission groups, inventory allocation, refund recording, reporting definitions, and verification.
+
+Run `npm run test:ui` after `npm run build` for browser checks against isolated API fixtures on port 3107. Chrome is used by default; `PLAYWRIGHT_CHANNEL=msedge` selects Edge.

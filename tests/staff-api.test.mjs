@@ -23,7 +23,8 @@ async function loadStaffApi(responses) {
     URLSearchParams,
     require(name) {
       if (name === "./constants") return { API_BASE: "http://api.test/api" };
-      if (name === "./auth-api") return { refreshSession: async () => false };
+      if (name === "@/app/admin/actions") return { refreshStorefront: async () => {} };
+      if (name === "./auth-api") return { refreshSession: async () => "expired" };
       throw new Error(`Unexpected import: ${name}`);
     },
     fetch: async (url, options) => {

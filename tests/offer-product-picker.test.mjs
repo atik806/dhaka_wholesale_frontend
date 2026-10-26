@@ -24,7 +24,7 @@ async function setup({ selectedIds = [], error = null } = {}) {
       },
       useEffect() {}, useRef: () => ({ current: null }), useId: () => 'picker-title',
     },
-    'next/image': 'img',
+    '@/src/components/ui/Image': 'img',
     'lucide-react': icons,
     swr: (key, fn) => {
       activeKey = key; fetcher = fn;

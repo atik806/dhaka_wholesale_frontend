@@ -7,12 +7,19 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { fetchProductBySlug, fetchCategories } from "@/src/lib/api";
 import type { Product, Category } from "@/src/types/product";
-import { ProductForm, colorsForApi, type ProductFormValues } from "@/src/components/admin/ProductForm";
+import {
+  ProductForm,
+  colorsForApi,
+  type ProductFormValues,
+} from "@/src/components/admin/ProductForm";
 import { Button } from "@/src/components/ui/Button";
 import { useToast } from "@/src/providers/ToastProvider";
 import { adminFetcher } from "@/src/lib/admin-api";
 
-function productToFormValues(product: Product, categories: Category[]): Partial<ProductFormValues> {
+function productToFormValues(
+  product: Product,
+  categories: Category[],
+): Partial<ProductFormValues> {
   const cat = categories.find((c) => c.name === product.category);
   return {
     name: product.name,
@@ -23,7 +30,8 @@ function productToFormValues(product: Product, categories: Category[]): Partial<
     images: product.images?.join(", ") || "",
     // The storefront mapping hides a non-positive counter, so 0 is only
     // known for an out-of-stock product; otherwise ask for the real count.
-    stock_quantity: product.stockQuantity ?? (product.stock === "out-of-stock" ? 0 : ""),
+    stock_quantity:
+      product.stockQuantity ?? (product.stock === "out-of-stock" ? 0 : ""),
     tags: product.tags?.join(", ") || "",
     sizes: product.variants?.sizes?.join(", ") || "",
     colors: product.variants?.colors ?? [],
@@ -55,9 +63,15 @@ export default function EditProductPage() {
         setProduct(prod);
         setCategories(cats);
       })
-      .catch(() => { if (active) addToast("Failed to load product", "error"); })
-      .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+      .catch(() => {
+        if (active) addToast("Failed to load product", "error");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
   }, [params.id, addToast]);
 
   const handleSubmit = async (values: ProductFormValues) => {
@@ -68,18 +82,28 @@ export default function EditProductPage() {
         name: values.name,
         description: values.description,
         price: Number(values.price),
-        original_price: values.original_price ? Number(values.original_price) : null,
+        original_price: values.original_price
+          ? Number(values.original_price)
+          : null,
         category_id: values.category_id,
-        images: values.images.split(",").map((s) => s.trim()).filter(Boolean),
-        stock_quantity: Number(values.stock_quantity),
+        images: values.images
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
         is_new: values.is_new,
         is_featured: values.is_featured,
       };
       if (values.tags.trim()) {
-        body.tags = values.tags.split(",").map((s) => s.trim()).filter(Boolean);
+        body.tags = values.tags
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
       }
       if (values.sizes.trim()) {
-        body.sizes = values.sizes.split(",").map((s) => s.trim()).filter(Boolean);
+        body.sizes = values.sizes
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
       }
       // Always sent, so removing every colour clears them.
       body.colors = colorsForApi(values.colors, values.images);
@@ -90,7 +114,10 @@ export default function EditProductPage() {
       addToast("Product updated successfully", "success");
       router.push("/admin/products");
     } catch (err) {
-      addToast(err instanceof Error ? err.message : "Failed to update product", "error");
+      addToast(
+        err instanceof Error ? err.message : "Failed to update product",
+        "error",
+      );
     } finally {
       setSaving(false);
     }

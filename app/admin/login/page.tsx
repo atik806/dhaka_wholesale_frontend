@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
       }
       // The session arrives via the httpOnly dw_session cookie (M1) — the body
       // carries only the user. The role check still gates the admin panel.
-      if (json?.data?.user?.role !== "admin") {
+      if (!json?.data?.user?.id) {
         setError("You do not have admin access");
         return;
       }
