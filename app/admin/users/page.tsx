@@ -1,15 +1,21 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useToast } from "@/src/providers/ToastProvider";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trash2, Shield, User, Plus, X } from "lucide-react";
+import { Trash2, User, Plus, X } from "lucide-react";
 import { DataTable, type Column } from "@/src/components/admin/DataTable";
 import { StatusBadge } from "@/src/components/admin/StatusBadge";
 import { useConfirm } from "@/src/components/admin/ConfirmDialog";
 import { formatDate } from "@/src/lib/utils";
 import { validateStrongPassword } from "@/src/lib/password";
-import { fetchUsers, updateUserRole, deleteUser, createUser, type UserProfile } from "@/src/lib/admin-api";
+import {
+  fetchUsers,
+  deleteUser,
+  createUser,
+  type UserProfile,
+} from "@/src/lib/admin-api";
 
 const PAGE_SIZE = 20;
 
@@ -51,128 +57,123 @@ export default function AdminUsersPage() {
         setError(null);
       })
       .catch((err) => {
-        if (active) setError(err instanceof Error ? err.message : "Failed to load users");
+        if (active)
+          setError(err instanceof Error ? err.message : "Failed to load users");
       })
       .finally(() => {
         if (active) setLoading(false);
       });
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [page, query, reloadKey]);
 
   /** Show the result of an action immediately instead of on the next poll. */
   const reload = useCallback(() => setReloadKey((key) => key + 1), []);
 
-  const handleRoleToggle = useCallback(async (user: UserProfile) => {
-    const newRole = user.role === "admin" ? "customer" : "admin";
-    const ok = await confirm(
-      "Change Role",
-      `Change role of "${user.name}" from "${user.role}" to "${newRole}"?`,
-      { confirmLabel: "Change" }
-    );
-    if (!ok) return;
-    setActionLoading(user.id);
-    try {
-      await updateUserRole(user.id, newRole);
-      addToast(`User role changed to ${newRole}`, "success");
-      reload();
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : "Failed to update role", "error");
-    } finally {
-      setActionLoading(null);
-    }
-  }, [confirm, addToast, reload]);
+  const handleDelete = useCallback(
+    async (user: UserProfile) => {
+      const ok = await confirm(
+        "Delete User",
+        `Are you sure you want to delete user "${user.name}"? This cannot be undone.`,
+        { confirmLabel: "Delete", danger: true },
+      );
+      if (!ok) return;
+      setActionLoading(user.id);
+      try {
+        await deleteUser(user.id);
+        addToast("User deleted", "success");
+        reload();
+      } catch (err) {
+        addToast(
+          err instanceof Error ? err.message : "Failed to delete user",
+          "error",
+        );
+      } finally {
+        setActionLoading(null);
+      }
+    },
+    [confirm, addToast, reload],
+  );
 
-  const handleDelete = useCallback(async (user: UserProfile) => {
-    const ok = await confirm(
-      "Delete User",
-      `Are you sure you want to delete user "${user.name}"? This cannot be undone.`,
-      { confirmLabel: "Delete", danger: true }
-    );
-    if (!ok) return;
-    setActionLoading(user.id);
-    try {
-      await deleteUser(user.id);
-      addToast("User deleted", "success");
-      reload();
-    } catch (err) {
-      addToast(err instanceof Error ? err.message : "Failed to delete user", "error");
-    } finally {
-      setActionLoading(null);
-    }
-  }, [confirm, addToast, reload]);
-
-  const columns: Column<UserProfile>[] = useMemo(() => [
-    {
-      key: "name",
-      label: "Name",
-      render: (user) => (
-        <div className="flex items-center gap-3">
-          {user.avatar_url ? (
-            <img
-              src={user.avatar_url}
-              alt=""
-              className="w-8 h-8 rounded-full object-cover bg-zinc-100 dark:bg-zinc-700"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-            />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center">
-              <User className="w-4 h-4 text-link dark:text-link-light" />
-            </div>
-          )}
-          <span className="font-medium text-fg">{user.name}</span>
-        </div>
-      ),
-    },
-    { key: "email", label: "Email" },
-    {
-      key: "role",
-      label: "Role",
-      render: (user) => <StatusBadge status={user.role} />,
-    },
-    {
-      key: "created_at",
-      label: "Joined",
-      render: (user) => (
-        <span className="text-muted">{formatDate(user.created_at)}</span>
-      ),
-    },
-    {
-      key: "actions",
-      label: "Actions",
-      render: (user) => (
-        <div className="flex items-center gap-2">
-          <button
-            onClick={(e) => { e.stopPropagation(); handleRoleToggle(user); }}
-            disabled={actionLoading === user.id}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-line hover:bg-surface-2 disabled:opacity-50 transition-colors"
-            title={`Change role to ${user.role === "admin" ? "customer" : "admin"}`}
-          >
-            {actionLoading === user.id ? (
-              <div className="w-3.5 h-3.5 border-2 border-zinc-400 border-t-transparent rounded-full animate-spin" />
+  const columns: Column<UserProfile>[] = useMemo(
+    () => [
+      {
+        key: "name",
+        label: "Name",
+        render: (user) => (
+          <div className="flex items-center gap-3">
+            {user.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt=""
+                className="w-8 h-8 rounded-full object-cover bg-zinc-100 dark:bg-zinc-700"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
             ) : (
-              <Shield className="w-3.5 h-3.5" />
+              <div className="w-8 h-8 rounded-full bg-primary/10 dark:bg-accent/20 flex items-center justify-center">
+                <User className="w-4 h-4 text-link dark:text-link-light" />
+              </div>
             )}
-            {user.role === "admin" ? "Demote" : "Promote"}
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); handleDelete(user); }}
-            disabled={actionLoading === user.id}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-danger-soft disabled:opacity-50 transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            Delete
-          </button>
-        </div>
-      ),
-    },
-  ], [actionLoading, handleRoleToggle, handleDelete]);
+            <span className="font-medium text-fg">{user.name}</span>
+          </div>
+        ),
+      },
+      { key: "email", label: "Email" },
+      {
+        key: "role",
+        label: "Role",
+        render: (user) => <StatusBadge status={user.role} />,
+      },
+      {
+        key: "created_at",
+        label: "Joined",
+        render: (user) => (
+          <span className="text-muted">{formatDate(user.created_at)}</span>
+        ),
+      },
+      {
+        key: "actions",
+        label: "Actions",
+        render: (user) => (
+          <div className="flex items-center gap-2">
+            <Link
+              href="/admin/access"
+              onClick={(e) => e.stopPropagation()}
+              className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium"
+            >
+              Permissions
+            </Link>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(user);
+              }}
+              disabled={actionLoading === user.id}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 hover:bg-danger-soft disabled:opacity-50 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [actionLoading, handleDelete],
+  );
 
   if (error) {
     return (
       <div className="p-6">
         <div className="flex items-center justify-between gap-4 bg-danger-soft border border-red-200 dark:border-red-900/50 rounded-2xl px-6 py-4 text-red-700 dark:text-red-400">
           <span>{error}</span>
-          <button type="button" onClick={reload} className="text-sm font-semibold underline">
+          <button
+            type="button"
+            onClick={reload}
+            className="text-sm font-semibold underline"
+          >
             Retry
           </button>
         </div>
@@ -183,18 +184,20 @@ export default function AdminUsersPage() {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       {dialog}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-2xl font-bold">Users</h1>
-            <p className="text-sm text-muted mt-1">
-              Manage customer and admin accounts &mdash; <span className="text-link font-medium">{total}</span> {query.trim() ? "matching" : "total"}
-            </p>
-          </div>
-          <button
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="font-serif text-2xl font-bold">Users</h1>
+          <p className="text-sm text-muted mt-1">
+            Manage customer and admin accounts &mdash;{" "}
+            <span className="text-link font-medium">{total}</span>{" "}
+            {query.trim() ? "matching" : "total"}
+          </p>
+        </div>
+        <button
           onClick={() => setShowModal(true)}
           className="flex items-center gap-2 px-4 py-2.5 bg-accent text-accent-fg rounded-xl text-sm font-medium hover:bg-primary-dark transition-colors"
         >
-          <Plus className="w-4 h-4" /> Add Admin
+          <Plus className="w-4 h-4" /> Add account
         </button>
       </div>
 
@@ -216,62 +219,96 @@ export default function AdminUsersPage() {
             >
               <div className="w-full max-w-md bg-surface rounded-2xl border border-line shadow-xl p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-semibold text-lg">Add New Admin</h2>
-                  <button onClick={() => setShowModal(false)} className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors">
+                  <h2 className="font-semibold text-lg">
+                    Create login account
+                  </h2>
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="p-1.5 rounded-lg hover:bg-surface-2 transition-colors"
+                  >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  const passwordError = validateStrongPassword(form.password);
-                  if (passwordError) {
-                    setFormError(passwordError);
-                    return;
-                  }
-                  setFormError("");
-                  setFormLoading(true);
-                  try {
-                    // Without an explicit role the API creates a customer.
-                    await createUser({ ...form, role: "admin" });
-                    setShowModal(false);
-                    setForm({ name: "", email: "", password: "" });
-                    addToast(`Admin account created for ${form.email}`, "success");
-                    reload();
-                  } catch (err) {
-                    const msg = err instanceof Error ? err.message : "Failed to create user";
-                    setFormError(msg.includes("Internal server error") ? "Server error — check backend logs for details" : msg);
-                  } finally {
-                    setFormLoading(false);
-                  }
-                }} className="space-y-4">
+                <p className="mb-4 text-sm text-muted">
+                  After creating the account, use Staff Access to grant
+                  permission groups.
+                </p>
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    const passwordError = validateStrongPassword(form.password);
+                    if (passwordError) {
+                      setFormError(passwordError);
+                      return;
+                    }
+                    setFormError("");
+                    setFormLoading(true);
+                    try {
+                      // Without an explicit role the API creates a customer.
+                      await createUser({ ...form, role: "customer" });
+                      setShowModal(false);
+                      setForm({ name: "", email: "", password: "" });
+                      addToast(
+                        `Login account created for ${form.email}`,
+                        "success",
+                      );
+                      reload();
+                    } catch (err) {
+                      const msg =
+                        err instanceof Error
+                          ? err.message
+                          : "Failed to create user";
+                      setFormError(
+                        msg.includes("Internal server error")
+                          ? "Server error — check backend logs for details"
+                          : msg,
+                      );
+                    } finally {
+                      setFormLoading(false);
+                    }
+                  }}
+                  className="space-y-4"
+                >
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">Name</label>
+                    <label className="block text-sm font-medium mb-1.5">
+                      Name
+                    </label>
                     <input
                       type="text"
                       value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, name: e.target.value })
+                      }
                       placeholder="Full name"
                       required
                       className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">Email</label>
+                    <label className="block text-sm font-medium mb-1.5">
+                      Email
+                    </label>
                     <input
                       type="email"
                       value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, email: e.target.value })
+                      }
                       placeholder="admin@example.com"
                       required
                       className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium mb-1.5">Password</label>
+                    <label className="block text-sm font-medium mb-1.5">
+                      Password
+                    </label>
                     <input
                       type="password"
                       value={form.password}
-                      onChange={(e) => setForm({ ...form, password: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, password: e.target.value })
+                      }
                       placeholder="8+ characters"
                       aria-describedby="new-admin-password-hint"
                       required
@@ -279,12 +316,18 @@ export default function AdminUsersPage() {
                       maxLength={100}
                       className="w-full rounded-xl border border-line px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent bg-surface text-fg placeholder:text-muted"
                     />
-                    <p id="new-admin-password-hint" className="text-xs text-muted mt-1">
-                      At least 8 characters with uppercase, lowercase, a number and a symbol.
+                    <p
+                      id="new-admin-password-hint"
+                      className="text-xs text-muted mt-1"
+                    >
+                      At least 8 characters with uppercase, lowercase, a number
+                      and a symbol.
                     </p>
                   </div>
                   {formError && (
-                    <p className="text-sm text-danger bg-danger-soft rounded-xl px-4 py-2">{formError}</p>
+                    <p className="text-sm text-danger bg-danger-soft rounded-xl px-4 py-2">
+                      {formError}
+                    </p>
                   )}
                   <div className="flex items-center gap-3 justify-end pt-2">
                     <button
@@ -322,7 +365,14 @@ export default function AdminUsersPage() {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0 flex-1">
               {user.avatar_url ? (
-                <img src={user.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                <img
+                  src={user.avatar_url}
+                  alt=""
+                  className="w-10 h-10 rounded-full object-cover shrink-0"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
+                />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <User className="w-5 h-5 text-link" />
@@ -333,20 +383,25 @@ export default function AdminUsersPage() {
                 <p className="text-xs text-muted truncate">{user.email}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <StatusBadge status={user.role} />
-                  <span className="text-xs text-muted">{formatDate(user.created_at)}</span>
+                  <span className="text-xs text-muted">
+                    {formatDate(user.created_at)}
+                  </span>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <button
-                onClick={(e) => { e.stopPropagation(); handleRoleToggle(user); }}
-                disabled={actionLoading === user.id}
-                className="p-2 rounded-lg text-muted hover:bg-surface-2 disabled:opacity-50 transition-colors"
+              <Link
+                href="/admin/access"
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-lg border border-line px-3 py-1.5 text-xs font-medium"
               >
-                <Shield className="w-4 h-4" />
-              </button>
+                Permissions
+              </Link>
               <button
-                onClick={(e) => { e.stopPropagation(); handleDelete(user); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(user);
+                }}
                 disabled={actionLoading === user.id}
                 className="p-2 rounded-lg text-red-400 hover:bg-danger-soft disabled:opacity-50 transition-colors"
               >

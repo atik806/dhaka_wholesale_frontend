@@ -23,13 +23,14 @@ const BACKEND_CDN_WINDOW_MS = 35_000;
 export async function refreshStorefront(): Promise<void> {
   const session = (await cookies()).get("dw_session");
   if (!session) return;
-  const res = await fetch(`${API_ORIGIN_BASE}/auth/profile`, {
+  const res = await fetch(`${API_ORIGIN_BASE}/admin/operations/session`, {
     headers: { cookie: `dw_session=${encodeURIComponent(session.value)}` },
     cache: "no-store",
   }).catch(() => null);
   if (!res?.ok) return;
   const profile = await res.json().catch(() => null);
-  if (profile?.data?.role !== "admin") return;
+  const permissions: string[] = profile?.data?.permissions ?? [];
+  if (!profile?.data?.enabled || !permissions.some(p => ['*','products.manage','inventory.manage','orders.manage'].includes(p))) return;
 
   updateTag(STORE_TAG);
   after(async () => {

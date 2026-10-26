@@ -235,6 +235,8 @@ export interface UserOrder extends OrderPricingSnapshot {
 export interface CheckoutQuoteItem {
   product_id: string;
   quantity: number;
+  selected_size?: string | null;
+  selected_color?: string | null;
 }
 
 export interface CheckoutQuoteUnavailableItem {
@@ -333,6 +335,8 @@ export async function fetchCheckoutQuote(
       body.items = items.map((i) => ({
         product_id: i.product_id,
         quantity: i.quantity,
+        selected_size: i.selected_size ?? null,
+        selected_color: i.selected_color ?? null,
       }));
     }
 

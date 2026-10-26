@@ -8,6 +8,9 @@ import {
   PanelRightClose, PanelRightOpen, Sun, Moon, X, Bug, Settings, Tag, ShieldCheck, BadgePercent,
   BriefcaseBusiness,
 } from "lucide-react";
+import { useAdminAccess } from './operations/AccessContext';
+import { can, routePermission } from '@/src/lib/operations-api';
+import { Truck, ClipboardCheck, Undo2, History, Warehouse, Bell, ChartColumn, KeyRound } from 'lucide-react';
 import { useTheme } from "@/src/providers/ThemeProvider";
 import { fetchDashboard } from "@/src/lib/admin-api";
 import { API_BASE } from "@/src/lib/constants";
@@ -24,6 +27,14 @@ const navItems = [
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/categories", label: "Categories", icon: Tag },
   { href: "/admin/offers", label: "Offers", icon: BadgePercent },
+  { href: "/admin/order-review", label: "Order Review", icon: ClipboardCheck },
+  { href: "/admin/deliveries", label: "Deliveries", icon: Truck },
+  { href: "/admin/returns", label: "Returns & Refunds", icon: Undo2 },
+  { href: "/admin/inventory", label: "Inventory", icon: Warehouse },
+  { href: "/admin/activity", label: "Activity", icon: History },
+  { href: "/admin/access", label: "Staff Access", icon: KeyRound },
+  { href: "/admin/reports", label: "Reports", icon: ChartColumn },
+  { href: "/admin/notifications", label: "Notifications", icon: Bell },
   { href: "/admin/orders", label: "Orders", icon: ShoppingCart, badge: "pendingOrders" as const },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/staff", label: "Staff", icon: BriefcaseBusiness },
@@ -41,6 +52,8 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const { permissions } = useAdminAccess();
+  const visibleItems = navItems.filter(item => !routePermission(item.href) || can(permissions, routePermission(item.href)));
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const { theme, toggleTheme } = useTheme();
@@ -141,7 +154,7 @@ export function AdminSidebar({ open = false, onClose }: AdminSidebarProps) {
           </div>
         </div>
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {navItems.map(({ href, label, icon: Icon, badge }) => {
+          {visibleItems.map(({ href, label, icon: Icon, badge }) => {
             const count = badge ? badges[badge] : 0;
             return (
               <Link key={href} href={href} onClick={handleNavClick} className={linkClass(href)} title={collapsed ? label : undefined}>

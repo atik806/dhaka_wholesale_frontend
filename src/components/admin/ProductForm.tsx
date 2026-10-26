@@ -6,7 +6,11 @@ import Image from "@/src/components/ui/Image";
 import type { Category, ProductColor } from "@/src/types/product";
 import { Button } from "@/src/components/ui/Button";
 import { ImageUpload } from "@/src/components/admin/ImageUpload";
-import { STOCK_STATUS_LABELS, parseStockQuantity, stockStatusFor } from "@/src/lib/inventory";
+import {
+  STOCK_STATUS_LABELS,
+  parseStockQuantity,
+  stockStatusFor,
+} from "@/src/lib/inventory";
 
 export interface ProductFormValues {
   name: string;
@@ -32,7 +36,13 @@ interface ProductFormProps {
   mode: "create" | "edit";
 }
 
-export function ProductForm({ initialValues, onSubmit, loading, categories, mode }: ProductFormProps) {
+export function ProductForm({
+  initialValues,
+  onSubmit,
+  loading,
+  categories,
+  mode,
+}: ProductFormProps) {
   const [form, setForm] = useState<ProductFormValues>({
     name: initialValues?.name ?? "",
     description: initialValues?.description ?? "",
@@ -53,15 +63,25 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
     const errs: Record<string, string> = {};
     if (!form.name.trim()) errs.name = "Name is required";
     if (!form.description.trim()) errs.description = "Description is required";
-    else if (form.description.trim().length < 10) errs.description = "Description must be at least 10 characters";
-    if (form.price === "" || Number(form.price) <= 0) errs.price = "Price must be greater than 0";
+    else if (form.description.trim().length < 10)
+      errs.description = "Description must be at least 10 characters";
+    if (form.price === "" || Number(form.price) <= 0)
+      errs.price = "Price must be greater than 0";
     if (!form.category_id) errs.category_id = "Category is required";
     const quantity = parseStockQuantity(form.stock_quantity);
     if (typeof quantity === "string") errs.stock_quantity = quantity;
-    const parsedImages = form.images.split(",").map((s) => s.trim()).filter(Boolean);
-    if (parsedImages.length === 0) errs.images = "At least one product image is required";
-    if (form.colors.some((c) => !c.name.trim())) errs.colors = "Every colour needs a name";
-    else if (new Set(form.colors.map((c) => c.name.trim().toLowerCase())).size < form.colors.length)
+    const parsedImages = form.images
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (parsedImages.length === 0)
+      errs.images = "At least one product image is required";
+    if (form.colors.some((c) => !c.name.trim()))
+      errs.colors = "Every colour needs a name";
+    else if (
+      new Set(form.colors.map((c) => c.name.trim().toLowerCase())).size <
+      form.colors.length
+    )
       errs.colors = "Colour names must be different";
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -108,7 +128,9 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
             placeholder="Product name"
             className={inputClass("name")}
           />
-          {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+          {errors.name && (
+            <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+          )}
         </div>
         <div>
           <label className={labelClass}>Price *</label>
@@ -117,11 +139,15 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
             step="0.01"
             min="0"
             value={form.price}
-            onChange={(e) => update("price", e.target.value ? Number(e.target.value) : "")}
+            onChange={(e) =>
+              update("price", e.target.value ? Number(e.target.value) : "")
+            }
             placeholder="0.00"
             className={inputClass("price")}
           />
-          {errors.price && <p className="text-xs text-red-500 mt-1">{errors.price}</p>}
+          {errors.price && (
+            <p className="text-xs text-red-500 mt-1">{errors.price}</p>
+          )}
         </div>
       </div>
 
@@ -135,21 +161,33 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
           >
             <option value="">Select category</option>
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
             ))}
           </select>
-          {errors.category_id && <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>}
+          {errors.category_id && (
+            <p className="text-xs text-red-500 mt-1">{errors.category_id}</p>
+          )}
         </div>
         <div>
-          <label htmlFor="stock_quantity" className={labelClass}>Units in stock *</label>
+          <label htmlFor="stock_quantity" className={labelClass}>
+            Units in stock *
+          </label>
           <input
             id="stock_quantity"
+            disabled={mode === "edit"}
             type="number"
             step="1"
             min="0"
             inputMode="numeric"
             value={form.stock_quantity}
-            onChange={(e) => update("stock_quantity", e.target.value === "" ? "" : Number(e.target.value))}
+            onChange={(e) =>
+              update(
+                "stock_quantity",
+                e.target.value === "" ? "" : Number(e.target.value),
+              )
+            }
             placeholder="0"
             aria-describedby="stock_quantity_hint"
             className={inputClass("stock_quantity")}
@@ -158,9 +196,11 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
             <p className="text-xs text-red-500 mt-1">{errors.stock_quantity}</p>
           ) : (
             <p id="stock_quantity_hint" className="text-xs text-muted mt-1">
-              {typeof parseStockQuantity(form.stock_quantity) === "number"
-                ? `Shown to customers as: ${STOCK_STATUS_LABELS[stockStatusFor(Number(form.stock_quantity))]}`
-                : "Orders reduce this count automatically; cancellations add it back."}
+              {mode === "edit"
+                ? "Use Inventory to adjust stock with a reason."
+                : typeof parseStockQuantity(form.stock_quantity) === "number"
+                  ? `Shown to customers as: ${STOCK_STATUS_LABELS[stockStatusFor(Number(form.stock_quantity))]}`
+                  : "Orders reduce this count automatically; cancellations add it back."}
             </p>
           )}
         </div>
@@ -173,7 +213,12 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
           step="0.01"
           min="0"
           value={form.original_price}
-          onChange={(e) => update("original_price", e.target.value ? Number(e.target.value) : "")}
+          onChange={(e) =>
+            update(
+              "original_price",
+              e.target.value ? Number(e.target.value) : "",
+            )
+          }
           placeholder="0.00"
           className={inputClass("original_price")}
         />
@@ -188,16 +233,27 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
           rows={4}
           className={inputClass("description")}
         />
-        {errors.description && <p className="text-xs text-red-500 mt-1">{errors.description}</p>}
+        {errors.description && (
+          <p className="text-xs text-red-500 mt-1">{errors.description}</p>
+        )}
       </div>
 
       <div>
         <label className={labelClass}>Product Images *</label>
         <ImageUpload
-          value={form.images ? form.images.split(",").map((s) => s.trim()).filter(Boolean) : []}
+          value={
+            form.images
+              ? form.images
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+              : []
+          }
           onChange={(urls) => update("images", urls.join(", "))}
         />
-        {errors.images && <p className="text-xs text-red-500 mt-1">{errors.images}</p>}
+        {errors.images && (
+          <p className="text-xs text-red-500 mt-1">{errors.images}</p>
+        )}
       </div>
 
       <div>
@@ -224,7 +280,10 @@ export function ProductForm({ initialValues, onSubmit, loading, categories, mode
 
       <ColorsEditor
         colors={form.colors}
-        images={form.images.split(",").map((s) => s.trim()).filter(Boolean)}
+        images={form.images
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)}
         onChange={(colors) => update("colors", colors)}
         error={errors.colors}
         inputClass={inputClass("colors")}
@@ -309,8 +368,9 @@ function ColorsEditor({
         </button>
       </div>
       <p className="mb-3 text-xs text-muted">
-        Customers must choose one of these when ordering. Pick the photo that shows each colour; the
-        product page switches to it when the colour is tapped.
+        Customers must choose one of these when ordering. Pick the photo that
+        shows each colour; the product page switches to it when the colour is
+        tapped.
       </p>
 
       {colors.length === 0 ? (
@@ -322,7 +382,10 @@ function ColorsEditor({
           {colors.map((color, i) => {
             const missingPhoto = color.image && !images.includes(color.image);
             return (
-              <li key={i} className="rounded-xl border border-line bg-surface p-3">
+              <li
+                key={i}
+                className="rounded-xl border border-line bg-surface p-3"
+              >
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -353,7 +416,9 @@ function ColorsEditor({
                   <p className="mb-1.5 text-xs font-medium text-muted">
                     Photo for this colour
                     {missingPhoto && (
-                      <span className="ml-1 text-danger">(its photo was removed; pick another)</span>
+                      <span className="ml-1 text-danger">
+                        (its photo was removed; pick another)
+                      </span>
                     )}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -363,7 +428,9 @@ function ColorsEditor({
                       aria-pressed={!color.image}
                       title="No photo"
                       className={`flex h-14 w-14 items-center justify-center rounded-lg border-2 text-muted ${
-                        !color.image ? "border-accent" : "border-line hover:border-line-strong"
+                        !color.image
+                          ? "border-accent"
+                          : "border-line hover:border-line-strong"
                       }`}
                     >
                       <ImageOff className="h-4 w-4" />
@@ -376,10 +443,18 @@ function ColorsEditor({
                         aria-pressed={color.image === url}
                         aria-label={`Use photo ${n + 1}`}
                         className={`relative h-14 w-14 overflow-hidden rounded-lg border-2 bg-surface-2 ${
-                          color.image === url ? "border-accent ring-2 ring-accent/30" : "border-line hover:border-line-strong"
+                          color.image === url
+                            ? "border-accent ring-2 ring-accent/30"
+                            : "border-line hover:border-line-strong"
                         }`}
                       >
-                        <Image src={url} alt="" fill sizes="56px" className="object-cover" />
+                        <Image
+                          src={url}
+                          alt=""
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
                       </button>
                     ))}
                   </div>
@@ -395,8 +470,14 @@ function ColorsEditor({
 }
 
 /** Colours as the API expects them: trimmed, with photos that still belong to the product. */
-export function colorsForApi(colors: ProductColor[], images: string): ProductColor[] {
-  const photos = images.split(",").map((s) => s.trim()).filter(Boolean);
+export function colorsForApi(
+  colors: ProductColor[],
+  images: string,
+): ProductColor[] {
+  const photos = images
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
   return colors
     .filter((c) => c.name.trim())
     .map((c) => ({

@@ -40,6 +40,7 @@ async function loadBanner(promo) {
       "next/link": "a",
       "@/src/components/ui/Button": { buttonClasses: () => "button" },
       "@/src/hooks/useApi": { usePromoBanner: () => ({ data: promo }) },
+      "@/src/lib/constants": { OFFER_POLL_MS: 60000 },
       "@/src/lib/api": { fetchFlashSale: async () => null },
       "@/src/lib/offers": await loadTypeScriptModule(
         new URL("../src/lib/offers.ts", import.meta.url),

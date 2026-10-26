@@ -6,9 +6,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { API_BASE } from "@/src/lib/constants";
 import { SiteLogo } from "@/src/components/brand/SiteLogo";
-import { AuthDivider, GoogleButton } from "@/src/components/auth/AuthLanding";
-import { getSupabase } from "@/src/lib/supabase";
-import { oauthCallbackUrl, rememberPostAuthRedirect } from "@/src/lib/oauth-redirect";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -16,32 +13,6 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-
-  // Admins who signed up with Google have no password to type here. After
-  // Google sign-in the callback returns to /admin, whose layout checks the
-  // admin role against the backend before showing anything.
-  const handleGoogle = async () => {
-    setError("");
-    setGoogleLoading(true);
-    try {
-      const raw = new URLSearchParams(window.location.search).get("redirect") || "/admin";
-      rememberPostAuthRedirect(raw.startsWith("/admin") ? raw : "/admin");
-      const { data, error: oauthErr } = await getSupabase().auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: oauthCallbackUrl(), skipBrowserRedirect: true },
-      });
-      if (oauthErr || !data?.url) {
-        setError(oauthErr?.message || "Failed to start Google sign-in");
-        setGoogleLoading(false);
-        return;
-      }
-      window.location.href = data.url;
-    } catch {
-      setError("Failed to start Google sign-in");
-      setGoogleLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,7 +33,7 @@ export default function AdminLoginPage() {
       }
       // The session arrives via the httpOnly dw_session cookie (M1) — the body
       // carries only the user. The role check still gates the admin panel.
-      if (json?.data?.user?.role !== "admin") {
+      if (!json?.data?.user?.id) {
         setError("You do not have admin access");
         return;
       }
@@ -91,15 +62,15 @@ export default function AdminLoginPage() {
             <h1 className="font-serif text-2xl font-bold">Admin Login</h1>
             <p className="text-sm text-muted mt-1">Sign in to manage the store</p>
           </div>
-          <div className="space-y-4 mb-4">
-            <GoogleButton onClick={handleGoogle} loading={googleLoading} />
-            <AuthDivider label="or use email" />
-          </div>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-fg mb-1.5">Email</label>
+              <label className="block text-sm font-semibold text-fg mb-1.5" htmlFor="admin-email">
+                Email
+              </label>
               <input
+                id="admin-email"
                 type="email"
+                autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@example.com"

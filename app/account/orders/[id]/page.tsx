@@ -1,5 +1,6 @@
 "use client";
 
+import { CustomerOrderOperations } from "@/src/components/account/CustomerOrderOperations";
 import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import Image from "@/src/components/ui/Image";
@@ -365,6 +366,7 @@ export default function CustomerOrderDetailPage() {
                   )}
                 </Card>
               )}
+              <CustomerOrderOperations order={order} />
             </motion.div>
           ) : null}
         </div>
