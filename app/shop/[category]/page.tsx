@@ -6,10 +6,10 @@ import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
 import { CategoryPageClient } from "./CategoryPageClient";
 import type { Category } from "@/src/types/product";
 
-// Rebuilt at most every 5 min (PAGE_REVALIDATE) and right after an admin edit:
+// Rebuilt at most every hour (PAGE_REVALIDATE) and right after an admin edit:
 // the page carries its first page of products, which have prices. Route
 // segment config must be a literal.
-export const revalidate = 300;
+export const revalidate = 3600;
 
 // No paths at build time; each category page is cached on its first visit
 // instead of rendering on every request.

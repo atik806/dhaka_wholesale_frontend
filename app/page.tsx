@@ -6,10 +6,10 @@ import { CustomerReviews } from "@/src/components/home/CustomerReviews";
 import { getHomeData } from "@/src/lib/server/data";
 import { ComboDeals } from "@/src/components/product/ComboDeals";
 
-// Serve the home page from cache, rebuilt at most every 5 min (PAGE_REVALIDATE
+// Serve the home page from cache, rebuilt at most every hour (PAGE_REVALIDATE
 // in src/lib/server/data.ts) and right after an admin edit. Route segment
 // config must be a literal.
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export default async function Home() {
   const { featured, categories, promo, reviews } = await getHomeData();

@@ -25,15 +25,18 @@ import type { Product, Category } from "@/src/types/product";
 export const STORE_TAG = "store";
 
 /**
- * Home, shop and category pages. Prices can lag an offer start or end by up
- * to this long; OfferPriceSync refetches product lists in the browser when an
- * offer starts or ends, and cart and checkout always re-price on the server.
- * Route segment configs must repeat this as a literal.
+ * Home, shop and category pages. Admin edits expire STORE_TAG at once, so this
+ * timer only catches changes made outside the admin panel. Short timers let
+ * crawlers trigger a rebuild (and backend calls) on nearly every visit, which
+ * used most of the Vercel CPU. Server-rendered prices can lag an offer start
+ * or end, but SWR re-fetches them in the browser on mount, OfferPriceSync
+ * refreshes them at offer boundaries, and cart and checkout always re-price on
+ * the server. Route segment configs must repeat this as a literal.
  */
-export const PAGE_REVALIDATE = 300;
+export const PAGE_REVALIDATE = 3600;
 
-/** Product pages show a single price prominently, so they refresh sooner. */
-export const PRODUCT_REVALIDATE = 60;
+/** Product pages; same trade-off as PAGE_REVALIDATE. */
+export const PRODUCT_REVALIDATE = 3600;
 
 async function getJson<T>(url: string, revalidate = PAGE_REVALIDATE): Promise<T | null> {
   try {

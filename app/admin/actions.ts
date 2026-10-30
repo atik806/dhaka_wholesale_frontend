@@ -7,12 +7,13 @@ import { API_ORIGIN_BASE } from "@/src/lib/constants";
 import { STORE_TAG } from "@/src/lib/server/data";
 
 /**
- * The backend CDN can keep serving a category response for up to 30s
- * (s-maxage 15 + stale-while-revalidate 15), so a page rebuilt the moment
- * after an edit may pick up the old counts. A second refresh after that
+ * The backend CDN can keep serving a public response for up to 60s
+ * (featured products, offers and the promo banner: s-maxage 15 +
+ * stale-while-revalidate 45; categories: 15 + 15), so a page rebuilt the
+ * moment after an edit may pick up old data. A second refresh after that
  * window catches it.
  */
-const BACKEND_CDN_WINDOW_MS = 35_000;
+const BACKEND_CDN_WINDOW_MS = 65_000;
 
 /**
  * Refresh every storefront page after an admin edit. Store pages are cached

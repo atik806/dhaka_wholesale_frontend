@@ -7,9 +7,9 @@ import { safeJsonLd } from "@/src/lib/utils";
 import { ProductPageClient } from "./ProductPageClient";
 import type { Product } from "@/src/types/product";
 
-// Cached and rebuilt at most every minute (PRODUCT_REVALIDATE) and right after
+// Cached and rebuilt at most every hour (PRODUCT_REVALIDATE) and right after
 // an admin edit. Route segment config must be a literal.
-export const revalidate = 60;
+export const revalidate = 3600;
 
 // No paths at build time; each product page is cached on its first visit
 // instead of rendering on every request.
