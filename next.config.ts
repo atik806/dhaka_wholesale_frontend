@@ -68,6 +68,8 @@ const nextConfig: NextConfig = {
   // (Facebook posts, shared carts) landing on the product that replaced them.
   async redirects() {
     return [
+      // Electronics became the lower-priority "Others" department.
+      { source: "/shop/electronics", destination: "/shop/others", permanent: true },
       {
         source: "/product/crystal-floral-hair-claw-clip-pink-and-amber",
         destination: "/product/crystal-floral-hair-claw-clip-assorted-colors",

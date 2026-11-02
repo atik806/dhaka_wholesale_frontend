@@ -29,7 +29,8 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const reviews = reviewsData?.data || [];
+  // Seeded sample reviews are never shown to shoppers; only real ones.
+  const reviews = (reviewsData?.data || []).filter((r: Review) => !isSampleReview(r));
   const meta = reviewsData?.meta;
 
   const handleSubmit = async (e: React.FormEvent) => {
