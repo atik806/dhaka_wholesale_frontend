@@ -32,6 +32,14 @@ export const useCartStore = create<CartStore>()(
           return { items: [...state.items, item] };
         });
         void import("@/src/lib/cart-sync").then((m) => m.syncAddCartItem(item));
+        void import("@/src/lib/analytics").then((m) =>
+          m.trackAddToCart({
+            id: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+          }),
+        );
       },
 
       removeItem: (productId, selectedSize, selectedColor) => {
