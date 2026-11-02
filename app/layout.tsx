@@ -5,6 +5,7 @@ import { ToastProvider } from "@/src/providers/ToastProvider";
 import { ThemeProvider } from "@/src/providers/ThemeProvider";
 import { RootClient } from "@/src/components/layout/RootClient";
 import { ThemeInit } from "@/src/components/layout/ThemeInit";
+import { Analytics } from "@/src/components/layout/Analytics";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL } from "@/src/lib/constants";
 
 const fraunces = Fraunces({
@@ -102,6 +103,7 @@ export default function RootLayout({
         <ThemeProvider>
           <ToastProvider>
             <RootClient>{children}</RootClient>
+            <Analytics />
           </ToastProvider>
         </ThemeProvider>
       </body>

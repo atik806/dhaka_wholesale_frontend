@@ -102,21 +102,16 @@ interface CustomerReviewsProps {
 export function CustomerReviews({ fallbackData }: CustomerReviewsProps) {
   const { data: reviews = [] } = useRecentReviews(fallbackData);
 
-  if (reviews.length === 0) return null;
-
-  const shown = reviews.slice(0, 6);
-  const hasSamples = shown.some(isSampleReview);
+  // Seeded sample reviews are never shown to shoppers; only real ones.
+  const shown = reviews.filter((review) => !isSampleReview(review)).slice(0, 6);
+  if (shown.length === 0) return null;
 
   return (
     <Section>
       <SectionHeader
         eyebrow="Customer reviews"
         title="What customers say"
-        description={
-          hasSamples
-            ? "Sample reviews are marked and shown until more verified buyers share theirs."
-            : "Real feedback from shoppers across Bangladesh."
-        }
+        description="Real feedback from shoppers across Bangladesh."
       />
 
       {/* Phones swipe through the cards; larger screens get a grid. */}

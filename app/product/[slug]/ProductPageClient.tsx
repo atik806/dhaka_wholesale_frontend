@@ -33,6 +33,7 @@ import { useCartStore } from "@/src/store/useCartStore";
 import { useToast } from "@/src/providers/ToastProvider";
 import { useProduct, useRelatedProducts, useCategories } from "@/src/hooks/useApi";
 import type { Product } from "@/src/types/product";
+import { trackViewContent } from "@/src/lib/analytics";
 
 const STOCK_LABEL = {
   "in-stock": "In stock",
@@ -70,6 +71,13 @@ export function ProductPageClient({ initialProduct }: { initialProduct?: Product
   const { data: product, isLoading, error, mutate } = useProduct(slug, initialProduct);
 
   const hasProduct = Boolean(product);
+  const viewedId = product?.id;
+  useEffect(() => {
+    if (!product) return;
+    trackViewContent({ id: product.id, name: product.name, price: product.price, quantity: 1 });
+    // Once per product page, not on every revalidation of the same product.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewedId]);
   useEffect(() => {
     const el = actionsRef.current;
     if (!el) return;

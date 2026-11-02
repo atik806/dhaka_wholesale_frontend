@@ -7,6 +7,7 @@ import { Section, SectionHeader } from "@/src/components/ui/Section";
 import { buttonClasses } from "@/src/components/ui/Button";
 import { Skeleton } from "@/src/components/ui/Skeleton";
 import type { Category } from "@/src/types/product";
+import { isOthersCategory } from "@/src/lib/category-priority";
 
 interface FeaturedCategoriesProps {
   /** Server-rendered data so the section paints instantly; SWR revalidates in the background. */
@@ -15,10 +16,13 @@ interface FeaturedCategoriesProps {
 
 export function FeaturedCategories({ fallbackData }: FeaturedCategoriesProps) {
   const { data, isLoading } = useCategories(fallbackData);
-  // Lead with categories that have a photo, then the fullest ones, so the
-  // homepage never opens on a grey placeholder tile.
-  const categories = [...(data ?? fallbackData ?? [])].sort(
+  // The store's focus lines come first and the "Others" department last.
+  // Within each group, lead with categories that have a photo, then the
+  // fullest ones, so the homepage never opens on a grey placeholder tile.
+  const all = data ?? fallbackData ?? [];
+  const categories = [...all].sort(
     (a, b) =>
+      Number(isOthersCategory(a, all)) - Number(isOthersCategory(b, all)) ||
       Number(Boolean(b.image)) - Number(Boolean(a.image)) ||
       b.productCount - a.productCount,
   );

@@ -10,6 +10,8 @@ import { Card } from "@/src/components/ui/Card";
 
 interface OrderCompleteProps {
   orderId?: string;
+  /** Guests have no account, so there is no order page to link to. */
+  guest?: boolean;
 }
 
 const nextSteps = [
@@ -33,7 +35,7 @@ const nextSteps = [
   },
 ];
 
-export function OrderComplete({ orderId }: OrderCompleteProps) {
+export function OrderComplete({ orderId, guest = false }: OrderCompleteProps) {
   const [copied, setCopied] = useState(false);
   const shortId = orderId ? orderId.slice(0, 8).toUpperCase() : null;
 
@@ -143,7 +145,7 @@ export function OrderComplete({ orderId }: OrderCompleteProps) {
           </div>
 
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            {orderId && (
+            {orderId && !guest && (
               <Link
                 href={`/account/orders/${orderId}`}
                 className={buttonClasses({

@@ -20,6 +20,21 @@ if (supabaseUrl) {
 }
 const isDev = process.env.NODE_ENV !== "production";
 
+// Meta Pixel and GA4 load only when their IDs are set (src/lib/analytics.ts),
+// so the CSP opens their hosts only then.
+const trackScriptHosts = [
+  process.env.NEXT_PUBLIC_FB_PIXEL_ID ? "https://connect.facebook.net" : "",
+  process.env.NEXT_PUBLIC_GA_ID ? "https://www.googletagmanager.com" : "",
+].filter(Boolean);
+const trackConnectHosts = [
+  process.env.NEXT_PUBLIC_FB_PIXEL_ID ? "https://www.facebook.com https://connect.facebook.net" : "",
+  process.env.NEXT_PUBLIC_GA_ID
+    ? "https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com"
+    : "",
+].filter(Boolean);
+const scriptExtra = trackScriptHosts.length ? ` ${trackScriptHosts.join(" ")}` : "";
+const connectExtra = trackConnectHosts.length ? ` ${trackConnectHosts.join(" ")}` : "";
+
 const nextConfig: NextConfig = {
   images: {
     // Every distinct (src, width, quality) costs a Hobby-plan transformation.
@@ -53,6 +68,8 @@ const nextConfig: NextConfig = {
   // (Facebook posts, shared carts) landing on the product that replaced them.
   async redirects() {
     return [
+      // Electronics became the lower-priority "Others" department.
+      { source: "/shop/electronics", destination: "/shop/others", permanent: true },
       {
         source: "/product/crystal-floral-hair-claw-clip-pink-and-amber",
         destination: "/product/crystal-floral-hair-claw-clip-assorted-colors",
@@ -97,7 +114,7 @@ const nextConfig: NextConfig = {
             // safePromoLink) applied to every DB-backed URL the app renders.
             // `'unsafe-eval'` is dev-only (added when NODE_ENV !== production).
             value:
-              `default-src 'self'; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ${apiOrigin}${supabaseOrigin ? ` ${supabaseOrigin}` : ""}; frame-ancestors 'none';`,
+              `default-src 'self'; script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}${scriptExtra}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ${apiOrigin}${supabaseOrigin ? ` ${supabaseOrigin}` : ""}${connectExtra}; frame-ancestors 'none';`,
           },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },

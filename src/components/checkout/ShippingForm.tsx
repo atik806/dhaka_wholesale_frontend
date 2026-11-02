@@ -101,7 +101,7 @@ export function ShippingForm({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            label="Email"
+            label="Email (optional)"
             type="email"
             autoComplete="email"
             placeholder="john@example.com"
@@ -138,7 +138,7 @@ export function ShippingForm({
             error={errors.city}
           />
           <Input
-            label="Postal code"
+            label="Postal code (optional)"
             autoComplete="postal-code"
             inputMode="numeric"
             placeholder="1205"
