@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Lock, Loader2, Truck, ShieldCheck, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import Image from "@/src/components/ui/Image";
-import { useRouter } from "next/navigation";
 import { useCartStore } from "@/src/store/useCartStore";
 import { useIsLoggedIn, useAuthHydrated, useAuthStore } from "@/src/store/useAuthStore";
 import { Button } from "@/src/components/ui/Button";
@@ -29,12 +28,12 @@ import {
 import { formatPrice, variantImage } from "@/src/lib/utils";
 import { createCheckoutKeyStore } from "@/src/lib/order-pricing";
 import { validateShipping } from "@/src/lib/checkout-validation";
+import { trackInitiateCheckout, trackPurchase, type TrackedItem } from "@/src/lib/analytics";
 
 /** Matches ORDER_NOTE_MAX in the backend orders service. */
 const ORDER_NOTE_MAX = 500;
 
 export default function CheckoutPage() {
-  const router = useRouter();
   const authHydrated = useAuthHydrated();
   const isLoggedIn = useIsLoggedIn();
   const user = useAuthStore((s) => s.user);
@@ -64,12 +63,6 @@ export default function CheckoutPage() {
   // Same request → same key, so a retry after a timeout cannot place a
   // second order; the server replays the first one instead.
   const [checkoutKeys] = useState(() => createCheckoutKeyStore());
-
-  useEffect(() => {
-    if (authHydrated && !isLoggedIn) {
-      router.replace("/login?redirect=/checkout");
-    }
-  }, [authHydrated, isLoggedIn, router]);
 
   const outOfStockInCart = useMemo(
     () => items.filter((i) => i.product.stock === "out-of-stock"),
@@ -106,12 +99,33 @@ export default function CheckoutPage() {
     setPrevQuoteKey(quoteResetKey);
     setQuote(null);
     setQuoteError("");
-    setQuoteLoading(isLoggedIn && items.length > 0);
+    setQuoteLoading(authHydrated && items.length > 0);
   }
 
   // POST /api/checkout/quote — use data.total / shipping_cost / tax (never invent 8%).
+  const trackedItems = useMemo<TrackedItem[]>(
+    () =>
+      items.map((i) => ({
+        id: i.product.id,
+        name: i.product.name,
+        price: i.product.price,
+        quantity: i.quantity,
+      })),
+    [items],
+  );
+  // One InitiateCheckout per visit to the checkout page with a non-empty cart.
+  const checkoutTracked = useRef(false);
   useEffect(() => {
-    if (!isLoggedIn || items.length === 0) return;
+    if (checkoutTracked.current || trackedItems.length === 0) return;
+    trackInitiateCheckout(trackedItems);
+    checkoutTracked.current = true;
+  }, [trackedItems]);
+
+  // Guests (no account) are quoted by the guest endpoint with the same rules.
+  const isGuest = authHydrated && !isLoggedIn;
+
+  useEffect(() => {
+    if (!authHydrated || items.length === 0) return;
 
     let active = true;
     const quoteItems = items.map((i) => ({
@@ -122,7 +136,7 @@ export default function CheckoutPage() {
     }));
 
     const loadQuote = () => {
-      fetchCheckoutQuote(deliveryZone, quoteItems, couponCode)
+      fetchCheckoutQuote(deliveryZone, quoteItems, couponCode, isGuest)
         .then((serverQuote) => {
           if (!active) return;
           setQuote(serverQuote ?? localQuote);
@@ -148,12 +162,12 @@ export default function CheckoutPage() {
       window.clearTimeout(timer);
       window.clearInterval(refresh);
     };
-  }, [isLoggedIn, items, deliveryZone, localQuote, couponCode]);
+  }, [authHydrated, isGuest, items, deliveryZone, localQuote, couponCode]);
 
   const applyCoupon = async (code: string) => {
     setCouponBusy(true);
     try {
-      const result = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity, selected_size: item.selectedSize || null, selected_color: item.selectedColor || null })), code);
+      const result = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity, selected_size: item.selectedSize || null, selected_color: item.selectedColor || null })), code, isGuest);
       if (!result) throw new Error("Could not verify coupon. Please try again.");
       setCouponCode(code); setQuote(result); setQuoteError("");
     } finally { setCouponBusy(false); }
@@ -212,25 +226,31 @@ export default function CheckoutPage() {
         })),
       };
       const body = { ...request, idempotency_key: checkoutKeys.keyFor(JSON.stringify(request)) };
-      const res = await authFetch(`${API_BASE}/orders/checkout`, {
+      const init: RequestInit = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
-      });
+      };
+      const res = isGuest
+        ? await fetch(`${API_BASE}/orders/guest-checkout`, init)
+        : await authFetch(`${API_BASE}/orders/checkout`, init);
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || "Failed to place order");
       }
       const json = await res.json();
       const created = json.data ?? json;
-      useAuthStore.getState().updateUser({ shipping_address: shipping });
+      if (!isGuest) useAuthStore.getState().updateUser({ shipping_address: shipping });
       checkoutKeys.reset();
+      if (created?.id) {
+        trackPurchase(created.id, Number(created.total) || orderSummary.total, trackedItems);
+      }
       clearCart();
       setOrderId(created?.id);
       setCompleted(true);
     } catch (e) {
       setPlaceError(e instanceof Error ? e.message : "Something went wrong");
-      const refreshed = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity, selected_size: item.selectedSize || null, selected_color: item.selectedColor || null })), couponCode).catch(() => null);
+      const refreshed = await fetchCheckoutQuote(deliveryZone, items.map((item) => ({ product_id: item.product.id, quantity: item.quantity, selected_size: item.selectedSize || null, selected_color: item.selectedColor || null })), couponCode, isGuest).catch(() => null);
       if (refreshed) setQuote(refreshed);
     } finally {
       setPlacing(false);
@@ -250,9 +270,12 @@ export default function CheckoutPage() {
     orderSummary.total,
     quoteRejected,
     checkoutKeys,
+    isGuest,
+    trackedItems,
+    note,
   ]);
 
-  if (!authHydrated || !isLoggedIn) {
+  if (!authHydrated) {
     return (
       <div className="flex items-center justify-center min-h-[60vh] bg-canvas">
         <Loader2 className="w-8 h-8 animate-spin text-accent" aria-label="Loading checkout" />
@@ -284,7 +307,7 @@ export default function CheckoutPage() {
   }
 
   if (completed) {
-    return <OrderComplete orderId={orderId} />;
+    return <OrderComplete orderId={orderId} guest={isGuest} />;
   }
 
   const blocked = outOfStockInCart.length > 0 || quoteBlocksCheckout || quoteRejected || quoteLoading || couponBusy || !orderSummary.fromServer;
@@ -308,6 +331,18 @@ export default function CheckoutPage() {
               <Lock className="w-3.5 h-3.5 text-subtle" />
               Secure checkout · cash on delivery nationwide
             </p>
+            {isGuest && (
+              <p className="text-[13px] text-muted mt-1">
+                No account needed.{" "}
+                <Link
+                  href="/login?redirect=/checkout"
+                  className="font-semibold text-link hover:text-link-hover underline underline-offset-4"
+                >
+                  Sign in
+                </Link>{" "}
+                to see your orders later.
+              </p>
+            )}
           </div>
           <Link
             href="/cart"

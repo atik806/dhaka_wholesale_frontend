@@ -308,7 +308,8 @@ export function computeLocalCheckoutQuote(
 }
 
 /**
- * Authoritative totals from POST /api/checkout/quote (auth required).
+ * Authoritative totals from POST /api/checkout/quote (signed in) or
+ * POST /api/checkout/guest-quote (guest; `items` required).
  * Pass `items` for client cart; omit to quote the server cart.
  *
  * Returns null only on network/parse failure (caller falls back to
@@ -321,6 +322,7 @@ export async function fetchCheckoutQuote(
   deliveryZone: DeliveryZone,
   items?: CheckoutQuoteItem[],
   couponCode?: string,
+  guest = false,
 ): Promise<CheckoutQuote | null> {
   let res: Response;
   try {
@@ -340,11 +342,14 @@ export async function fetchCheckoutQuote(
       }));
     }
 
-    res = await authFetch(`${API_BASE}/checkout/quote`, {
+    const init: RequestInit = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
-    });
+    };
+    res = guest
+      ? await fetch(`${API_BASE}/checkout/guest-quote`, init)
+      : await authFetch(`${API_BASE}/checkout/quote`, init);
   } catch (err) {
     // Network failure / auth fetch threw — fall back to the local estimate.
     console.warn("[checkout] quote request failed:", err);
