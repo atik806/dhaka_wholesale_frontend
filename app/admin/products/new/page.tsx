@@ -21,7 +21,7 @@ export default function NewProductPage() {
 
   useEffect(() => {
     let active = true;
-    fetchCategories()
+    fetchCategories(undefined, true)
       .then((cats) => { if (active) setCategories(cats); })
       .catch(() => { if (active) addToast("Failed to load categories", "error"); })
       .finally(() => { if (active) setCategoriesLoading(false); });

@@ -37,7 +37,7 @@ export default function CategoriesPage() {
     if (showSpinner) setLoading(true);
     setError("");
     try {
-      const tree = await fetchCategoryTree();
+      const tree = await fetchCategoryTree(undefined, true);
       setCategories(tree);
       // Keep customer menus and parent pages aligned with admin edits.
       await mutate("/categories?tree=true", tree, { revalidate: false });
@@ -57,7 +57,7 @@ export default function CategoriesPage() {
     let active = true;
     (async () => {
       try {
-        const tree = await fetchCategoryTree();
+        const tree = await fetchCategoryTree(undefined, true);
         if (active) {
           setCategories(tree);
           const expanded: Record<string, boolean> = {};

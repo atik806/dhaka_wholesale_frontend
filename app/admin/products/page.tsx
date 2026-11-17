@@ -35,7 +35,7 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     let active = true;
-    fetchCategories()
+    fetchCategories(undefined, true)
       .then((cats) => { if (active) setCategories(cats); })
       .catch(() => {});
     fetchAdminProductStockStats()
@@ -64,6 +64,7 @@ export default function AdminProductsPage() {
         search: debouncedSearch || undefined,
         category: categorySlug,
         sort: "newest",
+        includeHidden: true,
       }),
     {
       revalidateOnFocus: false,

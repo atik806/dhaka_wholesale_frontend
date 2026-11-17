@@ -18,3 +18,22 @@ export function isOthersCategory(category: Category, all: Category[]): boolean {
   }
   return false;
 }
+
+/**
+ * The only department the storefront lists. Shop, search and offers pages
+ * show products from this category tree; the Others department is hidden
+ * from shoppers but stays fully visible in the admin panel.
+ */
+export const STORE_DEPARTMENT_SLUG = "fashion-accessories";
+
+/** Categories shoppers may see: everything outside the Others department. */
+export function storeCategories(all: Category[]): Category[] {
+  return all.filter((c) => !isOthersCategory(c, all));
+}
+
+/** Same as storeCategories for a nested tree (Others is a top-level node). */
+export function storeCategoryTree(tree: Category[]): Category[] {
+  return tree
+    .filter((c) => c.slug !== OTHERS_CATEGORY_SLUG)
+    .map((c) => (c.children ? { ...c, children: storeCategoryTree(c.children) } : c));
+}

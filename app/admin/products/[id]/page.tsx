@@ -53,7 +53,7 @@ export default function EditProductPage() {
   useEffect(() => {
     let active = true;
     const slug = params.id;
-    Promise.all([fetchProductBySlug(slug), fetchCategories()])
+    Promise.all([fetchProductBySlug(slug), fetchCategories(undefined, true)])
       .then(([prod, cats]) => {
         if (!active) return;
         if (!prod) {

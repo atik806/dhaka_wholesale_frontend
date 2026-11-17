@@ -3,6 +3,7 @@ import type { FlashSale } from './offers';
 
 import { API_BASE } from './constants';
 import { authFetch } from './auth-api';
+import { STORE_DEPARTMENT_SLUG, storeCategories, storeCategoryTree } from './category-priority';
 
 export interface ApiResponse<T> {
   success: boolean;
@@ -121,6 +122,8 @@ export interface ProductQueryParams {
   page?: number;
   limit?: number;
   ids?: string[];
+  /** Admin only: include products from departments hidden from shoppers. */
+  includeHidden?: boolean;
 }
 
 export interface ProductListResult {
@@ -139,6 +142,9 @@ export async function fetchProducts(params: ProductQueryParams = {}, signal?: Ab
     params.categories.forEach((cat) => qs.append('categories', cat));
   } else if (params.category) {
     qs.set('category', params.category);
+  } else if (!params.includeHidden && !params.ids?.length) {
+    // Shoppers only see the store's department; Others stays admin-only.
+    qs.set('category', STORE_DEPARTMENT_SLUG);
   }
   if (params.priceMin !== undefined) qs.set('priceMin', String(params.priceMin));
   if (params.priceMax !== undefined) qs.set('priceMax', String(params.priceMax));
@@ -185,9 +191,11 @@ export interface CategoryListResult {
   categories: Category[];
 }
 
-export async function fetchCategories(signal?: AbortSignal): Promise<Category[]> {
+/** Storefront categories; pass includeHidden (admin) to also get Others. */
+export async function fetchCategories(signal?: AbortSignal, includeHidden = false): Promise<Category[]> {
   const res = await fetcher<BackendCategory[]>('/categories', signal);
-  return (res.data || []).map(mapCategory);
+  const all = (res.data || []).map(mapCategory);
+  return includeHidden ? all : storeCategories(all);
 }
 
 export async function fetchCategoryBySlug(slug: string, signal?: AbortSignal): Promise<Category | null> {
@@ -200,9 +208,11 @@ export async function fetchCategoryBySlug(slug: string, signal?: AbortSignal): P
   }
 }
 
-export async function fetchCategoryTree(signal?: AbortSignal): Promise<Category[]> {
+/** Storefront category tree; pass includeHidden (admin) to also get Others. */
+export async function fetchCategoryTree(signal?: AbortSignal, includeHidden = false): Promise<Category[]> {
   const res = await fetcher<BackendCategory[]>('/categories?tree=true', signal);
-  return (res.data || []).map(mapCategory);
+  const tree = (res.data || []).map(mapCategory);
+  return includeHidden ? tree : storeCategoryTree(tree);
 }
 
 export async function submitReport(data: {
@@ -278,10 +288,13 @@ export async function fetchPromoBanner(signal?: AbortSignal): Promise<PromoBanne
 
 export async function fetchRecentReviews(signal?: AbortSignal): Promise<RecentReview[]> {
   try {
-    const res = await fetch(`${API_BASE}/reviews/recent`, { signal });
+    const [res, store] = await Promise.all([
+      fetch(`${API_BASE}/reviews/recent`, { signal }),
+      fetchProducts({ limit: 100 }, signal),
+    ]);
     if (!res.ok) return [];
     const json = await res.json();
-    return (json.data ?? []) as RecentReview[];
+    return onlyStoreReviews((json.data ?? []) as RecentReview[], store.products);
   } catch {
     return [];
   }
@@ -322,4 +335,10 @@ export async function submitReview(
   const json = await res.json();
   if (!res.ok) throw new Error(json.message || 'Failed to submit review');
   return json.data || json;
+}
+
+/** Drops reviews of products the storefront hides (the Others department). */
+export function onlyStoreReviews(reviews: RecentReview[], storeProducts: Product[]): RecentReview[] {
+  const slugs = new Set(storeProducts.map((p) => p.slug));
+  return reviews.filter((r) => r.products && slugs.has(r.products.slug));
 }
