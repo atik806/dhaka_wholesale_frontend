@@ -158,7 +158,7 @@ export default function OffersPage() {
       setSearching(true);
       setSearchError("");
       try {
-        const result = await fetchProducts({ search: search.trim(), limit: 20 }, controller.signal);
+        const result = await fetchProducts({ search: search.trim(), limit: 20, includeHidden: true }, controller.signal);
         if (!controller.signal.aborted) setCatalog(result.products);
       } catch {
         if (!controller.signal.aborted) { setCatalog([]); setSearchError("Product search failed. Try again."); }

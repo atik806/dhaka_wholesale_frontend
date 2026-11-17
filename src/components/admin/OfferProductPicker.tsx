@@ -32,6 +32,7 @@ export function OfferProductPicker({ selectedIds, onAdd, onClose, maxProducts = 
       limit: PAGE_SIZE,
       sort: "newest",
       search: term || undefined,
+      includeHidden: true,
     }),
     { keepPreviousData: true, revalidateOnFocus: false },
   );

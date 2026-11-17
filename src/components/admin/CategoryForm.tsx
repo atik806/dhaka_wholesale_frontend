@@ -25,7 +25,7 @@ interface CategoryFormProps {
 }
 
 export function CategoryForm({ isOpen, onClose, onSubmit, initialData, loading }: CategoryFormProps) {
-  const { data: allCategories = [] } = useCategories();
+  const { data: allCategories = [] } = useCategories(undefined, true);
   const [name, setName] = useState((initialData?.name as string) ?? "");
   const [slug, setSlug] = useState((initialData?.slug as string) ?? "");
   const [description, setDescription] = useState((initialData?.description as string) ?? "");

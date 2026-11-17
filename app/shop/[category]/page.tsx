@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { fetchCategoryForPage, getProductListPage } from "@/src/lib/server/data";
+import { fetchCategoryForPage, getProductListPage, isHiddenCategorySlug } from "@/src/lib/server/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
 import { CategoryPageClient } from "./CategoryPageClient";
 import type { Category } from "@/src/types/product";
@@ -70,6 +70,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoryPage({ params }: Props) {
   const { category: categorySlug } = await params;
+  // The Others department is hidden from shoppers.
+  if (await isHiddenCategorySlug(categorySlug)) notFound();
 
   // Fetch the category and its first page of products together, not one after the other.
   const productsPromise = getProductListPage(categorySlug, PAGE_SIZE);

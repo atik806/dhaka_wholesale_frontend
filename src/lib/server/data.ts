@@ -1,5 +1,5 @@
 import { API_BASE } from "@/src/lib/constants";
-import { mapProduct, mapCategory } from "@/src/lib/api";
+import { mapProduct, mapCategory, onlyStoreReviews } from "@/src/lib/api";
 import type { ProductListResult } from "@/src/lib/api";
 import type {
   ApiResponse,
@@ -9,6 +9,7 @@ import type {
   RecentReview,
 } from "@/src/lib/api";
 import type { Product, Category } from "@/src/types/product";
+import { STORE_DEPARTMENT_SLUG, storeCategories } from "@/src/lib/category-priority";
 
 /**
  * Server-only data fetchers for ISR'd pages.
@@ -57,19 +58,20 @@ export interface HomeData {
 
 /** Fetch every home-page section in parallel, once per PAGE_REVALIDATE window. */
 export async function getHomeData(): Promise<HomeData> {
-  const [featured, categories, promo, reviews] = await Promise.all([
+  const [featured, categories, promo, reviews, store] = await Promise.all([
     getJson<ApiResponse<BackendProduct[]>>("/products/featured"),
     getJson<ApiResponse<BackendCategory[]>>("/categories"),
     getJson<ApiResponse<PromoBannerData>>("/site-settings/promo_banner"),
     getJson<ApiResponse<RecentReview[]>>("/reviews/recent"),
+    getJson<ApiResponse<BackendProduct[]>>(`/products?limit=100&category=${STORE_DEPARTMENT_SLUG}`),
   ]);
 
   return {
     // Slice to what the sections actually render so the RSC payload stays small.
     featured: (featured?.data ?? []).map(mapProduct).slice(0, 8),
-    categories: (categories?.data ?? []).map(mapCategory).slice(0, 6),
+    categories: storeCategories((categories?.data ?? []).map(mapCategory)).slice(0, 6),
     promo: promo?.data ?? null,
-    reviews: (reviews?.data ?? []).slice(0, 6),
+    reviews: onlyStoreReviews(reviews?.data ?? [], (store?.data ?? []).map(mapProduct)).slice(0, 6),
   };
 }
 
@@ -83,8 +85,8 @@ export async function getProductListPage(
   category: string | undefined,
   limit: number,
 ): Promise<ProductListResult | null> {
-  const qs = new URLSearchParams({ limit: String(limit) });
-  if (category) qs.set("category", category);
+  // The whole-shop listing only covers the store's department (Others is hidden).
+  const qs = new URLSearchParams({ limit: String(limit), category: category ?? STORE_DEPARTMENT_SLUG });
   const res = await getJson<ApiResponse<BackendProduct[]>>(`/products?${qs}`);
   if (!res) return null;
   return {
@@ -123,4 +125,12 @@ export async function fetchCategoryForPage(slug: string): Promise<Category | nul
   }
   const json = (await res.json()) as ApiResponse<BackendCategory>;
   return json?.data ? mapCategory(json.data) : null;
+}
+
+/** True when a category slug belongs to a department hidden from shoppers (Others). */
+export async function isHiddenCategorySlug(slug: string): Promise<boolean> {
+  const res = await getJson<ApiResponse<BackendCategory[]>>("/categories");
+  const all = (res?.data ?? []).map(mapCategory);
+  const visible = new Set(storeCategories(all).map((c) => c.slug));
+  return all.some((c) => c.slug === slug) && !visible.has(slug);
 }

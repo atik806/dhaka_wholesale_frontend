@@ -66,8 +66,9 @@ export function useRelatedProducts(slug: string | null) {
   );
 }
 
-export function useCategories(fallbackData?: Category[]) {
-  return useSWR('/categories', () => fetchCategories(), {
+/** Storefront categories; admin screens pass includeHidden to also get Others. */
+export function useCategories(fallbackData?: Category[], includeHidden = false) {
+  return useSWR(includeHidden ? '/categories?all=true' : '/categories', () => fetchCategories(undefined, includeHidden), {
     ...SWR_CONFIG,
     revalidateOnFocus: true,
     fallbackData,
