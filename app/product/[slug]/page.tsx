@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
-import { fetchProductForPage } from "@/src/lib/server/data";
+import { fetchProductForPage, isHiddenCategorySlug } from "@/src/lib/server/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/src/lib/constants";
 import { safeJsonLd } from "@/src/lib/utils";
 import { ProductPageClient } from "./ProductPageClient";
@@ -142,7 +142,8 @@ export default async function ProductDetailPage({ params }: Props) {
     return <ProductPageClient initialProduct={null} />;
   }
 
-  if (!product) {
+  // Products in a department hidden from shoppers (Others) are not for sale.
+  if (!product || (product.categorySlug && (await isHiddenCategorySlug(product.categorySlug)))) {
     notFound();
   }
 

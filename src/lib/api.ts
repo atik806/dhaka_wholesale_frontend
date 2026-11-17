@@ -183,8 +183,17 @@ export async function fetchRelatedProducts(slug: string, signal?: AbortSignal): 
 }
 
 export async function fetchFeaturedProducts(signal?: AbortSignal): Promise<Product[]> {
-  const res = await fetcher<BackendProduct[]>('/products/featured', signal);
-  return (res.data || []).map(mapProduct);
+  const [res, store] = await Promise.all([
+    fetcher<BackendProduct[]>('/products/featured', signal),
+    fetchProducts({ limit: 100 }, signal),
+  ]);
+  return onlyStoreProducts((res.data || []).map(mapProduct), store.products);
+}
+
+/** Keeps only products the storefront lists (drops the hidden Others department). */
+export function onlyStoreProducts(products: Product[], storeProducts: Product[]): Product[] {
+  const slugs = new Set(storeProducts.map((p) => p.slug));
+  return products.filter((p) => slugs.has(p.slug));
 }
 
 export interface CategoryListResult {

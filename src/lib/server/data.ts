@@ -1,5 +1,5 @@
 import { API_BASE } from "@/src/lib/constants";
-import { mapProduct, mapCategory, onlyStoreReviews } from "@/src/lib/api";
+import { mapProduct, mapCategory, onlyStoreProducts, onlyStoreReviews } from "@/src/lib/api";
 import type { ProductListResult } from "@/src/lib/api";
 import type {
   ApiResponse,
@@ -68,7 +68,7 @@ export async function getHomeData(): Promise<HomeData> {
 
   return {
     // Slice to what the sections actually render so the RSC payload stays small.
-    featured: (featured?.data ?? []).map(mapProduct).slice(0, 8),
+    featured: onlyStoreProducts((featured?.data ?? []).map(mapProduct), (store?.data ?? []).map(mapProduct)).slice(0, 8),
     categories: storeCategories((categories?.data ?? []).map(mapCategory)).slice(0, 6),
     promo: promo?.data ?? null,
     reviews: onlyStoreReviews(reviews?.data ?? [], (store?.data ?? []).map(mapProduct)).slice(0, 6),
