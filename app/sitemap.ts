@@ -2,6 +2,13 @@ import type { MetadataRoute } from "next";
 import { fetchCategories, fetchProducts } from "@/src/lib/api";
 import { SITE_URL } from "@/src/lib/constants";
 
+// Rebuilt daily so new products reach the sitemap without a redeploy.
+// Route segment config must be a literal.
+export const revalidate = 86400;
+
+/** The products API returns at most 100 per page. */
+const PAGE_LIMIT = 100;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: SITE_URL, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
@@ -30,7 +37,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   try {
-    const { products } = await fetchProducts({ limit: 500, page: 1 });
+    const first = await fetchProducts({ limit: PAGE_LIMIT, page: 1 });
+    const rest = await Promise.all(
+      Array.from({ length: Math.max(0, first.totalPages - 1) }, (_, i) =>
+        fetchProducts({ limit: PAGE_LIMIT, page: i + 2 }),
+      ),
+    );
+    const products = [first, ...rest].flatMap((r) => r.products);
     productRoutes = products.map((p) => ({
       url: `${SITE_URL}/product/${p.slug}`,
       lastModified: p.createdAt ? new Date(p.createdAt) : new Date(),
