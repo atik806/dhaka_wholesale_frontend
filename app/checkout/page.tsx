@@ -44,8 +44,11 @@ export default function CheckoutPage() {
   const items = useCartStore((s) => s.items);
   const clearCart = useCartStore((s) => s.clearCart);
   const [shipping, setShipping] = useState<ShippingFormValues>({
-    firstName: user?.shipping_address?.firstName || "",
-    lastName: user?.shipping_address?.lastName || "",
+    // One name field: a saved first + last name is shown together.
+    firstName: [user?.shipping_address?.firstName, user?.shipping_address?.lastName]
+      .filter(Boolean)
+      .join(" "),
+    lastName: "",
     email: user?.shipping_address?.email || user?.email || "",
     phone: user?.shipping_address?.phone || "",
     address: user?.shipping_address?.address || "",
@@ -214,7 +217,13 @@ export default function CheckoutPage() {
       const request = {
         expected_total: orderSummary.total,
         coupon_code: couponCode || undefined,
-        shipping_address: shipping,
+        // City is not asked for; the delivery area stands in for it.
+        shipping_address: {
+          ...shipping,
+          firstName: shipping.firstName.trim(),
+          lastName: "",
+          city: deliveryZone === "inside_dhaka" ? "Dhaka" : "Outside Dhaka",
+        },
         payment_method: "cod",
         delivery_zone: deliveryZone,
         notes: note.trim() || undefined,

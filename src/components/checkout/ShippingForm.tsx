@@ -80,73 +80,40 @@ export function ShippingForm({
         </div>
       </fieldset>
 
+      {/*
+        Only what a courier needs: name, mobile and one address line.
+        Customers said the old seven-field form felt like an NID application.
+        City is filled in from the delivery area (see app/checkout/page.tsx).
+      */}
       <div className="space-y-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="First name"
-            autoComplete="given-name"
-            placeholder="John"
-            value={values.firstName}
-            onChange={set("firstName")}
-            error={errors.firstName}
-          />
-          <Input
-            label="Last name"
-            autoComplete="family-name"
-            placeholder="Doe"
-            value={values.lastName}
-            onChange={set("lastName")}
-            error={errors.lastName}
-          />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="Email (optional)"
-            type="email"
-            autoComplete="email"
-            placeholder="john@example.com"
-            value={values.email}
-            onChange={set("email")}
-            error={errors.email}
-          />
-          <Input
-            label="Phone"
-            type="tel"
-            autoComplete="tel"
-            placeholder="+880 1XXX-XXXXXX"
-            value={values.phone}
-            onChange={set("phone")}
-            error={errors.phone}
-            hint={errors.phone ? undefined : "We call this number before delivery"}
-          />
-        </div>
         <Input
-          label="Street address"
+          label="Your name / আপনার নাম"
+          autoComplete="name"
+          placeholder="e.g. Nusrat Jahan"
+          value={values.firstName}
+          onChange={set("firstName")}
+          error={errors.firstName}
+        />
+        <Input
+          label="Mobile number / মোবাইল নম্বর"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          placeholder="01XXXXXXXXX"
+          value={values.phone}
+          onChange={set("phone")}
+          error={errors.phone}
+          hint={errors.phone ? undefined : "We call this number before delivery / ডেলিভারির আগে কল করা হবে"}
+        />
+        <Input
+          label="Full address / পুরো ঠিকানা"
           autoComplete="street-address"
-          placeholder="House 12, Road 4, Dhanmondi"
+          placeholder="House/Road, Area, Thana, District"
           value={values.address}
           onChange={set("address")}
           error={errors.address}
+          hint={errors.address ? undefined : "বাসা/রোড, এলাকা, থানা, জেলা"}
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Input
-            label="City"
-            autoComplete="address-level2"
-            placeholder="Dhaka"
-            value={values.city}
-            onChange={set("city")}
-            error={errors.city}
-          />
-          <Input
-            label="Postal code (optional)"
-            autoComplete="postal-code"
-            inputMode="numeric"
-            placeholder="1205"
-            value={values.zipCode}
-            onChange={set("zipCode")}
-            error={errors.zipCode}
-          />
-        </div>
       </div>
     </div>
   );

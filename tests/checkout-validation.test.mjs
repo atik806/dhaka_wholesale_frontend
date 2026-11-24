@@ -28,7 +28,22 @@ test("a complete Bangladeshi address passes", () => {
   assert.deepEqual(validateShipping(valid), {});
 });
 
-test("an invalid phone, short address and short city are reported per field", () => {
-  const errors = validateShipping({ ...valid, phone: "12345", address: "Dhk", city: "D" });
-  assert.deepEqual(Object.keys(errors).sort(), ["address", "city", "phone"]);
+test("an invalid phone and short address are reported per field", () => {
+  const errors = validateShipping({ ...valid, phone: "12345", address: "Dhk" });
+  assert.deepEqual(Object.keys(errors).sort(), ["address", "phone"]);
+});
+
+test("name, mobile and address are enough", () => {
+  const errors = validateShipping({
+    firstName: "Rahim Uddin", lastName: "", email: "", phone: "01712345678",
+    address: "House 1, Road 2, Mirpur", city: "", zipCode: "",
+  });
+  assert.deepEqual(errors, {});
+});
+
+test("an empty form asks for name, mobile and address only", () => {
+  const errors = validateShipping({
+    firstName: "", lastName: "", email: "", phone: "", address: "", city: "", zipCode: "",
+  });
+  assert.deepEqual(Object.keys(errors).sort(), ["address", "firstName", "phone"]);
 });
